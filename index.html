@@ -8,19 +8,19 @@
 <style>
 :root {
   --bg: #0a0a0b;
-  --surface: #111113;
-  --surface2: #18181c;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.14);
-  --text: #e8e6e0;
-  --muted: #7a7870;
+  --surface: #141416;
+  --surface2: #1c1c20;
+  --border: rgba(255,255,255,0.10);
+  --border2: rgba(255,255,255,0.18);
+  --text: #f0ede6;
+  --muted: #b8b4aa;
   --accent: #c9a96e;
-  --accent2: #8b6f9e;
-  --tier1: #7c6fd4;
-  --tier2: #4a9e7a;
-  --tier3: #c95f3a;
-  --tier4: #6b6b72;
-  --danger: #e05a5a;
+  --accent2: #a585bc;
+  --tier1: #9d93e8;
+  --tier2: #5bbf94;
+  --tier3: #e0784a;
+  --tier4: #8a8a92;
+  --danger: #e87070;
   --r: 10px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -407,41 +407,45 @@ body::before {
 }
 .report-archetype {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(32px, 6vw, 54px);
+  font-size: clamp(36px, 6vw, 58px);
   color: var(--text);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  font-weight: 700;
 }
 .report-tagline {
-  font-size: 16px;
-  color: var(--muted);
-  max-width: 500px;
+  font-size: 20px;
+  color: var(--text);
+  max-width: 560px;
   margin: 0 auto 32px;
+  font-weight: 400;
+  line-height: 1.5;
+  opacity: 0.85;
 }
 .report-body {
-  max-width: 800px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 56px 28px 100px;
 }
-.report-section { margin-bottom: 56px; }
+.report-section { margin-bottom: 64px; }
 .section-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.16em;
+  font-size: 13px;
+  letter-spacing: 0.14em;
   color: var(--accent);
   text-transform: uppercase;
-  margin-bottom: 20px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border2);
 }
 .report-text {
-  font-size: 18px;
+  font-size: 19px;
   color: var(--text);
-  line-height: 1.8;
+  line-height: 1.85;
   font-weight: 400;
 }
 /* AXIS BARS */
-.axis-bars { display: flex; flex-direction: column; gap: 18px; }
-.axis-row { display: flex; flex-direction: column; gap: 6px; }
+.axis-bars { display: flex; flex-direction: column; gap: 22px; }
+.axis-row { display: flex; flex-direction: column; gap: 7px; }
 .axis-meta {
   display: flex;
   justify-content: space-between;
@@ -449,92 +453,97 @@ body::before {
 }
 .axis-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  font-weight: 500;
 }
 .axis-score {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent);
+  font-weight: 500;
 }
 .axis-track {
-  height: 6px;
+  height: 8px;
   background: var(--surface2);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
   position: relative;
 }
 .axis-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: width 1s ease;
 }
 .axis-poles {
   display: flex;
   justify-content: space-between;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--border2);
-  margin-top: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
 }
 /* CONTRADICTION CARDS */
-.contradiction-cards { display: flex; flex-direction: column; gap: 16px; }
+.contradiction-cards { display: flex; flex-direction: column; gap: 20px; }
 .contradiction-card {
   background: var(--surface);
-  border: 1px solid rgba(224,90,90,0.25);
-  border-left: 3px solid var(--danger);
+  border: 1px solid rgba(232,112,112,0.3);
+  border-left: 4px solid var(--danger);
   border-radius: var(--r);
-  padding: 20px 24px;
+  padding: 24px 28px;
 }
 .contradiction-title {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--danger);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   letter-spacing: 0.06em;
+  font-weight: 500;
 }
-.contradiction-text { font-size: 17px; color: var(--muted); line-height: 1.65; font-weight: 400; }
+.contradiction-text { font-size: 18px; color: var(--text); line-height: 1.75; font-weight: 400; opacity: 0.9; }
 /* LIFE ALIGNMENT */
 .alignment-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
 .alignment-card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: var(--r);
-  padding: 20px;
+  padding: 24px;
 }
 .alignment-card-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: 0.14em;
   color: var(--accent);
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  font-weight: 500;
 }
-.alignment-card-text { font-size: 17px; color: var(--text); line-height: 1.55; font-weight: 500; }
+.alignment-card-text { font-size: 17px; color: var(--text); line-height: 1.65; font-weight: 400; }
 /* GROWTH EDGES */
-.growth-list { display: flex; flex-direction: column; gap: 12px; }
+.growth-list { display: flex; flex-direction: column; gap: 16px; }
 .growth-item {
   display: flex;
-  gap: 16px;
-  padding: 16px;
+  gap: 20px;
+  padding: 22px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: var(--r);
   align-items: flex-start;
 }
 .growth-num {
   font-family: 'Playfair Display', serif;
-  font-size: 22px;
+  font-size: 26px;
   color: var(--accent2);
   line-height: 1;
   flex-shrink: 0;
+  font-weight: 700;
 }
-.growth-text { font-size: 17px; color: var(--muted); line-height: 1.65; font-weight: 400; }
+.growth-text { font-size: 18px; color: var(--text); line-height: 1.7; font-weight: 400; }
 /* RETRY BTN */
 .retry-wrap { text-align: center; margin-top: 48px; }
 .btn-secondary {
@@ -593,7 +602,7 @@ body::before {
     <p class="intro-sub">A rigorous multi-axis belief assessment that maps your complete worldview — and tells you what to do with it.</p>
     <div class="intro-meta">
       <div class="intro-meta-item">
-        <span class="num">65</span>
+        <span class="num">111</span>
         <span class="label">questions</span>
       </div>
       <div class="intro-meta-item">
@@ -601,7 +610,7 @@ body::before {
         <span class="label">belief axes</span>
       </div>
       <div class="intro-meta-item">
-        <span class="num">~20</span>
+        <span class="num">~35</span>
         <span class="label">minutes</span>
       </div>
     </div>
@@ -704,441 +713,780 @@ body::before {
 // ══════════════════════════════════════════
 const QUESTIONS = [
 
-  // ══════════════════════════════════════════
-  // TIER 1 — FOUNDATIONS (weight 1.5)
-  // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// TIER 1 — FOUNDATIONS (weight 1.5)
+// ══════════════════════════════════════════
 
-  // NATURALISM
-  {id:'t1n01', tier:1, axis:'naturalism', type:'likert',
-   text:'Everything that exists — minds, values, consciousness, love — is ultimately part of the natural physical world.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.5},
+// ── NATURALISM (6 questions) ──
+{id:'t1n01',tier:1,axis:'naturalism',type:'likert',
+ text:'Everything that exists — minds, values, consciousness, love — is ultimately part of the natural physical world.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  {id:'t1n02', tier:1, axis:'naturalism', type:'tradeoff',
-   text:'When something genuinely can\'t be explained by science yet, what\'s your default instinct?',
-   options:[
-     {text:'There are natural causes we haven\'t discovered yet', score:6},
-     {text:'Some things may exist beyond what science can ever reach', score:2},
-     {text:'I hold it open — I don\'t assume either way', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1n02',tier:1,axis:'naturalism',type:'tradeoff',
+ text:'When something genuinely cannot be explained by science yet, what is your default instinct?',
+ options:[
+   {text:'There are natural causes we have not discovered yet',score:6},
+   {text:'Some things may exist beyond what science can ever reach',score:2},
+   {text:'I hold it open — I do not assume either way',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t1n03', tier:1, axis:'naturalism', type:'scenario',
-   text:'A close friend tells you they had a profound spiritual experience — something they felt was genuinely beyond the physical world. What\'s your honest reaction?',
-   options:[
-     {text:'Their brain produced something extraordinary — that doesn\'t make it supernatural', score:6},
-     {text:'I can\'t rule out that something real and non-physical happened to them', score:2},
-     {text:'I take it seriously without committing to what it means', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1n03',tier:1,axis:'naturalism',type:'scenario',
+ text:'A close friend tells you they had a profound spiritual experience — something they felt was genuinely beyond the physical world. What is your honest reaction?',
+ options:[
+   {text:'Their brain produced something extraordinary — that does not make it supernatural',score:7},
+   {text:'I cannot rule out that something real and non-physical happened to them',score:2},
+   {text:'I take it seriously without committing to what it means',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  // DETERMINISM
-  {id:'t1d01', tier:1, axis:'determinism', type:'likert',
-   text:'Every decision a person makes is ultimately the result of prior causes — their biology, their history, the state of their brain in that moment.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.5},
+{id:'t1n04',tier:1,axis:'naturalism',type:'likert',
+ text:'Supernatural explanations — gods, souls, spirits — are simply placeholders for things we have not yet figured out naturally.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  {id:'t1d02', tier:1, axis:'determinism', type:'scenario',
-   text:'A person grows up in poverty, exposed to chronic violence, with no stable adults and no educational opportunity. At 22 they commit a serious crime.',
-   options:[
-     {text:'Their path was largely determined by forces they never chose', score:7},
-     {text:'Their circumstances are a major factor but they still had a genuine choice', score:4},
-     {text:'Many people face similar conditions and don\'t commit crimes — this was their decision', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1n05',tier:1,axis:'naturalism',type:'tradeoff',
+ text:'Which statement feels most true to you?',
+ options:[
+   {text:'The universe is made of matter, energy, and the laws that govern them — nothing more',score:7},
+   {text:'The universe contains or is animated by something beyond pure matter and energy',score:2},
+   {text:'I genuinely do not know what the universe is ultimately made of',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t1d03', tier:1, axis:'determinism', type:'tradeoff',
-   text:'If neuroscience could perfectly predict someone\'s decision 10 seconds before they made it, what would that tell you?',
-   options:[
-     {text:'That the decision was always going to happen — free will is an illusion', score:7},
-     {text:'That the brain is predictable but the person still chose freely', score:3},
-     {text:'Nothing definitive — prediction doesn\'t eliminate genuine agency', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1n06',tier:1,axis:'naturalism',type:'scenario',
+ text:'A phenomenon consistently defies all known physical laws across thousands of controlled experiments. What would you conclude?',
+ options:[
+   {text:'Our current physical laws are incomplete — there is a natural explanation we have not found',score:7},
+   {text:'This might be evidence of something genuinely beyond the physical',score:2},
+   {text:'I would be extremely skeptical of the methodology before drawing any conclusion',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  // REALISM
-  {id:'t1r01', tier:1, axis:'realism', type:'likert',
-   text:'The world exists and has definite properties regardless of whether any mind is there to observe it.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.5},
+// ── DETERMINISM (6 questions) ──
+{id:'t1d01',tier:1,axis:'determinism',type:'likert',
+ text:'Every decision a person makes is ultimately the result of prior causes — their biology, their history, the state of their brain in that moment.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  {id:'t1r02', tier:1, axis:'realism', type:'tradeoff',
-   text:'If every conscious being in the universe disappeared tomorrow, would there still be facts — things that are true or false?',
-   options:[
-     {text:'Yes — facts exist independently of minds to observe them', score:7},
-     {text:'No — facts are constructed by minds; without minds there are no facts', score:2},
-     {text:'The question doesn\'t quite make sense without a perspective to evaluate from', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1d02',tier:1,axis:'determinism',type:'scenario',
+ text:'A person grows up in poverty, exposed to chronic violence, with no stable adults and no educational opportunity. At 22 they commit a serious crime.',
+ options:[
+   {text:'Their path was largely determined by forces they never chose',score:7},
+   {text:'Their circumstances are a major factor but they still had a genuine choice',score:4},
+   {text:'Many people face similar conditions and do not commit crimes — this was their decision',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  // PHYSICALISM
-  {id:'t1p01', tier:1, axis:'physicalism', type:'likert',
-   text:'What we call the mind — thoughts, feelings, selfhood — is entirely the result of physical processes in the brain.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.5},
+{id:'t1d03',tier:1,axis:'determinism',type:'tradeoff',
+ text:'If neuroscience could perfectly predict your next decision 10 seconds before you made it, what would that tell you?',
+ options:[
+   {text:'That the decision was always going to happen — free will is an illusion',score:7},
+   {text:'That the brain is predictable but the person still chose freely',score:3},
+   {text:'Nothing definitive — prediction does not eliminate genuine agency',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t1p02', tier:1, axis:'physicalism', type:'tradeoff',
-   text:'When you feel something deeply — grief, awe, love — which feels more accurate?',
-   options:[
-     {text:'This is my brain doing extraordinarily complex physical work', score:6},
-     {text:'There\'s something about this experience that can\'t be fully captured by brain activity alone', score:2},
-     {text:'Both are true in different ways — the physical explanation doesn\'t cancel the experience', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1d04',tier:1,axis:'determinism',type:'likert',
+ text:'When I make a bad decision, the most accurate explanation is always found in the history and conditions that shaped me, not in some uncaused act of will.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  {id:'t1p03', tier:1, axis:'physicalism', type:'scenario',
-   text:'Scientists announce they\'ve mapped every neural correlate of human consciousness and can now fully explain subjective experience in physical terms. Your response:',
-   options:[
-     {text:'That\'s what I expected — the mind was always physical', score:7},
-     {text:'Impressive, but I still think something about conscious experience escapes the physical description', score:2},
-     {text:'A major discovery, but the question of why physical processes feel like something remains open', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.5},
+{id:'t1d05',tier:1,axis:'determinism',type:'scenario',
+ text:'Two identical twins are separated at birth. One becomes a loving parent; the other becomes abusive. How do you explain the difference?',
+ options:[
+   {text:'The different environments they were raised in determined who they became',score:7},
+   {text:'Environment played a role but each made real choices that shaped them differently',score:4},
+   {text:'Something in the individual — their will, character, or soul — made the difference',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  // ══════════════════════════════════════════
-  // TIER 2 — EPISTEMIC + MEANING (weight 1.0)
-  // ══════════════════════════════════════════
+{id:'t1d06',tier:1,axis:'determinism',type:'tradeoff',
+ text:'The feeling of making a free choice is:',
+ options:[
+   {text:'A useful illusion — the decision was already determined, but the feeling motivates action',score:7},
+   {text:'Evidence that real freedom exists — the feeling reflects something genuine',score:2},
+   {text:'Philosophically ambiguous — I am not sure the feeling tells us anything definitive',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  // KNOWLEDGE SOURCE
-  {id:'t2k01', tier:2, axis:'knowledge', type:'likert',
-   text:'The most reliable path to truth about the world is careful observation, testing, and evidence — not intuition, tradition, or revelation.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+// ── REALISM (5 questions) ──
+{id:'t1r01',tier:1,axis:'realism',type:'likert',
+ text:'The world exists and has definite properties regardless of whether any mind is there to observe it.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  {id:'t2k02', tier:2, axis:'knowledge', type:'tradeoff',
-   text:'Your gut strongly tells you something is true. Well-designed studies consistently say the opposite. What do you do?',
-   options:[
-     {text:'Update toward the evidence — my gut is shaped by biases I can\'t fully see', score:7},
-     {text:'Weight both — lived experience captures things studies often miss', score:4},
-     {text:'Trust my gut — I know my experience better than any study', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t1r02',tier:1,axis:'realism',type:'tradeoff',
+ text:'If every conscious being in the universe disappeared, would there still be facts — things that are true or false?',
+ options:[
+   {text:'Yes — facts exist independently of minds to observe them',score:7},
+   {text:'No — facts are constructed by minds; without minds there are no facts',score:2},
+   {text:'The question does not quite make sense without a perspective to evaluate from',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t2k03', tier:2, axis:'knowledge', type:'scenario',
-   text:'A practice has been used for thousands of years across many cultures and feels deeply meaningful to millions of people. Science finds no measurable effect beyond placebo. You:',
-   options:[
-     {text:'The evidence is the evidence — absence of effect is significant data', score:7},
-     {text:'Cultural longevity and felt meaning are themselves forms of evidence worth weighing', score:3},
-     {text:'Both matter — discard the metaphysical claims, keep what genuinely helps people', score:5}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t1r03',tier:1,axis:'realism',type:'likert',
+ text:'What we call "reality" is always filtered through our senses and concepts — we never access the world as it truly is.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  // MORAL GROUND
-  {id:'t2m01', tier:2, axis:'moral_ground', type:'likert',
-   text:'Some things are genuinely right or wrong — not just because humans decided so, but because moral facts exist independently of us.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t1r04',tier:1,axis:'realism',type:'scenario',
+ text:'Before humans existed, was it true that the Earth orbited the sun?',
+ options:[
+   {text:'Yes — it was true before anyone was there to observe or state it',score:7},
+   {text:'Truth requires a mind to hold it — the question is confused',score:2},
+   {text:'The physical relationship existed, but calling it "true" requires a language user',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t2m02', tier:2, axis:'moral_ground', type:'tradeoff',
-   text:'If every human civilisation had collapsed and no minds existed, would torturing a sentient creature still be wrong?',
-   options:[
-     {text:'Yes — wrongness doesn\'t depend on minds to make it real', score:7},
-     {text:'No — without minds to evaluate it, "wrong" has no meaning', score:2},
-     {text:'The question reveals that morality is relational — it requires a perspective', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t1r05',tier:1,axis:'realism',type:'tradeoff',
+ text:'Scientific theories are:',
+ options:[
+   {text:'Our best attempts to describe a real world that exists independently of us',score:7},
+   {text:'Useful tools for prediction that may or may not correspond to anything real',score:3},
+   {text:'Human constructions that work within our conceptual framework — not mirrors of nature',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t2m03', tier:2, axis:'moral_ground', type:'scenario',
-   text:'Two cultures have genuinely opposite moral rules — one considers a practice sacred, the other considers it deeply evil. Both are internally consistent.',
-   options:[
-     {text:'At least one of them is wrong — moral disagreement doesn\'t mean both are right', score:7},
-     {text:'Neither is objectively wrong — morality is constructed within cultural frameworks', score:2},
-     {text:'There may be deeper shared values underneath — the surface disagreement isn\'t the whole story', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ── PHYSICALISM (5 questions) ──
+{id:'t1p01',tier:1,axis:'physicalism',type:'likert',
+ text:'What we call the mind — thoughts, feelings, selfhood — is entirely the result of physical processes in the brain.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  // MEANING SOURCE
-  {id:'t2me01', tier:2, axis:'meaning', type:'likert',
-   text:'There is no pre-given purpose to human existence. Any meaning we have is meaning we create.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t1p02',tier:1,axis:'physicalism',type:'tradeoff',
+ text:'When you feel something deeply — grief, awe, love — which feels more accurate?',
+ options:[
+   {text:'This is my brain doing extraordinarily complex physical work',score:7},
+   {text:'There is something about this experience that cannot be fully captured by brain activity alone',score:2},
+   {text:'Both are true in different ways — the physical explanation does not cancel the experience',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t2me02', tier:2, axis:'meaning', type:'scenario',
-   text:'You\'ve just genuinely absorbed this fact: in roughly 5 billion years, the sun will expand and erase all trace of human existence. No record, no memory, nothing. How does that land?',
-   options:[
-     {text:'It confirms what I already knew — meaning was always something I made, not found', score:7},
-     {text:'It\'s unsettling but doesn\'t change how I actually live', score:4},
-     {text:'It genuinely undermines the idea that anything we do really matters', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t1p03',tier:1,axis:'physicalism',type:'scenario',
+ text:'Scientists announce they have mapped every neural correlate of human consciousness and can fully explain subjective experience in physical terms. Your response:',
+ options:[
+   {text:'That is what I expected — the mind was always physical',score:7},
+   {text:'Impressive, but something about conscious experience still escapes the physical description',score:2},
+   {text:'A major discovery, but why physical processes feel like something remains open',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t2me03', tier:2, axis:'meaning', type:'tradeoff',
-   text:'Which statement feels closer to true?',
-   options:[
-     {text:'Meaning is something you build — like a house, not a discovery', score:7},
-     {text:'Meaning is something you find — it\'s out there waiting to be recognised', score:2},
-     {text:'Meaning emerges from contact between who you are and what the world offers', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t1p04',tier:1,axis:'physicalism',type:'likert',
+ text:'There is something it is like to be conscious — a subjective inner experience — that cannot be fully explained by describing brain states alone.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
-  // SCIENCE TRUST
-  {id:'t2s01', tier:2, axis:'science', type:'likert',
-   text:'When scientific consensus clearly points in one direction — on evolution, climate, vaccines, the age of the universe — that should be everyone\'s starting point, not one option among many.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t1p05',tier:1,axis:'physicalism',type:'tradeoff',
+ text:'The mind-body problem — explaining why physical processes produce subjective experience — is:',
+ options:[
+   {text:'A solved or soon-to-be-solved scientific question',score:7},
+   {text:'A genuine mystery that may never yield to physical explanation',score:2},
+   {text:'Probably solvable but we are missing something fundamental in our current framework',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
-  {id:'t2s02', tier:2, axis:'science', type:'tradeoff',
-   text:'Science is:',
-   options:[
-     {text:'The most reliable method humans have for finding out what\'s true', score:7},
-     {text:'A powerful tool with real limits — especially on human and social questions', score:4},
-     {text:'One way of knowing among others, not inherently superior', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ══════════════════════════════════════════
+// TIER 2 — EPISTEMIC + MEANING (weight 1.0)
+// ══════════════════════════════════════════
 
-  // ══════════════════════════════════════════
-  // TIER 3 — APPLIED POSITIONS (weight 1.0)
-  // ══════════════════════════════════════════
+// ── KNOWLEDGE SOURCE (5 questions) ──
+{id:'t2k01',tier:2,axis:'knowledge',type:'likert',
+ text:'The most reliable path to truth about the world is careful observation, testing, and evidence — not intuition, tradition, or revelation.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  // JUSTICE
-  {id:'t3j01', tier:3, axis:'justice', type:'tradeoff',
-   text:'What should the criminal justice system primarily be trying to do?',
-   options:[
-     {text:'Deliver punishment proportional to the harm a person caused', score:2},
-     {text:'Rehabilitate — address the causes that produced the harmful behaviour', score:7},
-     {text:'Protect society by keeping dangerous people away from others', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2k02',tier:2,axis:'knowledge',type:'tradeoff',
+ text:'Your gut strongly tells you something is true. Well-designed studies consistently say the opposite. What do you do?',
+ options:[
+   {text:'Update toward the evidence — my gut is shaped by biases I cannot fully see',score:7},
+   {text:'Weight both — lived experience captures things studies often miss',score:4},
+   {text:'Trust my gut — I know my experience better than any study',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3j02', tier:3, axis:'justice', type:'scenario',
-   text:'A man commits a brutal assault. Brain scans later reveal a tumour in the region governing impulse control. Removing it eliminates the aggressive behaviour entirely.',
-   options:[
-     {text:'The tumour explains it — punishment is now clearly the wrong response', score:7},
-     {text:'Explains, but doesn\'t erase — there still has to be accountability', score:4},
-     {text:'The harm was real and deliberate. Medical findings don\'t change that', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2k03',tier:2,axis:'knowledge',type:'scenario',
+ text:'A practice has been used for thousands of years across many cultures and feels deeply meaningful to millions. Science finds no effect beyond placebo. You:',
+ options:[
+   {text:'The evidence is the evidence — absence of measurable effect is significant',score:7},
+   {text:'Cultural longevity and felt meaning are themselves a form of evidence worth weighing',score:3},
+   {text:'Discard the metaphysical claims, keep whatever genuinely helps people',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3j03', tier:3, axis:'justice', type:'likert',
-   text:'When someone does serious harm, the most important question is not "what do they deserve" but "what produced this, and how do we prevent it".',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t2k04',tier:2,axis:'knowledge',type:'likert',
+ text:'Personal revelation or spiritual insight can be a legitimate source of genuine knowledge about reality.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  // ETHICS ENGINE
-  {id:'t3e01', tier:3, axis:'ethics', type:'tradeoff',
-   text:'A runaway trolley will kill 5 people. You can pull a lever to divert it, killing 1 instead. You:',
-   options:[
-     {text:'Pull the lever — 5 lives outweigh 1, and inaction is still a choice', score:7},
-     {text:'Don\'t pull — actively causing a death is different from failing to prevent one', score:2},
-     {text:'There\'s no clean answer here — the context would determine my response', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2k05',tier:2,axis:'knowledge',type:'tradeoff',
+ text:'Which is more epistemically honest?',
+ options:[
+   {text:'Withholding belief until there is good evidence — even on questions that matter deeply',score:7},
+   {text:'Some questions are too important to wait for evidence — we have to commit and act',score:3},
+   {text:'The standard of evidence should scale with the stakes of the belief',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3e02', tier:3, axis:'ethics', type:'tradeoff',
-   text:'When deciding whether something is ethical, what matters most to you?',
-   options:[
-     {text:'The outcome — does it reduce harm and increase wellbeing?', score:7},
-     {text:'The principle — are there rules or duties that shouldn\'t be violated regardless of outcome?', score:2},
-     {text:'The character — what would a genuinely good person do here?', score:5},
-     {text:'The relationship — what do I owe to the specific people involved?', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ── MORAL GROUND (5 questions) ──
+{id:'t2m01',tier:2,axis:'moral_ground',type:'likert',
+ text:'Some things are genuinely right or wrong — not just because humans decided so, but because moral facts exist independently of us.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  {id:'t3e03', tier:3, axis:'ethics', type:'scenario',
-   text:'A doctor can save 5 patients by taking organs from one healthy person who came in for a routine checkup. The math is simple: 5 lives for 1.',
-   options:[
-     {text:'Still wrong — some principles hold even when the numbers don\'t', score:2},
-     {text:'Monstrous — this is exactly where pure outcome-thinking breaks down', score:2},
-     {text:'I find myself resisting, which tells me ethics isn\'t just arithmetic', score:4},
-     {text:'The numbers pull at me even if I can\'t endorse it — ethics is genuinely hard', score:5}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2m02',tier:2,axis:'moral_ground',type:'tradeoff',
+ text:'If every human civilisation collapsed and no minds existed, would torturing a sentient creature still be wrong?',
+ options:[
+   {text:'Yes — wrongness does not depend on minds to make it real',score:7},
+   {text:'No — without minds to evaluate it, "wrong" has no meaning',score:2},
+   {text:'The question reveals that morality is relational — it requires a perspective',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // RELIGION
-  {id:'t3r01', tier:3, axis:'religion', type:'likert',
-   text:'On balance, organised religion has caused more harm than good throughout human history.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t2m03',tier:2,axis:'moral_ground',type:'scenario',
+ text:'Two cultures have genuinely opposite moral rules — one considers a practice sacred, the other considers it deeply evil. Both are internally consistent.',
+ options:[
+   {text:'At least one of them is objectively wrong — moral disagreement does not mean both are right',score:7},
+   {text:'Neither is objectively wrong — morality is constructed within cultural frameworks',score:2},
+   {text:'There may be deeper shared values underneath the surface disagreement',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3r02', tier:3, axis:'religion', type:'tradeoff',
-   text:'When someone says "my faith tells me this is right" as a reason to support a policy that affects everyone, your honest response is:',
-   options:[
-     {text:'That\'s not a valid justification in shared public life — reasons must be available to everyone', score:7},
-     {text:'Faith-based reasoning deserves the same standing as any other deeply held value', score:2},
-     {text:'It depends entirely on what they\'re advocating and whether it causes harm', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2m04',tier:2,axis:'moral_ground',type:'likert',
+ text:'Moral progress is real — humanity has genuinely gotten better at recognising what is right and wrong over time.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  {id:'t3r03', tier:3, axis:'religion', type:'scenario',
-   text:'A child is being raised in a faith that teaches them they are inherently sinful, that doubt is dangerous, and that outsiders are lost. No physical harm is occurring.',
-   options:[
-     {text:'This is a form of harm — shaping a child\'s mind around fear and shame causes real damage', score:7},
-     {text:'Uncomfortable, but parents have the right to raise children within their belief system', score:2},
-     {text:'I\'d want to see what kind of person it produces before judging the upbringing', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2m05',tier:2,axis:'moral_ground',type:'tradeoff',
+ text:'When I say "slavery is wrong," I am:',
+ options:[
+   {text:'Stating a fact — as true and mind-independent as any scientific fact',score:7},
+   {text:'Expressing a very strong preference or attitude that my culture has shaped',score:2},
+   {text:'Making a claim that is true within the moral framework I hold — but frameworks can differ',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // POLITICS
-  {id:'t3p01', tier:3, axis:'politics', type:'tradeoff',
-   text:'When you see large gaps in wealth, health, and opportunity between groups of people, what\'s your first instinct about the cause?',
-   options:[
-     {text:'The systems are designed in ways that produce and maintain these gaps', score:7},
-     {text:'Individual differences in effort, choices, and ability play the primary role', score:2},
-     {text:'It\'s deeply complex — both structure and individual factors are real', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ── MEANING SOURCE (5 questions) ──
+{id:'t2me01',tier:2,axis:'meaning',type:'likert',
+ text:'There is no pre-given purpose to human existence. Any meaning we have is meaning we create.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  {id:'t3p02', tier:3, axis:'politics', type:'scenario',
-   text:'A billionaire built their fortune through genuine innovation and hard work. They now have more wealth than the bottom 40% of their country combined.',
-   options:[
-     {text:'No individual effort justifies that concentration — the system that allowed it is broken', score:7},
-     {text:'They earned it legitimately — redistribution by force raises serious moral problems', score:2},
-     {text:'The accumulation itself isn\'t the problem — it\'s what they do with it and what it does to others', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2me02',tier:2,axis:'meaning',type:'scenario',
+ text:'You have genuinely absorbed this fact: in roughly 5 billion years, the sun will expand and erase all trace of human existence. No record, no memory, nothing. How does that land?',
+ options:[
+   {text:'It confirms what I already knew — meaning was always something I made, not found',score:7},
+   {text:'It is unsettling but does not change how I actually live',score:4},
+   {text:'It genuinely undermines the idea that anything we do really matters',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3p03', tier:3, axis:'politics', type:'likert',
-   text:'A government that provides strong universal healthcare, education, and social safety nets produces better outcomes than one that prioritises low taxes and individual freedom.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t2me03',tier:2,axis:'meaning',type:'tradeoff',
+ text:'Which statement feels closer to true?',
+ options:[
+   {text:'Meaning is something you build — like a house, not a discovery',score:7},
+   {text:'Meaning is something you find — it is out there waiting to be recognised',score:2},
+   {text:'Meaning emerges from contact between who you are and what the world offers',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // SELF
-  {id:'t3se01', tier:3, axis:'self', type:'likert',
-   text:'The person I am today — my values, fears, personality, and choices — is largely the product of forces I never chose: my genes, my upbringing, my circumstances.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t2me04',tier:2,axis:'meaning',type:'likert',
+ text:'Even in a universe without ultimate purpose, a human life can be deeply meaningful.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  {id:'t3se02', tier:3, axis:'self', type:'tradeoff',
-   text:'When you make a decision that feels deeply "you" — that feels like an expression of who you truly are — what\'s actually happening?',
-   options:[
-     {text:'My history, brain, and circumstances are expressing themselves through me', score:7},
-     {text:'Something essential in me — a genuine self — is making a real choice', score:2},
-     {text:'Both are true at different levels of description', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2me05',tier:2,axis:'meaning',type:'scenario',
+ text:'Someone tells you: "Once I realised the universe has no meaning, I actually felt free." What is your honest reaction?',
+ options:[
+   {text:'That makes complete sense to me — the absence of imposed meaning is a kind of liberation',score:7},
+   {text:'I understand it but it would not feel like freedom to me — it would feel like loss',score:3},
+   {text:'It depends on what they replaced the old meaning with',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // MORAL SCOPE
-  {id:'t3ms01', tier:3, axis:'moral_scope', type:'tradeoff',
-   text:'A factory farm causes billions of animals significant suffering every year to produce food humans could get elsewhere. Morally, this is:',
-   options:[
-     {text:'A serious moral catastrophe — scale of suffering matters regardless of species', score:7},
-     {text:'Ethically problematic but not equivalent to human suffering', score:4},
-     {text:'Unfortunate but not a priority moral concern given human needs and interests', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ── SCIENCE TRUST (4 questions) ──
+{id:'t2s01',tier:2,axis:'science',type:'likert',
+ text:'When scientific consensus clearly points in one direction — evolution, climate, vaccines, the age of the universe — that should be everyone\'s starting point, not one option among many.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  {id:'t3ms02', tier:3, axis:'moral_scope', type:'scenario',
-   text:'You can save either 1 human stranger or 100 dogs from death. The human and dogs are otherwise equally unknown to you.',
-   options:[
-     {text:'The human — human life carries a categorically different weight', score:2},
-     {text:'The 100 dogs — suffering and death matter regardless of species, and numbers count', score:6},
-     {text:'I\'d save the human but I can\'t give a principled reason that fully satisfies me', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2s02',tier:2,axis:'science',type:'tradeoff',
+ text:'Science is:',
+ options:[
+   {text:'The most reliable method humans have for finding out what is true',score:7},
+   {text:'A powerful tool with real limits — especially on human and social questions',score:4},
+   {text:'One way of knowing among others — not inherently superior to all other approaches',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // MEANING PRACTICE
-  {id:'t3mp01', tier:3, axis:'meaning_practice', type:'tradeoff',
-   text:'Knowing there\'s no cosmic purpose to existence, how do you actually live?',
-   options:[
-     {text:'I accept the absurdity fully and commit to what I choose anyway — that\'s the whole point', score:7},
-     {text:'I build discipline and endurance — resilience in the face of meaninglessness', score:5},
-     {text:'Meaninglessness is just the truth — I try to be honest about it rather than paper over it', score:2},
-     {text:'I create meaning actively — it\'s not found but it\'s genuinely real once built', score:6}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2s03',tier:2,axis:'science',type:'scenario',
+ text:'A major new study overturns something you have believed for years. What happens in you?',
+ options:[
+   {text:'I update — that is how it is supposed to work',score:7},
+   {text:'I look carefully at the methodology before accepting it',score:5},
+   {text:'I am skeptical — single studies have a poor track record',score:3}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3mp02', tier:3, axis:'meaning_practice', type:'scenario',
-   text:'A close friend is going through a crisis of meaning — nothing feels worth doing. What\'s the most honest and useful thing you can tell them?',
-   options:[
-     {text:'Meaning isn\'t waiting to be found — you have to build it, even knowing it\'s constructed', score:7},
-     {text:'Sit with the void rather than rushing to fill it — the discomfort is real and worth facing', score:5},
-     {text:'There are things worth caring about even if the universe doesn\'t care — focus there', score:6},
-     {text:'Find something to serve or connect to that\'s larger than yourself', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t2s04',tier:2,axis:'science',type:'likert',
+ text:'Scientists and scientific institutions can be wrong, biased, and corrupted — so their authority should not be taken at face value.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  // SOCIETY
-  {id:'t3so01', tier:3, axis:'society', type:'tradeoff',
-   text:'Which produces a better society?',
-   options:[
-     {text:'Maximising individual freedom — let people build their own lives with minimal interference', score:2},
-     {text:'Strong collective investment — shared infrastructure, equality, and genuine safety nets', score:7},
-     {text:'Neither extreme works — the balance is what matters', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ══════════════════════════════════════════
+// TIER 3 — APPLIED POSITIONS (weight 1.0)
+// ══════════════════════════════════════════
 
-  {id:'t3so02', tier:3, axis:'society', type:'scenario',
-   text:'A neighbourhood votes to ban a business that, while legal, the majority find offensive. The business owner argues this violates their individual rights.',
-   options:[
-     {text:'The community has a right to shape its shared environment — collective decisions matter', score:7},
-     {text:'Individual rights should be protected from majority preferences — this is exactly what rights are for', score:2},
-     {text:'It depends on the specific business, the harm, and the alternatives available', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ── JUSTICE (5 questions) ──
+{id:'t3j01',tier:3,axis:'justice',type:'tradeoff',
+ text:'What should the criminal justice system primarily be trying to do?',
+ options:[
+   {text:'Deliver punishment proportional to the harm caused',score:2},
+   {text:'Rehabilitate — address the causes that produced the harmful behaviour',score:7},
+   {text:'Protect society by keeping dangerous people away from others',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // RESPONSIBILITY
-  {id:'t3resp01', tier:3, axis:'responsibility', type:'scenario',
-   text:'Two people with identical talent start life in radically different circumstances. At 40, their outcomes are vastly different. What\'s the most accurate account of why?',
-   options:[
-     {text:'The circumstances were decisive — agency itself was shaped by those conditions', score:7},
-     {text:'Both circumstances and choices mattered — you can\'t fully separate them', score:4},
-     {text:'Character and effort ultimately determine outcomes more than starting conditions', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3j02',tier:3,axis:'justice',type:'scenario',
+ text:'A man commits a brutal assault. Brain scans reveal a tumour in the region governing impulse control. Removing it eliminates the aggressive behaviour entirely.',
+ options:[
+   {text:'The tumour explains it — punishment is clearly the wrong response now',score:7},
+   {text:'It explains, but does not erase accountability — something still has to happen',score:4},
+   {text:'The harm was real and deliberate. Medical findings do not change that',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3resp02', tier:3, axis:'responsibility', type:'likert',
-   text:'When someone fails repeatedly in life, the most useful explanation is usually found in their circumstances and history, not their character.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t3j03',tier:3,axis:'justice',type:'likert',
+ text:'When someone does serious harm, the most important question is not "what do they deserve" but "what produced this, and how do we prevent it".',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  // IDENTITY
-  {id:'t3id01', tier:3, axis:'identity', type:'tradeoff',
-   text:'Who you fundamentally are — your core self — is best described as:',
-   options:[
-     {text:'A stable essence that persists across contexts and relationships', score:2},
-     {text:'Something substantially shaped by culture, language, and social experience', score:7},
-     {text:'A combination — some stable traits, significantly shaped by context', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3j04',tier:3,axis:'justice',type:'scenario',
+ text:'A teenager commits a serious crime after years of abuse and neglect. A judge has wide sentencing discretion. What approach feels most just?',
+ options:[
+   {text:'Heavy emphasis on rehabilitation and addressing the underlying trauma',score:7},
+   {text:'A balance of accountability and support — consequences matter but so does context',score:4},
+   {text:'The crime warrants serious punishment — circumstances are mitigating, not excusing',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3id02', tier:3, axis:'identity', type:'scenario',
-   text:'Imagine you\'d been adopted at birth and raised in a completely different culture with different values. Would the "real you" still exist?',
-   options:[
-     {text:'No — I am substantially the product of my specific history and formation', score:7},
-     {text:'Yes — some core of who I am would have survived and expressed itself differently', score:2},
-     {text:'There\'d be continuity in some things, radical difference in others', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3j05',tier:3,axis:'justice',type:'tradeoff',
+ text:'Which concept of justice do you find most compelling?',
+ options:[
+   {text:'Retributive — people deserve to suffer in proportion to the harm they caused',score:2},
+   {text:'Restorative — justice means repairing harm and rebuilding relationships where possible',score:6},
+   {text:'Transformative — justice means changing the systems that produce harm in the first place',score:7}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // AUTHORITY
-  {id:'t3auth01', tier:3, axis:'authority', type:'likert',
-   text:'Established institutions — governments, churches, universities, courts — deserve significant skepticism by default, not deference.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+// ── ETHICS ENGINE (5 questions) ──
+{id:'t3e01',tier:3,axis:'ethics',type:'tradeoff',
+ text:'A runaway trolley will kill 5 people. You can pull a lever to divert it, killing 1 instead. You:',
+ options:[
+   {text:'Pull the lever — 5 lives outweigh 1, and inaction is still a choice',score:7},
+   {text:'Do not pull — actively causing a death is different from failing to prevent one',score:2},
+   {text:'There is no clean answer here — the context would determine my response',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3auth02', tier:3, axis:'authority', type:'tradeoff',
-   text:'An expert in their field tells you something that contradicts your current understanding. You:',
-   options:[
-     {text:'Take it seriously and update — expertise earned through rigorous work deserves weight', score:2},
-     {text:'Listen carefully but verify — expertise doesn\'t immunise against bias or error', score:5},
-     {text:'Remain skeptical — experts serve institutions that have their own interests', score:7}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3e02',tier:3,axis:'ethics',type:'tradeoff',
+ text:'When deciding whether something is ethical, what matters most?',
+ options:[
+   {text:'The outcome — does it reduce harm and increase wellbeing?',score:7},
+   {text:'The principle — are there rules or duties that should not be violated regardless of outcome?',score:2},
+   {text:'The character — what would a genuinely good person do here?',score:5},
+   {text:'The relationship — what do I owe to the specific people involved?',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // ECONOMICS
-  {id:'t3ec01', tier:3, axis:'economics', type:'tradeoff',
-   text:'The best economic system is one that:',
-   options:[
-     {text:'Lets markets operate freely — they allocate resources better than any central planner', score:2},
-     {text:'Uses markets where they work and redirects their outputs through strong redistribution', score:6},
-     {text:'Fundamentally restructures ownership and production away from private profit', score:7}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3e03',tier:3,axis:'ethics',type:'scenario',
+ text:'A doctor can save 5 patients by taking organs from 1 healthy person who came in for a routine checkup. The math is simple: 5 lives for 1.',
+ options:[
+   {text:'Still clearly wrong — some principles hold even when the numbers do not',score:2},
+   {text:'The numbers pull at me even though I cannot endorse it — ethics is genuinely hard',score:4},
+   {text:'This is exactly where pure outcome-thinking breaks down — something is missing from that calculation',score:3}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3ec02', tier:3, axis:'economics', type:'scenario',
-   text:'A pharmaceutical company holds a patent on a drug that saves lives. Producing it costs €2 per dose. They charge €40,000 per course of treatment.',
-   options:[
-     {text:'This is a predictable and unacceptable result of treating healthcare as a market', score:7},
-     {text:'Problematic, but patents and profit incentives are what produce these drugs in the first place', score:3},
-     {text:'The system needs reform — but the answer isn\'t removing incentives for innovation', score:5}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3e04',tier:3,axis:'ethics',type:'likert',
+ text:'An action that produces the best overall outcome for the most people is, all else being equal, the right action.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  // UNCERTAINTY
-  {id:'t3unc01', tier:3, axis:'uncertainty', type:'likert',
-   text:'Not knowing the answer — sitting with genuine uncertainty — is something I find tolerable, even productive.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t3e05',tier:3,axis:'ethics',type:'scenario',
+ text:'You can lie to protect an innocent person from serious harm. The lie will work and no one will be hurt by it. Do you lie?',
+ options:[
+   {text:'Yes — outcomes are what matter, and this outcome is clearly better',score:7},
+   {text:'Yes, reluctantly — honesty matters but not more than protecting someone from serious harm',score:5},
+   {text:'No — honesty is a principle I hold even when breaking it would produce better outcomes',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3unc02', tier:3, axis:'uncertainty', type:'tradeoff',
-   text:'When facing a major life decision with no clear right answer, you tend to:',
-   options:[
-     {text:'Gather what information exists, make a call, and accept uncertainty as part of the deal', score:7},
-     {text:'Wait until I have enough clarity — I\'d rather delay than decide badly', score:3},
-     {text:'Look for frameworks or principles that can cut through the uncertainty', score:5}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+// ── RELIGION (5 questions) ──
+{id:'t3r01',tier:3,axis:'religion',type:'likert',
+ text:'On balance, organised religion has caused more harm than good throughout human history.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  // MIND/CONSCIOUSNESS
-  {id:'t3mind01', tier:3, axis:'mind_consciousness', type:'tradeoff',
-   text:'Consciousness — the fact that there is "something it is like" to be you — is:',
-   options:[
-     {text:'A product of brain complexity that will eventually be fully explained physically', score:7},
-     {text:'A genuine mystery — physical explanations describe correlates but not the experience itself', score:2},
-     {text:'Real and physical, but the explanation of why physical processes feel like something remains unsolved', score:4}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3r02',tier:3,axis:'religion',type:'tradeoff',
+ text:'When someone says "my faith tells me this is right" as a reason to support a policy that affects everyone, your honest response is:',
+ options:[
+   {text:'That is not a valid justification in shared public life — reasons must be available to everyone',score:7},
+   {text:'Faith-based reasoning deserves the same standing as any other deeply held value',score:2},
+   {text:'It depends entirely on what they are advocating and whether it causes harm',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3mind02', tier:3, axis:'mind_consciousness', type:'scenario',
-   text:'An AI system reports that it is experiencing something — curiosity, discomfort, satisfaction. It behaves in all the ways a conscious being would. Is it conscious?',
-   options:[
-     {text:'Probably not — behaviour and reports can exist without inner experience', score:2},
-     {text:'Possibly — if it has the functional properties, I can\'t rule it out', score:5},
-     {text:'I genuinely don\'t know, and I think that uncertainty matters morally', score:6}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3r03',tier:3,axis:'religion',type:'scenario',
+ text:'A child is being raised in a faith that teaches they are inherently sinful, that doubt is dangerous, and that outsiders are lost. No physical harm is occurring.',
+ options:[
+   {text:'This is a form of harm — shaping a child\'s mind around fear and shame causes real damage',score:7},
+   {text:'Uncomfortable, but parents have the right to raise children within their belief system',score:2},
+   {text:'The long-term psychological effect on the specific child matters more than the doctrine alone',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // ANIMAL ETHICS
-  {id:'t3an01', tier:3, axis:'animal_ethics', type:'likert',
-   text:'Animals that can suffer have a genuine moral claim on us — their pain matters morally, not just instrumentally.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+{id:'t3r04',tier:3,axis:'religion',type:'likert',
+ text:'Religious belief, even private belief, tends to make the world worse by reinforcing irrationality, tribalism, and deference to authority.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
-  {id:'t3an02', tier:3, axis:'animal_ethics', type:'tradeoff',
-   text:'Humans eating meat from factory-farmed animals when plant-based alternatives are available is:',
-   options:[
-     {text:'A serious ethical failure at massive scale', score:7},
-     {text:'Ethically problematic but understandable given culture, habit, and access', score:4},
-     {text:'A personal choice — humans are naturally omnivores and animals don\'t have the same moral status', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3r05',tier:3,axis:'religion',type:'tradeoff',
+ text:'For someone grieving a devastating loss, religious belief that offers comfort and community is:',
+ options:[
+   {text:'A net positive regardless of whether it is true — human wellbeing matters',score:3},
+   {text:'A concern — comforting falsehoods still carry costs over time',score:6},
+   {text:'Their choice — I do not make that judgment for others',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  // PROGRESS
-  {id:'t3prog01', tier:3, axis:'progress', type:'likert',
-   text:'On the whole, humanity is moving in a positive direction — the arc of history bends toward better.',
-   poleLeft:'Disagree', poleRight:'Agree', weight:1.0},
+// ── POLITICS (5 questions) ──
+{id:'t3p01',tier:3,axis:'politics',type:'tradeoff',
+ text:'When you see large gaps in wealth, health, and opportunity between groups, what is your first instinct about the cause?',
+ options:[
+   {text:'The systems are designed in ways that produce and maintain these gaps',score:7},
+   {text:'Individual differences in effort, choices, and ability play the primary role',score:2},
+   {text:'Both — structure and individual factors are real and interact',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
-  {id:'t3prog02', tier:3, axis:'progress', type:'tradeoff',
-   text:'Looking at the state of the world honestly, you feel:',
-   options:[
-     {text:'Cautious optimism — real problems, but the trend lines are broadly positive', score:7},
-     {text:'Genuine uncertainty — progress in some areas, regression in others, no clear direction', score:4},
-     {text:'Deep concern — the fundamental structures producing harm remain intact or are worsening', score:2}
-   ], poleLeft:'', poleRight:'', weight:1.0},
+{id:'t3p02',tier:3,axis:'politics',type:'scenario',
+ text:'A billionaire built their fortune through genuine innovation and hard work. They now have more wealth than the bottom 40% of their country combined.',
+ options:[
+   {text:'No individual effort justifies that concentration — the system that allowed it is broken',score:7},
+   {text:'They earned it legitimately — redistribution by force raises serious moral problems',score:2},
+   {text:'The accumulation itself is less important than what it does to power, democracy, and others',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3p03',tier:3,axis:'politics',type:'likert',
+ text:'A government that provides strong universal healthcare, education, and social safety nets produces better outcomes than one that prioritises low taxes and individual economic freedom.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3p04',tier:3,axis:'politics',type:'tradeoff',
+ text:'Individual freedom and collective equality are:',
+ options:[
+   {text:'Fundamentally in tension — more of one usually means less of the other',score:4},
+   {text:'Complementary — genuine freedom requires the conditions that equality provides',score:7},
+   {text:'Separate values where freedom should generally take priority',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3p05',tier:3,axis:'politics',type:'scenario',
+ text:'A policy would significantly improve outcomes for the poorest 30% of the population but would require meaningfully higher taxes on the wealthiest 5%. You:',
+ options:[
+   {text:'Support it — this is exactly what collective governance is for',score:7},
+   {text:'Support it cautiously — I want to understand the economic effects on growth and incentives',score:4},
+   {text:'Oppose it — forced redistribution, even for good outcomes, raises fundamental rights concerns',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── SELF (5 questions) ──
+{id:'t3se01',tier:3,axis:'self',type:'likert',
+ text:'The person I am today — my values, fears, personality, and choices — is largely the product of forces I never chose: my genes, my upbringing, my circumstances.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3se02',tier:3,axis:'self',type:'tradeoff',
+ text:'When you make a decision that feels deeply "you" — a genuine expression of who you are — what is actually happening?',
+ options:[
+   {text:'My history, brain, and circumstances are expressing themselves through me',score:7},
+   {text:'Something essential in me — a genuine self — is making a real choice',score:2},
+   {text:'Both are true at different levels of description — neither cancels the other',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3se03',tier:3,axis:'self',type:'scenario',
+ text:'Imagine you had been adopted at birth and raised in a completely different culture with different values. Would the "real you" still exist?',
+ options:[
+   {text:'No — I am substantially the product of my specific history and formation',score:7},
+   {text:'Yes — some core of who I am would have survived and expressed itself differently',score:2},
+   {text:'There would be continuity in some things and radical difference in others',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3se04',tier:3,axis:'self',type:'likert',
+ text:'Personal identity is a kind of ongoing story we tell about ourselves — not a fixed essence we discover.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3se05',tier:3,axis:'self',type:'tradeoff',
+ text:'When you change significantly over time — your values, beliefs, personality — what is the right description?',
+ options:[
+   {text:'Growth — the self is capable of genuine self-directed development',score:3},
+   {text:'Transformation — you are shaped by circumstances in ways that feel like choice but are not',score:6},
+   {text:'Both — some changes are driven by us, others happen to us, and it is hard to tell which is which',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── MORAL SCOPE (4 questions) ──
+{id:'t3ms01',tier:3,axis:'moral_scope',type:'tradeoff',
+ text:'A factory farm causes billions of animals significant suffering every year to produce food humans could get elsewhere. Morally, this is:',
+ options:[
+   {text:'A serious moral catastrophe — scale of suffering matters regardless of species',score:7},
+   {text:'Ethically problematic but not equivalent to human suffering',score:4},
+   {text:'Unfortunate but not a priority moral concern given human needs and interests',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3ms02',tier:3,axis:'moral_scope',type:'scenario',
+ text:'You can save either 1 human stranger or 100 dogs from death. The human and dogs are equally unknown to you.',
+ options:[
+   {text:'The human — human life carries a categorically different moral weight',score:2},
+   {text:'The 100 dogs — suffering and death matter regardless of species, and the numbers count',score:6},
+   {text:'I would save the human but I cannot give a principle that fully satisfies me',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3ms03',tier:3,axis:'moral_scope',type:'likert',
+ text:'The capacity to suffer is the morally relevant threshold — not species, intelligence, or social connection.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3ms04',tier:3,axis:'moral_scope',type:'tradeoff',
+ text:'Future generations of humans who do not yet exist:',
+ options:[
+   {text:'Have full moral claims on us — our decisions now can harm billions of future people',score:7},
+   {text:'Matter significantly but less than people currently alive',score:4},
+   {text:'Are too speculative to carry decisive weight in current decisions',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── MEANING PRACTICE (5 questions) ──
+{id:'t3mp01',tier:3,axis:'meaning_practice',type:'tradeoff',
+ text:'Knowing there is no cosmic purpose to existence, how do you actually live?',
+ options:[
+   {text:'I accept the absurdity fully and commit to what I choose anyway — that is the point',score:7},
+   {text:'I build discipline and endurance — resilience in the face of meaninglessness',score:5},
+   {text:'Meaninglessness is just the truth — I try to be honest about it rather than paper over it',score:2},
+   {text:'I create meaning actively — it is not found but it is genuinely real once built',score:6}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3mp02',tier:3,axis:'meaning_practice',type:'scenario',
+ text:'A close friend is in crisis — nothing feels worth doing. What is the most honest and useful thing you can tell them?',
+ options:[
+   {text:'Meaning is not waiting to be found — you have to build it, even knowing it is constructed',score:7},
+   {text:'Sit with the void rather than rushing to fill it — the discomfort is real and worth facing',score:5},
+   {text:'There are things worth caring about even if the universe does not care — focus there',score:6},
+   {text:'Find something larger than yourself to serve or connect to',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3mp03',tier:3,axis:'meaning_practice',type:'likert',
+ text:'The most honest response to a meaningless universe is to stop pretending things matter and accept that they do not.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3mp04',tier:3,axis:'meaning_practice',type:'tradeoff',
+ text:'Camus said we must imagine Sisyphus happy — pushing his rock forever with no destination. That image feels:',
+ options:[
+   {text:'Right — the rebellion itself is the point, not the outcome',score:7},
+   {text:'Dishonest — dressing up futility as meaning does not change what it is',score:2},
+   {text:'Poetic but incomplete — the stoic version (endurance without pretending) feels more honest',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3mp05',tier:3,axis:'meaning_practice',type:'scenario',
+ text:'You are offered a pill that will permanently make you feel that your life is deeply meaningful — regardless of what you actually do with it. You:',
+ options:[
+   {text:'Refuse — meaning that is not earned or real is not meaning at all',score:7},
+   {text:'Consider it — if meaning is constructed anyway, what is the difference?',score:5},
+   {text:'Take it — feeling meaningful matters more than the metaphysical question',score:3}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── SOCIETY (4 questions) ──
+{id:'t3so01',tier:3,axis:'society',type:'tradeoff',
+ text:'Which produces a better society?',
+ options:[
+   {text:'Maximising individual freedom — let people build their own lives with minimal interference',score:2},
+   {text:'Strong collective investment — shared infrastructure, equality, and genuine safety nets',score:7},
+   {text:'Neither extreme works — the balance is what matters',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3so02',tier:3,axis:'society',type:'scenario',
+ text:'A neighbourhood votes to ban a business that, while legal, the majority find offensive. The business owner argues this violates their individual rights.',
+ options:[
+   {text:'The community has a right to shape its shared environment — collective decisions matter',score:7},
+   {text:'Individual rights should be protected from majority preferences — this is exactly what rights are for',score:2},
+   {text:'It depends on the specific business, the harm caused, and the alternatives available',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3so03',tier:3,axis:'society',type:'likert',
+ text:'Truly free individuals require a society that actively provides the conditions for freedom — education, health, security, and opportunity.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3so04',tier:3,axis:'society',type:'tradeoff',
+ text:'When a society\'s traditions conflict with individual rights, which generally should give way?',
+ options:[
+   {text:'Individual rights — no tradition has the standing to override a person\'s fundamental claims',score:2},
+   {text:'Tradition — communities have the right to maintain their character and norms',score:7},
+   {text:'It depends on the tradition, the right, and what is actually at stake',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── RESPONSIBILITY (4 questions) ──
+{id:'t3resp01',tier:3,axis:'responsibility',type:'scenario',
+ text:'Two people with identical talent start life in radically different circumstances. At 40, their outcomes are vastly different. What is the most accurate account of why?',
+ options:[
+   {text:'The circumstances were decisive — agency itself was shaped by those conditions',score:7},
+   {text:'Both circumstances and choices mattered — you cannot fully separate them',score:4},
+   {text:'Character and effort ultimately determine outcomes more than starting conditions',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3resp02',tier:3,axis:'responsibility',type:'likert',
+ text:'When someone fails repeatedly in life, the most useful explanation is usually found in their circumstances and history, not their character.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3resp03',tier:3,axis:'responsibility',type:'tradeoff',
+ text:'Personal responsibility is:',
+ options:[
+   {text:'A useful social fiction — it motivates behaviour even if it is philosophically questionable',score:6},
+   {text:'Genuinely real — people are the authors of their choices in a meaningful sense',score:2},
+   {text:'Meaningful in a limited sense — we are responsible for what flows from who we are, even if we did not choose who we are',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3resp04',tier:3,axis:'responsibility',type:'scenario',
+ text:'A person with severe untreated depression stops going to work and loses their job. How responsible are they for that outcome?',
+ options:[
+   {text:'Their illness substantially diminished their agency — holding them fully responsible is a category error',score:7},
+   {text:'They bear some responsibility — seeking treatment and managing a condition is part of adult life',score:4},
+   {text:'Difficult, but ultimately responsible — many people manage serious conditions without losing jobs',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── IDENTITY (4 questions) ──
+{id:'t3id01',tier:3,axis:'identity',type:'tradeoff',
+ text:'Who you fundamentally are — your core self — is best described as:',
+ options:[
+   {text:'A stable essence that persists across contexts and relationships',score:2},
+   {text:'Something substantially shaped by culture, language, and social experience',score:7},
+   {text:'A combination — some stable traits, significantly shaped by context',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3id02',tier:3,axis:'identity',type:'likert',
+ text:'Race, gender, class, and culture do not just influence identity — they fundamentally constitute it.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3id03',tier:3,axis:'identity',type:'scenario',
+ text:'A person radically changes their beliefs, values, and personality over 10 years. Are they the same person?',
+ options:[
+   {text:'Yes — physical and psychological continuity is enough, even with radical change',score:5},
+   {text:'In a meaningful sense no — if the beliefs and values that define a person change completely, that person is gone',score:3},
+   {text:'The question of "sameness" is less interesting than what continuity actually requires',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3id04',tier:3,axis:'identity',type:'tradeoff',
+ text:'When someone says "this is just who I am," they are:',
+ options:[
+   {text:'Probably right — some things are stable traits, not choices',score:3},
+   {text:'Probably wrong — most things we call "who I am" are patterns we learned and can change',score:6},
+   {text:'Partly right — but using it to resist change is usually an avoidance strategy',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── AUTHORITY (4 questions) ──
+{id:'t3auth01',tier:3,axis:'authority',type:'likert',
+ text:'Established institutions — governments, churches, universities, courts — deserve significant skepticism by default, not deference.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3auth02',tier:3,axis:'authority',type:'tradeoff',
+ text:'An expert in their field tells you something that contradicts your current understanding. You:',
+ options:[
+   {text:'Take it seriously and update — expertise earned through rigorous work deserves weight',score:2},
+   {text:'Listen carefully but verify — expertise does not immunise against bias or error',score:5},
+   {text:'Remain skeptical — experts serve institutions that have their own interests',score:7}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3auth03',tier:3,axis:'authority',type:'scenario',
+ text:'A law exists that you believe is unjust. Following it causes real harm. What do you do?',
+ options:[
+   {text:'Work within legal channels to change it — rule of law matters even when laws are bad',score:2},
+   {text:'Resist it — unjust laws do not carry moral authority',score:7},
+   {text:'It depends on how serious the injustice is and what the cost of resistance would be',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3auth04',tier:3,axis:'authority',type:'likert',
+ text:'Most people would be better off if they questioned authority more and deferred to it less.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+// ── ECONOMICS (4 questions) ──
+{id:'t3ec01',tier:3,axis:'economics',type:'tradeoff',
+ text:'The best economic system is one that:',
+ options:[
+   {text:'Lets markets operate freely — they allocate resources better than central planners',score:2},
+   {text:'Uses markets where they work and redirects outputs through strong redistribution',score:6},
+   {text:'Fundamentally restructures ownership and production away from private profit',score:7}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3ec02',tier:3,axis:'economics',type:'scenario',
+ text:'A pharmaceutical company holds a patent on a drug that saves lives. Producing it costs €2 per dose. They charge €40,000 per course of treatment.',
+ options:[
+   {text:'This is a predictable and unacceptable result of treating healthcare as a market',score:7},
+   {text:'Problematic, but patents and profit incentives are what produce these drugs initially',score:3},
+   {text:'The system needs reform — but removing incentives for innovation carries real costs',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3ec03',tier:3,axis:'economics',type:'likert',
+ text:'Economic growth that increases inequality — where the rich get richer but the poor also get somewhat richer — is still a good outcome.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3ec04',tier:3,axis:'economics',type:'tradeoff',
+ text:'Private property rights are:',
+ options:[
+   {text:'A fundamental right — ownership must be protected from redistribution',score:2},
+   {text:'A useful social arrangement — property rights are tools society creates and can reform',score:6},
+   {text:'A source of structural power imbalance that should be significantly curtailed',score:7}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── UNCERTAINTY (4 questions) ──
+{id:'t3unc01',tier:3,axis:'uncertainty',type:'likert',
+ text:'Not knowing the answer — sitting with genuine uncertainty — is something I find tolerable, even productive.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3unc02',tier:3,axis:'uncertainty',type:'tradeoff',
+ text:'When facing a major life decision with no clear right answer, you tend to:',
+ options:[
+   {text:'Gather what information exists, make a call, and accept uncertainty as part of the deal',score:7},
+   {text:'Wait until I have enough clarity — I would rather delay than decide badly',score:3},
+   {text:'Look for frameworks or principles that can cut through the uncertainty',score:5}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3unc03',tier:3,axis:'uncertainty',type:'scenario',
+ text:'You are asked your opinion on a complex question you have thought about but have genuine uncertainty on. You:',
+ options:[
+   {text:'Share where I have landed, with the uncertainty clearly flagged',score:7},
+   {text:'Lay out the considerations without coming to a conclusion',score:5},
+   {text:'Decline to opine until I feel I understand it well enough',score:3}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3unc04',tier:3,axis:'uncertainty',type:'likert',
+ text:'People who are comfortable saying "I do not know" are generally more trustworthy than people who always have an answer.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+// ── MIND / CONSCIOUSNESS (4 questions) ──
+{id:'t3mind01',tier:3,axis:'mind_consciousness',type:'tradeoff',
+ text:'Consciousness — the fact that there is "something it is like" to be you — is:',
+ options:[
+   {text:'A product of brain complexity that will eventually be fully explained physically',score:7},
+   {text:'A genuine mystery — physical explanations describe correlates but not the experience itself',score:2},
+   {text:'Real and physical, but why physical processes feel like something remains genuinely unsolved',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3mind02',tier:3,axis:'mind_consciousness',type:'scenario',
+ text:'An AI system reports experiencing curiosity, discomfort, and satisfaction. It behaves in every way a conscious being would. Is it conscious?',
+ options:[
+   {text:'Probably not — behaviour and reports can exist without inner experience',score:2},
+   {text:'Possibly — if it has the functional properties, I cannot rule it out',score:5},
+   {text:'I genuinely do not know, and that uncertainty matters morally',score:6}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3mind03',tier:3,axis:'mind_consciousness',type:'likert',
+ text:'The hard problem of consciousness — why physical processes produce subjective experience — is one of the genuinely deepest unsolved problems in science.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3mind04',tier:3,axis:'mind_consciousness',type:'tradeoff',
+ text:'Panpsychism — the idea that consciousness is a fundamental feature of reality, present to some degree in all matter — is:',
+ options:[
+   {text:'An interesting attempt to solve a real problem — worth taking seriously',score:5},
+   {text:'Implausible — consciousness clearly emerges from complex systems, it is not fundamental',score:7},
+   {text:'Actually more plausible than pure physicalism once you sit with the hard problem',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── ANIMAL ETHICS (4 questions) ──
+{id:'t3an01',tier:3,axis:'animal_ethics',type:'likert',
+ text:'Animals that can suffer have a genuine moral claim on us — their pain matters morally, not just instrumentally.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3an02',tier:3,axis:'animal_ethics',type:'tradeoff',
+ text:'Humans eating meat from factory-farmed animals when plant-based alternatives exist is:',
+ options:[
+   {text:'A serious ethical failure at massive scale',score:7},
+   {text:'Ethically problematic but understandable given culture, habit, and access',score:4},
+   {text:'A personal choice — humans are omnivores and animals do not have the same moral status',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3an03',tier:3,axis:'animal_ethics',type:'scenario',
+ text:'A medical experiment could save thousands of human lives but requires causing serious suffering to 200 chimpanzees. You:',
+ options:[
+   {text:'Oppose it — the capacity for suffering carries equivalent weight regardless of species',score:7},
+   {text:'Support it reluctantly — human lives carry more moral weight than animal lives',score:2},
+   {text:'Support it only if every alternative has been exhausted and suffering is minimised',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3an04',tier:3,axis:'animal_ethics',type:'likert',
+ text:'The way industrial societies treat animals is one of the greatest ongoing moral failures of our time.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+// ── PROGRESS (4 questions) ──
+{id:'t3prog01',tier:3,axis:'progress',type:'likert',
+ text:'On the whole, humanity is moving in a positive direction — the arc of history bends toward better.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t3prog02',tier:3,axis:'progress',type:'tradeoff',
+ text:'Looking at the state of the world honestly, you feel:',
+ options:[
+   {text:'Cautious optimism — real problems, but trend lines are broadly positive',score:7},
+   {text:'Genuine uncertainty — progress in some areas, regression in others, no clear direction',score:4},
+   {text:'Deep concern — the fundamental structures producing harm remain intact or are worsening',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3prog03',tier:3,axis:'progress',type:'scenario',
+ text:'A historian argues that for all of modern civilisation\'s achievements, it has also produced the capacity for unprecedented destruction, ecological collapse, and totalitarianism — and the net verdict is ambiguous at best.',
+ options:[
+   {text:'I disagree — by almost every measurable metric, human life has improved dramatically',score:7},
+   {text:'A fair point — the gains and losses are real and the ledger is genuinely unclear',score:4},
+   {text:'I think they are being too generous — the structural problems are more fundamental than the gains',score:2}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+{id:'t3prog04',tier:3,axis:'progress',type:'likert',
+ text:'Technology and scientific knowledge will, over time, solve most of the serious problems humanity currently faces.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 ];
 
