@@ -615,6 +615,14 @@ body::before {
       </div>
     </div>
     <button class="btn-primary" onclick="startQuiz()">Begin assessment</button>
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;max-width:420px;">
+      <input id="intake-name" type="text" placeholder="Your first name" maxlength="40"
+        style="background:var(--surface);border:1.5px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:16px;width:180px;outline:none;"
+        onkeydown="if(event.key==='Enter')startQuiz()"/>
+      <input id="intake-country" type="text" placeholder="Your country" maxlength="40"
+        style="background:var(--surface);border:1.5px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:16px;width:180px;outline:none;"
+        onkeydown="if(event.key==='Enter')startQuiz()"/>
+    </div>
     <div class="tier-preview">
       <span class="tier-pill t1">Tier 1 · Foundations</span>
       <span class="tier-pill t2">Tier 2 · Epistemic + Meaning</span>
@@ -1496,66 +1504,635 @@ const QUESTIONS = [
 // ══════════════════════════════════════════
 let state = {
   currentQ: 0,
-  answers: {},   // questionId → score (1-7)
-  axisScores: {} // axis → {raw, weighted, count}
+  answers: {},
+  axisScores: {},
+  userName: '',
+  userCountry: '',
 };
 
 // ══════════════════════════════════════════
 // SCORING
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// AXIS METADATA — 25 axes (current questions)
+// T1.5 axes presented as Tier 1 in UI
+// ══════════════════════════════════════════
 const AXIS_META = {
-  naturalism:       {label:'Naturalism',        poleL:'Supernatural',     poleR:'Naturalist',            tier:1, color:'var(--tier1)'},
-  determinism:      {label:'Determinism',        poleL:'Free will',        poleR:'Hard determinism',      tier:1, color:'var(--tier1)'},
-  realism:          {label:'Realism',            poleL:'Anti-realist',     poleR:'Realist',               tier:1, color:'var(--tier1)'},
-  physicalism:      {label:'Physicalism',        poleL:'Non-physical mind',poleR:'Physicalist',           tier:1, color:'var(--tier1)'},
-  knowledge:        {label:'Knowledge source',   poleL:'Intuition/revealed',poleR:'Empirical',            tier:2, color:'var(--tier2)'},
-  moral_ground:     {label:'Moral ground',       poleL:'Anti-realist',     poleR:'Moral realist',         tier:2, color:'var(--tier2)'},
-  meaning:          {label:'Meaning source',     poleL:'Objective/discovered',poleR:'Constructed',        tier:2, color:'var(--tier2)'},
-  science:          {label:'Science trust',      poleL:'Skeptical',        poleR:'Trusting',              tier:2, color:'var(--tier2)'},
-  justice:          {label:'Justice',            poleL:'Desert-based',     poleR:'Rehabilitative',        tier:3, color:'var(--tier3)'},
-  ethics:           {label:'Ethics engine',      poleL:'Deontological',    poleR:'Consequentialist',      tier:3, color:'var(--tier3)'},
-  religion:         {label:'Religion',           poleL:'Faith-positive',   poleR:'Anti-theist',           tier:3, color:'var(--tier3)'},
-  politics:         {label:'Politics',           poleL:'Individual/market','poleR':'Structural/collective',tier:3,color:'var(--tier3)'},
-  self:             {label:'Self',               poleL:'Authored/free',    poleR:'Causal/constructed',    tier:3, color:'var(--tier3)'},
-  moral_scope:      {label:'Moral scope',        poleL:'Human-centric',    poleR:'All sentient',          tier:3, color:'var(--tier3)'},
-  meaning_practice: {label:'Meaning practice',   poleL:'Nihilism',         poleR:'Absurdism/purpose',     tier:3, color:'var(--tier3)'},
-  society:          {label:'Society',            poleL:'Individualist',    poleR:'Collectivist',          tier:3, color:'var(--tier3)'},
-  responsibility:   {label:'Responsibility',     poleL:'Personal',         poleR:'Structural',            tier:3, color:'var(--tier3)'},
-  identity:         {label:'Identity',           poleL:'Essential',        poleR:'Constructed',           tier:3, color:'var(--tier3)'},
-  authority:        {label:'Authority',          poleL:'Deferential',      poleR:'Skeptical',             tier:3, color:'var(--tier3)'},
-  economics:        {label:'Economics',          poleL:'Free market',      poleR:'Redistributive',        tier:3, color:'var(--tier3)'},
-  uncertainty:      {label:'Uncertainty',        poleL:'Low tolerance',    poleR:'High tolerance',        tier:3, color:'var(--tier3)'},
-  mind_consciousness:{label:'Mind/Consciousness',poleL:'Mystery/non-physical',poleR:'Physical/explainable',tier:3,color:'var(--tier3)'},
-  animal_ethics:    {label:'Animal ethics',      poleL:'Human priority',   poleR:'Equal moral weight',    tier:3, color:'var(--tier3)'},
-  progress:         {label:'Progress',           poleL:'Pessimist',        poleR:'Optimist',              tier:3, color:'var(--tier3)'},
+  // TIER 1 — Foundations
+  naturalism:       {label:'Naturalism',         poleL:'Supernatural',       poleR:'Naturalist',            tier:1, color:'var(--tier1)'},
+  physicalism:      {label:'Physicalism',         poleL:'Non-physical mind',  poleR:'Physicalist',           tier:1, color:'var(--tier1)'},
+  realism:          {label:'Epistemic Realism',   poleL:'Anti-realist',       poleR:'Realist',               tier:1, color:'var(--tier1)'},
+  determinism:      {label:'Determinism',         poleL:'Free will',          poleR:'Hard determinism',      tier:1, color:'var(--tier1)'},
+  moral_ground:     {label:'Moral Realism',       poleL:'Anti-realist',       poleR:'Moral realist',         tier:1, color:'var(--tier1)'},
+  meaning:          {label:'Meaning Realism',     poleL:'Constructivist',     poleR:'Meaning realist',       tier:1, color:'var(--tier1)'},
+  // TIER 2 — Derived
+  knowledge:        {label:'Knowledge Source',    poleL:'Intuition/revealed', poleR:'Empirical',             tier:2, color:'var(--tier2)'},
+  science:          {label:'Science Trust',       poleL:'Skeptical',          poleR:'Trusting',              tier:2, color:'var(--tier2)'},
+  // TIER 3 — Applied
+  justice:          {label:'Justice',             poleL:'Desert-based',       poleR:'Rehabilitative',        tier:3, color:'var(--tier3)'},
+  ethics:           {label:'Ethics Engine',       poleL:'Deontological',      poleR:'Consequentialist',      tier:3, color:'var(--tier3)'},
+  religion:         {label:'Religion',            poleL:'Faith-positive',     poleR:'Anti-theist',           tier:3, color:'var(--tier3)'},
+  politics:         {label:'Politics',            poleL:'Individual/market',  poleR:'Structural/collective', tier:3, color:'var(--tier3)'},
+  self:             {label:'Self',                poleL:'Authored/free',      poleR:'Causal/constructed',    tier:3, color:'var(--tier3)'},
+  moral_scope:      {label:'Moral Scope',         poleL:'Human-centric',      poleR:'All sentient',          tier:3, color:'var(--tier3)'},
+  meaning_practice: {label:'Meaning Practice',    poleL:'Nihilism',           poleR:'Absurdism/purpose',     tier:3, color:'var(--tier3)'},
+  society:          {label:'Society',             poleL:'Individualist',      poleR:'Collectivist',          tier:3, color:'var(--tier3)'},
+  responsibility:   {label:'Responsibility',      poleL:'Personal',           poleR:'Structural',            tier:3, color:'var(--tier3)'},
+  identity:         {label:'Identity',            poleL:'Essential',          poleR:'Constructed',           tier:3, color:'var(--tier3)'},
+  authority:        {label:'Authority',           poleL:'Deferential',        poleR:'Skeptical',             tier:3, color:'var(--tier3)'},
+  economics:        {label:'Economics',           poleL:'Free market',        poleR:'Redistributive',        tier:3, color:'var(--tier3)'},
+  uncertainty:      {label:'Uncertainty',         poleL:'Low tolerance',      poleR:'High tolerance',        tier:3, color:'var(--tier3)'},
+  mind_consciousness:{label:'Mind/Consciousness', poleL:'Non-physical',       poleR:'Physical/explainable',  tier:3, color:'var(--tier3)'},
+  animal_ethics:    {label:'Animal Ethics',       poleL:'Human priority',     poleR:'Equal moral weight',    tier:3, color:'var(--tier3)'},
+  progress:         {label:'Progress',            poleL:'Pessimist',          poleR:'Optimist',              tier:3, color:'var(--tier3)'},
 };
 
-// Known contradiction pairs: [axis1, axis2, conditionFn(s1,s2), message]
+// ══════════════════════════════════════════
+// ARCHETYPE TAXONOMY — 60 types
+// Signature axes (for current 6 T1 axes):
+// [naturalism, physicalism, realism, determinism, moral_ground, meaning]
+// Score 1-7. null = not defining for this type (skipped in distance calc)
+// ══════════════════════════════════════════
+const ARCHETYPES = [
+  // ── FAMILY 1: THE DETERMINED HUMANIST ──
+  {id:'1A', family:'The Determined Humanist', variant:'The Activist',
+   sig:[7,7,6,7,2,1],
+   description:'You understand that behaviour is fully caused by prior conditions, and you use that understanding as fuel rather than an excuse for passivity. You direct your energy toward changing the systems that produce harm — because if circumstances determine outcomes, changing circumstances is the most powerful intervention available. You build meaning through committed action in a world that offers no pre-given purpose.',
+   thinkers:'Robert Sapolsky · Bryan Stevenson · Angela Davis',
+   strength:'Systems thinking as a moral superpower — you naturally diagnose root causes where others assign blame.',
+   failureMode:'Activist burnout without personal meaning scaffolding. When structural problems feel endless, the absence of cosmic purpose can become exhaustion rather than committed absurdist action.'},
+
+  {id:'1B', family:'The Determined Humanist', variant:'The Philosopher',
+   sig:[7,7,6,7,2,1],
+   description:'You hold hard determinism and naturalism with intellectual rigour and genuine curiosity rather than as a battle cry. You are more interested in understanding the implications of your position than in deploying it as a weapon. The question of how a determined being acts with genuine commitment is the most interesting problem you know.',
+   thinkers:'Daniel Dennett · Patricia Churchland · Galen Strawson',
+   strength:'Intellectual consistency under pressure — you can follow an argument wherever it leads without flinching.',
+   failureMode:'Analysis paralysis. The determinist philosopher can think so rigorously about action that action itself becomes difficult.'},
+
+  {id:'1C', family:'The Determined Humanist', variant:'The Pragmatist',
+   sig:[7,6,7,6,2,2],
+   description:'You hold determinist and naturalist foundations firmly but your primary orientation is practical — what works, what produces good outcomes, what actually changes things. Science is your primary tool and human wellbeing your primary metric. You hold your philosophical positions confidently but do not need them validated before you act.',
+   thinkers:'Peter Singer · Sam Harris · Steven Pinker',
+   strength:'Translating philosophy into action without waiting for perfect certainty.',
+   failureMode:'Technocratic drift — the pragmatist can optimise for measurable outcomes and lose sight of what cannot be measured.'},
+
+  {id:'1D', family:'The Determined Humanist', variant:'The Quiet',
+   sig:[7,7,6,7,2,1],
+   description:'You hold your determinist and naturalist foundations privately and without performance. You do not need others to agree with you. The conclusions are simply where honest thinking led. You live consistently with what you believe — in how you treat people, how you assign responsibility, how you make sense of suffering — without requiring an audience for it.',
+   thinkers:'Marcus Aurelius · Oliver Sacks · Albert Camus (private mode)',
+   strength:'Integrity — positions held privately are positions genuinely held.',
+   failureMode:'Isolation. The quiet determinist can become so internally consistent that they stop engaging with people who think differently.'},
+
+  {id:'1E', family:'The Determined Humanist', variant:'The Reconstructed Believer',
+   sig:[6,6,6,6,2,2],
+   description:'You arrived at your current position through genuine intellectual and personal journey — often from a religious or spiritually significant background. Your naturalism and determinism are not inherited but earned, and you hold them with the particular confidence of someone who has tested them against real alternatives. You understand what it means to have once believed otherwise.',
+   thinkers:'Bart Ehrman · Ayaan Hirsi Ali · Christopher Hitchens',
+   strength:'Genuine empathy for the philosophical journey — you know the terrain from the inside.',
+   failureMode:'Overcorrection. The reconstructed believer can be more anti-religious than the position warrants, compensating for past certainty with new certainty.'},
+
+  // ── FAMILY 2: THE STRUCTURAL REFORMER ──
+  {id:'2A', family:'The Structural Reformer', variant:'The Systemic Analyst',
+   sig:[6,6,5,6,3,2],
+   description:'You analyse human behaviour and social outcomes through structural causation — the systems, incentives, and power arrangements that produce what we call individual choices. Your moral concern is real and strong, but you direct it at institutions rather than individuals. You are more interested in why a problem exists than in who to blame for it.',
+   thinkers:'Ibram X. Kendi · Rutger Bregman · Naomi Klein',
+   strength:'Seeing the system when everyone else is looking at the individual.',
+   failureMode:'Depersonalisation. The systemic analyst can become so focused on structure that they lose sight of the human beings inside the systems they analyse.'},
+
+  {id:'2B', family:'The Structural Reformer', variant:'The Justice Architect',
+   sig:[6,5,5,6,4,2],
+   description:'Your structural thinking is most sharply focused on justice. You believe that punishment without addressing underlying causes is not justice but theatre — it satisfies emotional needs without changing anything. You want to redesign what justice actually means: not who suffers, but what conditions produced the harm and how those conditions change.',
+   thinkers:'Bryan Stevenson · Michelle Alexander · Howard Zehr',
+   strength:'Holding compassion and structural analysis simultaneously without losing the edge of either.',
+   failureMode:'Policy idealism — designing perfect systems without accounting for political feasibility or human resistance to change.'},
+
+  {id:'2C', family:'The Structural Reformer', variant:'The Economic Radical',
+   sig:[6,5,5,5,3,2],
+   description:'You locate the primary source of human suffering in economic arrangements — in who owns what, who captures value, who bears the costs of production. Your structural analysis is sharpest in the economic domain. You believe that political rights without economic transformation are incomplete, and that the current distribution of wealth and power is constructed and therefore changeable.',
+   thinkers:'Karl Marx · David Graeber · Thomas Piketty',
+   strength:'Seeing economic power where others see neutral market outcomes.',
+   failureMode:'Structural determinism — sometimes so focused on economic forces that individual agency and cultural factors are underweighted.'},
+
+  {id:'2D', family:'The Structural Reformer', variant:'The Intersectional Analyst',
+   sig:[6,5,4,5,4,2],
+   description:'You hold that structural analysis must account for multiple, intersecting systems of power — race, gender, class, ability, sexuality — that cannot be reduced to a single axis. Your thinking is shaped by the understanding that people occupy multiple structural positions simultaneously, and that effective reform requires addressing all of these rather than prioritising one.',
+   thinkers:'Kimberlé Crenshaw · bell hooks · Patricia Hill Collins',
+   strength:'Holding complexity without collapsing it into a single narrative.',
+   failureMode:'Framework proliferation — sometimes so focused on complexity that practical action becomes difficult to prioritise.'},
+
+  {id:'2E', family:'The Structural Reformer', variant:'The Empirical Progressive',
+   sig:[7,6,7,5,3,2],
+   description:'You hold structural positions grounded in empirical evidence rather than ideological commitment. You follow the data — on what reduces crime, what reduces poverty, what produces human flourishing — and you follow it wherever it leads, even when the conclusions challenge your ideological priors. You are a progressive by evidence, not by tribe.',
+   thinkers:'Steven Pinker · Angus Deaton · Hans Rosling',
+   strength:'Credibility — evidence-based structural positions are hard to dismiss and generate broad coalitions.',
+   failureMode:'Technocratic over-optimism — underestimating the role of power and human irrationality in resisting well-evidenced reforms.'},
+
+  // ── FAMILY 3: THE RATIONAL EMPIRICIST ──
+  {id:'3A', family:'The Rational Empiricist', variant:'The Scientific Realist',
+   sig:[7,7,7,6,4,3],
+   description:'You believe science genuinely tracks reality — that our best theories are approximately true descriptions of a mind-independent world. This is not naive optimism but a carefully held philosophical position: the predictive success of science is best explained by the fact that it is, gradually and fallibly, getting the world right. You hold uncertainty proportional to evidence.',
+   thinkers:'David Deutsch · Sean Carroll · Hilary Putnam',
+   strength:'Calibrated confidence — you know the difference between what is established and what is speculative.',
+   failureMode:'Scientism drift — extending scientific methodology to questions it cannot answer and dismissing those questions as meaningless.'},
+
+  {id:'3B', family:'The Rational Empiricist', variant:'The Skeptic',
+   sig:[7,6,6,5,2,2],
+   description:'Your empiricism is defined by what you refuse to believe without evidence more than by what you confidently affirm. You apply the same scrutiny to your own positions as to others\'. You are comfortable with uncertainty, willing to hold questions open, and resistant to the social pressure to have strong opinions on everything.',
+   thinkers:'Carl Sagan · Michael Shermer · Richard Feynman',
+   strength:'Intellectual honesty — you model how to hold beliefs proportionally to evidence.',
+   failureMode:'Paralytic skepticism — the refusal to commit until perfect evidence exists can become a way of avoiding the discomfort of being wrong.'},
+
+  {id:'3C', family:'The Rational Empiricist', variant:'The Analytic Philosopher',
+   sig:[7,6,7,5,5,4],
+   description:'You approach philosophical questions with logical precision, conceptual clarity, and argument structure. You are interested in getting things right more than in arriving at comforting conclusions. You hold that many philosophical disputes dissolve under careful analysis, and that clear thinking is the highest intellectual virtue.',
+   thinkers:'Bertrand Russell · Derek Parfit · Susan Wolf',
+   strength:'Argumentation — you make the clearest, most defensible case for your position of any type.',
+   failureMode:'Ivory tower drift — philosophical precision can become disconnected from the messiness of how people actually reason and live.'},
+
+  {id:'3D', family:'The Rational Empiricist', variant:'The Naturalist Ethicist',
+   sig:[7,7,6,5,6,4],
+   description:'You hold that ethics can be grounded in natural facts about human flourishing, suffering, and wellbeing — without invoking the supernatural or accepting that morality is merely subjective. Moral facts, for you, are facts about what beings like us need to live well. This is a coherent middle path between divine command and pure anti-realism.',
+   thinkers:'Aristotle · Martha Nussbaum · Philippa Foot',
+   strength:'Bridging the is-ought gap — you offer a coherent account of why facts about the world generate moral obligations.',
+   failureMode:'Normative overreach — deriving too many specific moral conclusions from a general naturalist framework that does not actually entail them.'},
+
+  {id:'3E', family:'The Rational Empiricist', variant:'The Pragmatist',
+   sig:[7,6,6,5,3,3],
+   description:'For you, truth is not a correspondence relation between propositions and a mind-independent world — it is what works, what guides successful action, what coheres with the rest of what you know. Science is valuable not because it mirrors nature but because it generates reliable predictions and powerful interventions.',
+   thinkers:'William James · John Dewey · Richard Rorty',
+   strength:'Intellectual flexibility — you update beliefs based on what works rather than defending positions for their own sake.',
+   failureMode:'Relativism creep — without a robust account of truth, the pragmatist can slide toward "whatever my community endorses" as the standard.'},
+
+  // ── FAMILY 4: THE EXISTENTIAL ARCHITECT ──
+  {id:'4A', family:'The Existential Architect', variant:'The Absurdist',
+   sig:[7,6,5,5,2,1],
+   description:'You have fully absorbed the absurdity of the human condition — the clash between the human need for meaning and the universe\'s silence — and you have chosen commitment over despair. You push your rock. Not because you believe the summit matters cosmically, but because the pushing itself is the point.',
+   thinkers:'Albert Camus · Samuel Beckett · Milan Kundera',
+   strength:'Resilience without illusion — you do not need cosmic permission to care.',
+   failureMode:'The absurdist pose — using absurdism as an identity rather than a genuine practice. Performing rebellion rather than living it.'},
+
+  {id:'4B', family:'The Existential Architect', variant:'The Sartrean',
+   sig:[7,6,5,2,2,1],
+   description:'You hold that humans are radically free — condemned to choose without a nature that determines those choices — and that this freedom carries absolute responsibility. Existence precedes essence: you become who you are through your choices, not by discovering who you already were. This is vertiginous and demanding.',
+   thinkers:'Jean-Paul Sartre · Simone de Beauvoir · Frantz Fanon',
+   strength:'Radical ownership of choices and their consequences.',
+   failureMode:'Bad faith — the existentialist who recognises bad faith in others but practises it themselves.'},
+
+  {id:'4C', family:'The Existential Architect', variant:'The Meaning Maker',
+   sig:[6,6,5,4,2,1],
+   description:'You do not agonise over the absence of cosmic meaning — you create meaning with the same focused energy others spend looking for it. Your projects, relationships, and commitments are genuinely meaningful to you not because the universe endorses them but because you have chosen them and built your life around them.',
+   thinkers:'Viktor Frankl · Irvin Yalom · Susan Wolf',
+   strength:'Purposefulness without self-deception — you know your meaning is constructed and choose it anyway.',
+   failureMode:'Fragility under loss. Constructed meaning requires ongoing maintenance; when a central project collapses, the meaning structure can collapse with it.'},
+
+  {id:'4D', family:'The Existential Architect', variant:'The Identity Builder',
+   sig:[6,5,5,4,3,2],
+   description:'Your existentialism is most alive in the domain of identity. You hold that who you are is not discovered but built — through choices, commitments, relationships, and the stories you construct about yourself. You are suspicious of essentialism in all its forms and take responsibility for the self you have built.',
+   thinkers:'Simone de Beauvoir · Charles Taylor · Judith Butler',
+   strength:'Self-authorship — you are the most intentional architect of your own character of any type.',
+   failureMode:'Identity instability. When everything is constructed and chosen, it can be difficult to know when to commit and when to revise.'},
+
+  {id:'4E', family:'The Existential Architect', variant:'The Relational Existentialist',
+   sig:[6,5,5,4,3,1],
+   description:'You hold existentialist foundations but locate your meaning-making primarily in relationships and community rather than in solitary self-creation. Meaning is built between people, not just within them. You are less individualist than classic existentialism and more aware that authentic existence requires genuine encounter with others.',
+   thinkers:'Martin Buber · Simone de Beauvoir · bell hooks',
+   strength:'Depth of relationship — you bring philosophical seriousness to how you are with others.',
+   failureMode:'Codependence dressed as philosophy. Relational meaning-making can become meaning-outsourcing if the independence axis weakens.'},
+
+  // ── FAMILY 5: THE MORAL REALIST ──
+  {id:'5A', family:'The Moral Realist', variant:'The Kantian',
+   sig:[6,6,7,4,7,5],
+   description:'You hold that moral facts are grounded in reason — that the categorical imperative captures something genuinely true about the structure of morality. Moral obligations are not consequences of divine command or natural facts but of the demands of rational consistency itself. You take duties seriously and believe persons have an unconditional dignity that may never be violated.',
+   thinkers:'Immanuel Kant · Christine Korsgaard · Onora O\'Neill',
+   strength:'Principled resistance to expedience — you do not compromise on persons even when the numbers seem to justify it.',
+   failureMode:'Moral rigidity. Kantian ethics struggles with genuine dilemmas where duties conflict and offers no clean resolution.'},
+
+  {id:'5B', family:'The Moral Realist', variant:'The Virtue Ethicist',
+   sig:[6,5,6,4,7,5],
+   description:'You hold that morality is primarily about character rather than rules or outcomes. The right action is what a person of genuine virtue would do — and virtue is not merely compliance with rules but a deep orientation of the self toward the good. You believe moral development is possible and that ethics is inseparable from the question of how to live.',
+   thinkers:'Aristotle · Alasdair MacIntyre · Martha Nussbaum',
+   strength:'Integrating ethics with psychology and development — you ask not just what should I do but who should I be.',
+   failureMode:'Community parochialism. Virtue ethics is historically tied to specific communities and their standards.'},
+
+  {id:'5C', family:'The Moral Realist', variant:'The Natural Law',
+   sig:[5,5,7,4,7,6],
+   description:'You hold that moral facts are grounded in natural facts about what beings like humans need to flourish — facts discoverable through reason and experience, not divine revelation. Morality is not invented but discovered in the structure of human nature and the conditions of human flourishing.',
+   thinkers:'Aristotle · Thomas Aquinas (secular reading) · John Finnis',
+   strength:'Cross-cultural persuasion — natural law arguments do not require religious premises.',
+   failureMode:'Teleological overspecification — deriving too many specific moral conclusions from a general account of human nature.'},
+
+  {id:'5D', family:'The Moral Realist', variant:'The Cornell Realist',
+   sig:[7,7,7,5,7,4],
+   description:'You hold that moral facts are natural facts — specifically, facts about what promotes the flourishing of beings with our psychology and social nature. You are a full naturalist and a full moral realist simultaneously, holding that the two positions are compatible if moral properties are understood as natural properties discoverable empirically.',
+   thinkers:'Peter Railton · Richard Boyd · Nicholas Sturgeon',
+   strength:'Philosophical completeness — you have a coherent account of how moral facts fit into a fully natural world.',
+   failureMode:'Technical abstraction — the position is philosophically powerful but difficult to communicate to non-specialists.'},
+
+  {id:'5E', family:'The Moral Realist', variant:'The Constructivist',
+   sig:[6,5,6,4,6,4],
+   description:'You hold that moral facts are real but constructed — real in the sense that they are not merely expressions of preference, constructed in the sense that they emerge from principles rational agents would agree to under fair conditions. The facts are real because the procedure is fair and the constraints are genuine.',
+   thinkers:'John Rawls · T.M. Scanlon · Jürgen Habermas',
+   strength:'Democratic legitimacy — constructivist moral facts are grounded in procedures everyone can in principle accept.',
+   failureMode:'Proceduralism without substance. When the procedure is disputed, constructivism has limited resources to resolve the dispute.'},
+
+  // ── FAMILY 6: THE COMPASSIONATE COLLECTIVIST ──
+  {id:'6A', family:'The Compassionate Collectivist', variant:'The Care Ethicist',
+   sig:[6,5,5,4,5,3],
+   description:'Your ethics begins with relationships, vulnerability, and care rather than abstract principles or aggregate outcomes. You hold that morality is fundamentally relational — that what we owe to each other flows from the particular connections and dependencies between us. You attend closely to context, emotion, and the specific needs of specific people.',
+   thinkers:'Carol Gilligan · Nel Noddings · Virginia Held',
+   strength:'Attentiveness to the particular — you see the person in front of you, not the abstract moral agent.',
+   failureMode:'Partiality without principle. Care ethics can struggle to adjudicate between competing caring relationships or generate obligations to distant strangers.'},
+
+  {id:'6B', family:'The Compassionate Collectivist', variant:'The Animal Advocate',
+   sig:[7,6,6,5,5,2],
+   description:'You hold that the capacity to suffer is the morally relevant threshold and that species membership is morally arbitrary. The scale of animal suffering in contemporary industrial systems is, for you, one of the greatest ongoing moral catastrophes in human history — not a minor concern but a central one.',
+   thinkers:'Peter Singer · Tom Regan · Gary Francione',
+   strength:'Moral consistency and scope — you extend your principles to their logical conclusion without flinching.',
+   failureMode:'Alienation from movement-building. Uncompromising animal advocacy can isolate this type from people they need to persuade.'},
+
+  {id:'6C', family:'The Compassionate Collectivist', variant:'The Ubuntu Thinker',
+   sig:[5,4,5,4,5,4],
+   description:'You hold that personhood and flourishing are irreducibly relational — "I am because we are." Your identity, values, and sense of meaning are constituted through community and relationship rather than individual autonomy. You are skeptical of liberal individualism\'s assumption that the self exists prior to and independent of social bonds.',
+   thinkers:'Desmond Tutu · Kwame Gyekye · Michael Eze',
+   strength:'Deep community orientation — you build and sustain the relational fabric that everyone benefits from.',
+   failureMode:'Community conformity. The Ubuntu thinker can sacrifice individual integrity for group harmony.'},
+
+  {id:'6D', family:'The Compassionate Collectivist', variant:'The Empathic Realist',
+   sig:[6,5,6,4,5,3],
+   description:'You combine strong empathic attunement with clear-eyed assessment of structural causes. You feel the suffering of others acutely and also understand why it exists — which means your compassion does not dissipate into sentimentality but directs itself toward the conditions that produce harm.',
+   thinkers:'bell hooks · Paul Farmer · Bryan Stevenson',
+   strength:'Sustainable compassion — feeling without burning out, because the feeling is grounded in understanding.',
+   failureMode:'Absorbing others\' pain without adequate self-regulation. The risk is nervous system overload from genuine attunement to suffering.'},
+
+  {id:'6E', family:'The Compassionate Collectivist', variant:'The Pacifist Reformer',
+   sig:[6,5,5,4,6,4],
+   description:'You hold that nonviolence is not merely a tactic but a moral commitment — that the means of change must be consistent with the ends desired. You believe genuine transformation requires bringing people with you rather than defeating them, and that violence corrupts both the cause and the person who employs it.',
+   thinkers:'Martin Luther King Jr. · Gandhi · Thich Nhat Hanh',
+   strength:'Long-game thinking — you build movements that last because you refuse to compromise the relational fabric.',
+   failureMode:'Moral purity over effectiveness. Nonviolence can become a constraint that prevents necessary action when lives are at stake.'},
+
+  // ── FAMILY 7: THE PRINCIPLED LIBERTARIAN ──
+  {id:'7A', family:'The Principled Libertarian', variant:'The Classical Liberal',
+   sig:[6,5,6,4,5,5],
+   description:'You hold that individual rights are the foundation of any legitimate social order — that persons have claims against collective interference that cannot be overridden by aggregate benefit. Your liberalism is classical: limited government, rule of law, free markets, and strong civil liberties.',
+   thinkers:'John Stuart Mill · Friedrich Hayek · Isaiah Berlin',
+   strength:'Institutional vigilance — you see the danger of concentrated power before others do.',
+   failureMode:'Structural blindness. Classical liberalism can mistake structural advantages for individual merit.'},
+
+  {id:'7B', family:'The Principled Libertarian', variant:'The Moral Individualist',
+   sig:[6,5,5,4,5,5],
+   description:'Your individualism is rooted in a strong essentialist account of human nature — persons have a genuine nature that includes the capacity for rational self-direction which constitutes their dignity. Collectivism violates this dignity not merely as a matter of preference but as a matter of what persons fundamentally are.',
+   thinkers:'Ayn Rand · Robert Nozick · John Locke',
+   strength:'Clear moral foundations — you know exactly why individual rights matter and can articulate it precisely.',
+   failureMode:'Ideological rigidity. Moral individualism can become impervious to evidence about structural inequality.'},
+
+  {id:'7C', family:'The Principled Libertarian', variant:'The Civil Liberties',
+   sig:[6,5,5,4,4,3],
+   description:'Your libertarianism is most passionate in the domain of civil liberties — freedom of speech, conscience, association, privacy, and bodily autonomy. You hold that the state has an extremely limited mandate to regulate personal behaviour and that expansion of that mandate is always more dangerous than the harms it claims to prevent.',
+   thinkers:'John Stuart Mill · Nadine Strossen · Glenn Greenwald',
+   strength:'Defending freedom even when you disagree with its content — principled rather than convenient.',
+   failureMode:'Platforming harm. Defending freedom of speech without adequately accounting for structural power differentials.'},
+
+  {id:'7D', family:'The Principled Libertarian', variant:'The Voluntaryist',
+   sig:[6,5,5,4,4,3],
+   description:'You hold that all legitimate social arrangements must be based on voluntary consent — that no collective has the right to impose arrangements on individuals who have not agreed to them. You are skeptical of the state as an institution, preferring voluntary association, mutual aid, and market coordination over coercive governance.',
+   thinkers:'Murray Rothbard · David Friedman · Lysander Spooner',
+   strength:'Consistency — you apply the consent principle universally rather than selectively.',
+   failureMode:'Coordination failure. Voluntary arrangements struggle with large-scale collective action problems like climate change.'},
+
+  {id:'7E', family:'The Principled Libertarian', variant:'The Conservative Libertarian',
+   sig:[5,5,5,4,5,5],
+   description:'You combine libertarian economic and political commitments with conservative values — tradition, community, and the importance of cultural inheritance. You hold that free markets and limited government are best understood as the conditions under which the organic institutions of family, community, and culture can flourish.',
+   thinkers:'Edmund Burke · Roger Scruton · Frank Meyer',
+   strength:'Grounding freedom in cultural continuity rather than abstract principles.',
+   failureMode:'Defending the status quo under the banner of freedom. Conservative libertarianism can legitimise existing inequalities.'},
+
+  // ── FAMILY 8: THE STOIC NATURALIST ──
+  {id:'8A', family:'The Stoic Naturalist', variant:'The Classical Stoic',
+   sig:[7,6,6,6,5,4],
+   description:'You hold that there is a natural order and that human flourishing consists in living in accordance with it. Your Stoicism is classical: focus on virtue as the only genuine good, accept what you cannot control, and maintain equanimity through the exercise of reason. You are not without emotion but you do not allow emotion to override your reasoned assessment.',
+   thinkers:'Marcus Aurelius · Epictetus · Seneca',
+   strength:'Resilience under any conditions — you function well regardless of external circumstances.',
+   failureMode:'Emotional suppression masquerading as equanimity. True Stoicism acknowledges feeling; false Stoicism denies it.'},
+
+  {id:'8B', family:'The Stoic Naturalist', variant:'The Modern Stoic',
+   sig:[7,7,7,6,3,2],
+   description:'You apply Stoic practice to a fully contemporary naturalist and determinist worldview. The dichotomy of control remains central: focus on what is within your sphere of influence, accept what is not. You do not believe in the logos as a cosmic rational principle, but you find Stoic practice genuinely useful without the metaphysical framework.',
+   thinkers:'Ryan Holiday · Massimo Pigliucci · William Irvine',
+   strength:'Practical philosophy — you have integrated your beliefs into daily practice rather than holding them as abstract positions.',
+   failureMode:'Stoicism as productivity hack. The deep philosophical content can be reduced to morning routines.'},
+
+  {id:'8C', family:'The Stoic Naturalist', variant:'The Contemplative',
+   sig:[6,5,6,5,4,3],
+   description:'Your Stoicism is less about discipline and more about presence — about genuinely inhabiting the life you have rather than the life you imagine. You practise attention to what is, rather than what should be. Your daily practice involves returning again and again to direct experience rather than conceptual overlay.',
+   thinkers:'Marcus Aurelius · Thich Nhat Hanh (secular) · Simone Weil (secular)',
+   strength:'Presence — you are actually here, not somewhere else in your mind.',
+   failureMode:'Withdrawal. The contemplative Stoic can retreat from engagement with realities that require action, not acceptance.'},
+
+  {id:'8D', family:'The Stoic Naturalist', variant:'The Resilient Practitioner',
+   sig:[7,6,6,6,4,3],
+   description:'You have built genuine resilience through philosophical practice rather than through inherited or circumstantial advantage. Your Stoicism is hard-won — you have been tested and the framework held. You distinguish sharply between what is within your control and what is not, and you direct your energy only at the former.',
+   thinkers:'Epictetus · James Stockdale · Viktor Frankl (Stoic mode)',
+   strength:'Antifragility — you become stronger through difficulty rather than merely surviving it.',
+   failureMode:'Applying the framework where acceptance is not appropriate — using Stoic acceptance to avoid addressing injustice that could be changed.'},
+
+  {id:'8E', family:'The Stoic Naturalist', variant:'The Scientific Buddhist',
+   sig:[6,5,6,5,3,2],
+   description:'You hold a position drawing from both Stoic and Buddhist practice within a secular naturalist framework. The core commitments are shared: impermanence is real, suffering arises from attachment, and the practice of attention reduces unnecessary suffering. You hold no metaphysical commitments about karma but find the ethical content of these traditions genuinely true.',
+   thinkers:'Stephen Batchelor · Sam Harris (meditation mode) · Robert Wright',
+   strength:'Cross-tradition synthesis — you draw from the best of multiple wisdom traditions without being bound by any.',
+   failureMode:'Spiritual bypassing — using meditative practice to avoid engaging with structural problems that require action.'},
+
+  // ── FAMILY 9: THE SPIRITUAL NATURALIST ──
+  {id:'9A', family:'The Spiritual Naturalist', variant:'The Panpsychist',
+   sig:[6,2,5,4,4,4],
+   description:'You hold that consciousness is not an emergent property of complex physical systems but a fundamental feature of reality — present to some degree in all matter, not just in brains. This is not a traditional spiritual claim but a metaphysical one: the hard problem of consciousness is genuinely hard, and panpsychism offers a more parsimonious solution.',
+   thinkers:'David Chalmers · Philip Goff · Alfred North Whitehead',
+   strength:'Taking consciousness seriously as a genuine explanatory challenge rather than explaining it away.',
+   failureMode:'Combination problem. Panpsychism faces serious difficulties explaining how micro-conscious entities combine into unified conscious experience.'},
+
+  {id:'9B', family:'The Spiritual Naturalist', variant:'The Meaning Seeker',
+   sig:[5,4,5,4,4,5],
+   description:'You hold genuine uncertainty about most deep metaphysical questions while maintaining a strong intuition that there is more to reality than a purely reductionist account captures. You seek meaning not as construction but as something to be found — in nature, in relationship, in contemplative experience, in art.',
+   thinkers:'William James · Karen Armstrong · Alain de Botton',
+   strength:'Holding questions open with genuine intellectual honesty rather than forcing premature closure.',
+   failureMode:'Vagueness as a permanent resting place. Some questions do have answers, and permanent meaning-seeking can become a way of avoiding commitment.'},
+
+  {id:'9C', family:'The Spiritual Naturalist', variant:'The Religious Humanist',
+   sig:[5,4,5,4,5,5],
+   description:'You hold humanist values within a framework that retains religious forms, rituals, and language emptied of supernatural content. You find meaning in the stories, practices, and communities of religious tradition without requiring literal belief in their metaphysical claims. Religion, for you, is poetry rather than proposition.',
+   thinkers:'Alain de Botton · Ronald Dworkin · Don Cupitt',
+   strength:'Access to depth traditions without supernaturalism — you draw on millennia of accumulated wisdom.',
+   failureMode:'Intellectual dishonesty. Retaining religious forms while denying their content can become a way of having the community and ritual without the cost of genuine belief.'},
+
+  {id:'9D', family:'The Spiritual Naturalist', variant:'The Deep Ecologist',
+   sig:[5,4,5,4,5,5],
+   description:'You hold that nature is not merely a resource but a domain of value, meaning, and moral claim in its own right. The natural world has intrinsic value independent of its utility to humans, and human beings are participants in an ecosystem rather than owners of it. Your spirituality is ecological.',
+   thinkers:'Arne Næss · Robin Wall Kimmerer · Gary Snyder',
+   strength:'Expanding the moral community beyond humans — you see value that others are trained not to notice.',
+   failureMode:'Misanthropy disguised as ecology. Some forms of deep ecology hold human beings as the problem in ways that are philosophically confused.'},
+
+  {id:'9E', family:'The Spiritual Naturalist', variant:'The Contemplative Agnostic',
+   sig:[4,3,4,4,4,4],
+   description:'You hold genuine and considered uncertainty about most of the deepest metaphysical questions. This is not intellectual timidity but a hard-won epistemic position: the questions about consciousness, meaning, and the nature of reality are genuinely difficult, and the honest answer to most of them is "I do not know." You sit with that uncertainty rather than resolving it prematurely.',
+   thinkers:'William James · Thomas Nagel · Simone Weil',
+   strength:'Intellectual honesty under social pressure to have confident views.',
+   failureMode:'Paralysis. Genuine agnosticism about everything provides no action-guiding framework.'},
+
+  // ── FAMILY 10: THE CONSERVATIVE TRADITIONALIST ──
+  {id:'10A', family:'The Conservative Traditionalist', variant:'The Religious Traditionalist',
+   sig:[2,3,6,2,7,7],
+   description:'You hold that moral and meaning truths are grounded in divine revelation and transmitted through the tradition of a religious community. Your conservatism is inseparable from your faith — you conserve because what you are conserving contains genuine truth and sacred value.',
+   thinkers:'Thomas Aquinas · G.K. Chesterton · Roger Scruton (Catholic mode)',
+   strength:'Coherence — your metaphysics, ethics, meaning, and politics form an integrated whole.',
+   failureMode:'Closed epistemology. When revelation is the primary knowledge source, genuine engagement with contrary evidence becomes structurally difficult.'},
+
+  {id:'10B', family:'The Conservative Traditionalist', variant:'The Burke',
+   sig:[4,4,5,3,6,6],
+   description:'Your conservatism is not primarily about religion but about epistemology and institutional wisdom. Organic institutions — developed through centuries of trial and error — contain knowledge that no individual or generation can reconstruct from abstract principles. Reform is necessary but must be incremental, building on what works rather than demolishing it.',
+   thinkers:'Edmund Burke · Roger Scruton · Michael Oakeshott',
+   strength:'Institutional memory — you hold the case for why things are the way they are before agreeing to change them.',
+   failureMode:'Status quo bias. Burkean conservatism can legitimate existing injustices as the products of organic development.'},
+
+  {id:'10C', family:'The Conservative Traditionalist', variant:'The Social Conservative',
+   sig:[4,4,5,3,7,6],
+   description:'Your conservatism is focused on the social institutions — family, community, local governance, civil society — that you hold as the building blocks of a functioning society. You are suspicious of both state power and market atomisation, and you believe strong social fabric requires stable cultural institutions that transmit values across generations.',
+   thinkers:'Robert Nisbet · Yuval Levin · Patrick Deneen',
+   strength:'Seeing the social costs of atomisation that both progressive and libertarian thinking can miss.',
+   failureMode:'Romanticising the past. The communities social conservatism wants to restore often contained significant coercive elements.'},
+
+  {id:'10D', family:'The Conservative Traditionalist', variant:'The Natural Law Conservative',
+   sig:[4,4,6,3,7,7],
+   description:'You hold that there is a natural moral order — discoverable through reason and embedded in human nature — that precedes and constrains positive law and cultural construction. Certain social institutions are natural in the sense that they correspond to the real nature of human beings, and their dissolution produces genuinely disordered human outcomes.',
+   thinkers:'Thomas Aquinas · John Finnis · Robert George',
+   strength:'Principled justification for social norms that does not depend on tradition alone.',
+   failureMode:'Teleological overspecification from a contested account of human nature — the "natural" often tracks cultural preferences more than biological facts.'},
+
+  {id:'10E', family:'The Conservative Traditionalist', variant:'The Communitarian',
+   sig:[5,5,5,4,6,5],
+   description:'You hold that individuals are constituted by their communities and that the liberal fiction of the self-creating individual misunderstands what persons actually are. You are conservative about community, tradition, and cultural identity — recognising that human beings cannot flourish without embeddedness in particular communities with particular histories.',
+   thinkers:'Alasdair MacIntyre · Charles Taylor · Michael Sandel',
+   strength:'Thick account of the self — you take seriously what liberal individualism abstracts away.',
+   failureMode:'Community essentialism. The communitarian can hold communities as more stable and coherent than they actually are.'},
+
+  // ── FAMILY 11: THE PRAGMATIC CENTRIST ──
+  {id:'11A', family:'The Pragmatic Centrist', variant:'The Epistemic Pragmatist',
+   sig:[5,4,5,4,4,3],
+   description:'You hold that most strong metaphysical positions are overconfident, and that the honest answer to most deep questions is "genuinely uncertain." You are drawn to pragmatist epistemology — you assess claims by their usefulness and coherence with what you know, not by correspondence to a mind-independent world you cannot access.',
+   thinkers:'William James · Richard Rorty · Hilary Putnam',
+   strength:'Not being wrong about things you cannot actually know — genuine epistemic calibration.',
+   failureMode:'Commitment phobia. Pragmatic centrism can become a way of avoiding the discomfort of being wrong by never fully committing.'},
+
+  {id:'11B', family:'The Pragmatic Centrist', variant:'The Evidence-Based Moderate',
+   sig:[6,5,6,4,4,3],
+   description:'You hold moderate positions not because you are uncommitted but because the evidence supports moderate positions in most domains. You follow the data — on what policies work, what values survive cross-cultural scrutiny, what claims hold up under examination — and the data rarely supports the extremes.',
+   thinkers:'Jonathan Haidt · Steven Pinker · David Brooks',
+   strength:'Credibility across ideological lines — you go where the evidence leads rather than where your tribe expects.',
+   failureMode:'False balance. Evidence-based moderation can create artificial symmetry between positions not equally supported.'},
+
+  {id:'11C', family:'The Pragmatic Centrist', variant:'The Institutional Liberal',
+   sig:[6,5,6,4,5,4],
+   description:'You hold that liberal democratic institutions — rule of law, separation of powers, free speech, open elections — are the best available mechanisms for managing human disagreement and approximating justice. You care about the process more than any particular outcome and are deeply worried about anything that undermines institutional integrity.',
+   thinkers:'Isaiah Berlin · Karl Popper · Francis Fukuyama',
+   strength:'Long-horizon thinking — you protect institutions that provide stability over generations.',
+   failureMode:'Process worship. Institutional liberalism can prioritise procedural legitimacy over substantive justice.'},
+
+  {id:'11D', family:'The Pragmatic Centrist', variant:'The Reflective Traditionalist',
+   sig:[5,4,5,3,5,5],
+   description:'You hold traditional values and inherited culture as genuinely important while remaining open to revision where they demonstrably fail. You are neither reactionary nor progressive in the sense of treating tradition as mere prejudice. Your pragmatism is about holding tradition and reform in productive tension.',
+   thinkers:'Isaiah Berlin · Anthony Giddens · Michael Walzer',
+   strength:'Bridging the tradition-reform gap — you can have genuine conversations with people on both sides.',
+   failureMode:'Incoherence. Holding tradition and reform in tension without explicit principles for adjudicating between them can produce inconsistent decisions.'},
+
+  {id:'11E', family:'The Pragmatic Centrist', variant:'The Problem Solver',
+   sig:[6,5,6,4,4,3],
+   description:'Your primary philosophical orientation is practical problem-solving rather than theoretical commitment. You bring strong empirical thinking, high tolerance for ambiguity, and genuine curiosity to every question. You are willing to work with people across the ideological spectrum if they are genuinely interested in solving problems rather than winning arguments.',
+   thinkers:'John Dewey · Amartya Sen · Elinor Ostrom',
+   strength:'Getting things done across ideological lines — you find the practical overlap between competing frameworks.',
+   failureMode:'Technocratic naïveté. Problem solvers can underestimate how much of what looks like a technical problem is actually a power problem.'},
+
+  // ── FAMILY 12: THE NIHILIST REDUCTIONIST ──
+  {id:'12A', family:'The Nihilist Reductionist', variant:'The Honest Nihilist',
+   sig:[7,7,5,6,1,1],
+   description:'You hold that nothing matters in any cosmic or objective sense, and you have chosen to be honest about this rather than reaching for constructions that paper over the void. You do not experience this as unbearable — it is simply the truth as you understand it. You have looked at the nothing and found it habitable.',
+   thinkers:'Friedrich Nietzsche (early) · Emil Cioran · David Benatar',
+   strength:'Unsentimental clarity — you see the world without the consolations that others require.',
+   failureMode:'Affective numbing. The honest nihilist can cut off genuine feeling in the name of intellectual consistency.'},
+
+  {id:'12B', family:'The Nihilist Reductionist', variant:'The Error Theorist',
+   sig:[7,7,6,5,1,1],
+   description:'You hold that moral claims are systematically false — not merely subjective, but actually false, because they presuppose mind-independent moral facts that do not exist. When people say "torturing children is wrong" they are making a claim that would be true only if objective moral facts existed. No such facts exist, so the claim is false.',
+   thinkers:'J.L. Mackie · Richard Joyce · Stefan Olsson',
+   strength:'Following the argument to its conclusion with intellectual courage.',
+   failureMode:'Moral disengagement. The error theorist can use their position to justify disengagement from ethical commitments they find inconvenient.'},
+
+  {id:'12C', family:'The Nihilist Reductionist', variant:'The Eliminativist',
+   sig:[7,7,7,6,1,1],
+   description:'You hold that folk psychological categories — belief, desire, intention, meaning, the self — are theoretical posits of a failed folk theory that will eventually be replaced by mature neuroscience. These are not real entities but approximations. There are neurons and their states; there is no "self" that has them.',
+   thinkers:'Paul Churchland · Patricia Churchland · Alex Rosenberg',
+   strength:'Maximum scientific coherence — no theoretical entities beyond what neuroscience warrants.',
+   failureMode:'Performative self-contradiction. The eliminativist who uses beliefs and reasons to argue against beliefs and reasons faces a well-known performative challenge.'},
+
+  {id:'12D', family:'The Nihilist Reductionist', variant:'The Pessimist',
+   sig:[7,6,5,5,2,1],
+   description:'You hold not only that the universe has no purpose but that existence, on balance, involves more suffering than flourishing — and that this is a structural fact about conscious life rather than a correctable condition. Your pessimism is not mood but metaphysics. You have thought this through and find it honest.',
+   thinkers:'Arthur Schopenhauer · David Benatar · Thomas Ligotti',
+   strength:'Honest accounting of suffering that optimistic frameworks systematically undercount.',
+   failureMode:'Paralysis or contagion. Pessimism as a metaphysical position is coherent; pessimism as a social orientation tends to drain the people around you.'},
+
+  {id:'12E', family:'The Nihilist Reductionist', variant:'The Functional Nihilist',
+   sig:[7,7,6,6,1,1],
+   description:'You hold nihilist positions at the metaphysical and metaethical level while continuing to function fully in practical life — not through self-deception but through a clear-eyed acknowledgment that caring, valuing, and acting are features of your psychology that do not require cosmic grounding to be real. The positions are correct; life continues anyway.',
+   thinkers:'Alex Rosenberg · Richard Rorty (anti-metaphysical) · Nietzsche (post-nihilism)',
+   strength:'The most psychologically stable nihilist type — you have integrated the positions without requiring them to produce paralysis.',
+   failureMode:'Compartmentalisation. Holding nihilism intellectually while caring functionally can become a way of avoiding the work of integrating the two.'},
+];
+
+// ══════════════════════════════════════════
+// ARCHETYPE ASSIGNMENT ENGINE
+// ══════════════════════════════════════════
+
+// The 6 T1 axes used for signature matching (in order)
+const SIG_AXES = ['naturalism','physicalism','realism','determinism','moral_ground','meaning'];
+
+function computeArchetype(scores) {
+  let bestMatch = null;
+  let bestDist = Infinity;
+  let secondBest = null;
+  let secondDist = Infinity;
+
+  ARCHETYPES.forEach(arch => {
+    let dist = 0;
+    let count = 0;
+    arch.sig.forEach((sigVal, i) => {
+      if (sigVal === null) return; // skip undefined axes
+      const axis = SIG_AXES[i];
+      const score = scores[axis] || 4;
+      dist += Math.pow(score - sigVal, 2);
+      count++;
+    });
+    const avgDist = count > 0 ? Math.sqrt(dist / count) : 999;
+    if (avgDist < bestDist) {
+      secondBest = bestMatch;
+      secondDist = bestDist;
+      bestMatch = arch;
+      bestDist = avgDist;
+    } else if (avgDist < secondDist) {
+      secondBest = arch;
+      secondDist = avgDist;
+    }
+  });
+
+  const isLiminal = secondBest && (secondDist - bestDist) < 0.4;
+
+  return {
+    primary: bestMatch,
+    secondary: secondBest,
+    distance: bestDist,
+    isLiminal,
+  };
+}
+
+function computeFingerprint(scores) {
+  // Top 5 axes by deviation from centre (4.0)
+  const deviations = Object.entries(scores).map(([axis, score]) => ({
+    axis,
+    score,
+    deviation: Math.abs(score - 4.0),
+    direction: score >= 4 ? 'right' : 'left',
+  }));
+  deviations.sort((a, b) => b.deviation - a.deviation);
+  return deviations.slice(0, 5);
+}
+
+// ══════════════════════════════════════════
+// CONTRADICTION ENGINE — 12 rules (expanded from 4)
+// Tier: 'A' = hard, 'B' = consistency flag, 'C' = interesting tension
+// ══════════════════════════════════════════
 const CONTRADICTIONS = [
   {
+    id:'C01', tier:'A',
     a:'determinism', b:'justice',
     check:(d,j) => d >= 5.5 && j <= 2.5,
-    title:'Determinism vs desert-based justice',
-    text:'You hold a strongly determinist view of human behaviour but lean toward punishment-as-desert in justice. Hard determinism logically undermines the concept of moral desert — if actions are causally determined, "deserving" punishment becomes philosophically difficult to ground.'
+    title:'Hard Determinism + Desert-Based Justice',
+    text:'You hold that every action is the inevitable product of prior causes — yet lean toward punishment as something people deserve. Hard determinism logically undermines the concept of moral desert: if someone could not have done otherwise, the framework of "deserving" punishment loses its grounding. Robert Sapolsky calls this the core tension of modern justice — the intellectual position is determinist, but the emotional system evolved to assign blame. The most consistent resolution: move to purely consequentialist/rehabilitative justice (punishment only justified by its effects), or adopt compatibilism (redefine freedom as acting from your own desires without external coercion).',
   },
   {
-    a:'naturalism', b:'moral_ground',
-    check:(n,mg) => n >= 5.5 && mg >= 5.5,
-    title:'Naturalism vs moral realism',
-    text:'Strong naturalism combined with strong moral realism creates a tension: if only physical things exist, where do objective moral facts live? Most naturalists adopt some form of moral anti-realism or constructivism. This isn\'t fatal — Cornell Realism attempts to bridge them — but it\'s worth examining.'
+    id:'C02', tier:'A',
+    a:'naturalism', b:'physicalism',
+    check:(n,p) => n >= 5.5 && p <= 2.5,
+    title:'Strong Naturalism + Non-Physical Mind',
+    text:'You hold that everything that exists is part of the natural order — yet also hold that consciousness or mind has properties that cannot be fully captured by physical description. If everything is natural, and natural means causally governed by physical laws, a non-physical mind introduces something outside the natural order. This is one of the most philosophically active tensions in contemporary philosophy of mind. The resolution space includes property dualism (same substance, non-physical properties), panpsychism (consciousness is fundamental), or accepting physicalism fully and treating the hard problem as unsolved-but-solvable.',
   },
   {
-    a:'determinism', b:'self',
-    check:(d,s) => d >= 5.5 && s <= 2.5,
-    title:'Determinism vs authored self',
-    text:'You lean toward determinism but also toward a view of the self as authored and freely expressed. These pull in opposite directions. The most consistent position either embraces compatibilism (free will redefined as acting from internal causes) or accepts the self as causally constructed.'
-  },
-  {
+    id:'C03', tier:'A',
     a:'realism', b:'moral_ground',
     check:(r,mg) => r <= 2.5 && mg >= 5.5,
-    title:'Anti-realism vs moral realism',
-    text:'You lean toward anti-realism about the external world but toward moral realism. If mind-independent facts don\'t exist in general, grounding mind-independent moral facts becomes very difficult. Most anti-realists extend their position to morality as well.'
-  }
+    title:'Anti-Realism + Moral Realism',
+    text:'You lean toward anti-realism — the view that facts do not exist independently of minds — yet hold strong moral realism, which claims that moral facts exist independently of minds. But moral realism is a specific instance of mind-independent facts. You cannot coherently hold that no mind-independent facts exist while simultaneously holding that mind-independent moral facts do. This often arises because anti-realism starts as a position about physical facts and people do not extend it to ethics where their intuitions are stronger. Resolution: extend anti-realism to ethics (moral constructivism), or narrow anti-realism to specific domains.',
+  },
+  {
+    id:'C04', tier:'A',
+    a:'determinism', b:'self',
+    check:(d,s) => d >= 5.5 && s <= 2.5,
+    title:'Hard Determinism + Authored Self',
+    text:'You hold hard determinism — every decision is causally inevitable — yet lean toward a view of the self as authored and freely expressed. These assign incompatible answers to the same question. Hard determinism means the self is constituted by its causal history; the "authored self" position means the self is a genuine originating source of action. The most consistent resolutions: compatibilism (the self is real and acts freely even if determined), or accepting a fully causal account of personal identity.',
+  },
+  {
+    id:'C05', tier:'B',
+    a:'determinism', b:'responsibility',
+    check:(d,r) => d >= 5.0 && r <= 3.0,
+    title:'Determinism + High Personal Responsibility',
+    text:'You lean toward determinism — behaviour is substantially caused by prior conditions — yet also hold strong personal responsibility, implying people are the genuine authors of their choices. These apply incompatible causal frameworks to the same question. This is one of the most common tensions in thoughtful people: the philosophical position is determinist but the emotional and practical stance retains strong responsibility intuitions. Resolution options: pragmatic responsibility (useful fiction that motivates behaviour), compatibilist responsibility (responsible for what flows from your character even if you didn\'t choose your character), or weakening one position toward the other.',
+  },
+  {
+    id:'C06', tier:'B',
+    a:'meaning', b:'meaning_practice',
+    check:(m,mp) => m <= 3.0 && mp <= 2.5,
+    title:'Constructed Meaning + Nihilism as Practice',
+    text:'You hold that meaning is constructed rather than discovered — yet your meaning practice scores toward nihilism, the view that nothing matters. These are different responses to the same starting point. If meaning is genuinely constructable, nihilism is a choice not to construct it — not a logical conclusion from meaninglessness. Camus made this distinction precisely: absurdism (construct and commit anyway) and nihilism (refuse to construct) both start from no cosmic purpose, but arrive at completely different practical orientations. The question worth sitting with: is the nihilism a philosophical position or an affective state that has been given philosophical clothing?',
+  },
+  {
+    id:'C07', tier:'B',
+    a:'determinism', b:'justice',
+    check:(d,j) => d >= 5.0 && j <= 3.0,
+    title:'Determinism + Punishment-Oriented Justice (Consistency Flag)',
+    text:'You lean toward determinism but hold a justice orientation that still emphasises punishment as a legitimate response to harm. This is not yet a hard contradiction — compatibilism provides philosophical resources for limited accountability within a determinist framework — but the tension is real and worth examining. The question to ask: on what grounds is punishment justified if the harmful action was largely determined by prior causes? The most coherent answers involve deterrence, public safety, or rehabilitation — not desert.',
+  },
+  {
+    id:'C08', tier:'B',
+    a:'naturalism', b:'meaning',
+    check:(n,m) => n >= 5.5 && m >= 5.5,
+    title:'Hard Naturalism + Meaning Realism',
+    text:'You hold hard naturalism — everything that exists is part of the physical natural world — yet also hold that meaning is genuinely real in a mind-independent sense. This is a philosophically demanding combination. In a purely natural world, where does objective meaning reside? It is not obviously a physical property. The most coherent naturalist positions either adopt deflationary meaning (meaning is just a pattern of psychological states with evolutionary origins) or do the explicit philosophical work of showing how natural facts ground genuine meaning (naturalised teleology, Cornell-style). The combination is not impossible but requires explicit work to resolve.',
+  },
+  {
+    id:'C09', tier:'B',
+    a:'politics', b:'economics',
+    check:(p,e) => p >= 5.5 && e <= 2.5,
+    title:'Structural Politics + Free Market Economics',
+    text:'You hold that political outcomes are substantially determined by structural forces — systems of power and incentive — yet lean toward free market economics, which attributes economic outcomes to individual choices and merit. These apply opposite causal frameworks to the same underlying question of whether outcomes are determined by structure or individual agency. The most coherent position applies the same causal logic consistently: if structural forces shape political outcomes, they likely shape economic outcomes too. If individual agency is primary in economics, the same logic applies in politics.',
+  },
+  {
+    id:'C10', tier:'B',
+    a:'moral_scope', b:'animal_ethics',
+    check:(ms,ae) => ms >= 5.5 && ae <= 2.5,
+    title:'High Moral Scope + Human-Priority Animal Ethics',
+    text:'You hold that the moral circle extends broadly — perhaps to future generations or all sentient beings — yet lean toward human-centric animal ethics. This creates a tension: the general principle (moral consideration extends widely) is not being applied consistently to the animal domain. The most common explanation is compartmentalisation: broad moral scope is accepted as principle but the implications for animal treatment are kept in a separate mental register. The question worth examining: on what principled grounds does the moral scope principle fail to apply to non-human animals?',
+  },
+  {
+    id:'C11', tier:'C',
+    a:'determinism', b:'progress',
+    check:(d,pr) => d >= 5.5 && pr <= 2.0,
+    title:'Hard Determinism + Strong Progress Pessimism (Interesting Tension)',
+    text:'You hold hard determinism — outcomes are the product of prior causes — alongside strong pessimism about civilisational trajectory. This is not a logical contradiction, but it creates an interesting motivational question: if outcomes are determined and the trajectory is negative, what is the basis for action to change that trajectory? The determinist who acts to change the future is not inconsistent — they are themselves a causal factor. But the combination of determinism and pessimism can, in practice, produce passivity that the intellectual position does not actually require.',
+  },
+  {
+    id:'C12', tier:'C',
+    a:'realism', b:'identity',
+    check:(r,id) => r >= 5.5 && id >= 5.5,
+    title:'Strong Realism + Constructed Identity (Interesting Tension)',
+    text:'You hold strong epistemic realism — facts exist independently of minds — alongside a strongly constructed view of personal identity. This is worth examining: if mind-independent facts exist about everything, are there mind-independent facts about persons? Strong social constructivism about identity holds that the self is substantially constituted by social and linguistic practices — a position that applies constructivist, not realist, logic to persons. This need not be a contradiction — social facts can be real while being mind-dependent in a different way than physical facts — but the tension deserves explicit philosophical attention.',
+  },
 ];
 
 function computeScores() {
@@ -1594,7 +2171,15 @@ function show(screenId) {
 }
 
 function startQuiz() {
-  state = {currentQ:0, answers:{}, axisScores:{}};
+  const nameInput = document.getElementById('intake-name');
+  const countryInput = document.getElementById('intake-country');
+  state = {
+    currentQ: 0,
+    answers: {},
+    axisScores: {},
+    userName: nameInput ? nameInput.value.trim() || '' : '',
+    userCountry: countryInput ? countryInput.value.trim() || '' : '',
+  };
   show('screen-quiz');
   renderQuestion();
 }
@@ -1708,6 +2293,9 @@ async function generateReport() {
 
   const scores = computeScores();
   const contradictions = detectContradictions(scores);
+  const archetypeResult = computeArchetype(scores);
+  const fingerprint = computeFingerprint(scores);
+  const arch = archetypeResult.primary;
 
   // Animate steps
   const steps = document.querySelectorAll('.gen-step');
@@ -1720,52 +2308,84 @@ async function generateReport() {
     if (i > 0) setTimeout(() => steps[i-1].classList.add('done'), delays[i]);
   });
 
-  // Build scores summary for prompt
+  // Build scores summary
   const scoresSummary = Object.entries(scores).map(([axis, score]) => {
     const meta = AXIS_META[axis];
     const pct = Math.round(((score-1)/6)*100);
-    return `${meta ? meta.label : axis}: ${score.toFixed(1)}/7 (${pct}% toward ${meta ? meta.poleR : 'right pole'})`;
+    const direction = score >= 4 ? meta.poleR : meta.poleL;
+    return `${meta ? meta.label : axis}: ${score.toFixed(1)}/7 — leaning ${direction}`;
+  }).join('\n');
+
+  // Fingerprint summary
+  const fingerprintSummary = fingerprint.map(f => {
+    const meta = AXIS_META[f.axis];
+    const pole = f.direction === 'right' ? meta.poleR : meta.poleL;
+    return `${meta ? meta.label : f.axis} (${f.score.toFixed(1)}) — strong ${pole}`;
   }).join('\n');
 
   const contradictionSummary = contradictions.length > 0
-    ? contradictions.map(c => `- ${c.title}`).join('\n')
+    ? contradictions.map(c => `[${c.tier}] ${c.title}`).join('\n')
     : 'None detected';
 
-  const prompt = `You are the engine of a philosophical profiling system called Philosophical OS. Based on the belief scores below, generate a personal philosophical profile report.
+  const liminalNote = archetypeResult.isLiminal && archetypeResult.secondary
+    ? `Note: This person sits between "${arch.family}: ${arch.variant}" and "${archetypeResult.secondary.family}: ${archetypeResult.secondary.variant}" — the two closest archetypes. Acknowledge this in the report.`
+    : '';
 
-AXIS SCORES (1=left pole, 7=right pole):
+  const userName = state.userName || 'the user';
+  const userCountry = state.userCountry ? ` (based in ${state.userCountry})` : '';
+
+  const prompt = `You are the report generation engine for Philosophical OS — a rigorous philosophical profiling system. Generate a deeply personalised report for ${userName}${userCountry}.
+
+COMPUTED ARCHETYPE: ${arch.family} — ${arch.variant}
+ARCHETYPE DESCRIPTION: ${arch.description}
+ALIGNED THINKERS: ${arch.thinkers}
+CORE STRENGTH: ${arch.strength}
+CORE FAILURE MODE: ${arch.failureMode}
+${liminalNote}
+
+PHILOSOPHICAL FINGERPRINT (5 most defining axes):
+${fingerprintSummary}
+
+ALL AXIS SCORES:
 ${scoresSummary}
 
 DETECTED CONTRADICTIONS:
 ${contradictionSummary}
 
-Generate a JSON object with exactly this structure:
+Generate a JSON object with EXACTLY this structure. Every field must be specific to this person's actual scores — never generic:
+
 {
-  "archetype": "A 3-5 word philosophical archetype name (e.g. The Determined Humanist, The Causal Reformer)",
-  "tagline": "One sentence that captures the essence of this worldview in plain language",
-  "identity": "3-4 paragraph narrative identity snapshot. Plain language, no jargon. Should feel like the person is reading about themselves. Specific, not generic. Reference the actual axis scores.",
+  "archetypeName": "${arch.family}",
+  "archetypeVariant": "${arch.variant}",
+  "tagline": "One precise sentence capturing the essence of THIS specific worldview based on the actual scores. Reference a specific position.",
+  "identity": "4 paragraphs. First paragraph: name the archetype and explain what it means for this specific person based on their top axis scores. Second paragraph: what these foundations mean for how they experience the world — ethics, meaning, relationships. Third paragraph: the contradiction or tension most present in their profile (even if no formal contradiction fired). Fourth paragraph: what this worldview makes them unusually good at. Plain language. No jargon. Should feel like a mirror — accurate, a little uncomfortable, deeply recognisable. Reference ${userName} by name.",
   "alignment": [
-    {"label": "Work environment", "text": "What environments fit this worldview and which drain it"},
-    {"label": "Relationships", "text": "What creates resonance and what creates chronic friction"},
-    {"label": "Decision-making", "text": "How this person likely makes decisions under uncertainty"},
-    {"label": "Conflict style", "text": "How this worldview shapes engagement with disagreement"}
+    {"label": "Work & Career", "text": "Specific environments that fit this worldview. What roles and organisational cultures align. What will feel draining. Reference actual axis scores."},
+    {"label": "Relationships", "text": "What creates deep resonance with this type. What creates chronic friction. What a partner with the opposite profile would look like and how that plays out."},
+    {"label": "Decision-Making", "text": "How this specific worldview approaches decisions under uncertainty. What the characteristic decision pattern is."},
+    {"label": "Conflict Style", "text": "How this worldview shapes engagement with disagreement. What triggers this type. What they do well and badly in conflict."}
+  ],
+  "patterns": [
+    {"type": "positive", "label": "Core Superpower", "text": "The specific strength that this axis signature produces. Not generic — derived from the actual scores."},
+    {"type": "positive", "label": "Intellectual Signature", "text": "The characteristic way this type thinks that others find distinctive."},
+    {"type": "negative", "label": "Primary Failure Mode", "text": "The specific cognitive trap or failure pattern this worldview generates. Should match the archetype failure mode but be personalised to their scores."},
+    {"type": "negative", "label": "Blind Spot", "text": "What this worldview systematically fails to see or underweights."}
   ],
   "growth": [
-    "A specific, philosophically grounded growth edge — not generic self-help. Must follow from the actual scores.",
-    "A second growth edge",
-    "A third growth edge"
+    "A specific, philosophically grounded growth edge derived from the actual scores and archetype. Not self-help. Philosophically consistent with their own framework.",
+    "A second growth edge targeting a different axis or tension.",
+    "A third growth edge focused on a practical life domain."
   ],
   "contradictions": [
-    ${contradictions.map(c => `{"title": "${c.title}", "text": "${c.text.replace(/"/g,"'")}"}`).join(',\n    ')}
+    ${contradictions.map(c => `{"tier": "${c.tier}", "title": "${c.title.replace(/"/g,"'")}", "text": "${c.text.replace(/"/g,"'").replace(/\n/g,' ')}"}`).join(',\n    ')}
   ]
 }
 
-RULES:
-- Be specific. Reference actual positions from the scores.
-- No jargon. Write for a thoughtful non-philosopher.
-- The identity section should feel like a mirror — accurate, a little uncomfortable, deeply recognisable.
-- Contradictions should explain WHY there's a tension, not just name it.
-- Growth edges should be philosophically consistent with the person's own framework.
+STRICT RULES:
+- Reference ${userName} by name at least twice in the identity section.
+- Every field must reference specific axis scores or positions. Nothing generic.
+- The identity section must feel like it was written about this specific person, not a template.
+- Contradictions are pre-computed — include them exactly as structured above, do not invent new ones.
 - Return ONLY the JSON object. No preamble, no markdown, no backticks.`;
 
   try {
@@ -1785,7 +2405,7 @@ RULES:
     // Final step done
     setTimeout(() => {
       steps[steps.length-1].classList.add('done');
-      setTimeout(() => renderReport(scores, contradictions, report), 400);
+      setTimeout(() => renderReport(scores, contradictions, archetypeResult, fingerprint, report), 400);
     }, delays[delays.length-1] + 600);
 
   } catch(err) {
@@ -1797,16 +2417,72 @@ RULES:
 // ══════════════════════════════════════════
 // RENDER REPORT
 // ══════════════════════════════════════════
-function renderReport(scores, contradictions, report) {
-  document.getElementById('report-archetype').textContent = report.archetype || '—';
-  document.getElementById('report-tagline').textContent = report.tagline || '—';
+function renderReport(scores, contradictions, archetypeResult, fingerprint, report) {
+  const arch = archetypeResult.primary;
+
+  // Header
+  document.getElementById('report-archetype').textContent = report.archetypeName || arch.family;
+  document.getElementById('report-tagline').textContent = report.tagline || arch.description;
+
+  // Archetype variant badge — inject below archetype name
+  const headerEl = document.querySelector('.report-header');
+  let variantEl = document.getElementById('report-variant');
+  if (!variantEl) {
+    variantEl = document.createElement('div');
+    variantEl.id = 'report-variant';
+    variantEl.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:0.1em;color:var(--accent2);margin-bottom:16px;';
+    document.getElementById('report-archetype').after(variantEl);
+  }
+  variantEl.textContent = report.archetypeVariant ? `variant — ${report.archetypeVariant}` : `variant — ${arch.variant}`;
+
+  // Thinkers line
+  let thinkersEl = document.getElementById('report-thinkers');
+  if (!thinkersEl) {
+    thinkersEl = document.createElement('div');
+    thinkersEl.id = 'report-thinkers';
+    thinkersEl.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);margin-bottom:24px;';
+    document.getElementById('report-tagline').after(thinkersEl);
+  }
+  thinkersEl.textContent = `Aligned thinkers: ${arch.thinkers}`;
+
+  // Identity
   document.getElementById('report-identity').innerHTML =
-    (report.identity || '').split('\n\n').map(p => `<p style="margin-bottom:1em">${p}</p>`).join('');
+    (report.identity || '').split('\n\n').map(p => `<p style="margin-bottom:1.2em">${p}</p>`).join('');
+
+  // Fingerprint visual — inject before belief map
+  let fpSection = document.getElementById('report-fingerprint-section');
+  if (!fpSection) {
+    fpSection = document.createElement('div');
+    fpSection.id = 'report-fingerprint-section';
+    fpSection.className = 'report-section';
+    document.getElementById('report-identity').closest('.report-section').after(fpSection);
+  }
+  fpSection.innerHTML = `
+    <div class="section-label">Your philosophical fingerprint</div>
+    <div style="font-size:15px;color:var(--muted);margin-bottom:20px;font-family:'IBM Plex Mono',monospace;">Your 5 most defining positions — the axes where your scores deviate furthest from centre.</div>
+    <div class="axis-bars">
+      ${fingerprint.map(f => {
+        const meta = AXIS_META[f.axis];
+        if (!meta) return '';
+        const pct = Math.round(((f.score-1)/6)*100);
+        return `<div class="axis-row">
+          <div class="axis-meta">
+            <span class="axis-name">${meta.label}</span>
+            <span class="axis-score">${f.score.toFixed(1)}</span>
+          </div>
+          <div class="axis-track">
+            <div class="axis-fill" style="width:${pct}%;background:${meta.color}"></div>
+          </div>
+          <div class="axis-poles"><span>${meta.poleL}</span><span>${meta.poleR}</span></div>
+        </div>`;
+      }).join('')}
+    </div>`;
 
   // Axis bars by tier
   [1,2,3].forEach(tier => {
     const axes = Object.entries(AXIS_META).filter(([,m]) => m.tier === tier);
     const container = document.getElementById('axes-t' + tier);
+    if (!container) return;
     container.innerHTML = axes.map(([axis, meta]) => {
       const score = scores[axis] || 4;
       const pct = Math.round(((score-1)/6)*100);
@@ -1823,17 +2499,22 @@ function renderReport(scores, contradictions, report) {
     }).join('');
   });
 
-  // Contradictions
+  // Contradictions — tiered
   const contEl = document.getElementById('report-contradictions');
   if (report.contradictions && report.contradictions.length > 0) {
-    contEl.innerHTML = report.contradictions.map(c =>
-      `<div class="contradiction-card">
-        <div class="contradiction-title">${c.title}</div>
+    const tierLabels = {A:'Hard Contradiction', B:'Consistency Flag', C:'Interesting Tension'};
+    const tierColors = {A:'var(--danger)', B:'#e8a048', C:'var(--tier2)'};
+    contEl.innerHTML = report.contradictions.map(c => {
+      const tierLabel = c.tier ? tierLabels[c.tier] || '' : '';
+      const tierColor = c.tier ? tierColors[c.tier] || 'var(--danger)' : 'var(--danger)';
+      return `<div class="contradiction-card" style="border-left-color:${tierColor}">
+        ${tierLabel ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;color:${tierColor};margin-bottom:6px;opacity:0.8;">${tierLabel}</div>` : ''}
+        <div class="contradiction-title" style="color:${tierColor}">${c.title}</div>
         <div class="contradiction-text">${c.text}</div>
-      </div>`
-    ).join('');
+      </div>`;
+    }).join('');
   } else {
-    contEl.innerHTML = '<div style="color:var(--muted);font-size:14px;font-family:\'DM Mono\',monospace">No significant contradictions detected. Your positions show strong internal consistency.</div>';
+    contEl.innerHTML = '<div style="color:var(--muted);font-size:16px;font-family:\'IBM Plex Mono\',monospace">No significant contradictions detected. Your positions show strong internal consistency.</div>';
   }
 
   // Life alignment
@@ -1847,6 +2528,33 @@ function renderReport(scores, contradictions, report) {
     ).join('');
   }
 
+  // Recurring patterns — inject after alignment
+  let patternsSection = document.getElementById('report-patterns-section');
+  if (!patternsSection) {
+    patternsSection = document.createElement('div');
+    patternsSection.id = 'report-patterns-section';
+    patternsSection.className = 'report-section';
+    document.getElementById('report-alignment').closest('.report-section').after(patternsSection);
+  }
+  if (report.patterns && report.patterns.length > 0) {
+    const positives = report.patterns.filter(p => p.type === 'positive');
+    const negatives = report.patterns.filter(p => p.type === 'negative');
+    patternsSection.innerHTML = `
+      <div class="section-label">Recurring patterns</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+        ${[...positives, ...negatives].map(p => {
+          const isPos = p.type === 'positive';
+          const borderColor = isPos ? 'var(--tier2)' : 'var(--tier3)';
+          const labelColor = isPos ? 'var(--tier2)' : 'var(--tier3)';
+          const icon = isPos ? '↑' : '↓';
+          return `<div style="background:var(--surface);border:1px solid var(--border2);border-left:3px solid ${borderColor};border-radius:var(--r);padding:20px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${labelColor};margin-bottom:8px;letter-spacing:0.1em;">${icon} ${p.label}</div>
+            <div style="font-size:17px;color:var(--text);line-height:1.65;">${p.text}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
   // Growth edges
   const growEl = document.getElementById('report-growth');
   if (report.growth) {
@@ -1856,6 +2564,18 @@ function renderReport(scores, contradictions, report) {
         <div class="growth-text">${g}</div>
       </div>`
     ).join('');
+  }
+
+  // Liminal note
+  if (archetypeResult.isLiminal && archetypeResult.secondary) {
+    let limEl = document.getElementById('report-liminal');
+    if (!limEl) {
+      limEl = document.createElement('div');
+      limEl.id = 'report-liminal';
+      limEl.style.cssText = 'background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;margin-top:16px;font-size:15px;color:var(--muted);font-family:"IBM Plex Mono",monospace;';
+      document.getElementById('report-variant').after(limEl);
+    }
+    limEl.textContent = `Liminal type — you sit between "${archetypeResult.primary.family}" and "${archetypeResult.secondary.family}". The report reflects the closer match.`;
   }
 
   show('screen-report');
