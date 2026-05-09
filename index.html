@@ -911,7 +911,75 @@ body::before {
 .rel-card.full-width .rel-card-label { color: var(--danger); }
 
 /* RETRY */
-/* ── CARD DOWNLOAD BUTTON ── */
+/* ── PHILOSOPHY TOOLTIPS ── */
+.phil-term {
+  cursor: help;
+  border-bottom: 1px dotted rgba(201,169,110,0.5);
+  position: relative;
+  display: inline;
+}
+.phil-term:hover .phil-tip,
+.phil-term:focus .phil-tip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.phil-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1e1c2e;
+  border: 1px solid rgba(201,169,110,0.35);
+  border-radius: 8px;
+  padding: 12px 16px;
+  width: 280px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.55;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  white-space: normal;
+}
+.phil-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(201,169,110,0.35);
+}
+.phil-tip-term {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+/* On mobile — tip opens below */
+@media (max-width: 600px) {
+  .phil-tip {
+    bottom: auto;
+    top: calc(100% + 10px);
+    transform: translateX(-50%) translateY(-4px);
+  }
+  .phil-tip::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: rgba(201,169,110,0.35);
+  }
+  .phil-term:hover .phil-tip { transform: translateX(-50%) translateY(0); }
+}
 .card-download-btn {
   display: inline-flex;
   align-items: center;
@@ -3526,6 +3594,56 @@ const FAMOUS_BY_FAMILY = {
 };
 
 // Rarity labels by family (estimated population percentages)
+// ══════════════════════════════════════════
+// PHILOSOPHY GLOSSARY — plain language definitions
+// ══════════════════════════════════════════
+const PHIL_GLOSSARY = {
+  'Naturalism': 'The view that everything that exists is part of the natural world. Nothing supernatural — no gods, souls, or forces outside of nature — is needed to explain reality.',
+  'Physicalism': 'The view that everything, including the mind, is ultimately physical. Your thoughts, feelings, and consciousness are what your brain does — nothing more, nothing less.',
+  'Epistemic Realism': 'The view that facts exist independently of what anyone thinks or believes. The world has a certain way of being, and our job is to discover it — not to construct it.',
+  'Determinism': 'The view that every event, including every human decision, is the inevitable result of prior causes. Given everything that came before, only one future was ever possible.',
+  'Moral Realism': 'The view that moral facts are real and mind-independent — that "torturing innocents is wrong" is genuinely true, not just an expression of personal preference or cultural norm.',
+  'Meaning Realism': 'The view that meaning is something to be discovered rather than invented. There is something that makes certain lives or activities genuinely meaningful, independent of what anyone believes about them.',
+  'Teleology': 'The view that the universe, nature, or human life has an inherent direction or purpose built into its structure — that things are oriented toward some end or goal.',
+  'Human Nature': 'The question of whether there is a fixed, universal core to what humans are — shared drives, values, and capacities — or whether who we are is substantially shaped by culture, language, and circumstance.',
+  'Epistemic Method': 'How you believe truth is best accessed — through observation and evidence, through reason and logic, through tradition and inherited wisdom, or through direct personal experience and intuition.',
+  'Social Ontology': 'Whether social structures (classes, institutions, cultures) have real causal power of their own, or whether they are simply patterns in individual behaviour with no independent existence.',
+  'Temporal Orientation': 'Where moral and meaning weight primarily resides for you — in the accumulated wisdom of the past, in the potential of the future, or in the reality of the present moment.',
+  'Moral Authority': 'Where the final authority in ethical questions resides — in God or sacred tradition, in reason and principles any rational person could endorse, in consensus among those affected, or in individual conscience.',
+  'Epistemic Humility': 'The degree to which you believe confident knowledge about fundamental philosophical questions is actually achievable — or whether honest uncertainty is the most defensible position on most deep questions.',
+  'Knowledge Source': 'What you consider the primary legitimate source of knowledge about reality — sensory observation and testing, logical reasoning from principles, spiritual insight or revelation, or tradition and lived experience.',
+  'Science Trust': 'How much you trust the scientific consensus as a reliable guide to truth, versus maintaining significant skepticism about what science claims to know.',
+  'Free Will in Practice': 'How you actually operate in daily life — whether you treat people as genuinely responsible for their choices, or whether your causal understanding of behaviour shapes how you respond to what people do.',
+  'Justice': 'Whether the primary purpose of justice is giving people what they deserve for their choices, or addressing the conditions that produced the behaviour and preventing future harm.',
+  'Ethics Engine': 'Your primary ethical orientation — whether you evaluate actions by the rules and duties they follow (deontological), or by the outcomes and consequences they produce (consequentialist).',
+  'Religion': 'Your overall assessment of religious institutions and belief — whether they are primarily positive forces for meaning and community, or whether they produce more harm than good.',
+  'Politics': 'Whether you primarily explain social and political outcomes through individual choices and personal responsibility, or through structural forces, systems, and the distribution of power.',
+  'Self': 'Whether the person you are is something you genuinely author and freely express, or whether it is substantially shaped by prior causes — your biology, history, and circumstances.',
+  'Moral Scope': 'How wide you draw the circle of moral consideration — whether you primarily weigh human interests, or whether the suffering of all sentient beings carries genuine moral weight.',
+  'Meaning Practice': 'How you actually orient toward meaning in daily life — from genuine nihilism (nothing ultimately matters) to committed meaning-creation (you build meaning deliberately despite the absence of cosmic purpose).',
+  'Society': 'Whether you primarily value individual freedom and personal autonomy, or whether collective wellbeing and community solidarity take priority.',
+  'Responsibility': 'Whether you attribute outcomes primarily to individual choices and effort, or primarily to structural conditions and systemic forces that produce those choices.',
+  'Identity': 'Whether personal identity is something essential and stable that you discover, or something constructed and fluid that is shaped by history, culture, and the stories you tell about yourself.',
+  'Authority': 'Your default relationship to institutions and established authority — whether you generally defer to them as repositories of accumulated wisdom, or approach them with critical skepticism.',
+  'Economics': 'Whether you favour free markets and private property as the primary organising principle of economic life, or redistributive arrangements that prioritise collective welfare over market outcomes.',
+  'Uncertainty Tolerance': 'Your psychological comfort with not knowing — whether you actively seek resolution and closure on open questions, or whether you can sit with genuine uncertainty as a stable resting place.',
+  'Mind/Consciousness': 'Whether you believe consciousness and subjective experience will eventually be fully explained by physical processes, or whether there is something about experience that no physical account will capture.',
+  'Animal Ethics': 'Whether human interests nearly always take priority in ethical decisions involving animals, or whether animal suffering carries genuine and comparable moral weight to human suffering.',
+  'Progress': 'Your overall assessment of the direction of human civilisation — whether things are getting better in ways that matter, or whether the problems are more fundamental than the gains.',
+};
+
+function philTerm(label) {
+  const def = PHIL_GLOSSARY[label];
+  if (!def) return `<span class="axis-name">${label}</span>`;
+  return `<span class="phil-term" tabindex="0">
+    ${label}
+    <span class="phil-tip">
+      <span class="phil-tip-term">${label}</span>
+      ${def}
+    </span>
+  </span>`;
+}
+
 const RARITY_BY_FAMILY = {
   'The Determined Humanist': {pct: '4%', label: 'Exceptionally rare worldview'},
   'The Structural Reformer': {pct: '9%', label: 'Uncommon position'},
@@ -3817,7 +3935,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       const pct = Math.round(((f.score-1)/6)*100);
       return `<div class="axis-row">
         <div class="axis-meta">
-          <span class="axis-name">${meta.label}</span>
+          <span class="axis-name">${philTerm(meta.label)}</span>
           <span class="axis-score">${f.score.toFixed(1)}</span>
         </div>
         <div class="axis-track">
@@ -4000,7 +4118,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       const pct = Math.round(((score-1)/6)*100);
       return `<div class="axis-row">
         <div class="axis-meta">
-          <span class="axis-name">${meta.label}</span>
+          <span class="axis-name">${philTerm(meta.label)}</span>
           <span class="axis-score">${score.toFixed(1)}</span>
         </div>
         <div class="axis-track">
