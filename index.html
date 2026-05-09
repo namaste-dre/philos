@@ -2029,8 +2029,9 @@ function renderQuestion() {
   const displayText = injectName(q.text, state.currentQ, state.userName);
   const opts = state.shuffledOptions[q.id] || q.options;
 
+  // Scenario questions show text in the scenario-box — no q-text needed
   let html = `<div class="q-number">${state.currentQ + 1} of ${totalQ}</div>
-    <div class="q-text">${displayText}</div>`;
+    ${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
 
   if (q.type === 'likert') {
     const cur = state.answers[q.id];
@@ -2060,7 +2061,7 @@ function renderQuestion() {
   if (q.type === 'scenario') {
     const cur = state.answers[q.id];
     html += `<div class="scenario-wrap">
-      <div class="scenario-box">${q.text}</div>
+      <div class="q-text" style="margin-bottom:32px">${displayText}</div>
       <div class="q-type-label">Which response fits you most honestly?</div>
       <div class="scenario-options">`;
     opts.forEach(opt => {
@@ -3000,7 +3001,7 @@ STRICT RULES:
 - Return ONLY the JSON object. No preamble, no markdown, no backticks.`;
 
   try {
-    const response = await fetch('/api/generate', {
+    const response = await fetch('/.netlify/functions/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
