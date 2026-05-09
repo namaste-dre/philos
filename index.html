@@ -3649,7 +3649,8 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     archetypeName: report.archetypeName || arch.family,
     archetypeVariant: report.archetypeVariant || arch.variant,
     cardTagline: report.cardTagline || report.tagline || arch.description.split('.')[0] + '.',
-    cardDescription: report.cardTagline || arch.description,
+    cardDescription: arch.description,
+    famousTypes: (typeof FAMOUS_BY_FAMILY !== 'undefined' ? FAMOUS_BY_FAMILY[arch.family] : null) || [],
     thinkers: arch.thinkers,
     fingerprint: fp,
     axisScores: scores,
@@ -3682,34 +3683,42 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  const W = 1080, H = 1920;
+  const W = 1080, H = 1920, PAD = 72;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  const PAD = 80;
 
-  // helpers
-  function strip(t) { return (t||'').replace(/\*\*/g,'').replace(/\*/g,''); }
+  function strip(t) { return (t||'').replace(/\*\*/g,'').replace(/\*/g,'').trim(); }
+
   function wrapText(text, x, y, maxW, lineH, maxLines) {
     text = strip(text);
     const words = text.split(' ');
-    let line = '', curY = y, count = 0;
+    let line='', curY=y, count=0;
     for (const word of words) {
-      const test = line ? line + ' ' + word : word;
+      const test = line ? line+' '+word : word;
       if (ctx.measureText(test).width > maxW && line) {
-        ctx.fillText(line, x, curY); line = word; curY += lineH; count++;
-        if (maxLines && count >= maxLines) { ctx.fillText(line + '...', x, curY); return curY + lineH; }
-      } else { line = test; }
+        ctx.fillText(line, x, curY);
+        line=word; curY+=lineH; count++;
+        if (maxLines && count>=maxLines) {
+          let last=line;
+          while(ctx.measureText(last+'...').width>maxW&&last.length>3) last=last.slice(0,-1);
+          ctx.fillText(last+'...', x, curY);
+          return curY+lineH;
+        }
+      } else { line=test; }
     }
     if (line) ctx.fillText(line, x, curY);
-    return curY + lineH;
+    return curY+lineH;
   }
-  function hline(y, alpha) {
-    ctx.strokeStyle = 'rgba(255,255,255,' + (alpha||0.12) + ')';
-    ctx.lineWidth = 1; ctx.beginPath();
-    ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+
+  function hline(y, alpha, color) {
+    ctx.strokeStyle = color||('rgba(255,255,255,'+(alpha||0.12)+')');
+    ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke();
   }
-  function rr(x, y, w, h, r) {
+
+  function rr(x,y,w,h,r) {
+    if(w<=0||h<=0) return;
     ctx.beginPath(); ctx.moveTo(x+r,y);
     ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
     ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
@@ -3717,174 +3726,266 @@ function renderCardToCanvas(container) {
     ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
   }
 
-  // BACKGROUND
-  const bg = ctx.createLinearGradient(0,0,W,H);
-  bg.addColorStop(0,'#0b0918'); bg.addColorStop(0.45,'#0f0d1c'); bg.addColorStop(1,'#180f0a');
-  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-  const g1 = ctx.createRadialGradient(W/2,500,0,W/2,500,750);
-  g1.addColorStop(0,'rgba(157,147,232,0.26)'); g1.addColorStop(1,'rgba(157,147,232,0)');
-  ctx.fillStyle = g1; ctx.fillRect(0,0,W,H);
-  const g2 = ctx.createRadialGradient(W,H,0,W,H,900);
-  g2.addColorStop(0,'rgba(201,169,110,0.22)'); g2.addColorStop(1,'rgba(201,169,110,0)');
-  ctx.fillStyle = g2; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = 'rgba(255,255,255,0.025)';
-  for (let gx=80;gx<W-80;gx+=68) for (let gy=80;gy<H-80;gy+=68) { ctx.beginPath(); ctx.arc(gx,gy,1.4,0,Math.PI*2); ctx.fill(); }
+  // ═══ BACKGROUND ═══
+  ctx.fillStyle='#08061a'; ctx.fillRect(0,0,W,H);
 
-  // TOP BAR
-  ctx.textAlign='left'; ctx.font='600 34px "IBM Plex Mono",monospace'; ctx.fillStyle='#c9a96e';
-  ctx.fillText('PHIL/OS',PAD,108);
-  ctx.textAlign='right'; ctx.font='400 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.28)';
-  ctx.fillText('thelifepm.com',W-PAD,108);
-  hline(138,0.25);
+  // MASSIVE purple glow - top centre
+  const g1=ctx.createRadialGradient(W/2,200,0,W/2,200,900);
+  g1.addColorStop(0,'rgba(120,100,255,0.55)');
+  g1.addColorStop(0.4,'rgba(100,80,220,0.25)');
+  g1.addColorStop(1,'rgba(80,60,180,0)');
+  ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
 
-  // ARCHETYPE NAME
-  ctx.textAlign='left';
-  ctx.font='500 32px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
-  ctx.fillText('THE',PAD,220);
-  const nameWords = cardData.archetypeName.replace('The ','').split(' ');
-  let cy = 380;
-  if (nameWords.length <= 2) {
-    ctx.font='bold 136px "Playfair Display",serif'; ctx.fillStyle='#f0ede6';
-    nameWords.forEach((w,i) => {
-      const mw = ctx.measureText(w).width;
-      if (mw > W-160) { const s=(W-160)/mw; ctx.font='bold '+Math.floor(136*s)+'px "Playfair Display",serif'; }
-      ctx.fillText(w,PAD,cy+i*148); ctx.font='bold 136px "Playfair Display",serif';
-    });
-    cy += nameWords.length*148+10;
-  } else {
-    ctx.font='bold 100px "Playfair Display",serif'; ctx.fillStyle='#f0ede6';
-    const mid=Math.ceil(nameWords.length/2);
-    ctx.fillText(nameWords.slice(0,mid).join(' '),PAD,cy);
-    ctx.fillText(nameWords.slice(mid).join(' '),PAD,cy+115);
-    cy += 250;
+  // Gold glow - bottom right
+  const g2=ctx.createRadialGradient(W-100,H-100,0,W-100,H-100,1100);
+  g2.addColorStop(0,'rgba(255,185,80,0.35)');
+  g2.addColorStop(0.4,'rgba(201,169,110,0.18)');
+  g2.addColorStop(1,'rgba(201,169,110,0)');
+  ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
+
+  // Secondary pink glow - left middle
+  const g3=ctx.createRadialGradient(0,H*0.55,0,0,H*0.55,600);
+  g3.addColorStop(0,'rgba(200,100,200,0.20)');
+  g3.addColorStop(1,'rgba(200,100,200,0)');
+  ctx.fillStyle=g3; ctx.fillRect(0,0,W,H);
+
+  // Noise texture via tiny dots
+  ctx.fillStyle='rgba(255,255,255,0.022)';
+  for(let gx=60;gx<W;gx+=62) for(let gy=60;gy<H;gy+=62) {
+    ctx.beginPath(); ctx.arc(gx,gy,1.2,0,Math.PI*2); ctx.fill();
   }
-  // variant
-  ctx.font='500 30px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(165,133,188,0.95)';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(),PAD,cy+10); cy+=62;
 
-  // rarity pill
-  const rarityMap={'The Determined Humanist':'TOP 4% RAREST','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8% RAREST','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7% RAREST','The Stoic Naturalist':'TOP 6% RAREST','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2% RAREST'};
-  const rl = (rarityMap[cardData.archetypeName]||'RARE TYPE') + ' WORLDVIEW';
-  ctx.font='600 22px "IBM Plex Mono",monospace';
-  const pillW = ctx.measureText('◆ '+rl).width + 48;
-  rr(PAD,cy+8,pillW,44,22); ctx.fillStyle='rgba(157,147,232,0.15)'; ctx.fill();
-  rr(PAD,cy+8,pillW,44,22); ctx.strokeStyle='rgba(157,147,232,0.45)'; ctx.lineWidth=1; ctx.stroke();
-  ctx.fillStyle='rgba(157,147,232,0.95)'; ctx.fillText('◆ '+rl,PAD+24,cy+36); cy+=70;
+  // Thin border frame
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  ctx.strokeRect(20,20,W-40,H-40);
 
-  hline(cy+8,0.15); cy+=48;
+  let y=0;
 
-  // PERSONALITY DESCRIPTION — 2-3 sentences
-  const rawDesc = strip(cardData.cardDescription || cardData.cardTagline || '');
-  const sentences = rawDesc.match(/[^.!?]+[.!?]+/g) || [rawDesc];
-  const descText = sentences.slice(0,3).join(' ').trim();
-  ctx.font='italic 40px "Playfair Display",serif'; ctx.fillStyle='rgba(240,237,230,0.90)';
-  cy = wrapText(descText,PAD,cy,W-PAD*2,56,5) + 16;
+  // ═══ TOP BAR ═══
+  y=100;
+  ctx.font='700 36px "IBM Plex Mono",monospace'; ctx.fillStyle='#c9a96e';
+  ctx.textAlign='left'; ctx.fillText('PHIL/OS',PAD,y);
+  ctx.font='400 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.textAlign='right'; ctx.fillText('thelifepm.com',W-PAD,y);
+  ctx.textAlign='left';
+  hline(y+22,0.3,'rgba(201,169,110,0.4)');
 
-  hline(cy,0.12); cy+=44;
+  // ═══ ARCHETYPE NAME ═══
+  y=190;
+  ctx.font='600 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.8)';
+  ctx.fillText('THE',PAD,y); y+=10;
 
-  // BELIEF FINGERPRINT
-  ctx.font='600 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
-  ctx.fillText('BELIEF FINGERPRINT',PAD,cy); cy+=40;
-  const labelW=280, trackW=W-PAD*2-labelW-80, barH=14, barGap=60;
-  (cardData.fingerprint||[]).forEach((fp,i) => {
-    const meta=AXIS_META[fp.axis]; if (!meta) return;
-    const fy=cy+i*barGap;
-    const rawScore = cardData.axisScores ? (cardData.axisScores[fp.axis]||fp.score||4) : (fp.score||4);
-    const pct = Math.max(0,Math.min(1,(rawScore-1)/6));
-    const fillW = Math.round(pct*trackW);
-    ctx.font='400 24px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
-    const lbl=meta.label.length>16?meta.label.slice(0,15)+'.':meta.label;
-    ctx.fillText(lbl,PAD,fy+11);
-    const tx=PAD+labelW;
-    rr(tx,fy,trackW,barH,barH/2); ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fill();
-    if (fillW>4) {
-      const gr=ctx.createLinearGradient(tx,0,tx+fillW,0);
-      gr.addColorStop(0,'rgba(157,147,232,0.55)'); gr.addColorStop(1,'#9d93e8');
-      ctx.fillStyle=gr; rr(tx,fy,fillW,barH,barH/2); ctx.fill();
+  const nameWords=cardData.archetypeName.replace('The ','').split(' ');
+  if(nameWords.length<=2) {
+    ctx.font='bold 144px "Playfair Display",serif'; ctx.fillStyle='#ffffff';
+    nameWords.forEach((w,i)=>{
+      const mw=ctx.measureText(w).width;
+      if(mw>W-PAD*2) { const s=(W-PAD*2)/mw; ctx.font='bold '+Math.floor(144*s)+'px "Playfair Display",serif'; }
+      ctx.fillText(w,PAD,y+80+i*158);
+      ctx.font='bold 144px "Playfair Display",serif';
+    });
+    y+=80+nameWords.length*158;
+  } else {
+    ctx.font='bold 106px "Playfair Display",serif'; ctx.fillStyle='#ffffff';
+    const mid=Math.ceil(nameWords.length/2);
+    ctx.fillText(nameWords.slice(0,mid).join(' '),PAD,y+80);
+    ctx.fillText(nameWords.slice(mid).join(' '),PAD,y+195);
+    y+=280;
+  }
+  y+=10;
+
+  // Variant + rarity on same line
+  ctx.font='500 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.9)';
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(),PAD,y);
+
+  const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
+  const rPct=rarityMap[cardData.archetypeName]||'RARE';
+  ctx.font='700 26px "IBM Plex Mono",monospace';
+  const rW=ctx.measureText('◆ '+rPct+' RAREST').width+36;
+  rr(W-PAD-rW,y-30,rW,42,21); ctx.fillStyle='rgba(120,100,255,0.22)'; ctx.fill();
+  rr(W-PAD-rW,y-30,rW,42,21); ctx.strokeStyle='rgba(157,147,232,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
+  ctx.fillText('◆ '+rPct+' RAREST',W-PAD-18,y);
+  ctx.textAlign='left';
+  y+=44;
+
+  // Separator with glow
+  hline(y,0,'rgba(157,147,232,0.35)');
+  y+=44;
+
+  // ═══ DESCRIPTION — 2-3 sentences ═══
+  const rawDesc=strip(cardData.cardDescription||'');
+  const sentences=(rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
+  const descText=sentences.slice(0,3).join(' ').trim();
+  ctx.font='italic 42px "Playfair Display",serif';
+  ctx.fillStyle='rgba(255,255,255,0.88)';
+  y=wrapText(descText,PAD,y,W-PAD*2,60,5)+12;
+
+  hline(y,0.12); y+=44;
+
+  // ═══ BELIEF FINGERPRINT ═══
+  ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
+  ctx.letterSpacing='0.1em'; ctx.fillText('BELIEF FINGERPRINT',PAD,y); y+=42;
+
+  const lblW=260, trackW=W-PAD*2-lblW-80, bH=18, bGap=62;
+  (cardData.fingerprint||[]).forEach((fp,i)=>{
+    const meta=AXIS_META[fp.axis]; if(!meta) return;
+    const fy=y+i*bGap;
+    const raw=cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
+    const pct=Math.max(0,Math.min(1,(raw-1)/6));
+    const fw=Math.max(bH,Math.round(pct*trackW));
+
+    ctx.font='500 26px "IBM Plex Sans",sans-serif';
+    ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
+    const lbl=meta.label.length>15?meta.label.slice(0,14)+'.':meta.label;
+    ctx.fillText(lbl,PAD,fy+13);
+
+    const tx=PAD+lblW;
+    rr(tx,fy,trackW,bH,bH/2); ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fill();
+    if(fw>bH) {
+      const gr=ctx.createLinearGradient(tx,0,tx+fw,0);
+      gr.addColorStop(0,'rgba(120,100,255,0.7)'); gr.addColorStop(1,'rgba(157,147,232,1)');
+      ctx.fillStyle=gr; rr(tx,fy,fw,bH,bH/2); ctx.fill();
+      // glow on filled bar
+      ctx.shadowColor='rgba(157,147,232,0.6)'; ctx.shadowBlur=12;
+      rr(tx,fy,fw,bH,bH/2); ctx.fillStyle='rgba(157,147,232,0.2)'; ctx.fill();
+      ctx.shadowBlur=0;
     }
-    ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='#9d93e8'; ctx.textAlign='right';
-    ctx.fillText(rawScore.toFixed(1),W-PAD,fy+11); ctx.textAlign='left';
+    ctx.font='700 24px "IBM Plex Mono",monospace';
+    ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
+    ctx.fillText(raw.toFixed(1),W-PAD,fy+13); ctx.textAlign='left';
   });
-  cy += (cardData.fingerprint||[]).length*barGap+36;
+  y+=(cardData.fingerprint||[]).length*bGap+36;
 
-  hline(cy,0.12); cy+=44;
+  hline(y,0.12); y+=44;
 
-  // CULTURAL ECOSYSTEM
-  const mediaMap2 = typeof MEDIA_BY_FAMILY!=='undefined' ? MEDIA_BY_FAMILY : {};
-  const media = mediaMap2[cardData.archetypeName];
-  if (media) {
-    ctx.font='600 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
-    ctx.fillText('YOUR WORLD',PAD,cy); cy+=42;
+  // ═══ YOUR WORLD — media ═══
+  const mediaMap2=typeof MEDIA_BY_FAMILY!=='undefined'?MEDIA_BY_FAMILY:{};
+  const media=mediaMap2[cardData.archetypeName];
+  if(media) {
+    ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
+    ctx.fillText('YOUR WORLD',PAD,y); y+=42;
     const colW=(W-PAD*2)/3;
-    const cats=[{label:'FILM',items:media.films.slice(0,2)},{label:'MUSIC',items:media.music.slice(0,2)},{label:'BOOKS',items:media.books.slice(0,2)}];
-    cats.forEach((cat,ci) => {
-      const cx2=PAD+ci*colW;
-      ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(165,133,188,0.8)';
-      ctx.fillText(cat.label,cx2,cy);
-      cat.items.forEach((item,ii) => {
-        const iy=cy+28+ii*56;
-        ctx.font='500 22px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(240,237,230,0.92)';
-        let t=item.title; while(ctx.measureText(t).width>colW-18&&t.length>4) t=t.slice(0,-4)+'...';
-        ctx.fillText(t,cx2,iy);
-        ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.52)';
-        let n=item.note; while(ctx.measureText(n).width>colW-18&&n.length>4) n=n.slice(0,-4)+'...';
-        ctx.fillText(n,cx2,iy+22);
+    [
+      {icon:'FILM',items:media.films.slice(0,2)},
+      {icon:'MUSIC',items:media.music.slice(0,2)},
+      {icon:'BOOKS',items:media.books.slice(0,2)}
+    ].forEach((cat,ci)=>{
+      const cx=PAD+ci*colW;
+      ctx.font='600 19px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
+      ctx.fillText(cat.icon,cx,y);
+      cat.items.forEach((item,ii)=>{
+        const iy=y+30+ii*58;
+        ctx.font='600 22px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(255,255,255,0.92)';
+        let t=item.title;
+        while(ctx.measureText(t).width>colW-20&&t.length>4) t=t.slice(0,-4)+'...';
+        ctx.fillText(t,cx,iy);
+        ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.55)';
+        let n=item.note;
+        while(ctx.measureText(n).width>colW-20&&n.length>4) n=n.slice(0,-4)+'...';
+        ctx.fillText(n,cx,iy+22);
       });
     });
-    cy+=175; hline(cy,0.12); cy+=42;
+    y+=180; hline(y,0.12); y+=42;
   }
 
-  // THINKERS
-  ctx.font='500 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(165,133,188,0.85)';
-  ctx.fillText(strip(cardData.thinkers||''),PAD,cy); cy+=52;
+  // ═══ THINKERS WITH DESCRIPTORS ═══
+  ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
+  ctx.fillText('MINDS LIKE YOURS',PAD,y); y+=40;
 
-  // PHILOSOPHICAL DNA WAVEFORM
-  const dnaY=H-250, dnaH=130;
-  ctx.fillStyle='rgba(157,147,232,0.04)'; ctx.fillRect(0,dnaY,W,dnaH);
-  hline(dnaY,0.1); hline(dnaY+dnaH,0.1);
+  const famous=(cardData.famousTypes||[]).slice(0,3);
+  if(famous.length>0) {
+    const fColW=(W-PAD*2)/Math.min(famous.length,3);
+    famous.forEach((f,i)=>{
+      const fx=PAD+i*fColW;
+      ctx.font='700 24px "Playfair Display",serif'; ctx.fillStyle='rgba(255,255,255,0.95)';
+      ctx.fillText(f.name,fx,y+24);
+      ctx.font='400 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.65)';
+      let desc=f.desc;
+      while(ctx.measureText(desc).width>fColW-16&&desc.length>4) desc=desc.slice(0,-4)+'...';
+      ctx.fillText(desc,fx,y+46);
+    });
+    y+=80;
+  } else {
+    ctx.font='500 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
+    ctx.fillText(strip(cardData.thinkers||''),PAD,y); y+=48;
+  }
+
+  hline(y,0.12); y+=30;
+
+  // ═══ BOTTOM: UNIQUE AXIS RADAR — hexagon burst ═══
+  const radarY=H-380, radarCY=radarY+150, radarCX=W/2, radarR=120;
   const axKeys=Object.keys(AXIS_META);
-  const segW2=W/axKeys.length, midY=dnaY+dnaH/2, maxAmp=dnaH/2-10;
-  // draw filled area
-  ctx.beginPath(); ctx.moveTo(0,midY);
-  axKeys.forEach((k,i) => {
-    const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const norm=(sc-4)/3;
-    ctx.lineTo(i*segW2+segW2/2, midY-norm*maxAmp);
+  const n=axKeys.length;
+
+  // Draw concentric rings
+  [0.33,0.66,1.0].forEach(r=>{
+    ctx.beginPath();
+    for(let i=0;i<n;i++) {
+      const ang=(i/n)*Math.PI*2-Math.PI/2;
+      const px=radarCX+Math.cos(ang)*radarR*r;
+      const py=radarCY+Math.sin(ang)*radarR*r;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.stroke();
   });
-  ctx.lineTo(W,midY); ctx.closePath();
-  const wg=ctx.createLinearGradient(0,0,W,0);
-  wg.addColorStop(0,'rgba(157,147,232,0.15)'); wg.addColorStop(0.5,'rgba(201,169,110,0.15)'); wg.addColorStop(1,'rgba(157,147,232,0.15)');
-  ctx.fillStyle=wg; ctx.fill();
-  // draw line
+
+  // Draw axis lines from centre
+  for(let i=0;i<n;i++) {
+    const ang=(i/n)*Math.PI*2-Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(radarCX,radarCY);
+    ctx.lineTo(radarCX+Math.cos(ang)*radarR,radarCY+Math.sin(ang)*radarR);
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1; ctx.stroke();
+  }
+
+  // Draw filled polygon from user scores
   ctx.beginPath();
-  axKeys.forEach((k,i) => {
+  axKeys.forEach((k,i)=>{
+    const ang=(i/n)*Math.PI*2-Math.PI/2;
     const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const norm=(sc-4)/3;
-    const px=i*segW2+segW2/2, py=midY-norm*maxAmp;
+    const norm=Math.max(0,Math.min(1,(sc-1)/6));
+    const px=radarCX+Math.cos(ang)*radarR*norm;
+    const py=radarCY+Math.sin(ang)*radarR*norm;
     i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
   });
-  const wg2=ctx.createLinearGradient(0,0,W,0);
-  wg2.addColorStop(0,'rgba(157,147,232,0.9)'); wg2.addColorStop(0.5,'rgba(201,169,110,0.9)'); wg2.addColorStop(1,'rgba(157,147,232,0.9)');
-  ctx.strokeStyle=wg2; ctx.lineWidth=2.5; ctx.stroke();
-  // dots on peaks
-  axKeys.forEach((k,i) => {
+  ctx.closePath();
+  const rg=ctx.createRadialGradient(radarCX,radarCY,0,radarCX,radarCY,radarR);
+  rg.addColorStop(0,'rgba(157,147,232,0.5)'); rg.addColorStop(1,'rgba(120,100,255,0.15)');
+  ctx.fillStyle=rg; ctx.fill();
+  ctx.strokeStyle='rgba(157,147,232,0.8)'; ctx.lineWidth=2.5; ctx.stroke();
+
+  // Outer glow on polygon
+  ctx.shadowColor='rgba(157,147,232,0.5)'; ctx.shadowBlur=20;
+  ctx.strokeStyle='rgba(157,147,232,0.4)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Expand radar with additional rings left and right
+  // Parallel mini-bars strip — unique visual signature
+  const stripY=H-210, stripH=60;
+  ctx.fillStyle='rgba(157,147,232,0.04)'; ctx.fillRect(0,stripY,W,stripH);
+  hline(stripY,0.08); hline(stripY+stripH,0.08);
+
+  const bW=(W-PAD*2)/axKeys.length;
+  axKeys.forEach((k,i)=>{
     const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const norm=(sc-4)/3;
-    const dev=Math.abs(norm);
-    if (dev>0.4) {
-      ctx.beginPath(); ctx.arc(i*segW2+segW2/2,midY-norm*maxAmp,4+dev*6,0,Math.PI*2);
-      ctx.fillStyle='rgba(157,147,232,'+(0.4+dev*0.6)+')'; ctx.fill();
-    }
+    const norm=Math.max(0,Math.min(1,(sc-1)/6));
+    const bx=PAD+i*bW, bh=8+norm*44;
+    const by=stripY+(stripH-bh)/2;
+    const alpha=0.15+norm*0.6;
+    const hue=norm>0.5?'157,147,232':'201,169,110';
+    ctx.fillStyle='rgba('+hue+','+alpha+')';
+    ctx.fillRect(bx+1,by,bW-2,bh);
   });
-  ctx.font='400 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.2)';
-  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA — 34 AXES',W/2,dnaY+dnaH+26);
 
-  // BOTTOM BRANDING
-  ctx.font='600 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.65)';
-  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com',W/2,H-55);
+  ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES',W/2,stripY+stripH+24);
 
-  container.innerHTML = '';
-  container.appendChild(canvas);
+  // ═══ BOTTOM BRANDING ═══
+  ctx.font='700 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
+  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com',W/2,H-42);
+
+  container.innerHTML=''; container.appendChild(canvas);
   return canvas;
 }
 
