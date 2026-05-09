@@ -609,7 +609,50 @@ body::before {
   font-weight: 700;
 }
 .growth-text { font-size: 18px; color: var(--text); line-height: 1.7; font-weight: 400; }
-/* RETRY BTN */
+/* ── CARD DOWNLOAD BUTTON ── */
+.card-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--accent), #b8894e);
+  border: none;
+  color: #1a1410;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+  margin-top: 20px;
+  box-shadow: 0 4px 24px rgba(201,169,110,0.3);
+}
+.card-download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(201,169,110,0.4);
+}
+.card-preview-wrap {
+  margin: 32px auto 0;
+  max-width: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  cursor: pointer;
+}
+.card-preview-wrap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.card-hint {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+  letter-spacing: 0.06em;
+}
+/* ── RETRY BUTTON ── */
 .retry-wrap { text-align: center; margin-top: 48px; }
 .btn-secondary {
   background: transparent;
@@ -744,6 +787,9 @@ body::before {
     <div class="report-eyebrow">Your Philosophical OS</div>
     <div class="report-archetype" id="report-archetype">—</div>
     <div class="report-tagline" id="report-tagline">—</div>
+    <button class="card-download-btn" id="card-download-btn" onclick="downloadCard()" style="display:none">
+      <span>↓</span> Download your card
+    </button>
   </div>
   <div class="report-body">
 
@@ -2922,6 +2968,7 @@ Generate a JSON object with EXACTLY this structure. Every field must be specific
   "archetypeName": "${arch.family}",
   "archetypeVariant": "${arch.variant}",
   "tagline": "One precise sentence capturing the essence of THIS specific worldview based on the actual scores. Reference a specific position.",
+  "cardTagline": "A punchy 1-2 line statement for a shareable card. Maximum 12 words per line, 2 lines max. Should make someone reading it say 'that is exactly me'. Bold and declarative. No jargon. Examples: 'The universe runs on cause and effect. I run on that too.' or 'Nothing matters cosmically. I act anyway.' Write one that fits THIS person's specific top axis scores.",
   "identity": "4 paragraphs. First paragraph: name the archetype and explain what it means for this specific person based on their top axis scores. Second paragraph: what these foundations mean for how they experience the world — ethics, meaning, relationships. Third paragraph: the contradiction or tension most present in their profile (even if no formal contradiction fired). Fourth paragraph: what this worldview makes them unusually good at. Plain language. No jargon. Should feel like a mirror — accurate, a little uncomfortable, deeply recognisable. Reference ${userName} by name.",
   "alignment": [
     {"label": "Work & Career", "text": "Specific environments that fit this worldview. What roles and organisational cultures align. What will feel draining. Reference actual axis scores."},
@@ -2957,7 +3004,8 @@ STRICT RULES:
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        messages: [{role:'user', content: prompt}]
+        messages: [{role:'user', content: prompt}],
+        max_tokens: 1500
       })
     });
 
@@ -3143,6 +3191,373 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   }
 
   show('screen-report');
+
+  // Build the shareable card
+  cardData = null; // reset
+  // Pass axis scores into card for barcode
+  buildCardData(scores, archetypeResult, report, fingerprint);
+  if (cardData) cardData.axisScores = scores;
+}
+// ══════════════════════════════════════════
+
+// Global card state — populated when report renders
+let cardData = null;
+
+function buildCardData(scores, archetypeResult, report, fingerprint) {
+  const arch = archetypeResult.primary;
+  // Pick the 4 most extreme T1 axes for the fingerprint bars
+  const t1Axes = ['naturalism','physicalism','determinism','moral_ground','meaning','realism',
+                  'teleology','human_nature','epistemic_method','social_ontology',
+                  'temporal_orientation','moral_authority','epistemic_humility'];
+  const fp = fingerprint
+    .filter(f => t1Axes.includes(f.axis))
+    .slice(0, 4);
+
+  cardData = {
+    archetypeName: report.archetypeName || arch.family,
+    archetypeVariant: report.archetypeVariant || arch.variant,
+    cardTagline: report.cardTagline || report.tagline || arch.description.split('.')[0] + '.',
+    thinkers: arch.thinkers,
+    fingerprint: fp,
+    userName: state.userName || null,
+  };
+
+  // Show download button and render preview
+  const btn = document.getElementById('card-download-btn');
+  if (btn) btn.style.display = 'inline-flex';
+
+  // Insert card preview below the download button
+  const header = document.querySelector('.report-header');
+  let previewWrap = document.getElementById('card-preview-wrap');
+  if (!previewWrap) {
+    previewWrap = document.createElement('div');
+    previewWrap.id = 'card-preview-wrap';
+    previewWrap.className = 'card-preview-wrap';
+    previewWrap.title = 'Click to download';
+    previewWrap.onclick = downloadCard;
+    const hint = document.createElement('div');
+    hint.className = 'card-hint';
+    hint.textContent = 'Tap to download · Share on TikTok, Instagram, Reels';
+    header.appendChild(previewWrap);
+    header.appendChild(hint);
+  }
+
+  renderCardToCanvas(previewWrap);
+}
+
+function renderCardToCanvas(container) {
+  if (!cardData) return;
+
+  // Card dimensions: 1080x1920
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // ── BACKGROUND ──
+  // Deep space gradient with warmth — pops on bright social feeds
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0,   '#0d0b14');
+  bg.addColorStop(0.4, '#12101c');
+  bg.addColorStop(1,   '#1a1008');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Accent glow top-left
+  const glow1 = ctx.createRadialGradient(120, 120, 0, 120, 120, 500);
+  glow1.addColorStop(0, 'rgba(157,147,232,0.18)');
+  glow1.addColorStop(1, 'rgba(157,147,232,0)');
+  ctx.fillStyle = glow1;
+  ctx.fillRect(0, 0, W, H);
+
+  // Warm glow bottom-right
+  const glow2 = ctx.createRadialGradient(W - 100, H - 200, 0, W - 100, H - 200, 600);
+  glow2.addColorStop(0, 'rgba(201,169,110,0.14)');
+  glow2.addColorStop(1, 'rgba(201,169,110,0)');
+  ctx.fillStyle = glow2;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 90) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 90) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // ── TOP BRANDING ──
+  ctx.font = '500 36px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(201,169,110,0.9)';
+  ctx.textAlign = 'left';
+  ctx.letterSpacing = '0.15em';
+  ctx.fillText('PHIL/OS', 80, 110);
+
+  ctx.font = '400 30px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.textAlign = 'right';
+  ctx.fillText('thelifepm.com', W - 80, 110);
+
+  // Top separator line
+  ctx.strokeStyle = 'rgba(201,169,110,0.3)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(80, 140); ctx.lineTo(W - 80, 140);
+  ctx.stroke();
+
+  // ── ARCHETYPE NAME ──
+  const archetypeName = cardData.archetypeName.replace('The ', '');
+  ctx.textAlign = 'left';
+
+  // "THE" small label
+  ctx.font = '500 38px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(201,169,110,0.7)';
+  ctx.letterSpacing = '0.2em';
+  ctx.fillText('THE', 80, 260);
+
+  // Main archetype name — large, bold, white
+  // Handle long names by wrapping
+  ctx.font = 'bold 148px "Playfair Display", serif';
+  ctx.fillStyle = '#f0ede6';
+  ctx.letterSpacing = '-0.02em';
+  const words = archetypeName.split(' ');
+  let y = 420;
+  const lineH = 158;
+  if (words.length <= 2) {
+    // Single or two words — stack them
+    words.forEach((word, i) => {
+      const measured = ctx.measureText(word).width;
+      // Scale down if too wide
+      if (measured > W - 160) {
+        const scale = (W - 160) / measured;
+        ctx.font = `bold ${Math.floor(148 * scale)}px "Playfair Display", serif`;
+      }
+      ctx.fillText(word, 80, y + i * lineH);
+      ctx.font = 'bold 148px "Playfair Display", serif';
+    });
+    y += words.length * lineH;
+  } else {
+    // 3+ words — reduce size and wrap at 2 per line
+    ctx.font = 'bold 108px "Playfair Display", serif';
+    const mid = Math.ceil(words.length / 2);
+    const line1 = words.slice(0, mid).join(' ');
+    const line2 = words.slice(mid).join(' ');
+    ctx.fillText(line1, 80, y);
+    ctx.fillText(line2, 80, y + 120);
+    y += 260;
+  }
+
+  // Variant label
+  ctx.font = '500 36px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(165,133,188,0.9)';
+  ctx.letterSpacing = '0.08em';
+  ctx.fillText(cardData.archetypeVariant.toUpperCase(), 80, y + 20);
+
+  // ── DIVIDER ──
+  y += 70;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, y); ctx.lineTo(W - 80, y);
+  ctx.stroke();
+  y += 60;
+
+  // ── FINGERPRINT BARS ──
+  ctx.font = '500 28px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(201,169,110,0.7)';
+  ctx.letterSpacing = '0.14em';
+  ctx.fillText('BELIEF FINGERPRINT', 80, y);
+  y += 52;
+
+  const barAreaW = W - 160;
+  const labelW = 340;
+  const barTrackW = barAreaW - labelW - 20;
+  const barH = 14;
+  const barGap = 70;
+  const barRadius = barH / 2;
+
+  const TIER1_COLORS = {
+    naturalism: '#9d93e8',
+    physicalism: '#9d93e8',
+    determinism: '#9d93e8',
+    moral_ground: '#9d93e8',
+    meaning: '#9d93e8',
+    realism: '#9d93e8',
+    teleology: '#9d93e8',
+    human_nature: '#9d93e8',
+    epistemic_method: '#9d93e8',
+    social_ontology: '#9d93e8',
+    temporal_orientation: '#9d93e8',
+    moral_authority: '#9d93e8',
+    epistemic_humility: '#9d93e8',
+  };
+
+  cardData.fingerprint.forEach((fp, i) => {
+    const meta = AXIS_META[fp.axis];
+    if (!meta) return;
+    const fy = y + i * barGap;
+    const pct = (fp.score - 1) / 6;
+    const fillW = Math.round(pct * barTrackW);
+    const barColor = TIER1_COLORS[fp.axis] || '#9d93e8';
+
+    // Label
+    ctx.font = '400 26px "IBM Plex Sans", sans-serif';
+    ctx.fillStyle = 'rgba(240,237,230,0.9)';
+    ctx.textAlign = 'left';
+    ctx.letterSpacing = '0';
+    const labelText = meta.label.length > 18 ? meta.label.substring(0, 17) + '.' : meta.label;
+    ctx.fillText(labelText, 80, fy + 10);
+
+    // Track background
+    const trackX = 80 + labelW;
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    roundRect(ctx, trackX, fy - 2, barTrackW, barH, barRadius);
+    ctx.fill();
+
+    // Fill
+    if (fillW > 0) {
+      const fillGrad = ctx.createLinearGradient(trackX, 0, trackX + fillW, 0);
+      fillGrad.addColorStop(0, barColor + 'aa');
+      fillGrad.addColorStop(1, barColor);
+      ctx.fillStyle = fillGrad;
+      roundRect(ctx, trackX, fy - 2, Math.max(fillW, barH), barH, barRadius);
+      ctx.fill();
+    }
+
+    // Score dot
+    const dotX = trackX + fillW;
+    ctx.beginPath();
+    ctx.arc(Math.min(dotX, trackX + barTrackW - 6), fy + barH/2 - 2, 7, 0, Math.PI * 2);
+    ctx.fillStyle = barColor;
+    ctx.fill();
+
+    // Score value
+    ctx.font = '500 22px "IBM Plex Mono", monospace';
+    ctx.fillStyle = barColor;
+    ctx.textAlign = 'right';
+    ctx.fillText(fp.score.toFixed(1), W - 80, fy + 10);
+    ctx.textAlign = 'left';
+  });
+
+  y += cardData.fingerprint.length * barGap + 50;
+
+  // ── CARD TAGLINE ──
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, y); ctx.lineTo(W - 80, y);
+  ctx.stroke();
+  y += 70;
+
+  // Wrap tagline text
+  ctx.font = 'italic 52px "Playfair Display", serif';
+  ctx.fillStyle = 'rgba(240,237,230,0.95)';
+  ctx.letterSpacing = '0';
+  const taglineWords = cardData.cardTagline.split(' ');
+  const maxLineW = W - 200;
+  let line = '';
+  const taglineLines = [];
+  taglineWords.forEach(word => {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxLineW && line) {
+      taglineLines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  });
+  if (line) taglineLines.push(line);
+
+  const taglineLineH = 68;
+  taglineLines.slice(0, 3).forEach((l, i) => {
+    ctx.fillText(l, 80, y + i * taglineLineH);
+  });
+  y += Math.min(taglineLines.length, 3) * taglineLineH + 50;
+
+  // ── THINKERS ──
+  ctx.font = '500 28px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(165,133,188,0.8)';
+  ctx.letterSpacing = '0.06em';
+  ctx.fillText(cardData.thinkers, 80, y);
+  y += 50;
+
+  // ── BOTTOM DECORATIVE FINGERPRINT BARCODE ──
+  // Unique visual pattern generated from axis scores
+  const barcodeY = H - 200;
+  ctx.fillStyle = 'rgba(201,169,110,0.08)';
+  ctx.fillRect(0, barcodeY - 10, W, 100);
+
+  const allScores = Object.values(AXIS_META).map((_, i) => {
+    const axisKeys = Object.keys(AXIS_META);
+    // Use a fallback pattern if scores not available
+    return Math.random();
+  });
+
+  // Actually use real fingerprint data for the barcode pattern
+  const barcodeData = Object.entries(AXIS_META).map(([key]) => {
+    // We'll store scores in cardData
+    return cardData.axisScores ? (cardData.axisScores[key] || 4) : 4;
+  });
+
+  const barcodeBarW = W / barcodeData.length;
+  barcodeData.forEach((val, i) => {
+    const norm = (val - 1) / 6;
+    const h = 20 + norm * 70;
+    const alpha = 0.15 + norm * 0.45;
+    ctx.fillStyle = `rgba(201,169,110,${alpha})`;
+    ctx.fillRect(i * barcodeBarW, barcodeY + (90 - h) / 2, barcodeBarW - 1, h);
+  });
+
+  // Bottom branding
+  ctx.font = '500 30px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(201,169,110,0.6)';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '0.1em';
+  ctx.fillText('PHIL/OS  ·  thelifepm.com', W / 2, H - 60);
+
+  // Bottom separator
+  ctx.strokeStyle = 'rgba(201,169,110,0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, H - 90); ctx.lineTo(W - 80, H - 90);
+  ctx.stroke();
+
+  // Add to container
+  container.innerHTML = '';
+  container.appendChild(canvas);
+
+  return canvas;
+}
+
+// Helper: rounded rectangle path
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function downloadCard() {
+  if (!cardData) return;
+  const wrap = document.getElementById('card-preview-wrap');
+  const canvas = wrap ? wrap.querySelector('canvas') : null;
+  if (!canvas) return;
+
+  const name = state.userName ? state.userName.replace(/\s+/g, '-').toLowerCase() : 'my';
+  const archSlug = (cardData.archetypeName || 'phil-os').replace(/\s+/g, '-').toLowerCase();
+  const link = document.createElement('a');
+  link.download = `${name}-${archSlug}-philos.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 }
 </script>
 </body>
