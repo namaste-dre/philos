@@ -3683,7 +3683,7 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  const W = 1080, H = 1920, PAD = 72;
+  const W = 1080, H = 2160, PAD = 72;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -3700,7 +3700,7 @@ function renderCardToCanvas(container) {
         ctx.fillText(line, x, curY);
         line=word; curY+=lineH; count++;
         if (maxLines && count>=maxLines) {
-          while(ctx.measureText(line+'...').width>maxW && line.length>3) line=line.slice(0,-1);
+          while(ctx.measureText(line+'...').width>maxW&&line.length>3) line=line.slice(0,-1);
           ctx.fillText(line+'...', x, curY);
           return curY+lineH;
         }
@@ -3726,25 +3726,35 @@ function renderCardToCanvas(container) {
   }
 
   // ═══ BACKGROUND ═══
-  ctx.fillStyle='#08061a'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#07051a'; ctx.fillRect(0,0,W,H);
 
-  const g1=ctx.createRadialGradient(W/2,180,0,W/2,180,820);
+  // Big purple glow top
+  const g1=ctx.createRadialGradient(W/2,200,0,W/2,200,1000);
   g1.addColorStop(0,'rgba(110,90,240,0.55)');
-  g1.addColorStop(0.5,'rgba(90,70,200,0.22)');
+  g1.addColorStop(0.45,'rgba(90,70,200,0.22)');
   g1.addColorStop(1,'rgba(70,50,160,0)');
   ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
 
-  const g2=ctx.createRadialGradient(W,H,0,W,H,1000);
-  g2.addColorStop(0,'rgba(255,180,70,0.32)');
-  g2.addColorStop(0.45,'rgba(201,169,110,0.14)');
+  // Gold glow — starts from H*0.4, fills bottom half
+  const g2=ctx.createRadialGradient(W*0.85,H*0.75,0,W*0.85,H*0.75,1100);
+  g2.addColorStop(0,'rgba(255,185,70,0.38)');
+  g2.addColorStop(0.35,'rgba(201,169,110,0.20)');
   g2.addColorStop(1,'rgba(201,169,110,0)');
   ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
 
-  const g3=ctx.createRadialGradient(0,H*0.5,0,0,H*0.5,550);
-  g3.addColorStop(0,'rgba(180,90,200,0.18)');
-  g3.addColorStop(1,'rgba(180,90,200,0)');
+  // Secondary gold glow — left side mid
+  const g2b=ctx.createRadialGradient(0,H*0.6,0,0,H*0.6,700);
+  g2b.addColorStop(0,'rgba(220,160,60,0.22)');
+  g2b.addColorStop(1,'rgba(220,160,60,0)');
+  ctx.fillStyle=g2b; ctx.fillRect(0,0,W,H);
+
+  // Pink glow left
+  const g3=ctx.createRadialGradient(0,H*0.45,0,0,H*0.45,600);
+  g3.addColorStop(0,'rgba(180,80,200,0.18)');
+  g3.addColorStop(1,'rgba(180,80,200,0)');
   ctx.fillStyle=g3; ctx.fillRect(0,0,W,H);
 
+  // Dot texture
   ctx.fillStyle='rgba(255,255,255,0.02)';
   for(let gx=60;gx<W;gx+=62) for(let gy=60;gy<H;gy+=62) {
     ctx.beginPath(); ctx.arc(gx,gy,1.2,0,Math.PI*2); ctx.fill();
@@ -3752,7 +3762,7 @@ function renderCardToCanvas(container) {
   ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
   ctx.strokeRect(18,18,W-36,H-36);
 
-  // ═══ SECTION: TOP BAR  y=0-140 ═══
+  // ═══ TOP BAR ═══
   ctx.font='700 36px "IBM Plex Mono",monospace'; ctx.fillStyle='#c9a96e';
   ctx.textAlign='left'; ctx.fillText('PHIL/OS',PAD,100);
   ctx.font='400 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.32)';
@@ -3760,24 +3770,22 @@ function renderCardToCanvas(container) {
   ctx.textAlign='left';
   hline(128,0,'rgba(201,169,110,0.35)');
 
-  // ═══ SECTION: ARCHETYPE  y=140-600 ═══
-  let y = 190;
-  // "THE" label — small, above the name
+  // ═══ ARCHETYPE NAME ═══
+  let y = 192;
   ctx.font='600 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
-  ctx.fillText('THE', PAD, y); y += 12;
+  ctx.fillText('THE', PAD, y); y+=14;
 
-  // Name block
   const nameWords = cardData.archetypeName.replace('The ','').split(' ');
   ctx.fillStyle='#ffffff';
   if(nameWords.length <= 2) {
     ctx.font='bold 148px "Playfair Display",serif';
     nameWords.forEach((w,i) => {
-      const mw = ctx.measureText(w).width;
-      if(mw > W-PAD*2) { ctx.font='bold '+Math.floor(148*(W-PAD*2)/mw)+'px "Playfair Display",serif'; }
-      ctx.fillText(w, PAD, y + 158 + i*162);
+      const mw=ctx.measureText(w).width;
+      if(mw>W-PAD*2) ctx.font='bold '+Math.floor(148*(W-PAD*2)/mw)+'px "Playfair Display",serif';
+      ctx.fillText(w, PAD, y+160+i*164);
       ctx.font='bold 148px "Playfair Display",serif';
     });
-    y += 158 + nameWords.length*162;
+    y += 160 + nameWords.length*164;
   } else {
     ctx.font='bold 108px "Playfair Display",serif';
     const mid=Math.ceil(nameWords.length/2);
@@ -3785,84 +3793,78 @@ function renderCardToCanvas(container) {
     ctx.fillText(nameWords.slice(mid).join(' '), PAD, y+230);
     y += 280;
   }
-  y += 16;
+  y += 18;
 
-  // Variant + rarity pill on same row
+  // Variant left, rarity pill right
   ctx.font='500 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.9)';
   ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD, y);
 
   const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
-  const rPct = (rarityMap[cardData.archetypeName]||'RARE') + ' RAREST';
+  const rPct=(rarityMap[cardData.archetypeName]||'RARE')+' RAREST';
   ctx.font='600 22px "IBM Plex Mono",monospace';
-  const pillW = ctx.measureText('◆ '+rPct).width + 36;
-  const pillX = W - PAD - pillW;
-  rr(pillX, y-28, pillW, 40, 20);
-  ctx.fillStyle='rgba(110,90,240,0.2)'; ctx.fill();
-  rr(pillX, y-28, pillW, 40, 20);
-  ctx.strokeStyle='rgba(157,147,232,0.55)'; ctx.lineWidth=1.5; ctx.stroke();
+  const pillW=ctx.measureText('◆ '+rPct).width+36;
+  const pillX=W-PAD-pillW;
+  rr(pillX,y-28,pillW,40,20); ctx.fillStyle='rgba(110,90,240,0.2)'; ctx.fill();
+  rr(pillX,y-28,pillW,40,20); ctx.strokeStyle='rgba(157,147,232,0.55)'; ctx.lineWidth=1.5; ctx.stroke();
   ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
   ctx.fillText('◆ '+rPct, W-PAD-18, y); ctx.textAlign='left';
-  y += 46;
+  y += 50;
 
-  hline(y, 0, 'rgba(157,147,232,0.3)'); y += 46;
+  hline(y,0,'rgba(157,147,232,0.3)'); y+=48;
 
-  // ═══ SECTION: DESCRIPTION  ═══
-  const rawDesc = strip(cardData.cardDescription||cardData.cardTagline||'');
-  const sentences = (rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
-  const descText = sentences.slice(0,3).join(' ').trim();
+  // ═══ DESCRIPTION ═══
+  const rawDesc=strip(cardData.cardDescription||cardData.cardTagline||'');
+  const sentences=(rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
+  const descText=sentences.slice(0,3).join(' ').trim();
   ctx.font='italic 41px "Playfair Display",serif';
   ctx.fillStyle='rgba(255,255,255,0.88)';
-  y = wrapText(descText, PAD, y, W-PAD*2, 58, 5) + 16;
+  y=wrapText(descText, PAD, y, W-PAD*2, 58, 5)+18;
 
-  hline(y, 0.12); y += 44;
+  hline(y,0.12); y+=46;
 
-  // ═══ SECTION: FINGERPRINT ═══
+  // ═══ BELIEF FINGERPRINT ═══
   ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-  ctx.fillText('BELIEF FINGERPRINT', PAD, y); y += 42;
+  ctx.fillText('BELIEF FINGERPRINT', PAD, y); y+=44;
 
-  const lblW=258, trackW=W-PAD*2-lblW-76, bH=16, bGap=60;
+  const lblW=260, trackW=W-PAD*2-lblW-76, bH=16, bGap=62;
   (cardData.fingerprint||[]).forEach((fp,i) => {
     const meta=AXIS_META[fp.axis]; if(!meta) return;
     const fy=y+i*bGap;
     const raw=cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
     const pct=Math.max(0,Math.min(1,(raw-1)/6));
-    const fw=Math.max(bH, Math.round(pct*trackW));
-
-    ctx.font='500 26px "IBM Plex Sans",sans-serif';
-    ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
+    const fw=Math.max(bH,Math.round(pct*trackW));
+    ctx.font='500 26px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
     const lbl=meta.label.length>15?meta.label.slice(0,14)+'.':meta.label;
     ctx.fillText(lbl, PAD, fy+12);
-
     const tx=PAD+lblW;
     rr(tx,fy,trackW,bH,bH/2); ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fill();
     if(fw>bH) {
       const gr=ctx.createLinearGradient(tx,0,tx+fw,0);
       gr.addColorStop(0,'rgba(110,90,240,0.7)'); gr.addColorStop(1,'#9d93e8');
       ctx.fillStyle=gr; rr(tx,fy,fw,bH,bH/2); ctx.fill();
-      ctx.shadowColor='rgba(157,147,232,0.5)'; ctx.shadowBlur=10;
-      rr(tx,fy,fw,bH,bH/2); ctx.strokeStyle='rgba(157,147,232,0.3)'; ctx.lineWidth=1; ctx.stroke();
+      ctx.shadowColor='rgba(157,147,232,0.45)'; ctx.shadowBlur=10;
+      rr(tx,fy,fw,bH,bH/2); ctx.strokeStyle='rgba(157,147,232,0.25)'; ctx.lineWidth=1; ctx.stroke();
       ctx.shadowBlur=0;
     }
-    ctx.font='700 24px "IBM Plex Mono",monospace';
-    ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
+    ctx.font='700 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
     ctx.fillText(raw.toFixed(1), W-PAD, fy+12); ctx.textAlign='left';
   });
-  y += (cardData.fingerprint||[]).length*bGap + 36;
-  hline(y,0.12); y+=44;
+  y+=(cardData.fingerprint||[]).length*bGap+38;
+  hline(y,0.12); y+=46;
 
-  // ═══ SECTION: YOUR WORLD ═══
+  // ═══ YOUR WORLD ═══
   const mediaMap2=typeof MEDIA_BY_FAMILY!=='undefined'?MEDIA_BY_FAMILY:{};
   const media=mediaMap2[cardData.archetypeName];
   if(media) {
     ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-    ctx.fillText('YOUR WORLD', PAD, y); y+=42;
+    ctx.fillText('YOUR WORLD', PAD, y); y+=44;
     const colW=(W-PAD*2)/3;
     [{label:'FILM',items:media.films.slice(0,2)},{label:'MUSIC',items:media.music.slice(0,2)},{label:'BOOKS',items:media.books.slice(0,2)}].forEach((cat,ci) => {
       const cx=PAD+ci*colW;
       ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
       ctx.fillText(cat.label, cx, y);
       cat.items.forEach((item,ii) => {
-        const iy=y+28+ii*56;
+        const iy=y+30+ii*58;
         ctx.font='600 22px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(255,255,255,0.92)';
         let t=item.title; while(ctx.measureText(t).width>colW-16&&t.length>4) t=t.slice(0,-4)+'...';
         ctx.fillText(t, cx, iy);
@@ -3871,78 +3873,65 @@ function renderCardToCanvas(container) {
         ctx.fillText(n, cx, iy+22);
       });
     });
-    y+=178; hline(y,0.12); y+=42;
+    y+=182; hline(y,0.12); y+=46;
   }
 
-  // ═══ SECTION: MINDS LIKE YOURS ═══
+  // ═══ MINDS LIKE YOURS ═══
   ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-  ctx.fillText('MINDS LIKE YOURS', PAD, y); y+=40;
+  ctx.fillText('MINDS LIKE YOURS', PAD, y); y+=44;
   const famous=(cardData.famousTypes||[]).slice(0,3);
   if(famous.length>0) {
     const fW=(W-PAD*2)/3;
     famous.forEach((f,i) => {
       const fx=PAD+i*fW;
-      ctx.font='700 23px "Playfair Display",serif'; ctx.fillStyle='rgba(255,255,255,0.95)';
-      ctx.fillText(f.name, fx, y+24);
-      ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.6)';
-      // Split desc by · and show first part
-      const descParts=(f.desc||'').split('·');
-      let d1=descParts[0]||'';
-      while(ctx.measureText(d1).width>fW-14&&d1.length>4) d1=d1.slice(0,-4)+'...';
-      ctx.fillText(d1.trim(), fx, y+46);
-      if(descParts[1]) {
-        let d2=descParts[1].trim();
-        while(ctx.measureText(d2).width>fW-14&&d2.length>4) d2=d2.slice(0,-4)+'...';
-        ctx.fillText(d2, fx, y+66);
-      }
+      ctx.font='700 24px "Playfair Display",serif'; ctx.fillStyle='rgba(255,255,255,0.96)';
+      ctx.fillText(f.name, fx, y+22);
+      const parts=(f.desc||'').split('·').map(s=>s.trim());
+      ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.62)';
+      parts.slice(0,2).forEach((p,pi) => {
+        let d=p; while(ctx.measureText(d).width>fW-14&&d.length>4) d=d.slice(0,-4)+'...';
+        ctx.fillText(d, fx, y+44+pi*22);
+      });
     });
-    y+=90;
+    y+=98;
   } else {
     ctx.font='500 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
-    ctx.fillText(strip(cardData.thinkers||''), PAD, y); y+=48;
+    ctx.fillText(strip(cardData.thinkers||''), PAD, y); y+=52;
   }
-  hline(y,0.12); y+=30;
+  hline(y,0.12); y+=36;
 
-  // ═══ SECTION: DNA STRIP — clean bar chart ═══
-  // Fixed height region at the bottom, above the branding bar
-  const dnaStartY = y;
-  const dnaEndY = H - 100;
-  const dnaAvail = dnaEndY - dnaStartY - 50; // space for label
+  // ═══ DNA STRIP ═══
+  ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, y+16);
+  ctx.textAlign='left'; y+=34;
 
-  ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.7)';
-  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, dnaStartY+18);
-  ctx.textAlign='left';
-
-  const stripTopY = dnaStartY + 34;
-  const stripH = dnaAvail - 20;
+  const stripH=120;
+  const stripTopY=y;
   const axKeys=Object.keys(AXIS_META);
-  const bW=Math.floor((W-PAD*2)/axKeys.length);
+  const bW2=Math.floor((W-PAD*2)/axKeys.length);
 
-  // Draw background strip
-  ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(PAD, stripTopY, W-PAD*2, stripH);
-  hline(stripTopY, 0.08); hline(stripTopY+stripH, 0.08);
+  ctx.fillStyle='rgba(255,255,255,0.025)'; ctx.fillRect(PAD,stripTopY,W-PAD*2,stripH);
+  hline(stripTopY,0.08); hline(stripTopY+stripH,0.08);
+  const midLine=stripTopY+stripH/2;
+  hline(midLine,0,'rgba(255,255,255,0.05)');
 
-  // Centre line
-  const midLine = stripTopY + stripH/2;
-  hline(midLine, 0, 'rgba(255,255,255,0.06)');
-
-  // Draw bars — centred on midline, growing up and down based on deviation from 4
   axKeys.forEach((k,i) => {
     const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const dev=(sc-4)/3; // -1 to 1
-    const barH=Math.max(4, Math.abs(dev)*(stripH/2-6));
-    const bx=PAD+i*bW+1;
-    const by=dev>0 ? midLine-barH : midLine;
-    const alpha=0.2+Math.abs(dev)*0.65;
-    // colour: positive deviation = purple, negative = gold
-    const col=dev>0?`rgba(157,147,232,${alpha})`:`rgba(201,169,110,${alpha})`;
-    ctx.fillStyle=col;
-    ctx.fillRect(bx, by, bW-2, barH);
+    const dev=(sc-4)/3;
+    const barH2=Math.max(3,Math.abs(dev)*(stripH/2-8));
+    const bx=PAD+i*bW2+1;
+    const by=dev>=0 ? midLine-barH2 : midLine;
+    const alpha=0.18+Math.abs(dev)*0.65;
+    ctx.fillStyle=dev>=0?`rgba(157,147,232,${alpha})`:`rgba(201,169,110,${alpha})`;
+    ctx.fillRect(bx, by, bW2-2, barH2);
   });
 
+  y=stripTopY+stripH+50;
+
   // ═══ BOTTOM BRANDING ═══
+  hline(y,0,'rgba(201,169,110,0.25)'); y+=40;
   ctx.font='700 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.72)';
-  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, H-44);
+  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, y+10);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
