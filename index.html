@@ -2773,60 +2773,6 @@ function detectContradictions(scores) {
 }
 
 // ══════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════
-function show(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
-  window.scrollTo(0,0);
-}
-
-function startQuiz() {
-  const nameInput = document.getElementById('intake-name');
-  const countryInput = document.getElementById('intake-country');
-  state = {
-    currentQ: 0,
-    answers: {},
-    axisScores: {},
-    userName: nameInput ? nameInput.value.trim() || '' : '',
-    userCountry: countryInput ? countryInput.value.trim() || '' : '',
-  };
-  show('screen-quiz');
-  renderQuestion();
-}
-
-function resetQuiz() {
-  show('screen-intro');
-}
-
-function selectLikert(qid, val) {
-  state.answers[qid] = val;
-  renderQuestion();
-}
-
-function selectOption(qid, score) {
-  state.answers[qid] = score;
-  renderQuestion();
-}
-
-function nextQ() {
-  if (state.answers[QUESTIONS[state.currentQ].id] === undefined) return;
-  if (state.currentQ < QUESTIONS.length - 1) {
-    state.currentQ++;
-    renderQuestion();
-  } else {
-    generateReport();
-  }
-}
-
-function prevQ() {
-  if (state.currentQ > 0) {
-    state.currentQ--;
-    renderQuestion();
-  }
-}
-
-// ══════════════════════════════════════════
 // GENERATE REPORT
 // ══════════════════════════════════════════
 async function generateReport() {
