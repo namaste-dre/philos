@@ -723,6 +723,11 @@ body::before {
       </div>
     </div>
     <button class="btn-primary" onclick="show('screen-intake')">Begin assessment</button>
+    <div style="margin-top:16px">
+      <button class="btn-secondary" onclick="testReport()" style="font-size:13px;padding:8px 20px">
+        Dev: Test report generation
+      </button>
+    </div>
     <div class="tier-preview">
       <span class="tier-pill t1">Tier 1 · Foundations</span>
       <span class="tier-pill t2">Tier 2 · Epistemic + Meaning</span>
@@ -2770,6 +2775,38 @@ function detectContradictions(scores) {
     const s2 = scores[c.b] || 4;
     return c.check(s1, s2);
   });
+}
+
+// ══════════════════════════════════════════
+// DEV: TEST REPORT WITHOUT FULL QUIZ
+// ══════════════════════════════════════════
+function testReport() {
+  // Pre-fill state with Andre's known profile scores
+  state.userName = 'Andre';
+  state.shuffledQuestions = QUESTIONS;
+  state.answers = {};
+  // Inject scores directly by answering all questions at known positions
+  QUESTIONS.forEach(q => {
+    const axis = q.axis;
+    const hardDeterminist = ['determinism','naturalism','physicalism','self','responsibility','freewill_practice','social_ontology','temporal_orientation'];
+    const antiReligion = ['religion','moral_authority'];
+    const constructivist = ['meaning','identity','human_nature'];
+    const structural = ['politics','economics','justice'];
+    const highScope = ['moral_scope','animal_ethics'];
+    if (q.type === 'likert') {
+      if (hardDeterminist.includes(axis)) state.answers[q.id] = 7;
+      else if (antiReligion.includes(axis)) state.answers[q.id] = 7;
+      else if (constructivist.includes(axis)) state.answers[q.id] = 7;
+      else if (structural.includes(axis)) state.answers[q.id] = 7;
+      else if (highScope.includes(axis)) state.answers[q.id] = 7;
+      else state.answers[q.id] = 5;
+    } else if (q.options) {
+      // Pick first option
+      const opts = q.options;
+      state.answers[q.id] = opts[0].score;
+    }
+  });
+  generateReport();
 }
 
 // ══════════════════════════════════════════
