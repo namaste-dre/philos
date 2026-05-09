@@ -803,6 +803,113 @@ body::before {
 .pattern-card.negative .pattern-label { color: var(--tier3); }
 .pattern-text { font-size: 16px; color: var(--text); line-height: 1.65; }
 
+/* RICH LIFE ALIGNMENT */
+.alignment-full { display: flex; flex-direction: column; gap: 32px; }
+
+.alignment-block {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.alignment-block-header {
+  padding: 16px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.alignment-block-icon {
+  font-size: 18px;
+}
+.alignment-block-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.alignment-block-body { padding: 24px; }
+
+/* Career section */
+.career-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) { .career-columns { grid-template-columns: 1fr; } }
+.career-col-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.career-col-label.thrive { color: var(--tier2); }
+.career-col-label.drain { color: var(--tier3); }
+.career-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.career-item {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.4;
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+}
+.career-item.thrive { border-left: 3px solid var(--tier2); }
+.career-item.drain { border-left: 3px solid var(--tier3); opacity: 0.75; }
+.leadership-note {
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.7;
+  padding: 16px;
+  background: rgba(201,169,110,0.05);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+/* Relationship sub-cards */
+.relationship-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+  gap: 16px;
+}
+.rel-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.rel-card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--accent2);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.rel-card-text {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.65;
+}
+.rel-card.full-width {
+  grid-column: 1 / -1;
+  border-left: 3px solid var(--danger);
+}
+.rel-card.full-width .rel-card-label { color: var(--danger); }
+
 /* RETRY */
 /* ── CARD DOWNLOAD BUTTON ── */
 .card-download-btn {
@@ -1041,7 +1148,7 @@ body::before {
 
     <div class="report-section">
       <div class="section-label">Life alignment</div>
-      <div class="alignment-grid" id="report-alignment">—</div>
+      <div id="report-alignment-full"></div>
     </div>
 
     <div class="report-section" id="section-media">
@@ -3434,6 +3541,193 @@ const RARITY_BY_FAMILY = {
   'The Nihilist Reductionist': {pct: '2%', label: 'Exceptionally rare worldview'},
 };
 
+// ══════════════════════════════════════════
+// LIFE ALIGNMENT DATA — per family
+// ══════════════════════════════════════════
+const ALIGNMENT_BY_FAMILY = {
+  'The Determined Humanist': {
+    careers: {
+      thrive: ['Neuroscience and brain research', 'Criminal justice reform and policy', 'Public health and epidemiology', 'Social work and trauma-informed care', 'Philosophy and ethics academia', 'Investigative journalism', 'Non-profit leadership', 'Behavioural economics research', 'Documentary filmmaking'],
+      drain: ['Sales roles requiring manufactured optimism', 'Politics requiring compromise of core positions', 'Corporate law defending the indefensible', 'Environments that reward blame over understanding'],
+      leadership: 'You lead by diagnosing root causes before assigning action. Your teams feel seen rather than judged. You struggle when organisations demand accountability theatre — punishing individuals for systemic failures.'
+    },
+    relationships: {
+      deepResonance: 'You connect most deeply with people who think carefully about why humans do what they do — who extend compassion without losing their critical edge. Partners who can hold intellectual disagreement without emotional collapse are gold.',
+      friction: 'You create friction with people who conflate explaining behaviour with excusing it. Moralistic reactors who treat every mistake as a character verdict will exhaust you.',
+      romantic: 'You need a partner who can sit with ambiguity and does not require constant emotional reassurance. The best match: someone equally committed to growth but with more capacity for emotional warmth than your cerebral default.',
+      friendship: 'Your friendships tend to be few, deep, and permanent. You invest heavily and expect intellectual honesty in return. Small talk bores you; you would rather have one three-hour conversation than ten twenty-minute ones.',
+      conflict: 'In conflict you default to analysis when the other person needs acknowledgement first. Learn to name the feeling before explaining the cause. Your instinct to understand why something happened reads as dismissiveness if you skip the emotional step.',
+      redFlags: 'Someone who explains away every difficult behaviour with "that is just who I am." Someone who takes your causal thinking as an excuse for their own patterns.'
+    }
+  },
+  'The Structural Reformer': {
+    careers: {
+      thrive: ['Policy research and analysis', 'Community organising and advocacy', 'Sociology and urban planning', 'Labour law and workers rights', 'Data journalism and investigative reporting', 'NGO programme management', 'Public interest litigation', 'Diversity equity and inclusion consulting', 'Environmental law and climate policy'],
+      drain: ['Corporate consulting defending existing power structures', 'Retail and customer service with no systemic agency', 'Roles requiring you to optimise a broken system rather than fix it', 'Environments where outcomes are attributed entirely to individual merit'],
+      leadership: 'You lead by redesigning conditions rather than motivating individuals. You are at your best when given structural authority — the power to change the rules, not just play within them. You can underestimate the motivational work required to bring people with you.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who see the world through structural eyes — who understand that personal struggles are often systemic in origin. Partners who combine sharp analysis with genuine care for people are your ideal.',
+      friction: 'You struggle with people who attribute all outcomes to individual effort and refuse to examine the conditions that shaped those choices. The bootstraps narrative will grind you down.',
+      romantic: 'You need a partner who shares your ethical commitments at a foundational level. Value misalignment on justice is not workable for you long-term. The best match: someone who balances your analytical intensity with a more relational, emotionally present style.',
+      friendship: 'You gravitate toward people with a shared cause. Your friendships often have a collaborative dimension — you build, organise, or advocate together. Purely social friendships feel thin to you.',
+      conflict: 'You can depersonalise conflict in ways that feel cold. You analyse the structural dimension of a disagreement accurately but sometimes forget that the person in front of you needs to feel heard before they can hear your analysis.',
+      redFlags: 'Someone who mistakes privilege for merit. Someone who has no interest in why things are the way they are — who just wants to know how to win within the existing rules.'
+    }
+  },
+  'The Rational Empiricist': {
+    careers: {
+      thrive: ['Scientific research in any field', 'Data science and machine learning', 'Medicine and evidence-based clinical practice', 'Science journalism and communication', 'Engineering and systems design', 'Sceptic and critical thinking education', 'Academic philosophy of science', 'Technology product development', 'Financial analysis and quantitative research'],
+      drain: ['Marketing roles requiring persuasion over truth', 'Political spin and communications', 'Environments where data is ignored in favour of gut instinct', 'Organisations where status matters more than being right'],
+      leadership: 'You lead with evidence. You build trust through demonstrated competence and intellectual honesty. Your teams know you will update when the data changes. The gap: you can undervalue the social and emotional dimensions of leadership that data cannot capture.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who care about being right more than seeming right — who can say "I was wrong" and mean it. Intellectual curiosity is your primary attraction driver, regardless of the domain.',
+      friction: 'You create friction with people who appeal to authority, tradition, or feelings as substitutes for evidence. Conspiracy thinking and motivated reasoning will corrode any relationship with you.',
+      romantic: 'You need a partner who can engage your mind without requiring you to suppress your scepticism. The risk: finding yourself intellectually compatible but emotionally disconnected. The best match: someone who brings warmth and emotional literacy to your analytical framework.',
+      friendship: 'Your friendships are built on respect for each other\'s thinking. You enjoy debate without ego investment — changing your mind is a feature, not a failure. You struggle with friends who take intellectual challenge personally.',
+      conflict: 'You treat interpersonal conflicts as problems to be solved with the right analysis. The other person often needs emotional validation before they can engage with your diagnosis. Lead with acknowledgement, not evidence.',
+      redFlags: 'Someone who argues from "I feel it is true." Someone who mistakes confidence for competence or seniority for correctness.'
+    }
+  },
+  'The Existential Architect': {
+    careers: {
+      thrive: ['Writing, literature, and creative non-fiction', 'Existential psychotherapy and counselling', 'Philosophy and humanities academia', 'Arts direction and creative leadership', 'Architecture and spatial design', 'Film and documentary direction', 'UX and product design focused on human meaning', 'Life coaching and executive coaching', 'Theatre and performance'],
+      drain: ['Routine administrative work with no creative agency', 'Corporate environments with rigid hierarchies and no purpose narrative', 'Roles that require you to optimise metrics with no connection to human impact', 'Organisations where authenticity is a liability'],
+      leadership: 'You lead by example and through the strength of your creative vision. People follow you because you are genuinely living your values, not performing them. You struggle to manage people who are not internally motivated — you cannot inject purpose into someone from the outside.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who are genuinely building their lives rather than drifting through them — who have thought about what they want and made real choices in its direction. Intentionality is the deepest form of respect for you.',
+      friction: 'You struggle with people who are on autopilot — who have never examined why they want what they want. Unconscious conventionality exhausts you more than active disagreement.',
+      romantic: 'You need a partner who is constructing their own life with the same deliberateness you bring to yours. The worst relationship for you: someone who wants you to provide all the meaning. The best: two people building genuinely together, with space for individual growth.',
+      friendship: 'Your friendships tend to form around shared projects or shared crises of meaning. You bond in depth, not breadth. You may go long periods without contact and pick up exactly where you left off.',
+      conflict: 'You can intellectualise emotional conflicts in ways that distance you from the actual feeling. You understand the structure of what happened but sometimes avoid the raw experience of being hurt or having hurt someone.',
+      redFlags: 'Someone who has never questioned the life they were handed. Someone who treats your meaning-making as pretentious self-indulgence.'
+    }
+  },
+  'The Moral Realist': {
+    careers: {
+      thrive: ['Law and constitutional advocacy', 'Medical ethics and bioethics consultation', 'Human rights work and international law', 'Philosophy and moral philosophy academia', 'Journalism focused on accountability', 'Charity and foundation leadership', 'Corporate ethics and compliance', 'Conflict mediation and restorative justice', 'Political theory and policy ethics'],
+      drain: ['Roles requiring moral flexibility as a feature', 'Advertising and political messaging', 'Environments that reward results without scrutiny of methods', 'Organisations with no ethical framework or accountability structure'],
+      leadership: 'You lead with principled consistency. People know exactly where you stand and can trust that your standards apply universally — including to yourself. The challenge: you can be inflexible when the situation genuinely calls for pragmatic compromise, and you can hold others to standards you have not articulated clearly enough.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who take ethics seriously — not as rules to comply with but as genuine commitments to what is right. Integrity is the quality you are most drawn to and most dependent on in others.',
+      friction: 'You struggle with moral relativism as a resting position — people who genuinely believe that ethics is just preference all the way down. You can coexist with this intellectually but not in intimacy.',
+      romantic: 'You need a partner with strong ethical commitments, even if the specific positions differ from yours. What you cannot tolerate is someone for whom ethics is situational and convenient. The best match: someone equally principled who brings more emotional warmth and less rigidity.',
+      friendship: 'Your friendships are built on mutual respect for each other\'s integrity. You are intensely loyal and expect loyalty in return. Betrayal of trust is effectively unrecoverable in your relational architecture.',
+      conflict: 'You can frame interpersonal conflicts in moral terms when they are actually just preference conflicts. Not every disagreement has a right and wrong answer. Learning to distinguish the two is one of your most important relationship skills.',
+      redFlags: 'Someone who is ethical only when it is convenient. Someone who treats your principled positions as naive or unsophisticated.'
+    }
+  },
+  'The Compassionate Collectivist': {
+    careers: {
+      thrive: ['Social work and community mental health', 'Nursing, midwifery, and palliative care', 'Non-profit and charity programme work', 'Education and special educational needs', 'Animal welfare and veterinary medicine', 'Environmental advocacy', 'Restorative justice and mediation', 'Trauma therapy and counselling', 'Community development and urban regeneration'],
+      drain: ['Competitive sales environments', 'High-pressure corporate finance', 'Roles requiring you to deprioritise people for metrics', 'Environments that treat empathy as a weakness or inefficiency'],
+      leadership: 'You lead by creating safety. Your teams feel genuinely cared for and are more willing to take risks and admit mistakes because of it. The gap: you can avoid necessary conflict for too long and mistake harmony for health.'
+    },
+    relationships: {
+      deepResonance: 'You connect most deeply with people who are genuinely present with others — who listen to understand rather than to respond. Emotional availability is your primary relational currency.',
+      friction: 'You create friction with people who are emotionally avoidant, who intellectualise feelings, or who regard care as a transaction. Coldness registers as hostility for you even when it is not intended that way.',
+      romantic: 'You give a great deal in relationships and can run into depletion if you are with someone who takes without reciprocating. The best match: someone equally giving but with clearer personal boundaries than your natural tendency — who can model healthy limits for you.',
+      friendship: 'You are the friend people call in crisis. You show up completely. The risk is one-directional friendships where you give without receiving. Learning to ask for support is one of your most important relational skills.',
+      conflict: 'You avoid conflict because you absorb the emotional cost of it. You will tolerate situations that are genuinely not okay for too long rather than cause discomfort to someone else. Direct, early, kind honesty is a skill worth building deliberately.',
+      redFlags: 'Someone who regards your care as weakness to exploit. Someone who is consistently unavailable when you need support but expects full availability from you.'
+    }
+  },
+  'The Principled Libertarian': {
+    careers: {
+      thrive: ['Constitutional and civil liberties law', 'Investigative journalism and press freedom', 'Entrepreneurship and startup founding', 'Cryptography and privacy technology', 'Political philosophy academia', 'Financial advising and wealth management', 'Independent consulting and freelancing', 'Think tank research and policy writing', 'Defence advocacy and security research'],
+      drain: ['Heavily bureaucratic organisations', 'Government roles with excessive procedural constraint', 'Roles requiring regular compromise of core principles', 'Environments where conformity is the price of advancement'],
+      leadership: 'You lead by trusting people to operate autonomously within clear principles. You delegate real authority and hold people accountable to outcomes, not processes. The gap: you can underestimate the need some team members have for structure, guidance, and social connection at work.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who respect your autonomy unconditionally — who are genuinely secure enough not to need you to be different from how you are. Independence in a partner is not a threat to you; it is a precondition.',
+      friction: 'You create friction with people who experience your need for space as rejection, or who try to limit your autonomy under the guise of care. Emotional dependency directed at you feels like a cage.',
+      romantic: 'You need a partner who has a full life independent of you. The worst match: someone who organises their entire existence around the relationship. The best: two autonomous people who choose each other daily from a position of genuine freedom rather than need.',
+      friendship: 'Your friendships are built on mutual respect and independence. You are not high-maintenance as a friend but you are high-standard — you expect people to mean what they say and do what they commit to.',
+      conflict: 'You can be so committed to principle in conflicts that you lose sight of the relationship itself. Not every argument needs to be won. Some need to be survived together.',
+      redFlags: 'Someone who monitors your movements or requires constant check-ins. Someone who interprets your need for autonomy as a sign that you do not care.'
+    }
+  },
+  'The Stoic Naturalist': {
+    careers: {
+      thrive: ['Medicine and surgery', 'Emergency services and crisis response', 'Military and strategic leadership', 'Long-distance physical endeavours and coaching', 'Philosophy and Stoic practice teaching', 'Prison chaplaincy and rehabilitation work', 'Research science requiring long-term patience', 'Financial risk management', 'Wilderness guiding and survival instruction'],
+      drain: ['Highly emotional and reactive team environments', 'Roles requiring constant performance of enthusiasm', 'Environments where resilience is mistaken for coldness', 'Organisations that mistake busyness for productivity'],
+      leadership: 'You lead with calm authority. In a crisis, people orient toward you because your composure is real, not performed. The gap: your equanimity can read as indifference to people who need to see you care emotionally, not just practically.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who are emotionally stable and genuinely self-sufficient — who bring their own composure to the relationship rather than requiring yours to hold them up.',
+      friction: 'You struggle with emotional volatility. Someone who requires constant reassurance or who escalates in conflict will exhaust your tolerance. You read drama as a sign of immaturity, which is sometimes right and sometimes unjust.',
+      romantic: 'You need a partner who interprets your calm as care, not distance. Many people will misread your equanimity as emotional absence. The best match: someone emotionally secure enough to value steadiness over display, and warm enough to draw out the feeling you do not easily show.',
+      friendship: 'Your friendships are durable and low-maintenance. You do not require frequent contact to maintain connection. You show up completely when it matters and expect the same in return.',
+      conflict: 'You can manage conflict composure brilliantly while the other person feels that you are not fully present with them. Your equanimity is not coldness — but you need to make that legible. State that you care, even when you are calm.',
+      redFlags: 'Someone who interprets your stability as an invitation to outsource all emotional regulation to you. Someone who mistakes your patience for permission to behave badly.'
+    }
+  },
+  'The Spiritual Naturalist': {
+    careers: {
+      thrive: ['Contemplative practice teaching and retreat leadership', 'Depth psychology and Jungian therapy', 'Environmental science and ecology', 'Religious studies and comparative religion academia', 'Palliative care and end-of-life support', 'Arts — particularly music, poetry, and visual art', 'Philosophy of mind and consciousness research', 'Anthropology and cultural studies', 'Forest schools and nature-based education'],
+      drain: ['Purely metric-driven corporate environments', 'Roles requiring fast certainty with no space for nuance', 'Highly competitive zero-sum environments', 'Places that treat inner life as irrelevant to performance'],
+      leadership: 'You lead by creating space — for reflection, for meaning, for people to bring more of themselves to their work. You are at your best in organisations that value depth over speed. The gap: you can resist making decisions until the uncertainty has resolved, which sometimes means others decide for you.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who take inner life seriously — who are interested in what is happening beneath the surface of events and relationships. Depth and genuine presence are your primary relational needs.',
+      friction: 'You struggle with people who are entirely surface-level — who are uncomfortable with silence, uncertainty, or conversations that venture into the non-rational. Relentless pragmatism without reflection drains you.',
+      romantic: 'You need a partner who can sit in the unresolved with you — who is not rushing you to conclusions or demanding certainty you do not have. The best match: someone with a rich inner life who also has the practicality you can lack.',
+      friendship: 'Your friendships tend to have a soulful quality — they feel different from typical social connection. You bond through shared experience of beauty, mystery, or difficulty more than through shared activity.',
+      conflict: 'You can become so focused on the deeper meaning of a conflict that you avoid its practical resolution. Sometimes the other person just needs an apology and a changed behaviour, not a philosophical exploration of what the conflict reveals.',
+      redFlags: 'Someone who is contemptuous of interior experience. Someone who has never sat with a question without immediately trying to answer it.'
+    }
+  },
+  'The Conservative Traditionalist': {
+    careers: {
+      thrive: ['Law and the judiciary', 'Military service and defence', 'Religious ministry and chaplaincy', 'Heritage conservation and museum curation', 'Classic literature and humanities academia', 'Traditional craftsmanship and restoration', 'Architecture — particularly traditional and historical', 'Estate and land management', 'Conservative political theory and policy'],
+      drain: ['Disruptive tech startups with no sense of history', 'Roles requiring constant reinvention of existing practices', 'Highly progressive organisations with strong ideological pressure', 'Environments that treat accumulated practice as mere convention to discard'],
+      leadership: 'You lead with institutional memory and long-term thinking. You know why things are the way they are and can explain it. The gap: you can defend existing practice past the point where reform is genuinely needed, and people may experience your caution as resistance to necessary change.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who value loyalty, continuity, and depth — who take commitment seriously and honour the obligations they have made. Reliability and follow-through are the highest relational goods for you.',
+      friction: 'You struggle with people who treat relationships as primarily transactional or temporary — who are quick to exit when things become difficult. Serial novelty-seeking in relationships reads as shallowness to you.',
+      romantic: 'You take romantic commitment very seriously and are looking for permanence, not experiment. The best match: someone who shares your investment in building something lasting and who honours the institution of the relationship even in difficult periods.',
+      friendship: 'Your friendships are long and deep. You are suspicious of friendships that form quickly because you have learned that depth requires time. Your oldest friends are your most important ones.',
+      conflict: 'You can interpret legitimate challenge to your established ways as personal attack. Learning to distinguish between "this tradition is worth examining" and "you are wrong to hold it" is one of your most important relational skills.',
+      redFlags: 'Someone who treats their past commitments as irrelevant to present choices. Someone who regards your investment in continuity as a failure of imagination.'
+    }
+  },
+  'The Pragmatic Centrist': {
+    careers: {
+      thrive: ['Management consulting and strategy', 'General management and operations leadership', 'Public policy and government service', 'Journalism and editorial leadership', 'Medicine — particularly general practice', 'Business development and commercial strategy', 'Mediation and negotiation', 'Education administration and school leadership', 'International development and diplomacy'],
+      drain: ['Roles requiring strong ideological commitment', 'Environments where nuance reads as weakness', 'Highly partisan political work', 'Positions where you are expected to hold a fixed strong view on everything'],
+      leadership: 'You lead by finding workable solutions across competing interests. You are good at getting things done in complex environments with multiple stakeholders. The gap: people sometimes read your even-handedness as a lack of conviction, and in a genuine values crisis they want to know where you stand.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who are flexible, curious, and able to see more than one side of a question — who are interested in what is actually true rather than in being right.',
+      friction: 'You struggle with ideological intensity — people who have decided in advance what the answer is and are immune to contrary evidence. Rigidity in any direction exhausts you.',
+      romantic: 'You need a partner who can hold complexity and is not threatened by your willingness to update your views. The risk for you: being so balanced that you fail to advocate for your own needs clearly enough.',
+      friendship: 'Your friendships tend to span ideological and social lines more than most types. You are genuinely curious about how different people see the world and that curiosity makes you broadly likeable and accessible.',
+      conflict: 'You can be so committed to seeing all sides that you fail to take your own side when you need to. In conflict, fairness to yourself matters as much as fairness to the other person.',
+      redFlags: 'Someone who treats your nuance as moral cowardice. Someone who demands you pick a side on every issue as proof of loyalty.'
+    }
+  },
+  'The Nihilist Reductionist': {
+    careers: {
+      thrive: ['Philosophy — particularly analytic and continental', 'Hard sciences with no requirement for applied impact', 'Literary criticism and theory', 'Mathematics and logic', 'Avant-garde arts with no commercial obligation', 'Independent writing and intellectual journalism', 'Librarian and archival work', 'Research roles with long time horizons and no stakeholder pressure'],
+      drain: ['Motivational or purpose-driven organisational cultures', 'Customer-facing roles requiring performed enthusiasm', 'Work in which meaning is treated as a given', 'Environments requiring sustained commitment to a narrative you cannot endorse'],
+      leadership: 'You lead with ruthless intellectual honesty and a complete absence of false comfort. Your teams trust that you will tell them what is actually true. The gap: you can strip meaning from contexts that people need meaning in to function, and your honesty can land as nihilistic when the situation calls for motivation.'
+    },
+    relationships: {
+      deepResonance: 'You connect with people who can sit with the void without flinching — who have done the intellectual work of looking at meaninglessness and come through it functional. Pretence of any kind is a dealbreaker.',
+      friction: 'You struggle with people who require optimistic framing, who cannot tolerate honest assessment, or who reach for meaning as a comfort blanket rather than as something earned. Positivity culture repels you.',
+      romantic: 'The relationship that works for you is one where both people understand that the choice to be together is genuine precisely because it is not required by any cosmic narrative. Love chosen against the void is more real to you than love mandated by it. The best match: someone with comparable intellectual honesty and a functional life despite the absence of cosmic meaning.',
+      friendship: 'Your friendships are rare and honest. You have few, and you would not have it otherwise. You expect the same unsentimental clarity from friends that you bring yourself. Comfortable illusions are not part of your relational offer.',
+      conflict: 'You can be so committed to accuracy in conflict that you strip out the acknowledgement and warmth that the other person needs to hear what you are actually saying. Honesty without care is just cruelty with good epistemics.',
+      redFlags: 'Someone who needs you to perform hope or positivity for them. Someone who takes your honest assessment of difficulty as evidence that you do not care about them.'
+    }
+  }
+};
+
+
 function renderReport(scores, contradictions, archetypeResult, fingerprint, report) {
   const arch = archetypeResult.primary;
   const family = arch.family;
@@ -3534,15 +3828,103 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     }).join('');
   }
 
-  // ── ALIGNMENT ──
-  const alEl = document.getElementById('report-alignment');
-  if (alEl && report.alignment) {
-    alEl.innerHTML = report.alignment.map(item =>
-      `<div class="alignment-card">
-        <div class="alignment-card-label">${item.label}</div>
-        <div class="alignment-card-text">${item.text}</div>
-      </div>`
-    ).join('');
+  // ── ALIGNMENT — rich hardcoded + AI personalisation ──
+  const alignData = ALIGNMENT_BY_FAMILY[family];
+  const alEl = document.getElementById('report-alignment-full');
+  if (alEl) {
+    let html = '<div class="alignment-full">';
+
+    // CAREER BLOCK
+    if (alignData) {
+      const c = alignData.careers;
+      html += `
+      <div class="alignment-block">
+        <div class="alignment-block-header">
+          <span class="alignment-block-icon">💼</span>
+          <span class="alignment-block-title">Career and Work</span>
+        </div>
+        <div class="alignment-block-body">
+          <div class="career-columns">
+            <div>
+              <div class="career-col-label thrive">Where you thrive</div>
+              <div class="career-list">
+                ${c.thrive.map(j => `<div class="career-item thrive">${j}</div>`).join('')}
+              </div>
+            </div>
+            <div>
+              <div class="career-col-label drain">What drains you</div>
+              <div class="career-list">
+                ${c.drain.map(j => `<div class="career-item drain">${j}</div>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="career-col-label" style="color:var(--accent);margin-bottom:10px;">Your leadership style</div>
+          <div class="leadership-note">${c.leadership}</div>
+        </div>
+      </div>`;
+
+      // RELATIONSHIPS BLOCK
+      const r = alignData.relationships;
+      html += `
+      <div class="alignment-block">
+        <div class="alignment-block-header">
+          <span class="alignment-block-icon">❤️</span>
+          <span class="alignment-block-title">Relationships and Connection</span>
+        </div>
+        <div class="alignment-block-body">
+          <div class="relationship-grid">
+            <div class="rel-card">
+              <div class="rel-card-label">Deep resonance</div>
+              <div class="rel-card-text">${r.deepResonance}</div>
+            </div>
+            <div class="rel-card">
+              <div class="rel-card-label">What creates friction</div>
+              <div class="rel-card-text">${r.friction}</div>
+            </div>
+            <div class="rel-card">
+              <div class="rel-card-label">Romantic relationships</div>
+              <div class="rel-card-text">${r.romantic}</div>
+            </div>
+            <div class="rel-card">
+              <div class="rel-card-label">Friendship</div>
+              <div class="rel-card-text">${r.friendship}</div>
+            </div>
+            <div class="rel-card">
+              <div class="rel-card-label">Conflict style</div>
+              <div class="rel-card-text">${r.conflict}</div>
+            </div>
+            <div class="rel-card full-width">
+              <div class="rel-card-label">⚠ Red flags to watch for</div>
+              <div class="rel-card-text">${r.redFlags}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // AI-generated cards — decisions and conflict
+    if (report.alignment && report.alignment.length > 0) {
+      html += `
+      <div class="alignment-block">
+        <div class="alignment-block-header">
+          <span class="alignment-block-icon">🧠</span>
+          <span class="alignment-block-title">Decision-Making and Conflict</span>
+        </div>
+        <div class="alignment-block-body">
+          <div class="alignment-grid">
+            ${report.alignment.map(item =>
+              `<div class="alignment-card">
+                <div class="alignment-card-label">${item.label}</div>
+                <div class="alignment-card-text">${item.text}</div>
+              </div>`
+            ).join('')}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    html += '</div>';
+    alEl.innerHTML = html;
   }
 
   // ── MEDIA ECOSYSTEM ──
