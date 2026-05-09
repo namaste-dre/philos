@@ -3700,9 +3700,8 @@ function renderCardToCanvas(container) {
         ctx.fillText(line, x, curY);
         line=word; curY+=lineH; count++;
         if (maxLines && count>=maxLines) {
-          let last=line;
-          while(ctx.measureText(last+'...').width>maxW&&last.length>3) last=last.slice(0,-1);
-          ctx.fillText(last+'...', x, curY);
+          while(ctx.measureText(line+'...').width>maxW && line.length>3) line=line.slice(0,-1);
+          ctx.fillText(line+'...', x, curY);
           return curY+lineH;
         }
       } else { line=test; }
@@ -3729,261 +3728,221 @@ function renderCardToCanvas(container) {
   // ═══ BACKGROUND ═══
   ctx.fillStyle='#08061a'; ctx.fillRect(0,0,W,H);
 
-  // MASSIVE purple glow - top centre
-  const g1=ctx.createRadialGradient(W/2,200,0,W/2,200,900);
-  g1.addColorStop(0,'rgba(120,100,255,0.55)');
-  g1.addColorStop(0.4,'rgba(100,80,220,0.25)');
-  g1.addColorStop(1,'rgba(80,60,180,0)');
+  const g1=ctx.createRadialGradient(W/2,180,0,W/2,180,820);
+  g1.addColorStop(0,'rgba(110,90,240,0.55)');
+  g1.addColorStop(0.5,'rgba(90,70,200,0.22)');
+  g1.addColorStop(1,'rgba(70,50,160,0)');
   ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
 
-  // Gold glow - bottom right
-  const g2=ctx.createRadialGradient(W-100,H-100,0,W-100,H-100,1100);
-  g2.addColorStop(0,'rgba(255,185,80,0.35)');
-  g2.addColorStop(0.4,'rgba(201,169,110,0.18)');
+  const g2=ctx.createRadialGradient(W,H,0,W,H,1000);
+  g2.addColorStop(0,'rgba(255,180,70,0.32)');
+  g2.addColorStop(0.45,'rgba(201,169,110,0.14)');
   g2.addColorStop(1,'rgba(201,169,110,0)');
   ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
 
-  // Secondary pink glow - left middle
-  const g3=ctx.createRadialGradient(0,H*0.55,0,0,H*0.55,600);
-  g3.addColorStop(0,'rgba(200,100,200,0.20)');
-  g3.addColorStop(1,'rgba(200,100,200,0)');
+  const g3=ctx.createRadialGradient(0,H*0.5,0,0,H*0.5,550);
+  g3.addColorStop(0,'rgba(180,90,200,0.18)');
+  g3.addColorStop(1,'rgba(180,90,200,0)');
   ctx.fillStyle=g3; ctx.fillRect(0,0,W,H);
 
-  // Noise texture via tiny dots
-  ctx.fillStyle='rgba(255,255,255,0.022)';
+  ctx.fillStyle='rgba(255,255,255,0.02)';
   for(let gx=60;gx<W;gx+=62) for(let gy=60;gy<H;gy+=62) {
     ctx.beginPath(); ctx.arc(gx,gy,1.2,0,Math.PI*2); ctx.fill();
   }
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.strokeRect(18,18,W-36,H-36);
 
-  // Thin border frame
-  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
-  ctx.strokeRect(20,20,W-40,H-40);
-
-  let y=0;
-
-  // ═══ TOP BAR ═══
-  y=100;
+  // ═══ SECTION: TOP BAR  y=0-140 ═══
   ctx.font='700 36px "IBM Plex Mono",monospace'; ctx.fillStyle='#c9a96e';
-  ctx.textAlign='left'; ctx.fillText('PHIL/OS',PAD,y);
-  ctx.font='400 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.textAlign='right'; ctx.fillText('thelifepm.com',W-PAD,y);
+  ctx.textAlign='left'; ctx.fillText('PHIL/OS',PAD,100);
+  ctx.font='400 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.32)';
+  ctx.textAlign='right'; ctx.fillText('thelifepm.com',W-PAD,100);
   ctx.textAlign='left';
-  hline(y+22,0.3,'rgba(201,169,110,0.4)');
+  hline(128,0,'rgba(201,169,110,0.35)');
 
-  // ═══ ARCHETYPE NAME ═══
-  y=190;
-  ctx.font='600 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.8)';
-  ctx.fillText('THE',PAD,y); y+=10;
+  // ═══ SECTION: ARCHETYPE  y=140-600 ═══
+  let y = 190;
+  // "THE" label — small, above the name
+  ctx.font='600 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
+  ctx.fillText('THE', PAD, y); y += 12;
 
-  const nameWords=cardData.archetypeName.replace('The ','').split(' ');
-  if(nameWords.length<=2) {
-    ctx.font='bold 144px "Playfair Display",serif'; ctx.fillStyle='#ffffff';
-    nameWords.forEach((w,i)=>{
-      const mw=ctx.measureText(w).width;
-      if(mw>W-PAD*2) { const s=(W-PAD*2)/mw; ctx.font='bold '+Math.floor(144*s)+'px "Playfair Display",serif'; }
-      ctx.fillText(w,PAD,y+80+i*158);
-      ctx.font='bold 144px "Playfair Display",serif';
+  // Name block
+  const nameWords = cardData.archetypeName.replace('The ','').split(' ');
+  ctx.fillStyle='#ffffff';
+  if(nameWords.length <= 2) {
+    ctx.font='bold 148px "Playfair Display",serif';
+    nameWords.forEach((w,i) => {
+      const mw = ctx.measureText(w).width;
+      if(mw > W-PAD*2) { ctx.font='bold '+Math.floor(148*(W-PAD*2)/mw)+'px "Playfair Display",serif'; }
+      ctx.fillText(w, PAD, y + 158 + i*162);
+      ctx.font='bold 148px "Playfair Display",serif';
     });
-    y+=80+nameWords.length*158;
+    y += 158 + nameWords.length*162;
   } else {
-    ctx.font='bold 106px "Playfair Display",serif'; ctx.fillStyle='#ffffff';
+    ctx.font='bold 108px "Playfair Display",serif';
     const mid=Math.ceil(nameWords.length/2);
-    ctx.fillText(nameWords.slice(0,mid).join(' '),PAD,y+80);
-    ctx.fillText(nameWords.slice(mid).join(' '),PAD,y+195);
-    y+=280;
+    ctx.fillText(nameWords.slice(0,mid).join(' '), PAD, y+110);
+    ctx.fillText(nameWords.slice(mid).join(' '), PAD, y+230);
+    y += 280;
   }
-  y+=10;
+  y += 16;
 
-  // Variant + rarity on same line
+  // Variant + rarity pill on same row
   ctx.font='500 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.9)';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(),PAD,y);
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD, y);
 
   const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
-  const rPct=rarityMap[cardData.archetypeName]||'RARE';
-  ctx.font='700 26px "IBM Plex Mono",monospace';
-  const rW=ctx.measureText('◆ '+rPct+' RAREST').width+36;
-  rr(W-PAD-rW,y-30,rW,42,21); ctx.fillStyle='rgba(120,100,255,0.22)'; ctx.fill();
-  rr(W-PAD-rW,y-30,rW,42,21); ctx.strokeStyle='rgba(157,147,232,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
+  const rPct = (rarityMap[cardData.archetypeName]||'RARE') + ' RAREST';
+  ctx.font='600 22px "IBM Plex Mono",monospace';
+  const pillW = ctx.measureText('◆ '+rPct).width + 36;
+  const pillX = W - PAD - pillW;
+  rr(pillX, y-28, pillW, 40, 20);
+  ctx.fillStyle='rgba(110,90,240,0.2)'; ctx.fill();
+  rr(pillX, y-28, pillW, 40, 20);
+  ctx.strokeStyle='rgba(157,147,232,0.55)'; ctx.lineWidth=1.5; ctx.stroke();
   ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
-  ctx.fillText('◆ '+rPct+' RAREST',W-PAD-18,y);
-  ctx.textAlign='left';
-  y+=44;
+  ctx.fillText('◆ '+rPct, W-PAD-18, y); ctx.textAlign='left';
+  y += 46;
 
-  // Separator with glow
-  hline(y,0,'rgba(157,147,232,0.35)');
-  y+=44;
+  hline(y, 0, 'rgba(157,147,232,0.3)'); y += 46;
 
-  // ═══ DESCRIPTION — 2-3 sentences ═══
-  const rawDesc=strip(cardData.cardDescription||'');
-  const sentences=(rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
-  const descText=sentences.slice(0,3).join(' ').trim();
-  ctx.font='italic 42px "Playfair Display",serif';
+  // ═══ SECTION: DESCRIPTION  ═══
+  const rawDesc = strip(cardData.cardDescription||cardData.cardTagline||'');
+  const sentences = (rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
+  const descText = sentences.slice(0,3).join(' ').trim();
+  ctx.font='italic 41px "Playfair Display",serif';
   ctx.fillStyle='rgba(255,255,255,0.88)';
-  y=wrapText(descText,PAD,y,W-PAD*2,60,5)+12;
+  y = wrapText(descText, PAD, y, W-PAD*2, 58, 5) + 16;
 
-  hline(y,0.12); y+=44;
+  hline(y, 0.12); y += 44;
 
-  // ═══ BELIEF FINGERPRINT ═══
+  // ═══ SECTION: FINGERPRINT ═══
   ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-  ctx.letterSpacing='0.1em'; ctx.fillText('BELIEF FINGERPRINT',PAD,y); y+=42;
+  ctx.fillText('BELIEF FINGERPRINT', PAD, y); y += 42;
 
-  const lblW=260, trackW=W-PAD*2-lblW-80, bH=18, bGap=62;
-  (cardData.fingerprint||[]).forEach((fp,i)=>{
+  const lblW=258, trackW=W-PAD*2-lblW-76, bH=16, bGap=60;
+  (cardData.fingerprint||[]).forEach((fp,i) => {
     const meta=AXIS_META[fp.axis]; if(!meta) return;
     const fy=y+i*bGap;
     const raw=cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
     const pct=Math.max(0,Math.min(1,(raw-1)/6));
-    const fw=Math.max(bH,Math.round(pct*trackW));
+    const fw=Math.max(bH, Math.round(pct*trackW));
 
     ctx.font='500 26px "IBM Plex Sans",sans-serif';
     ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
     const lbl=meta.label.length>15?meta.label.slice(0,14)+'.':meta.label;
-    ctx.fillText(lbl,PAD,fy+13);
+    ctx.fillText(lbl, PAD, fy+12);
 
     const tx=PAD+lblW;
-    rr(tx,fy,trackW,bH,bH/2); ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fill();
+    rr(tx,fy,trackW,bH,bH/2); ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fill();
     if(fw>bH) {
       const gr=ctx.createLinearGradient(tx,0,tx+fw,0);
-      gr.addColorStop(0,'rgba(120,100,255,0.7)'); gr.addColorStop(1,'rgba(157,147,232,1)');
+      gr.addColorStop(0,'rgba(110,90,240,0.7)'); gr.addColorStop(1,'#9d93e8');
       ctx.fillStyle=gr; rr(tx,fy,fw,bH,bH/2); ctx.fill();
-      // glow on filled bar
-      ctx.shadowColor='rgba(157,147,232,0.6)'; ctx.shadowBlur=12;
-      rr(tx,fy,fw,bH,bH/2); ctx.fillStyle='rgba(157,147,232,0.2)'; ctx.fill();
+      ctx.shadowColor='rgba(157,147,232,0.5)'; ctx.shadowBlur=10;
+      rr(tx,fy,fw,bH,bH/2); ctx.strokeStyle='rgba(157,147,232,0.3)'; ctx.lineWidth=1; ctx.stroke();
       ctx.shadowBlur=0;
     }
     ctx.font='700 24px "IBM Plex Mono",monospace';
     ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
-    ctx.fillText(raw.toFixed(1),W-PAD,fy+13); ctx.textAlign='left';
+    ctx.fillText(raw.toFixed(1), W-PAD, fy+12); ctx.textAlign='left';
   });
-  y+=(cardData.fingerprint||[]).length*bGap+36;
-
+  y += (cardData.fingerprint||[]).length*bGap + 36;
   hline(y,0.12); y+=44;
 
-  // ═══ YOUR WORLD — media ═══
+  // ═══ SECTION: YOUR WORLD ═══
   const mediaMap2=typeof MEDIA_BY_FAMILY!=='undefined'?MEDIA_BY_FAMILY:{};
   const media=mediaMap2[cardData.archetypeName];
   if(media) {
     ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-    ctx.fillText('YOUR WORLD',PAD,y); y+=42;
+    ctx.fillText('YOUR WORLD', PAD, y); y+=42;
     const colW=(W-PAD*2)/3;
-    [
-      {icon:'FILM',items:media.films.slice(0,2)},
-      {icon:'MUSIC',items:media.music.slice(0,2)},
-      {icon:'BOOKS',items:media.books.slice(0,2)}
-    ].forEach((cat,ci)=>{
+    [{label:'FILM',items:media.films.slice(0,2)},{label:'MUSIC',items:media.music.slice(0,2)},{label:'BOOKS',items:media.books.slice(0,2)}].forEach((cat,ci) => {
       const cx=PAD+ci*colW;
-      ctx.font='600 19px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
-      ctx.fillText(cat.icon,cx,y);
-      cat.items.forEach((item,ii)=>{
-        const iy=y+30+ii*58;
+      ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
+      ctx.fillText(cat.label, cx, y);
+      cat.items.forEach((item,ii) => {
+        const iy=y+28+ii*56;
         ctx.font='600 22px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(255,255,255,0.92)';
-        let t=item.title;
-        while(ctx.measureText(t).width>colW-20&&t.length>4) t=t.slice(0,-4)+'...';
-        ctx.fillText(t,cx,iy);
-        ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.55)';
-        let n=item.note;
-        while(ctx.measureText(n).width>colW-20&&n.length>4) n=n.slice(0,-4)+'...';
-        ctx.fillText(n,cx,iy+22);
+        let t=item.title; while(ctx.measureText(t).width>colW-16&&t.length>4) t=t.slice(0,-4)+'...';
+        ctx.fillText(t, cx, iy);
+        ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.52)';
+        let n=item.note; while(ctx.measureText(n).width>colW-16&&n.length>4) n=n.slice(0,-4)+'...';
+        ctx.fillText(n, cx, iy+22);
       });
     });
-    y+=180; hline(y,0.12); y+=42;
+    y+=178; hline(y,0.12); y+=42;
   }
 
-  // ═══ THINKERS WITH DESCRIPTORS ═══
+  // ═══ SECTION: MINDS LIKE YOURS ═══
   ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-  ctx.fillText('MINDS LIKE YOURS',PAD,y); y+=40;
-
+  ctx.fillText('MINDS LIKE YOURS', PAD, y); y+=40;
   const famous=(cardData.famousTypes||[]).slice(0,3);
   if(famous.length>0) {
-    const fColW=(W-PAD*2)/Math.min(famous.length,3);
-    famous.forEach((f,i)=>{
-      const fx=PAD+i*fColW;
-      ctx.font='700 24px "Playfair Display",serif'; ctx.fillStyle='rgba(255,255,255,0.95)';
-      ctx.fillText(f.name,fx,y+24);
-      ctx.font='400 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.65)';
-      let desc=f.desc;
-      while(ctx.measureText(desc).width>fColW-16&&desc.length>4) desc=desc.slice(0,-4)+'...';
-      ctx.fillText(desc,fx,y+46);
+    const fW=(W-PAD*2)/3;
+    famous.forEach((f,i) => {
+      const fx=PAD+i*fW;
+      ctx.font='700 23px "Playfair Display",serif'; ctx.fillStyle='rgba(255,255,255,0.95)';
+      ctx.fillText(f.name, fx, y+24);
+      ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.6)';
+      // Split desc by · and show first part
+      const descParts=(f.desc||'').split('·');
+      let d1=descParts[0]||'';
+      while(ctx.measureText(d1).width>fW-14&&d1.length>4) d1=d1.slice(0,-4)+'...';
+      ctx.fillText(d1.trim(), fx, y+46);
+      if(descParts[1]) {
+        let d2=descParts[1].trim();
+        while(ctx.measureText(d2).width>fW-14&&d2.length>4) d2=d2.slice(0,-4)+'...';
+        ctx.fillText(d2, fx, y+66);
+      }
     });
-    y+=80;
+    y+=90;
   } else {
-    ctx.font='500 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
-    ctx.fillText(strip(cardData.thinkers||''),PAD,y); y+=48;
+    ctx.font='500 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
+    ctx.fillText(strip(cardData.thinkers||''), PAD, y); y+=48;
   }
-
   hline(y,0.12); y+=30;
 
-  // ═══ BOTTOM: UNIQUE AXIS RADAR — hexagon burst ═══
-  const radarY=H-380, radarCY=radarY+150, radarCX=W/2, radarR=120;
+  // ═══ SECTION: DNA STRIP — clean bar chart ═══
+  // Fixed height region at the bottom, above the branding bar
+  const dnaStartY = y;
+  const dnaEndY = H - 100;
+  const dnaAvail = dnaEndY - dnaStartY - 50; // space for label
+
+  ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.7)';
+  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, dnaStartY+18);
+  ctx.textAlign='left';
+
+  const stripTopY = dnaStartY + 34;
+  const stripH = dnaAvail - 20;
   const axKeys=Object.keys(AXIS_META);
-  const n=axKeys.length;
+  const bW=Math.floor((W-PAD*2)/axKeys.length);
 
-  // Draw concentric rings
-  [0.33,0.66,1.0].forEach(r=>{
-    ctx.beginPath();
-    for(let i=0;i<n;i++) {
-      const ang=(i/n)*Math.PI*2-Math.PI/2;
-      const px=radarCX+Math.cos(ang)*radarR*r;
-      const py=radarCY+Math.sin(ang)*radarR*r;
-      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
-    }
-    ctx.closePath();
-    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.stroke();
-  });
+  // Draw background strip
+  ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(PAD, stripTopY, W-PAD*2, stripH);
+  hline(stripTopY, 0.08); hline(stripTopY+stripH, 0.08);
 
-  // Draw axis lines from centre
-  for(let i=0;i<n;i++) {
-    const ang=(i/n)*Math.PI*2-Math.PI/2;
-    ctx.beginPath(); ctx.moveTo(radarCX,radarCY);
-    ctx.lineTo(radarCX+Math.cos(ang)*radarR,radarCY+Math.sin(ang)*radarR);
-    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1; ctx.stroke();
-  }
+  // Centre line
+  const midLine = stripTopY + stripH/2;
+  hline(midLine, 0, 'rgba(255,255,255,0.06)');
 
-  // Draw filled polygon from user scores
-  ctx.beginPath();
-  axKeys.forEach((k,i)=>{
-    const ang=(i/n)*Math.PI*2-Math.PI/2;
+  // Draw bars — centred on midline, growing up and down based on deviation from 4
+  axKeys.forEach((k,i) => {
     const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const norm=Math.max(0,Math.min(1,(sc-1)/6));
-    const px=radarCX+Math.cos(ang)*radarR*norm;
-    const py=radarCY+Math.sin(ang)*radarR*norm;
-    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    const dev=(sc-4)/3; // -1 to 1
+    const barH=Math.max(4, Math.abs(dev)*(stripH/2-6));
+    const bx=PAD+i*bW+1;
+    const by=dev>0 ? midLine-barH : midLine;
+    const alpha=0.2+Math.abs(dev)*0.65;
+    // colour: positive deviation = purple, negative = gold
+    const col=dev>0?`rgba(157,147,232,${alpha})`:`rgba(201,169,110,${alpha})`;
+    ctx.fillStyle=col;
+    ctx.fillRect(bx, by, bW-2, barH);
   });
-  ctx.closePath();
-  const rg=ctx.createRadialGradient(radarCX,radarCY,0,radarCX,radarCY,radarR);
-  rg.addColorStop(0,'rgba(157,147,232,0.5)'); rg.addColorStop(1,'rgba(120,100,255,0.15)');
-  ctx.fillStyle=rg; ctx.fill();
-  ctx.strokeStyle='rgba(157,147,232,0.8)'; ctx.lineWidth=2.5; ctx.stroke();
-
-  // Outer glow on polygon
-  ctx.shadowColor='rgba(157,147,232,0.5)'; ctx.shadowBlur=20;
-  ctx.strokeStyle='rgba(157,147,232,0.4)'; ctx.lineWidth=1; ctx.stroke();
-  ctx.shadowBlur=0;
-
-  // Expand radar with additional rings left and right
-  // Parallel mini-bars strip — unique visual signature
-  const stripY=H-210, stripH=60;
-  ctx.fillStyle='rgba(157,147,232,0.04)'; ctx.fillRect(0,stripY,W,stripH);
-  hline(stripY,0.08); hline(stripY+stripH,0.08);
-
-  const bW=(W-PAD*2)/axKeys.length;
-  axKeys.forEach((k,i)=>{
-    const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const norm=Math.max(0,Math.min(1,(sc-1)/6));
-    const bx=PAD+i*bW, bh=8+norm*44;
-    const by=stripY+(stripH-bh)/2;
-    const alpha=0.15+norm*0.6;
-    const hue=norm>0.5?'157,147,232':'201,169,110';
-    ctx.fillStyle='rgba('+hue+','+alpha+')';
-    ctx.fillRect(bx+1,by,bW-2,bh);
-  });
-
-  ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.18)';
-  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES',W/2,stripY+stripH+24);
 
   // ═══ BOTTOM BRANDING ═══
-  ctx.font='700 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
-  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com',W/2,H-42);
+  ctx.font='700 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.72)';
+  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, H-44);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
