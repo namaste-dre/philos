@@ -2855,63 +2855,19 @@ async function generateReport() {
     ? `Note: This person sits between "${arch.family}: ${arch.variant}" and "${archetypeResult.secondary.family}: ${archetypeResult.secondary.variant}" — the two closest archetypes. Acknowledge this in the report.`
     : '';
 
-  const userName = state.userName || 'the user';
-  const userCountry = state.userCountry ? ` (based in ${state.userCountry})` : '';
+  const userName = state.userName || 'this person';
 
-  const prompt = `You are the report generation engine for Philosophical OS — a rigorous philosophical profiling system. Generate a deeply personalised report for ${userName}${userCountry}.
+  const prompt = `Generate a philosophical profile report as JSON for ${userName}.
 
-COMPUTED ARCHETYPE: ${arch.family} — ${arch.variant}
-ARCHETYPE DESCRIPTION: ${arch.description}
-ALIGNED THINKERS: ${arch.thinkers}
-CORE STRENGTH: ${arch.strength}
-CORE FAILURE MODE: ${arch.failureMode}
-${liminalNote}
+ARCHETYPE: ${arch.family} — ${arch.variant}
+STRENGTH: ${arch.strength}
+FAILURE MODE: ${arch.failureMode}
+THINKERS: ${arch.thinkers}
+TOP 5 AXES: ${fingerprintSummary}
+CONTRADICTIONS: ${contradictionSummary}
 
-PHILOSOPHICAL FINGERPRINT (5 most defining axes):
-${fingerprintSummary}
-
-ALL AXIS SCORES:
-${scoresSummary}
-
-DETECTED CONTRADICTIONS:
-${contradictionSummary}
-
-Generate a JSON object with EXACTLY this structure. Every field must be specific to this person's actual scores — never generic:
-
-{
-  "archetypeName": "${arch.family}",
-  "archetypeVariant": "${arch.variant}",
-  "tagline": "One precise sentence capturing the essence of THIS specific worldview based on the actual scores. Reference a specific position.",
-  "cardTagline": "A punchy 1-2 line statement for a shareable card. Maximum 12 words per line, 2 lines max. Should make someone reading it say 'that is exactly me'. Bold and declarative. No jargon. Examples: 'The universe runs on cause and effect. I run on that too.' or 'Nothing matters cosmically. I act anyway.' Write one that fits THIS person's specific top axis scores.",
-  "identity": "4 paragraphs. First paragraph: name the archetype and explain what it means for this specific person based on their top axis scores. Second paragraph: what these foundations mean for how they experience the world — ethics, meaning, relationships. Third paragraph: the contradiction or tension most present in their profile (even if no formal contradiction fired). Fourth paragraph: what this worldview makes them unusually good at. Plain language. No jargon. Should feel like a mirror — accurate, a little uncomfortable, deeply recognisable. Reference ${userName} by name.",
-  "alignment": [
-    {"label": "Work & Career", "text": "Specific environments that fit this worldview. What roles and organisational cultures align. What will feel draining. Reference actual axis scores."},
-    {"label": "Relationships", "text": "What creates deep resonance with this type. What creates chronic friction. What a partner with the opposite profile would look like and how that plays out."},
-    {"label": "Decision-Making", "text": "How this specific worldview approaches decisions under uncertainty. What the characteristic decision pattern is."},
-    {"label": "Conflict Style", "text": "How this worldview shapes engagement with disagreement. What triggers this type. What they do well and badly in conflict."}
-  ],
-  "patterns": [
-    {"type": "positive", "label": "Core Superpower", "text": "The specific strength that this axis signature produces. Not generic — derived from the actual scores."},
-    {"type": "positive", "label": "Intellectual Signature", "text": "The characteristic way this type thinks that others find distinctive."},
-    {"type": "negative", "label": "Primary Failure Mode", "text": "The specific cognitive trap or failure pattern this worldview generates. Should match the archetype failure mode but be personalised to their scores."},
-    {"type": "negative", "label": "Blind Spot", "text": "What this worldview systematically fails to see or underweights."}
-  ],
-  "growth": [
-    "A specific, philosophically grounded growth edge derived from the actual scores and archetype. Not self-help. Philosophically consistent with their own framework.",
-    "A second growth edge targeting a different axis or tension.",
-    "A third growth edge focused on a practical life domain."
-  ],
-  "contradictions": [
-    ${contradictions.map(c => `{"tier": "${c.tier}", "title": "${c.title.replace(/"/g,"'")}", "text": "${c.text.replace(/"/g,"'").replace(/\n/g,' ')}"}`).join(',\n    ')}
-  ]
-}
-
-STRICT RULES:
-- Reference ${userName} by name at least twice in the identity section.
-- Every field must reference specific axis scores or positions. Nothing generic.
-- The identity section must feel like it was written about this specific person, not a template.
-- Contradictions are pre-computed — include them exactly as structured above, do not invent new ones.
-- Return ONLY the JSON object. No preamble, no markdown, no backticks.`;
+Return ONLY this JSON, no markdown:
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence capturing this worldview.","cardTagline":"Punchy 1-2 lines for a shareable card. Max 12 words per line. Bold and declarative.","identity":"3 paragraphs about ${userName}'s worldview based on their scores. Plain language. Personal. Reference ${userName} by name.","alignment":[{"label":"Work","text":"What environments fit and drain this type."},{"label":"Relationships","text":"What creates resonance and friction."},{"label":"Decisions","text":"How this type decides under uncertainty."},{"label":"Conflict","text":"How this type handles disagreement."}],"patterns":[{"type":"positive","label":"Superpower","text":"Core strength from this axis signature."},{"type":"negative","label":"Failure Mode","text":"Primary cognitive trap for this type."}],"growth":["First growth edge.","Second growth edge."],"contradictions":[${contradictions.map(c => `{"tier":"${c.tier}","title":"${c.title.replace(/"/g,"'")}"}`).join(',')}]}`;
 
   try {
     const response = await fetch('/.netlify/functions/generate', {
@@ -2919,7 +2875,7 @@ STRICT RULES:
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 1500
+        max_tokens: 800
       })
     });
 
