@@ -3649,9 +3649,10 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     archetypeName: report.archetypeName || arch.family,
     archetypeVariant: report.archetypeVariant || arch.variant,
     cardTagline: report.cardTagline || report.tagline || arch.description.split('.')[0] + '.',
+    cardDescription: report.cardTagline || arch.description,
     thinkers: arch.thinkers,
     fingerprint: fp,
-    axisScores: scores,  // pass scores immediately
+    axisScores: scores,
     userName: state.userName || null,
   };
 
@@ -3681,286 +3682,209 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  // Card dimensions: 1080x1920
   const W = 1080, H = 1920;
   const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
+  const PAD = 80;
 
-  // ── BACKGROUND ──
-  // Deep space gradient with warmth — pops on bright social feeds
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0,   '#0d0b14');
-  bg.addColorStop(0.4, '#12101c');
-  bg.addColorStop(1,   '#1a1008');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Accent glow top-left
-  const glow1 = ctx.createRadialGradient(120, 120, 0, 120, 120, 500);
-  glow1.addColorStop(0, 'rgba(157,147,232,0.18)');
-  glow1.addColorStop(1, 'rgba(157,147,232,0)');
-  ctx.fillStyle = glow1;
-  ctx.fillRect(0, 0, W, H);
-
-  // Warm glow bottom-right
-  const glow2 = ctx.createRadialGradient(W - 100, H - 200, 0, W - 100, H - 200, 600);
-  glow2.addColorStop(0, 'rgba(201,169,110,0.14)');
-  glow2.addColorStop(1, 'rgba(201,169,110,0)');
-  ctx.fillStyle = glow2;
-  ctx.fillRect(0, 0, W, H);
-
-  // Subtle grid lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 90) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  // helpers
+  function strip(t) { return (t||'').replace(/\*\*/g,'').replace(/\*/g,''); }
+  function wrapText(text, x, y, maxW, lineH, maxLines) {
+    text = strip(text);
+    const words = text.split(' ');
+    let line = '', curY = y, count = 0;
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, x, curY); line = word; curY += lineH; count++;
+        if (maxLines && count >= maxLines) { ctx.fillText(line + '...', x, curY); return curY + lineH; }
+      } else { line = test; }
+    }
+    if (line) ctx.fillText(line, x, curY);
+    return curY + lineH;
   }
-  for (let y = 0; y < H; y += 90) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  function hline(y, alpha) {
+    ctx.strokeStyle = 'rgba(255,255,255,' + (alpha||0.12) + ')';
+    ctx.lineWidth = 1; ctx.beginPath();
+    ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+  }
+  function rr(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
   }
 
-  // ── TOP BRANDING ──
-  ctx.font = '500 36px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(201,169,110,0.9)';
-  ctx.textAlign = 'left';
-  ctx.letterSpacing = '0.15em';
-  ctx.fillText('PHIL/OS', 80, 110);
+  // BACKGROUND
+  const bg = ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#0b0918'); bg.addColorStop(0.45,'#0f0d1c'); bg.addColorStop(1,'#180f0a');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  const g1 = ctx.createRadialGradient(W/2,500,0,W/2,500,750);
+  g1.addColorStop(0,'rgba(157,147,232,0.26)'); g1.addColorStop(1,'rgba(157,147,232,0)');
+  ctx.fillStyle = g1; ctx.fillRect(0,0,W,H);
+  const g2 = ctx.createRadialGradient(W,H,0,W,H,900);
+  g2.addColorStop(0,'rgba(201,169,110,0.22)'); g2.addColorStop(1,'rgba(201,169,110,0)');
+  ctx.fillStyle = g2; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,255,255,0.025)';
+  for (let gx=80;gx<W-80;gx+=68) for (let gy=80;gy<H-80;gy+=68) { ctx.beginPath(); ctx.arc(gx,gy,1.4,0,Math.PI*2); ctx.fill(); }
 
-  ctx.font = '400 30px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.textAlign = 'right';
-  ctx.fillText('thelifepm.com', W - 80, 110);
+  // TOP BAR
+  ctx.textAlign='left'; ctx.font='600 34px "IBM Plex Mono",monospace'; ctx.fillStyle='#c9a96e';
+  ctx.fillText('PHIL/OS',PAD,108);
+  ctx.textAlign='right'; ctx.font='400 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.28)';
+  ctx.fillText('thelifepm.com',W-PAD,108);
+  hline(138,0.25);
 
-  // Top separator line
-  ctx.strokeStyle = 'rgba(201,169,110,0.3)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(80, 140); ctx.lineTo(W - 80, 140);
-  ctx.stroke();
-
-  // ── ARCHETYPE NAME ──
-  const archetypeName = cardData.archetypeName.replace('The ', '');
-  ctx.textAlign = 'left';
-
-  // "THE" small label
-  ctx.font = '500 38px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(201,169,110,0.7)';
-  ctx.letterSpacing = '0.2em';
-  ctx.fillText('THE', 80, 260);
-
-  // Main archetype name — large, bold, white
-  // Handle long names by wrapping
-  ctx.font = 'bold 148px "Playfair Display", serif';
-  ctx.fillStyle = '#f0ede6';
-  ctx.letterSpacing = '-0.02em';
-  const words = archetypeName.split(' ');
-  let y = 420;
-  const lineH = 158;
-  if (words.length <= 2) {
-    // Single or two words — stack them
-    words.forEach((word, i) => {
-      const measured = ctx.measureText(word).width;
-      // Scale down if too wide
-      if (measured > W - 160) {
-        const scale = (W - 160) / measured;
-        ctx.font = `bold ${Math.floor(148 * scale)}px "Playfair Display", serif`;
-      }
-      ctx.fillText(word, 80, y + i * lineH);
-      ctx.font = 'bold 148px "Playfair Display", serif';
+  // ARCHETYPE NAME
+  ctx.textAlign='left';
+  ctx.font='500 32px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
+  ctx.fillText('THE',PAD,220);
+  const nameWords = cardData.archetypeName.replace('The ','').split(' ');
+  let cy = 380;
+  if (nameWords.length <= 2) {
+    ctx.font='bold 136px "Playfair Display",serif'; ctx.fillStyle='#f0ede6';
+    nameWords.forEach((w,i) => {
+      const mw = ctx.measureText(w).width;
+      if (mw > W-160) { const s=(W-160)/mw; ctx.font='bold '+Math.floor(136*s)+'px "Playfair Display",serif'; }
+      ctx.fillText(w,PAD,cy+i*148); ctx.font='bold 136px "Playfair Display",serif';
     });
-    y += words.length * lineH;
+    cy += nameWords.length*148+10;
   } else {
-    // 3+ words — reduce size and wrap at 2 per line
-    ctx.font = 'bold 108px "Playfair Display", serif';
-    const mid = Math.ceil(words.length / 2);
-    const line1 = words.slice(0, mid).join(' ');
-    const line2 = words.slice(mid).join(' ');
-    ctx.fillText(line1, 80, y);
-    ctx.fillText(line2, 80, y + 120);
-    y += 260;
+    ctx.font='bold 100px "Playfair Display",serif'; ctx.fillStyle='#f0ede6';
+    const mid=Math.ceil(nameWords.length/2);
+    ctx.fillText(nameWords.slice(0,mid).join(' '),PAD,cy);
+    ctx.fillText(nameWords.slice(mid).join(' '),PAD,cy+115);
+    cy += 250;
+  }
+  // variant
+  ctx.font='500 30px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(165,133,188,0.95)';
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(),PAD,cy+10); cy+=62;
+
+  // rarity pill
+  const rarityMap={'The Determined Humanist':'TOP 4% RAREST','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8% RAREST','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7% RAREST','The Stoic Naturalist':'TOP 6% RAREST','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2% RAREST'};
+  const rl = (rarityMap[cardData.archetypeName]||'RARE TYPE') + ' WORLDVIEW';
+  ctx.font='600 22px "IBM Plex Mono",monospace';
+  const pillW = ctx.measureText('◆ '+rl).width + 48;
+  rr(PAD,cy+8,pillW,44,22); ctx.fillStyle='rgba(157,147,232,0.15)'; ctx.fill();
+  rr(PAD,cy+8,pillW,44,22); ctx.strokeStyle='rgba(157,147,232,0.45)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='rgba(157,147,232,0.95)'; ctx.fillText('◆ '+rl,PAD+24,cy+36); cy+=70;
+
+  hline(cy+8,0.15); cy+=48;
+
+  // PERSONALITY DESCRIPTION — 2-3 sentences
+  const rawDesc = strip(cardData.cardDescription || cardData.cardTagline || '');
+  const sentences = rawDesc.match(/[^.!?]+[.!?]+/g) || [rawDesc];
+  const descText = sentences.slice(0,3).join(' ').trim();
+  ctx.font='italic 40px "Playfair Display",serif'; ctx.fillStyle='rgba(240,237,230,0.90)';
+  cy = wrapText(descText,PAD,cy,W-PAD*2,56,5) + 16;
+
+  hline(cy,0.12); cy+=44;
+
+  // BELIEF FINGERPRINT
+  ctx.font='600 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
+  ctx.fillText('BELIEF FINGERPRINT',PAD,cy); cy+=40;
+  const labelW=280, trackW=W-PAD*2-labelW-80, barH=14, barGap=60;
+  (cardData.fingerprint||[]).forEach((fp,i) => {
+    const meta=AXIS_META[fp.axis]; if (!meta) return;
+    const fy=cy+i*barGap;
+    const rawScore = cardData.axisScores ? (cardData.axisScores[fp.axis]||fp.score||4) : (fp.score||4);
+    const pct = Math.max(0,Math.min(1,(rawScore-1)/6));
+    const fillW = Math.round(pct*trackW);
+    ctx.font='400 24px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
+    const lbl=meta.label.length>16?meta.label.slice(0,15)+'.':meta.label;
+    ctx.fillText(lbl,PAD,fy+11);
+    const tx=PAD+labelW;
+    rr(tx,fy,trackW,barH,barH/2); ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fill();
+    if (fillW>4) {
+      const gr=ctx.createLinearGradient(tx,0,tx+fillW,0);
+      gr.addColorStop(0,'rgba(157,147,232,0.55)'); gr.addColorStop(1,'#9d93e8');
+      ctx.fillStyle=gr; rr(tx,fy,fillW,barH,barH/2); ctx.fill();
+    }
+    ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='#9d93e8'; ctx.textAlign='right';
+    ctx.fillText(rawScore.toFixed(1),W-PAD,fy+11); ctx.textAlign='left';
+  });
+  cy += (cardData.fingerprint||[]).length*barGap+36;
+
+  hline(cy,0.12); cy+=44;
+
+  // CULTURAL ECOSYSTEM
+  const mediaMap2 = typeof MEDIA_BY_FAMILY!=='undefined' ? MEDIA_BY_FAMILY : {};
+  const media = mediaMap2[cardData.archetypeName];
+  if (media) {
+    ctx.font='600 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
+    ctx.fillText('YOUR WORLD',PAD,cy); cy+=42;
+    const colW=(W-PAD*2)/3;
+    const cats=[{label:'FILM',items:media.films.slice(0,2)},{label:'MUSIC',items:media.music.slice(0,2)},{label:'BOOKS',items:media.books.slice(0,2)}];
+    cats.forEach((cat,ci) => {
+      const cx2=PAD+ci*colW;
+      ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(165,133,188,0.8)';
+      ctx.fillText(cat.label,cx2,cy);
+      cat.items.forEach((item,ii) => {
+        const iy=cy+28+ii*56;
+        ctx.font='500 22px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(240,237,230,0.92)';
+        let t=item.title; while(ctx.measureText(t).width>colW-18&&t.length>4) t=t.slice(0,-4)+'...';
+        ctx.fillText(t,cx2,iy);
+        ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.52)';
+        let n=item.note; while(ctx.measureText(n).width>colW-18&&n.length>4) n=n.slice(0,-4)+'...';
+        ctx.fillText(n,cx2,iy+22);
+      });
+    });
+    cy+=175; hline(cy,0.12); cy+=42;
   }
 
-  // Variant label
-  ctx.font = '500 36px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(165,133,188,0.9)';
-  ctx.letterSpacing = '0.08em';
-  ctx.fillText(cardData.archetypeVariant.toUpperCase(), 80, y + 20);
+  // THINKERS
+  ctx.font='500 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(165,133,188,0.85)';
+  ctx.fillText(strip(cardData.thinkers||''),PAD,cy); cy+=52;
 
-  // ── DIVIDER ──
-  y += 70;
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(80, y); ctx.lineTo(W - 80, y);
-  ctx.stroke();
-  y += 60;
-
-  // ── FINGERPRINT BARS ──
-  ctx.font = '500 28px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(201,169,110,0.7)';
-  ctx.letterSpacing = '0.14em';
-  ctx.fillText('BELIEF FINGERPRINT', 80, y);
-  y += 52;
-
-  const barAreaW = W - 160;
-  const labelW = 340;
-  const barTrackW = barAreaW - labelW - 20;
-  const barH = 14;
-  const barGap = 70;
-  const barRadius = barH / 2;
-
-  const TIER1_COLORS = {
-    naturalism: '#9d93e8',
-    physicalism: '#9d93e8',
-    determinism: '#9d93e8',
-    moral_ground: '#9d93e8',
-    meaning: '#9d93e8',
-    realism: '#9d93e8',
-    teleology: '#9d93e8',
-    human_nature: '#9d93e8',
-    epistemic_method: '#9d93e8',
-    social_ontology: '#9d93e8',
-    temporal_orientation: '#9d93e8',
-    moral_authority: '#9d93e8',
-    epistemic_humility: '#9d93e8',
-  };
-
-  cardData.fingerprint.forEach((fp, i) => {
-    const meta = AXIS_META[fp.axis];
-    if (!meta) return;
-    const fy = y + i * barGap;
-    const pct = (fp.score - 1) / 6;
-    const fillW = Math.round(pct * barTrackW);
-    const barColor = TIER1_COLORS[fp.axis] || '#9d93e8';
-
-    // Label
-    ctx.font = '400 26px "IBM Plex Sans", sans-serif';
-    ctx.fillStyle = 'rgba(240,237,230,0.9)';
-    ctx.textAlign = 'left';
-    ctx.letterSpacing = '0';
-    const labelText = meta.label.length > 18 ? meta.label.substring(0, 17) + '.' : meta.label;
-    ctx.fillText(labelText, 80, fy + 10);
-
-    // Track background
-    const trackX = 80 + labelW;
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    roundRect(ctx, trackX, fy - 2, barTrackW, barH, barRadius);
-    ctx.fill();
-
-    // Fill
-    if (fillW > 0) {
-      const fillGrad = ctx.createLinearGradient(trackX, 0, trackX + fillW, 0);
-      fillGrad.addColorStop(0, barColor + 'aa');
-      fillGrad.addColorStop(1, barColor);
-      ctx.fillStyle = fillGrad;
-      roundRect(ctx, trackX, fy - 2, Math.max(fillW, barH), barH, barRadius);
-      ctx.fill();
-    }
-
-    // Score dot
-    const dotX = trackX + fillW;
-    ctx.beginPath();
-    ctx.arc(Math.min(dotX, trackX + barTrackW - 6), fy + barH/2 - 2, 7, 0, Math.PI * 2);
-    ctx.fillStyle = barColor;
-    ctx.fill();
-
-    // Score value
-    ctx.font = '500 22px "IBM Plex Mono", monospace';
-    ctx.fillStyle = barColor;
-    ctx.textAlign = 'right';
-    ctx.fillText(fp.score.toFixed(1), W - 80, fy + 10);
-    ctx.textAlign = 'left';
+  // PHILOSOPHICAL DNA WAVEFORM
+  const dnaY=H-250, dnaH=130;
+  ctx.fillStyle='rgba(157,147,232,0.04)'; ctx.fillRect(0,dnaY,W,dnaH);
+  hline(dnaY,0.1); hline(dnaY+dnaH,0.1);
+  const axKeys=Object.keys(AXIS_META);
+  const segW2=W/axKeys.length, midY=dnaY+dnaH/2, maxAmp=dnaH/2-10;
+  // draw filled area
+  ctx.beginPath(); ctx.moveTo(0,midY);
+  axKeys.forEach((k,i) => {
+    const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
+    const norm=(sc-4)/3;
+    ctx.lineTo(i*segW2+segW2/2, midY-norm*maxAmp);
   });
-
-  y += cardData.fingerprint.length * barGap + 50;
-
-  // ── CARD TAGLINE ──
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = 1;
+  ctx.lineTo(W,midY); ctx.closePath();
+  const wg=ctx.createLinearGradient(0,0,W,0);
+  wg.addColorStop(0,'rgba(157,147,232,0.15)'); wg.addColorStop(0.5,'rgba(201,169,110,0.15)'); wg.addColorStop(1,'rgba(157,147,232,0.15)');
+  ctx.fillStyle=wg; ctx.fill();
+  // draw line
   ctx.beginPath();
-  ctx.moveTo(80, y); ctx.lineTo(W - 80, y);
-  ctx.stroke();
-  y += 70;
-
-  // Wrap tagline text
-  ctx.font = 'italic 52px "Playfair Display", serif';
-  ctx.fillStyle = 'rgba(240,237,230,0.95)';
-  ctx.letterSpacing = '0';
-  const taglineWords = cardData.cardTagline.split(' ');
-  const maxLineW = W - 200;
-  let line = '';
-  const taglineLines = [];
-  taglineWords.forEach(word => {
-    const test = line ? line + ' ' + word : word;
-    if (ctx.measureText(test).width > maxLineW && line) {
-      taglineLines.push(line);
-      line = word;
-    } else {
-      line = test;
+  axKeys.forEach((k,i) => {
+    const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
+    const norm=(sc-4)/3;
+    const px=i*segW2+segW2/2, py=midY-norm*maxAmp;
+    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  });
+  const wg2=ctx.createLinearGradient(0,0,W,0);
+  wg2.addColorStop(0,'rgba(157,147,232,0.9)'); wg2.addColorStop(0.5,'rgba(201,169,110,0.9)'); wg2.addColorStop(1,'rgba(157,147,232,0.9)');
+  ctx.strokeStyle=wg2; ctx.lineWidth=2.5; ctx.stroke();
+  // dots on peaks
+  axKeys.forEach((k,i) => {
+    const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
+    const norm=(sc-4)/3;
+    const dev=Math.abs(norm);
+    if (dev>0.4) {
+      ctx.beginPath(); ctx.arc(i*segW2+segW2/2,midY-norm*maxAmp,4+dev*6,0,Math.PI*2);
+      ctx.fillStyle='rgba(157,147,232,'+(0.4+dev*0.6)+')'; ctx.fill();
     }
   });
-  if (line) taglineLines.push(line);
+  ctx.font='400 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA — 34 AXES',W/2,dnaY+dnaH+26);
 
-  const taglineLineH = 68;
-  taglineLines.slice(0, 3).forEach((l, i) => {
-    ctx.fillText(l, 80, y + i * taglineLineH);
-  });
-  y += Math.min(taglineLines.length, 3) * taglineLineH + 50;
+  // BOTTOM BRANDING
+  ctx.font='600 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.65)';
+  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com',W/2,H-55);
 
-  // ── THINKERS ──
-  ctx.font = '500 28px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(165,133,188,0.8)';
-  ctx.letterSpacing = '0.06em';
-  ctx.fillText(cardData.thinkers, 80, y);
-  y += 50;
-
-  // ── BOTTOM DECORATIVE FINGERPRINT BARCODE ──
-  // Unique visual pattern generated from axis scores
-  const barcodeY = H - 200;
-  ctx.fillStyle = 'rgba(201,169,110,0.08)';
-  ctx.fillRect(0, barcodeY - 10, W, 100);
-
-  const allScores = Object.values(AXIS_META).map((_, i) => {
-    const axisKeys = Object.keys(AXIS_META);
-    // Use a fallback pattern if scores not available
-    return Math.random();
-  });
-
-  // Actually use real fingerprint data for the barcode pattern
-  const barcodeData = Object.entries(AXIS_META).map(([key]) => {
-    // We'll store scores in cardData
-    return cardData.axisScores ? (cardData.axisScores[key] || 4) : 4;
-  });
-
-  const barcodeBarW = W / barcodeData.length;
-  barcodeData.forEach((val, i) => {
-    const norm = (val - 1) / 6;
-    const h = 20 + norm * 70;
-    const alpha = 0.15 + norm * 0.45;
-    ctx.fillStyle = `rgba(201,169,110,${alpha})`;
-    ctx.fillRect(i * barcodeBarW, barcodeY + (90 - h) / 2, barcodeBarW - 1, h);
-  });
-
-  // Bottom branding
-  ctx.font = '500 30px "IBM Plex Mono", monospace';
-  ctx.fillStyle = 'rgba(201,169,110,0.6)';
-  ctx.textAlign = 'center';
-  ctx.letterSpacing = '0.1em';
-  ctx.fillText('PHIL/OS  ·  thelifepm.com', W / 2, H - 60);
-
-  // Bottom separator
-  ctx.strokeStyle = 'rgba(201,169,110,0.2)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(80, H - 90); ctx.lineTo(W - 80, H - 90);
-  ctx.stroke();
-
-  // Add to container
   container.innerHTML = '';
   container.appendChild(canvas);
-
   return canvas;
 }
 
