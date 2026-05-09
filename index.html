@@ -2924,6 +2924,9 @@ STRICT RULES:
     });
 
     const data = await response.json();
+    if (!data || !data.content) {
+      throw new Error('Invalid API response: ' + JSON.stringify(data).slice(0, 200));
+    }
     const raw = data.content.map(b => b.text || '').join('');
     const clean = raw.replace(/```json|```/g,'').trim();
     const report = JSON.parse(clean);
