@@ -2619,712 +2619,102 @@ const TIER_GLOW_PALETTES = {
 
 let currentGlowTier = null;
 
-function updateQuizBackground(axis, tier) {
-  if (tier === currentGlowTier) return; // only rebuild on tier change
-  currentGlowTier = tier;
-
-  const layer = document.getElementById('quiz-glow-layer');
-  if (!layer) return;
-
-  const palette = TIER_GLOW_PALETTES[tier] || TIER_GLOW_PALETTES[1];
-  layer.innerHTML = palette.map(g => `
-    <div class="quiz-glow" style="
-      background: radial-gradient(circle, ${g.color} 0%, transparent 70%);
-      width: ${g.size}px;
-      height: ${g.size}px;
-      left: ${g.x};
-      top: ${g.y};
-      margin-left: -${g.size/2}px;
-      margin-top: -${g.size/2}px;
-      animation-duration: ${g.dur}s;
-      --dx1: ${g.dx1}; --dy1: ${g.dy1};
-      --dx2: ${g.dx2}; --dy2: ${g.dy2};
-      --dx3: ${g.dx3}; --dy3: ${g.dy3};
-      animation-delay: ${Math.random()*-10}s;
-    "></div>
-  `).join('');
-}
-  physicalism: {
-    glow: 'rgba(100,80,220,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Brain sketch -->
-      <path d="M200 60 C260 40 340 80 340 140 C360 160 360 200 340 220 C360 260 340 320 290 330 C260 350 230 340 200 330 C170 340 140 350 110 330 C60 320 40 260 60 220 C40 200 40 160 60 140 C60 80 140 40 200 60Z" stroke="white" stroke-width="2"/>
-      <path d="M200 60 C200 100 200 330 200 330" stroke="white" stroke-width="1.5" stroke-dasharray="8 6"/>
-      <path d="M120 130 Q160 110 200 130 Q240 110 280 130" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M100 190 Q150 170 200 190 Q250 170 300 190" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M110 250 Q155 230 200 250 Q245 230 290 250" stroke="white" stroke-width="1.5" fill="none"/>
-    </svg>`
-  },
-  realism: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-50px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Eye with crosshair -->
-      <path d="M20 200 Q200 20 380 200 Q200 380 20 200Z" stroke="white" stroke-width="2.5"/>
-      <circle cx="200" cy="200" r="70" stroke="white" stroke-width="2.5"/>
-      <circle cx="200" cy="200" r="30" stroke="white" stroke-width="2"/>
-      <circle cx="200" cy="200" r="8" fill="white" opacity="0.7"/>
-      <!-- Crosshair lines -->
-      <line x1="200" y1="130" x2="200" y2="155" stroke="white" stroke-width="1.5"/>
-      <line x1="200" y1="245" x2="200" y2="270" stroke="white" stroke-width="1.5"/>
-      <line x1="130" y1="200" x2="155" y2="200" stroke="white" stroke-width="1.5"/>
-      <line x1="245" y1="200" x2="270" y2="200" stroke="white" stroke-width="1.5"/>
-    </svg>`
-  },
-  determinism: {
-    glow: 'rgba(157,147,232,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-30px;top:50%;transform:translateY(-50%);width:380px;height:380px;opacity:0.07;">
-      <!-- Chain of cause and effect -->
-      <rect x="20" y="170" width="80" height="60" rx="30" stroke="white" stroke-width="2.5"/>
-      <rect x="160" y="170" width="80" height="60" rx="30" stroke="white" stroke-width="2.5"/>
-      <rect x="300" y="170" width="80" height="60" rx="30" stroke="white" stroke-width="2.5"/>
-      <line x1="100" y1="200" x2="160" y2="200" stroke="white" stroke-width="2.5"/>
-      <line x1="240" y1="200" x2="300" y2="200" stroke="white" stroke-width="2.5"/>
-      <!-- Arrow -->
-      <polyline points="360,185 380,200 360,215" stroke="white" stroke-width="2" fill="none"/>
-      <!-- Dominos above -->
-      <rect x="80" y="60" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
-      <rect x="130" y="70" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
-      <rect x="180" y="80" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
-      <rect x="230" y="72" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
-      <rect x="280" y="62" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
-    </svg>`
-  },
-  moral_ground: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Scales of justice -->
-      <line x1="200" y1="30" x2="200" y2="370" stroke="white" stroke-width="2.5"/>
-      <line x1="60" y1="100" x2="340" y2="100" stroke="white" stroke-width="2.5"/>
-      <line x1="60" y1="100" x2="60" y2="200" stroke="white" stroke-width="2"/>
-      <line x1="340" y1="100" x2="340" y2="200" stroke="white" stroke-width="2"/>
-      <path d="M20 200 Q60 250 100 200" stroke="white" stroke-width="2" fill="none"/>
-      <path d="M300 200 Q340 250 380 200" stroke="white" stroke-width="2" fill="none"/>
-      <line x1="140" y1="370" x2="260" y2="370" stroke="white" stroke-width="2.5"/>
-      <!-- Star at top -->
-      <circle cx="200" cy="30" r="12" stroke="white" stroke-width="2"/>
-    </svg>`
-  },
-  meaning: {
-    glow: 'rgba(165,133,188,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Compass — meaning as direction -->
-      <circle cx="200" cy="200" r="175" stroke="white" stroke-width="2"/>
-      <circle cx="200" cy="200" r="140" stroke="white" stroke-width="1" stroke-dasharray="6 10"/>
-      <polygon points="200,40 215,180 200,200 185,180" fill="white" opacity="0.7"/>
-      <polygon points="200,360 215,220 200,200 185,220" fill="white" opacity="0.3"/>
-      <circle cx="200" cy="200" r="14" stroke="white" stroke-width="2.5"/>
-      <circle cx="200" cy="200" r="5" fill="white"/>
-      <!-- Cardinal marks -->
-      <line x1="200" y1="25" x2="200" y2="45" stroke="white" stroke-width="2.5"/>
-      <line x1="200" y1="355" x2="200" y2="375" stroke="white" stroke-width="2.5"/>
-      <line x1="25" y1="200" x2="45" y2="200" stroke="white" stroke-width="2.5"/>
-      <line x1="355" y1="200" x2="375" y2="200" stroke="white" stroke-width="2.5"/>
-    </svg>`
-  },
-  teleology: {
-    glow: 'rgba(120,100,240,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Arrow curving toward a star — direction, purpose -->
-      <path d="M40 350 C80 280 160 180 300 80" stroke="white" stroke-width="3" stroke-linecap="round"/>
-      <polyline points="270,60 300,80 280,110" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <!-- Star at destination -->
-      <path d="M340 40 L348 62 L372 62 L352 76 L360 98 L340 84 L320 98 L328 76 L308 62 L332 62Z" stroke="white" stroke-width="2" fill="none"/>
-      <!-- Spiral origin -->
-      <path d="M40 350 Q20 330 30 310 Q50 290 70 300 Q90 310 80 330" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/>
-    </svg>`
-  },
-  human_nature: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Two human figures — one solid, one dashed (nature vs nurture) -->
-      <circle cx="140" cy="100" r="38" stroke="white" stroke-width="2.5"/>
-      <line x1="140" y1="138" x2="140" y2="260" stroke="white" stroke-width="2.5"/>
-      <line x1="80" y1="190" x2="200" y2="190" stroke="white" stroke-width="2.5"/>
-      <line x1="140" y1="260" x2="90" y2="350" stroke="white" stroke-width="2.5"/>
-      <line x1="140" y1="260" x2="190" y2="350" stroke="white" stroke-width="2.5"/>
-      <!-- Second figure — dashed / constructed -->
-      <circle cx="270" cy="100" r="38" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
-      <line x1="270" y1="138" x2="270" y2="260" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
-      <line x1="210" y1="190" x2="330" y2="190" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
-      <line x1="270" y1="260" x2="220" y2="350" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
-      <line x1="270" y1="260" x2="320" y2="350" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
-    </svg>`
-  },
-  epistemic_method: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Test tube and stars — empirical vs revealed -->
-      <rect x="160" y="40" width="50" height="180" rx="10" stroke="white" stroke-width="2.5"/>
-      <path d="M150 220 Q200 300 250 220" stroke="white" stroke-width="2.5" fill="none"/>
-      <line x1="155" y1="130" x2="215" y2="130" stroke="white" stroke-width="1.5" stroke-dasharray="5 5"/>
-      <circle cx="185" cy="160" r="8" fill="white" opacity="0.6"/>
-      <circle cx="195" cy="185" r="5" fill="white" opacity="0.4"/>
-      <!-- Stars above — revelation -->
-      <path d="M60 80 L65 95 L80 95 L68 104 L73 119 L60 110 L47 119 L52 104 L40 95 L55 95Z" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M310 60 L313 72 L325 72 L315 79 L319 91 L310 84 L301 91 L305 79 L295 72 L307 72Z" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M330 140 L332 148 L340 148 L334 153 L336 161 L330 157 L324 161 L326 153 L320 148 L328 148Z" stroke="white" stroke-width="1.2" fill="none"/>
-    </svg>`
-  },
-  social_ontology: {
-    glow: 'rgba(157,147,232,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Network nodes — individual vs structure -->
-      <circle cx="200" cy="60" r="22" stroke="white" stroke-width="2.5"/>
-      <circle cx="80" cy="200" r="22" stroke="white" stroke-width="2.5"/>
-      <circle cx="320" cy="200" r="22" stroke="white" stroke-width="2.5"/>
-      <circle cx="130" cy="330" r="22" stroke="white" stroke-width="2.5"/>
-      <circle cx="270" cy="330" r="22" stroke="white" stroke-width="2.5"/>
-      <line x1="200" y1="82" x2="98" y2="182" stroke="white" stroke-width="1.5"/>
-      <line x1="200" y1="82" x2="302" y2="182" stroke="white" stroke-width="1.5"/>
-      <line x1="98" y1="218" x2="148" y2="310" stroke="white" stroke-width="1.5"/>
-      <line x1="302" y1="218" x2="252" y2="310" stroke="white" stroke-width="1.5"/>
-      <line x1="152" y1="330" x2="248" y2="330" stroke="white" stroke-width="1.5"/>
-      <line x1="98" y1="200" x2="298" y2="200" stroke="white" stroke-width="1" stroke-dasharray="5 6"/>
-    </svg>`
-  },
-  temporal_orientation: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Hourglass -->
-      <path d="M60 30 L340 30 L200 200 L340 370 L60 370 L200 200 Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
-      <line x1="60" y1="30" x2="340" y2="30" stroke="white" stroke-width="2.5"/>
-      <line x1="60" y1="370" x2="340" y2="370" stroke="white" stroke-width="2.5"/>
-      <!-- Sand particles top -->
-      <circle cx="150" cy="80" r="4" fill="white" opacity="0.6"/>
-      <circle cx="200" cy="100" r="4" fill="white" opacity="0.6"/>
-      <circle cx="250" cy="75" r="4" fill="white" opacity="0.6"/>
-      <circle cx="180" cy="130" r="4" fill="white" opacity="0.5"/>
-      <circle cx="220" cy="145" r="3" fill="white" opacity="0.4"/>
-      <!-- Trickle at centre -->
-      <line x1="200" y1="185" x2="200" y2="215" stroke="white" stroke-width="1.5"/>
-    </svg>`
-  },
-  moral_authority: {
-    glow: 'rgba(165,133,188,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Crown vs individual — authority source -->
-      <!-- Crown -->
-      <path d="M80 160 L80 240 L320 240 L320 160 L270 200 L200 140 L130 200 Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
-      <line x1="80" y1="260" x2="320" y2="260" stroke="white" stroke-width="2"/>
-      <!-- Jewels -->
-      <circle cx="200" cy="155" r="12" stroke="white" stroke-width="2"/>
-      <circle cx="130" cy="205" r="8" stroke="white" stroke-width="1.5"/>
-      <circle cx="270" cy="205" r="8" stroke="white" stroke-width="1.5"/>
-      <!-- Person below -->
-      <circle cx="200" cy="320" r="22" stroke="white" stroke-width="2"/>
-      <line x1="200" y1="260" x2="200" y2="298" stroke="white" stroke-width="1.5" stroke-dasharray="5 5"/>
-    </svg>`
-  },
-  epistemic_humility: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Question mark large, dissolving at edges -->
-      <path d="M200 60 C280 60 320 120 300 180 C285 220 220 230 200 260" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
-      <circle cx="200" cy="320" r="16" stroke="white" stroke-width="5"/>
-      <!-- Dissolving dots around -->
-      <circle cx="100" cy="80" r="5" fill="white" opacity="0.3"/>
-      <circle cx="320" cy="100" r="4" fill="white" opacity="0.2"/>
-      <circle cx="80" cy="300" r="6" fill="white" opacity="0.25"/>
-      <circle cx="340" cy="280" r="4" fill="white" opacity="0.2"/>
-      <circle cx="150" cy="360" r="5" fill="white" opacity="0.15"/>
-    </svg>`
-  },
-  knowledge: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Open book with light rays -->
-      <path d="M60 280 L200 260 L340 280 L340 120 L200 140 L60 120 Z" stroke="white" stroke-width="2.5" fill="none"/>
-      <line x1="200" y1="140" x2="200" y2="260" stroke="white" stroke-width="2"/>
-      <!-- Lines of text -->
-      <line x1="90" y1="170" x2="185" y2="162" stroke="white" stroke-width="1.2" opacity="0.7"/>
-      <line x1="90" y1="190" x2="185" y2="182" stroke="white" stroke-width="1.2" opacity="0.7"/>
-      <line x1="90" y1="210" x2="185" y2="202" stroke="white" stroke-width="1.2" opacity="0.7"/>
-      <line x1="215" y1="162" x2="310" y2="170" stroke="white" stroke-width="1.2" opacity="0.7"/>
-      <line x1="215" y1="182" x2="310" y2="190" stroke="white" stroke-width="1.2" opacity="0.7"/>
-      <!-- Light rays from above -->
-      <line x1="200" y1="60" x2="200" y2="140" stroke="white" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.5"/>
-      <line x1="150" y1="70" x2="170" y2="140" stroke="white" stroke-width="1" stroke-dasharray="4 6" opacity="0.4"/>
-      <line x1="250" y1="70" x2="230" y2="140" stroke="white" stroke-width="1" stroke-dasharray="4 6" opacity="0.4"/>
-    </svg>`
-  },
-  science: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Telescope pointing at stars -->
-      <rect x="100" y="200" width="220" height="50" rx="8" stroke="white" stroke-width="2.5" transform="rotate(-30 200 225)"/>
-      <line x1="240" y1="140" x2="320" y2="60" stroke="white" stroke-width="2" stroke-dasharray="5 6"/>
-      <!-- Stars -->
-      <path d="M310 40 L315 55 L330 55 L318 63 L323 78 L310 70 L297 78 L302 63 L290 55 L305 55Z" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M360 100 L363 110 L373 110 L365 116 L368 126 L360 120 L352 126 L355 116 L347 110 L357 110Z" stroke="white" stroke-width="1.2" fill="none"/>
-      <circle cx="270" cy="80" r="5" fill="white" opacity="0.6"/>
-      <!-- Tripod -->
-      <line x1="155" y1="245" x2="100" y2="370" stroke="white" stroke-width="2"/>
-      <line x1="205" y1="260" x2="200" y2="370" stroke="white" stroke-width="2"/>
-      <line x1="155" y1="245" x2="280" y2="370" stroke="white" stroke-width="2"/>
-    </svg>`
-  },
-  freewill_practice: {
-    glow: 'rgba(157,147,232,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Fork in road -->
-      <line x1="200" y1="370" x2="200" y2="200" stroke="white" stroke-width="4" stroke-linecap="round"/>
-      <path d="M200 200 Q180 150 80 80" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
-      <path d="M200 200 Q220 150 320 80" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
-      <!-- Arrow left -->
-      <polyline points="100,95 80,80 96,68" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Arrow right -->
-      <polyline points="302,95 320,80 306,66" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Figure at fork -->
-      <circle cx="200" cy="240" r="18" stroke="white" stroke-width="2"/>
-    </svg>`
-  },
-  justice: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Prison bars vs open door -->
-      <rect x="40" y="80" width="150" height="260" rx="6" stroke="white" stroke-width="2.5"/>
-      <line x1="90" y1="80" x2="90" y2="340" stroke="white" stroke-width="2"/>
-      <line x1="135" y1="80" x2="135" y2="340" stroke="white" stroke-width="2"/>
-      <line x1="180" y1="80" x2="180" y2="340" stroke="white" stroke-width="2"/>
-      <!-- Open door/exit on right -->
-      <rect x="240" y="120" width="120" height="220" rx="6" stroke="white" stroke-width="2.5"/>
-      <path d="M240 120 Q240 100 300 100 Q360 100 360 120" stroke="white" stroke-width="2"/>
-      <circle cx="245" cy="230" r="8" stroke="white" stroke-width="2"/>
-      <!-- Arrow from bars to door -->
-      <line x1="200" y1="210" x2="235" y2="210" stroke="white" stroke-width="2" stroke-dasharray="5 4"/>
-      <polyline points="228,200 240,210 228,220" stroke="white" stroke-width="2" fill="none"/>
-    </svg>`
-  },
-  ethics: {
-    glow: 'rgba(165,133,188,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Trolley problem — track with switch -->
-      <line x1="40" y1="200" x2="360" y2="200" stroke="white" stroke-width="3"/>
-      <line x1="40" y1="210" x2="360" y2="210" stroke="white" stroke-width="1.5"/>
-      <!-- Switch -->
-      <path d="M200 200 Q220 160 260 160" stroke="white" stroke-width="3" fill="none"/>
-      <line x1="260" y1="155" x2="360" y2="155" stroke="white" stroke-width="3"/>
-      <line x1="260" y1="165" x2="360" y2="165" stroke="white" stroke-width="1.5"/>
-      <circle cx="200" cy="200" r="10" stroke="white" stroke-width="2.5"/>
-      <!-- Figures on tracks -->
-      <circle cx="320" cy="190" r="12" stroke="white" stroke-width="2"/>
-      <circle cx="310" cy="145" r="10" stroke="white" stroke-width="2" opacity="0.5"/>
-      <circle cx="340" cy="145" r="10" stroke="white" stroke-width="2" opacity="0.5"/>
-      <circle cx="325" cy="145" r="10" stroke="white" stroke-width="2" opacity="0.5"/>
-      <!-- Trolley -->
-      <rect x="80" y="175" width="70" height="40" rx="5" stroke="white" stroke-width="2.5"/>
-      <circle cx="95" cy="218" r="8" stroke="white" stroke-width="2"/>
-      <circle cx="135" cy="218" r="8" stroke="white" stroke-width="2"/>
-    </svg>`
-  },
-  religion: {
-    glow: 'rgba(120,100,240,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Two paths — church and empty road -->
-      <!-- Church outline -->
-      <rect x="60" y="180" width="120" height="160" stroke="white" stroke-width="2.5"/>
-      <path d="M60 180 L120 100 L180 180" stroke="white" stroke-width="2.5" fill="none"/>
-      <line x1="120" y1="80" x2="120" y2="100" stroke="white" stroke-width="3"/>
-      <line x1="108" y1="88" x2="132" y2="88" stroke="white" stroke-width="2.5"/>
-      <rect x="100" y="260" width="40" height="80" rx="0" stroke="white" stroke-width="2"/>
-      <!-- Open horizon on right -->
-      <line x1="240" y1="300" x2="380" y2="300" stroke="white" stroke-width="2.5"/>
-      <path d="M240 300 Q290 200 380 220" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="5 6"/>
-      <!-- Sun rising -->
-      <path d="M280 200 Q310 160 340 200" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/>
-      <circle cx="310" cy="185" r="18" stroke="white" stroke-width="2"/>
-    </svg>`
-  },
-  politics: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Single figure vs crowd/system -->
-      <!-- Single person left -->
-      <circle cx="90" cy="140" r="30" stroke="white" stroke-width="2.5"/>
-      <line x1="90" y1="170" x2="90" y2="280" stroke="white" stroke-width="2.5"/>
-      <line x1="40" y1="220" x2="140" y2="220" stroke="white" stroke-width="2.5"/>
-      <line x1="90" y1="280" x2="50" y2="360" stroke="white" stroke-width="2.5"/>
-      <line x1="90" y1="280" x2="130" y2="360" stroke="white" stroke-width="2.5"/>
-      <!-- System/building right -->
-      <rect x="210" y="100" width="160" height="260" rx="4" stroke="white" stroke-width="2.5"/>
-      <rect x="230" y="120" width="30" height="30" stroke="white" stroke-width="1.5"/>
-      <rect x="280" y="120" width="30" height="30" stroke="white" stroke-width="1.5"/>
-      <rect x="330" y="120" width="30" height="30" stroke="white" stroke-width="1.5"/>
-      <rect x="230" y="180" width="30" height="30" stroke="white" stroke-width="1.5"/>
-      <rect x="280" y="180" width="30" height="30" stroke="white" stroke-width="1.5"/>
-      <rect x="330" y="180" width="30" height="30" stroke="white" stroke-width="1.5"/>
-      <rect x="270" y="280" width="50" height="80" stroke="white" stroke-width="2"/>
-      <!-- vs -->
-      <text x="175" y="220" fill="white" font-size="28" opacity="0.6" text-anchor="middle" font-family="serif">vs</text>
-    </svg>`
-  },
-  self: {
-    glow: 'rgba(157,147,232,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Mirror / reflection -->
-      <rect x="160" y="40" width="80" height="320" rx="40" stroke="white" stroke-width="2.5"/>
-      <!-- Figure reflected -->
-      <circle cx="200" cy="140" r="28" stroke="white" stroke-width="2"/>
-      <line x1="200" y1="168" x2="200" y2="260" stroke="white" stroke-width="2"/>
-      <line x1="160" y1="210" x2="240" y2="210" stroke="white" stroke-width="2"/>
-      <line x1="200" y1="260" x2="170" y2="320" stroke="white" stroke-width="2"/>
-      <line x1="200" y1="260" x2="230" y2="320" stroke="white" stroke-width="2"/>
-      <!-- Question marks on either side -->
-      <text x="80" y="220" fill="white" font-size="60" opacity="0.5" text-anchor="middle" font-family="serif">?</text>
-      <text x="320" y="220" fill="white" font-size="60" opacity="0.5" text-anchor="middle" font-family="serif">?</text>
-    </svg>`
-  },
-  moral_scope: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Expanding circles — widening moral circle -->
-      <circle cx="200" cy="200" r="30" stroke="white" stroke-width="2.5"/>
-      <circle cx="200" cy="200" r="80" stroke="white" stroke-width="2" stroke-dasharray="6 6"/>
-      <circle cx="200" cy="200" r="140" stroke="white" stroke-width="1.5" stroke-dasharray="6 8"/>
-      <circle cx="200" cy="200" r="180" stroke="white" stroke-width="1" stroke-dasharray="4 10" opacity="0.6"/>
-      <!-- Human at centre, animals at outer rings -->
-      <circle cx="200" cy="185" r="10" fill="white" opacity="0.7"/>
-      <circle cx="265" cy="145" r="7" stroke="white" stroke-width="1.5" opacity="0.6"/>
-      <circle cx="320" cy="200" r="9" stroke="white" stroke-width="1.5" opacity="0.5"/>
-      <circle cx="260" cy="265" r="8" stroke="white" stroke-width="1.5" opacity="0.4"/>
-    </svg>`
-  },
-  meaning_practice: {
-    glow: 'rgba(165,133,188,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Sisyphus pushing boulder — the practice of meaning -->
-      <!-- Hill -->
-      <path d="M20 380 Q150 200 380 120" stroke="white" stroke-width="3" fill="none"/>
-      <!-- Boulder -->
-      <circle cx="240" cy="205" r="40" stroke="white" stroke-width="2.5"/>
-      <!-- Figure pushing -->
-      <circle cx="175" cy="248" r="20" stroke="white" stroke-width="2"/>
-      <line x1="175" y1="268" x2="185" y2="330" stroke="white" stroke-width="2"/>
-      <line x1="185" y1="295" x2="155" y2="330" stroke="white" stroke-width="2"/>
-      <line x1="185" y1="295" x2="210" y2="320" stroke="white" stroke-width="2"/>
-      <line x1="190" y1="272" x2="205" y2="230" stroke="white" stroke-width="2"/>
-      <line x1="190" y1="272" x2="160" y2="245" stroke="white" stroke-width="2"/>
-    </svg>`
-  },
-  society: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Single star vs constellation — individual vs collective -->
-      <path d="M200 60 L212 100 L254 100 L220 124 L232 164 L200 140 L168 164 L180 124 L146 100 L188 100Z" stroke="white" stroke-width="2" fill="none"/>
-      <!-- Constellation of smaller stars -->
-      <circle cx="80" cy="240" r="8" stroke="white" stroke-width="1.5"/>
-      <circle cx="140" cy="300" r="6" stroke="white" stroke-width="1.5"/>
-      <circle cx="200" cy="260" r="9" stroke="white" stroke-width="1.5"/>
-      <circle cx="260" cy="310" r="7" stroke="white" stroke-width="1.5"/>
-      <circle cx="320" cy="250" r="8" stroke="white" stroke-width="1.5"/>
-      <circle cx="180" cy="350" r="5" stroke="white" stroke-width="1.5"/>
-      <circle cx="240" cy="370" r="6" stroke="white" stroke-width="1.5"/>
-      <line x1="80" y1="240" x2="140" y2="300" stroke="white" stroke-width="1" opacity="0.5"/>
-      <line x1="140" y1="300" x2="200" y2="260" stroke="white" stroke-width="1" opacity="0.5"/>
-      <line x1="200" y1="260" x2="260" y2="310" stroke="white" stroke-width="1" opacity="0.5"/>
-      <line x1="260" y1="310" x2="320" y2="250" stroke="white" stroke-width="1" opacity="0.5"/>
-      <line x1="140" y1="300" x2="180" y2="350" stroke="white" stroke-width="1" opacity="0.5"/>
-      <line x1="180" y1="350" x2="240" y2="370" stroke="white" stroke-width="1" opacity="0.5"/>
-    </svg>`
-  },
-  responsibility: {
-    glow: 'rgba(120,100,240,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Hand reaching down, roots below — personal vs structural -->
-      <!-- Hand -->
-      <path d="M200 80 L200 200" stroke="white" stroke-width="10" stroke-linecap="round"/>
-      <path d="M200 120 L160 100" stroke="white" stroke-width="7" stroke-linecap="round"/>
-      <path d="M200 140 L145 135" stroke="white" stroke-width="6" stroke-linecap="round"/>
-      <path d="M200 155 L150 165" stroke="white" stroke-width="6" stroke-linecap="round"/>
-      <path d="M200 120 L240 100" stroke="white" stroke-width="7" stroke-linecap="round"/>
-      <!-- Roots below — structural causes -->
-      <line x1="200" y1="200" x2="200" y2="320" stroke="white" stroke-width="2.5"/>
-      <path d="M200 240 Q160 260 120 290" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M200 270 Q170 290 150 330" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M200 240 Q240 260 280 290" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M200 270 Q230 290 250 330" stroke="white" stroke-width="1.5" fill="none"/>
-    </svg>`
-  },
-  identity: {
-    glow: 'rgba(165,133,188,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Masks / layers of self -->
-      <ellipse cx="200" cy="200" rx="150" ry="180" stroke="white" stroke-width="2.5"/>
-      <ellipse cx="200" cy="200" rx="110" ry="140" stroke="white" stroke-width="2" stroke-dasharray="6 6"/>
-      <ellipse cx="200" cy="200" rx="70" ry="100" stroke="white" stroke-width="1.5" stroke-dasharray="4 8"/>
-      <!-- Face in centre -->
-      <circle cx="170" cy="180" r="10" stroke="white" stroke-width="2"/>
-      <circle cx="230" cy="180" r="10" stroke="white" stroke-width="2"/>
-      <path d="M165 230 Q200 255 235 230" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-    </svg>`
-  },
-  authority: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Column/institution vs individual with raised fist -->
-      <rect x="40" y="100" width="140" height="260" rx="4" stroke="white" stroke-width="2.5"/>
-      <line x1="40" y1="100" x2="180" y2="100" stroke="white" stroke-width="3"/>
-      <line x1="60" y1="140" x2="60" y2="360" stroke="white" stroke-width="2"/>
-      <line x1="100" y1="140" x2="100" y2="360" stroke="white" stroke-width="2"/>
-      <line x1="140" y1="140" x2="140" y2="360" stroke="white" stroke-width="2"/>
-      <!-- Person with raised arm on right -->
-      <circle cx="300" cy="130" r="28" stroke="white" stroke-width="2"/>
-      <line x1="300" y1="158" x2="300" y2="270" stroke="white" stroke-width="2.5"/>
-      <line x1="270" y1="200" x2="300" y2="175" stroke="white" stroke-width="2.5"/>
-      <line x1="300" y1="175" x2="320" y2="120" stroke="white" stroke-width="2.5"/>
-      <line x1="300" y1="270" x2="270" y2="360" stroke="white" stroke-width="2.5"/>
-      <line x1="300" y1="270" x2="330" y2="360" stroke="white" stroke-width="2.5"/>
-    </svg>`
-  },
-  economics: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Market graph vs redistribution arrows -->
-      <!-- Graph axes -->
-      <line x1="60" y1="340" x2="360" y2="340" stroke="white" stroke-width="2"/>
-      <line x1="60" y1="60" x2="60" y2="340" stroke="white" stroke-width="2"/>
-      <!-- Free market curve — exponential -->
-      <path d="M80 320 Q120 300 160 260 Q200 200 250 120 Q290 60 340 40" stroke="white" stroke-width="2.5" fill="none"/>
-      <!-- Redistributive — flat line with arrows down -->
-      <line x1="80" y1="200" x2="340" y2="200" stroke="white" stroke-width="2" stroke-dasharray="6 6"/>
-      <line x1="290" y1="60" x2="290" y2="195" stroke="white" stroke-width="1.5" opacity="0.6"/>
-      <polyline points="282,185 290,200 298,185" stroke="white" stroke-width="1.5" fill="none" opacity="0.6"/>
-      <line x1="130" y1="200" x2="130" y2="315" stroke="white" stroke-width="1.5" opacity="0.6"/>
-      <polyline points="122,305 130,320 138,305" stroke="white" stroke-width="1.5" fill="none" opacity="0.6"/>
-    </svg>`
-  },
-  uncertainty: {
-    glow: 'rgba(157,147,232,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Fog / dissolving landscape -->
-      <path d="M40 300 Q100 260 160 280 Q220 300 280 260 Q340 220 380 240" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
-      <path d="M40 340 Q100 300 160 320 Q220 340 280 300 Q340 260 380 280" stroke="white" stroke-width="1.5" fill="none" opacity="0.5"/>
-      <!-- Dissolving dots above -->
-      <circle cx="100" cy="200" r="6" fill="white" opacity="0.4"/>
-      <circle cx="160" cy="160" r="8" fill="white" opacity="0.3"/>
-      <circle cx="220" cy="130" r="5" fill="white" opacity="0.25"/>
-      <circle cx="280" cy="160" r="7" fill="white" opacity="0.2"/>
-      <circle cx="340" cy="120" r="4" fill="white" opacity="0.15"/>
-      <circle cx="80" cy="140" r="5" fill="white" opacity="0.2"/>
-      <circle cx="200" cy="80" r="6" fill="white" opacity="0.15"/>
-      <!-- Large question -->
-      <path d="M200 40 C240 40 265 70 255 100 C248 120 220 125 200 140" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <circle cx="200" cy="180" r="8" fill="white" opacity="0.7"/>
-    </svg>`
-  },
-  mind_consciousness: {
-    glow: 'rgba(120,100,240,0.12)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Lightbulb with neural network inside -->
-      <path d="M200 40 C280 40 340 100 340 180 C340 230 310 265 280 290 L280 330 L120 330 L120 290 C90 265 60 230 60 180 C60 100 120 40 200 40Z" stroke="white" stroke-width="2.5" fill="none"/>
-      <line x1="140" y1="330" x2="260" y2="330" stroke="white" stroke-width="2.5"/>
-      <line x1="150" y1="350" x2="250" y2="350" stroke="white" stroke-width="2"/>
-      <line x1="160" y1="370" x2="240" y2="370" stroke="white" stroke-width="1.5"/>
-      <!-- Neural connections inside -->
-      <circle cx="200" cy="200" r="12" stroke="white" stroke-width="2"/>
-      <circle cx="155" cy="160" r="8" stroke="white" stroke-width="1.5"/>
-      <circle cx="245" cy="160" r="8" stroke="white" stroke-width="1.5"/>
-      <circle cx="165" cy="240" r="8" stroke="white" stroke-width="1.5"/>
-      <circle cx="235" cy="240" r="8" stroke="white" stroke-width="1.5"/>
-      <line x1="163" y1="165" x2="192" y2="194" stroke="white" stroke-width="1.5"/>
-      <line x1="237" y1="165" x2="208" y2="194" stroke="white" stroke-width="1.5"/>
-      <line x1="173" y1="235" x2="193" y2="212" stroke="white" stroke-width="1.5"/>
-      <line x1="227" y1="235" x2="207" y2="212" stroke="white" stroke-width="1.5"/>
-      <!-- Glow lines -->
-      <line x1="200" y1="100" x2="200" y2="148" stroke="white" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5"/>
-    </svg>`
-  },
-  animal_ethics: {
-    glow: 'rgba(91,191,148,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Human hand and animal paw touching — Sistine Chapel style -->
-      <!-- Human hand from left -->
-      <path d="M40 220 L160 200" stroke="white" stroke-width="10" stroke-linecap="round"/>
-      <path d="M140 200 L180 170" stroke="white" stroke-width="7" stroke-linecap="round"/>
-      <path d="M140 198 L175 192" stroke="white" stroke-width="6" stroke-linecap="round"/>
-      <path d="M140 202 L172 216" stroke="white" stroke-width="6" stroke-linecap="round"/>
-      <path d="M140 200 L175 228" stroke="white" stroke-width="7" stroke-linecap="round"/>
-      <!-- Paw from right -->
-      <path d="M360 200 L240 200" stroke="white" stroke-width="10" stroke-linecap="round"/>
-      <circle cx="220" cy="175" r="18" stroke="white" stroke-width="2"/>
-      <circle cx="248" cy="165" r="12" stroke="white" stroke-width="2"/>
-      <circle cx="272" cy="172" r="14" stroke="white" stroke-width="2"/>
-      <circle cx="270" cy="200" r="10" stroke="white" stroke-width="2"/>
-      <!-- Gap between -->
-      <circle cx="200" cy="200" r="6" fill="white" opacity="0.5"/>
-    </svg>`
-  },
-  progress: {
-    glow: 'rgba(201,169,110,0.10)',
-    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
-      <!-- Rocket vs ruins — optimism vs pessimism -->
-      <!-- Rocket -->
-      <path d="M200 40 L230 100 L230 220 L200 250 L170 220 L170 100 Z" stroke="white" stroke-width="2.5" fill="none"/>
-      <path d="M170 200 L130 240 L170 220" stroke="white" stroke-width="2" fill="none"/>
-      <path d="M230 200 L270 240 L230 220" stroke="white" stroke-width="2" fill="none"/>
-      <circle cx="200" cy="130" r="20" stroke="white" stroke-width="2"/>
-      <!-- Flames -->
-      <path d="M180 250 Q200 310 220 250" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="4 4" opacity="0.6"/>
-      <!-- Ruins below -->
-      <line x1="40" y1="360" x2="160" y2="360" stroke="white" stroke-width="2"/>
-      <line x1="240" y1="360" x2="360" y2="360" stroke="white" stroke-width="2"/>
-      <path d="M60 360 L80 310 L100 330 L120 300 L140 360" stroke="white" stroke-width="1.5" fill="none"/>
-      <path d="M260 360 L280 320 L300 340 L320 310 L340 360" stroke="white" stroke-width="1.5" fill="none"/>
-    </svg>`
-  },
-
-
-function renderQuestion() {
-  const allQ = state.shuffledQuestions;
-  const q = allQ[state.currentQ];
-  if (!q) return;
-  const totalQ = allQ.length;
-  const pct = Math.round((state.currentQ / totalQ) * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-
-  // Section-based label
-  const secSize = Math.ceil(totalQ / 5);
-  const sectionIdx = Math.min(Math.floor(state.currentQ / secSize), 4);
-  const sectionNames = ['How Reality Works', 'Mind and Knowledge', 'What Matters and Why', 'How You Live It', 'Society and Action'];
-  const qInSec = (state.currentQ % secSize) + 1;
-  const secTotal = Math.min(secSize, totalQ - sectionIdx * secSize);
-  document.getElementById('progress-label').textContent = `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`;
-
-  const displayText = injectName(q.text, state.currentQ, state.userName);
-  const opts = state.shuffledOptions[q.id] || q.options;
-
-  // Update background sketch and ambient glow
-  updateQuizBackground(q.axis, q.tier);
-
-  // Scenario questions show text in the scenario-box — no q-text needed
-  let html = `<div class="q-number">${state.currentQ + 1} of ${totalQ}</div>
-    ${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
-
-  if (q.type === 'likert') {
-    const cur = state.answers[q.id];
-    html += `<div class="q-type-label">1 = strongly disagree &nbsp;&middot;&nbsp; 7 = strongly agree</div>
-    <div class="likert-wrap"><div class="likert-scale">`;
-    for (let i = 1; i <= 7; i++) {
-      html += `<button class="likert-btn ${cur === i ? 'selected' : ''}" onclick="selectLikert('${q.id}',${i})">${i}</button>`;
-    }
-    html += `</div><div class="likert-labels"><span>${q.poleLeft}</span><span>${q.poleRight}</span></div></div>`;
-  }
-
-  if (q.type === 'tradeoff') {
-    const cur = state.answers[q.id];
-    html += `<div class="q-type-label">Choose the option that fits you best</div>
-    <div class="tradeoff-wrap">`;
-    opts.forEach((opt, i) => {
-      const letters = ['A', 'B', 'C', 'D'];
-      const sel = cur === opt.score ? 'selected' : '';
-      html += `<div class="tradeoff-opt ${sel}" onclick="selectOption('${q.id}',${opt.score})">
-        <div class="tradeoff-letter">${letters[i]}</div>
-        <div class="tradeoff-text">${opt.text}</div>
-      </div>`;
-    });
-    html += '</div>';
-  }
-
-  if (q.type === 'scenario') {
-    const cur = state.answers[q.id];
-    html += `<div class="scenario-wrap">
-      <div class="q-text" style="margin-bottom:32px">${displayText}</div>
-      <div class="q-type-label">Which response fits you most honestly?</div>
-      <div class="scenario-options">`;
-    opts.forEach(opt => {
-      const sel = cur === opt.score ? 'selected' : '';
-      html += `<div class="scenario-opt ${sel}" onclick="selectOption('${q.id}',${opt.score})">${opt.text}</div>`;
-    });
-    html += '</div></div>';
-  }
-
-  const hasAnswer = state.answers[q.id] !== undefined;
-  const isLast = state.currentQ === totalQ - 1;
-  html += `<div class="quiz-nav">
-    ${state.currentQ > 0 ? '<button class="btn-back" onclick="prevQ()">Back</button>' : ''}
-    <button class="btn-next ${hasAnswer ? 'enabled' : ''}" onclick="nextQ()">
-      ${isLast ? 'See my results' : 'Next'}
-    </button>
-  </div>`;
-
-  document.getElementById('quiz-body').innerHTML = html;
-  window.scrollTo(0, 0);
-}
-
-function selectLikert(qid, val) {
-  state.answers[qid] = val;
-  renderQuestion();
-}
-
-function selectOption(qid, score) {
-  state.answers[qid] = score;
-  renderQuestion();
-}
-
-function nextQ() {
-  const q = state.shuffledQuestions[state.currentQ];
-  if (!q || state.answers[q.id] === undefined) return;
-  if (state.currentQ < state.shuffledQuestions.length - 1) {
-    state.currentQ++;
-    renderQuestion();
-  } else {
-    generateReport();
-  }
-}
-
-function prevQ() {
-  if (state.currentQ > 0) {
-    state.currentQ--;
-    renderQuestion();
-  }
-}
-
-// ══════════════════════════════════════════
-// SCORING
-// ══════════════════════════════════════════
-// ══════════════════════════════════════════
-// AXIS METADATA — 34 axes
-// T1.5 axes presented as Tier 1 in UI
-// ══════════════════════════════════════════
-const AXIS_META = {
-  // TIER 1 — Foundations (T1 core)
-  naturalism:          {label:'Naturalism',            poleL:'Supernatural',        poleR:'Naturalist',             tier:1, color:'var(--tier1)'},
-  physicalism:         {label:'Physicalism',            poleL:'Non-physical mind',   poleR:'Physicalist',            tier:1, color:'var(--tier1)'},
-  realism:             {label:'Epistemic Realism',      poleL:'Anti-realist',        poleR:'Realist',                tier:1, color:'var(--tier1)'},
-  determinism:         {label:'Determinism',            poleL:'Free will',           poleR:'Hard determinism',       tier:1, color:'var(--tier1)'},
-  moral_ground:        {label:'Moral Realism',          poleL:'Anti-realist',        poleR:'Moral realist',          tier:1, color:'var(--tier1)'},
-  meaning:             {label:'Meaning Realism',        poleL:'Constructivist',      poleR:'Meaning realist',        tier:1, color:'var(--tier1)'},
-  // TIER 1.5 — Structural (shown as Tier 1)
-  teleology:           {label:'Teleology',              poleL:'No direction',        poleR:'Inherent purpose',       tier:1, color:'var(--tier1)'},
-  human_nature:        {label:'Human Nature',           poleL:'Constructed',         poleR:'Universal essence',      tier:1, color:'var(--tier1)'},
-  epistemic_method:    {label:'Epistemic Method',       poleL:'Revelation/intuition',poleR:'Empirical',              tier:1, color:'var(--tier1)'},
-  social_ontology:     {label:'Social Ontology',        poleL:'Individualist',       poleR:'Structural/holist',      tier:1, color:'var(--tier1)'},
-  temporal_orientation:{label:'Temporal Orientation',   poleL:'Past authority',      poleR:'Future potential',       tier:1, color:'var(--tier1)'},
-  moral_authority:     {label:'Moral Authority',        poleL:'Divine/tradition',    poleR:'Individual conscience',  tier:1, color:'var(--tier1)'},
-  epistemic_humility:  {label:'Epistemic Humility',     poleL:'Confident',           poleR:'Genuinely uncertain',    tier:1, color:'var(--tier1)'},
-  // TIER 2 — Derived
-  knowledge:           {label:'Knowledge Source',       poleL:'Intuition/revealed',  poleR:'Empirical',              tier:2, color:'var(--tier2)'},
-  science:             {label:'Science Trust',          poleL:'Skeptical',           poleR:'Trusting',               tier:2, color:'var(--tier2)'},
-  freewill_practice:   {label:'Free Will in Practice',  poleL:'Accountability-based',poleR:'Causal/structural',      tier:2, color:'var(--tier2)'},
-  // TIER 3 — Applied
-  justice:             {label:'Justice',                poleL:'Desert-based',        poleR:'Rehabilitative',         tier:3, color:'var(--tier3)'},
-  ethics:              {label:'Ethics Engine',          poleL:'Deontological',       poleR:'Consequentialist',       tier:3, color:'var(--tier3)'},
-  religion:            {label:'Religion',               poleL:'Faith-positive',      poleR:'Anti-theist',            tier:3, color:'var(--tier3)'},
-  politics:            {label:'Politics',               poleL:'Individual/market',   poleR:'Structural/collective',  tier:3, color:'var(--tier3)'},
-  self:                {label:'Self',                   poleL:'Authored/free',       poleR:'Causal/constructed',     tier:3, color:'var(--tier3)'},
-  moral_scope:         {label:'Moral Scope',            poleL:'Human-centric',       poleR:'All sentient',           tier:3, color:'var(--tier3)'},
-  meaning_practice:    {label:'Meaning Practice',       poleL:'Nihilism',            poleR:'Committed meaning',      tier:3, color:'var(--tier3)'},
-  society:             {label:'Society',                poleL:'Individualist',       poleR:'Collectivist',           tier:3, color:'var(--tier3)'},
-  responsibility:      {label:'Responsibility',         poleL:'Personal',            poleR:'Structural',             tier:3, color:'var(--tier3)'},
-  identity:            {label:'Identity',               poleL:'Essential',           poleR:'Constructed',            tier:3, color:'var(--tier3)'},
-  authority:           {label:'Authority',              poleL:'Deferential',         poleR:'Skeptical',              tier:3, color:'var(--tier3)'},
-  economics:           {label:'Economics',              poleL:'Free market',         poleR:'Redistributive',         tier:3, color:'var(--tier3)'},
-  uncertainty:         {label:'Uncertainty Tolerance',  poleL:'Low tolerance',       poleR:'High tolerance',         tier:3, color:'var(--tier3)'},
-  mind_consciousness:  {label:'Mind/Consciousness',     poleL:'Non-physical',        poleR:'Physical/explainable',   tier:3, color:'var(--tier3)'},
-  animal_ethics:       {label:'Animal Ethics',          poleL:'Human priority',      poleR:'Equal moral weight',     tier:3, color:'var(--tier3)'},
-  progress:            {label:'Progress',               poleL:'Pessimist',           poleR:'Optimist',               tier:3, color:'var(--tier3)'},
+// Sketch images — drop matching PNG into /assets/sketches/ and it appears automatically
+const AXIS_SKETCH_IMAGES = {
+  naturalism:           '/assets/sketches/naturalism.png',
+  physicalism:          '/assets/sketches/physicalism.png',
+  realism:              '/assets/sketches/realism.png',
+  determinism:          '/assets/sketches/determinism.png',
+  moral_ground:         '/assets/sketches/moral_ground.png',
+  meaning:              '/assets/sketches/meaning.png',
+  teleology:            '/assets/sketches/teleology.png',
+  human_nature:         '/assets/sketches/human_nature.png',
+  epistemic_method:     '/assets/sketches/epistemic_method.png',
+  social_ontology:      '/assets/sketches/social_ontology.png',
+  temporal_orientation: '/assets/sketches/temporal_orientation.png',
+  moral_authority:      '/assets/sketches/moral_authority.png',
+  epistemic_humility:   '/assets/sketches/epistemic_humility.png',
+  knowledge:            '/assets/sketches/knowledge.png',
+  science:              '/assets/sketches/science.png',
+  freewill_practice:    '/assets/sketches/freewill_practice.png',
+  justice:              '/assets/sketches/justice.png',
+  ethics:               '/assets/sketches/ethics.png',
+  religion:             '/assets/sketches/religion.png',
+  politics:             '/assets/sketches/politics.png',
+  self:                 '/assets/sketches/self.png',
+  moral_scope:          '/assets/sketches/moral_scope.png',
+  meaning_practice:     '/assets/sketches/meaning_practice.png',
+  society:              '/assets/sketches/society.png',
+  responsibility:       '/assets/sketches/responsibility.png',
+  identity:             '/assets/sketches/identity.png',
+  authority:            '/assets/sketches/authority.png',
+  economics:            '/assets/sketches/economics.png',
+  uncertainty:          '/assets/sketches/uncertainty.png',
+  mind_consciousness:   '/assets/sketches/mind_consciousness.png',
+  animal_ethics:        '/assets/sketches/animal_ethics.png',
+  progress:             '/assets/sketches/progress.png',
 };
 
+function updateQuizBackground(axis, tier) {
+  if (tier === currentGlowTier) {
+    // Still update the sketch even if tier hasn't changed
+  } else {
+    currentGlowTier = tier;
+    const layer = document.getElementById('quiz-glow-layer');
+    if (layer) {
+      const palette = TIER_GLOW_PALETTES[tier] || TIER_GLOW_PALETTES[1];
+      layer.innerHTML = palette.map(g => `
+        <div class="quiz-glow" style="
+          background: radial-gradient(circle, ${g.color} 0%, transparent 70%);
+          width: ${g.size}px; height: ${g.size}px;
+          left: ${g.x}; top: ${g.y};
+          margin-left: -${g.size/2}px; margin-top: -${g.size/2}px;
+          animation-duration: ${g.dur}s;
+          --dx1: ${g.dx1}; --dy1: ${g.dy1};
+          --dx2: ${g.dx2}; --dy2: ${g.dy2};
+          --dx3: ${g.dx3}; --dy3: ${g.dy3};
+          animation-delay: ${Math.random()*-10}s;
+        "></div>
+      `).join('');
+    }
+  }
+
+  // Show sketch image if available
+  let sketchEl = document.getElementById('quiz-sketch-img');
+  const imgUrl = AXIS_SKETCH_IMAGES[axis];
+  if (imgUrl) {
+    if (!sketchEl) {
+      sketchEl = document.createElement('div');
+      sketchEl.id = 'quiz-sketch-img';
+      sketchEl.style.cssText = `
+        position: fixed;
+        right: -60px;
+        bottom: 0;
+        width: min(520px, 45vw);
+        height: min(420px, 55vh);
+        pointer-events: none;
+        z-index: 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        overflow: hidden;
+      `;
+      document.getElementById('screen-quiz').appendChild(sketchEl);
+    }
+    sketchEl.innerHTML = `<img src="${imgUrl}" style="
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: right bottom;
+      filter: invert(1) opacity(0.12);
+      mix-blend-mode: screen;
+      transition: opacity 0.6s ease;
+    "/>`;
+    sketchEl.style.display = 'flex';
+  } else if (sketchEl) {
+    sketchEl.style.display = 'none';
+  }
+}
 // ══════════════════════════════════════════
 // ARCHETYPE TAXONOMY — 60 types
 // Signature axes (for current 6 T1 axes):
