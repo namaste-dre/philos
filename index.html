@@ -772,7 +772,7 @@ body::before {
 .contradiction-cards { display: flex; flex-direction: column; gap: 20px; }
 .contradiction-card {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-left: 4px solid var(--danger);
   border-radius: var(--r);
   padding: 24px 28px;
@@ -795,7 +795,7 @@ body::before {
 }
 .alignment-card {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   padding: 24px;
   transition: border-color 0.2s;
@@ -819,7 +819,7 @@ body::before {
   gap: 20px;
   padding: 22px 24px;
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   align-items: flex-start;
 }
@@ -842,7 +842,7 @@ body::before {
 @media (max-width: 600px) { .media-grid { grid-template-columns: 1fr; } }
 .media-category {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   padding: 20px;
 }
@@ -878,7 +878,7 @@ body::before {
 }
 .famous-card {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   padding: 20px;
   text-align: center;
@@ -906,7 +906,7 @@ body::before {
 }
 .pattern-card {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   padding: 22px;
 }
@@ -929,7 +929,7 @@ body::before {
 
 .alignment-block {
   background: var(--surface);
-  border: 1px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   overflow: hidden;
 }
@@ -1006,8 +1006,8 @@ body::before {
   gap: 16px;
 }
 .rel-card {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid rgba(255,255,255,0.16);
   border-radius: 8px;
   padding: 16px;
 }
@@ -2772,7 +2772,12 @@ function renderQuestion() {
   const secTotal = Math.min(secSize, totalQ - sectionIdx * secSize);
   document.getElementById('progress-label').textContent = `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`;
 
-  const displayText = injectName(q.text, state.currentQ, state.userName);
+  // Cache display text per question so it never changes on re-render
+  if (!state.displayTextCache) state.displayTextCache = {};
+  if (!state.displayTextCache[q.id]) {
+    state.displayTextCache[q.id] = injectName(q.text, state.currentQ, state.userName);
+  }
+  const displayText = state.displayTextCache[q.id];
   const opts = state.shuffledOptions[q.id] || q.options;
 
   // Update background glow and sketch
@@ -2834,12 +2839,24 @@ function renderQuestion() {
 
 function selectLikert(qid, val) {
   state.answers[qid] = val;
-  renderQuestion();
+  // Only update the likert buttons — don't rebuild the whole question
+  document.querySelectorAll('.likert-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i + 1 === val);
+  });
+  const nextBtn = document.getElementById('btn-next') || document.querySelector('.btn-next');
+  if (nextBtn) nextBtn.classList.add('enabled');
 }
 
 function selectOption(qid, score) {
   state.answers[qid] = score;
-  renderQuestion();
+  // Only update option selection — don't rebuild the whole question
+  const allOpts = document.querySelectorAll('.tradeoff-opt, .scenario-opt');
+  allOpts.forEach(opt => {
+    const optScore = parseInt(opt.getAttribute('onclick').match(/,(\-?\d+\.?\d*)\)/)?.[1]);
+    opt.classList.toggle('selected', optScore === score);
+  });
+  const nextBtn = document.querySelector('.btn-next');
+  if (nextBtn) nextBtn.classList.add('enabled');
 }
 
 function nextQ() {
@@ -5075,7 +5092,7 @@ function renderCardToCanvas(container) {
   const BLOCK2  = '#221508';  // deep gold block
   const BLOCK3  = '#0a2018';  // deep teal block
   const BLOCK4  = '#241408';  // deep amber block
-  const BORDER  = 'rgba(255,255,255,0.30)';
+  const BORDER  = 'rgba(255,255,255,0.55)';
 
   // ── BACKGROUND ──
   ctx.fillStyle = DARK; ctx.fillRect(0,0,W,H);
@@ -5094,7 +5111,7 @@ function renderCardToCanvas(container) {
   // BLOCK 1 — HEADER (full width, dark purple)
   // ══════════════════════════════════════════
   const B1H = 380;
-  roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 2);
+  roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 3);
   // Top accent line on header
   const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
   hGrad.addColorStop(0,'rgba(157,147,232,0)'); hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)'); hGrad.addColorStop(1,'rgba(201,169,110,0.4)');
@@ -5180,7 +5197,7 @@ function renderCardToCanvas(container) {
   const COLB = (W-PAD*2-16)*0.38;
 
   // A1 — Description block
-  roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 2);
+  roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 3);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('WHO YOU ARE', PAD+28, y+38);
@@ -5195,7 +5212,7 @@ function renderCardToCanvas(container) {
 
   // A2 — Quick stats block
   const bx2 = PAD + COLA + 16;
-  roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 2);
+  roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 3);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('YOUR STATS', bx2+28, y+38);
@@ -5230,7 +5247,7 @@ function renderCardToCanvas(container) {
   // ══════════════════════════════════════════
   const fpCount = (cardData.fingerprint||[]).length;
   const B2H = 60 + fpCount*62 + 24;
-  roundRect(PAD, y, W-PAD*2, B2H, 16, BLOCK3, BORDER, 2);
+  roundRect(PAD, y, W-PAD*2, B2H, 16, BLOCK3, BORDER, 3);
 
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = TEAL; ctx.textAlign = 'left';
@@ -5282,7 +5299,7 @@ function renderCardToCanvas(container) {
     ];
     cats.forEach((cat,ci) => {
       const cx = PAD + ci*(colW3+16);
-      roundRect(cx, y, colW3, ROWBH, 16, cat.bg, BORDER, 2);
+      roundRect(cx, y, colW3, ROWBH, 16, cat.bg, BORDER, 3);
       ctx.font = '600 17px "IBM Plex Mono",monospace';
       ctx.fillStyle = cat.accent; ctx.textAlign='left';
       ctx.fillText(cat.icon+' '+cat.label, cx+20, y+36);
@@ -5326,7 +5343,7 @@ function renderCardToCanvas(container) {
 
     famous.forEach((f,i) => {
       const fx = PAD + i*(fColW+16);
-      roundRect(fx, y, fColW, B3H, 16, fBgs[i], BORDER, 2);
+      roundRect(fx, y, fColW, B3H, 16, fBgs[i], BORDER, 3);
       // Accent top bar
       roundRect(fx, y, fColW, 5, 0, fColors[i], null);
       ctx.font = '700 24px "Playfair Display",serif';
@@ -5347,7 +5364,7 @@ function renderCardToCanvas(container) {
   // BLOCK 4 — DNA STRIP (full width)
   // ══════════════════════════════════════════
   const B4H = 160;
-  roundRect(PAD, y, W-PAD*2, B4H, 16, BLOCK4, BORDER, 2);
+  roundRect(PAD, y, W-PAD*2, B4H, 16, BLOCK4, BORDER, 3);
 
   ctx.font = '600 16px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign='center';
