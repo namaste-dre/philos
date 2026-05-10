@@ -1281,7 +1281,6 @@ body::before {
     <input id="intake-name" class="intake-input" type="text" placeholder="Your first name" maxlength="40" autocomplete="given-name" autofocus
       onkeydown="if(event.key==='Enter')startQuiz()"/>
     <button class="btn-primary" onclick="startQuiz()">Start the assessment</button>
-    <span class="intake-skip" onclick="startQuiz()">Skip and continue anonymously</span>
   </div>
 </div>
 
@@ -2596,6 +2595,110 @@ function injectName(text, qIndex, name) {
 // ══════════════════════════════════════════
 // RENDER QUESTION
 // ══════════════════════════════════════════
+function renderQuestion() {
+  const allQ = state.shuffledQuestions;
+  const q = allQ[state.currentQ];
+  if (!q) return;
+  const totalQ = allQ.length;
+  const pct = Math.round((state.currentQ / totalQ) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Section-based label
+  const secSize = Math.ceil(totalQ / 5);
+  const sectionIdx = Math.min(Math.floor(state.currentQ / secSize), 4);
+  const sectionNames = ['How Reality Works', 'Mind and Knowledge', 'What Matters and Why', 'How You Live It', 'Society and Action'];
+  const qInSec = (state.currentQ % secSize) + 1;
+  const secTotal = Math.min(secSize, totalQ - sectionIdx * secSize);
+  document.getElementById('progress-label').textContent = `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`;
+
+  const displayText = injectName(q.text, state.currentQ, state.userName);
+  const opts = state.shuffledOptions[q.id] || q.options;
+
+  // Update background glow and sketch
+  updateQuizBackground(q.axis, q.tier);
+
+  let html = `<div class="q-number">${state.currentQ + 1} of ${totalQ}</div>
+    ${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
+
+  if (q.type === 'likert') {
+    const cur = state.answers[q.id];
+    html += `<div class="q-type-label">1 = strongly disagree &nbsp;&middot;&nbsp; 7 = strongly agree</div>
+    <div class="likert-wrap"><div class="likert-scale">`;
+    for (let i = 1; i <= 7; i++) {
+      html += `<button class="likert-btn ${cur === i ? 'selected' : ''}" onclick="selectLikert('${q.id}',${i})">${i}</button>`;
+    }
+    html += `</div><div class="likert-labels"><span>${q.poleLeft}</span><span>${q.poleRight}</span></div></div>`;
+  }
+
+  if (q.type === 'tradeoff') {
+    const cur = state.answers[q.id];
+    html += `<div class="q-type-label">Choose the option that fits you best</div>
+    <div class="tradeoff-wrap">`;
+    opts.forEach((opt, i) => {
+      const letters = ['A', 'B', 'C', 'D'];
+      const sel = cur === opt.score ? 'selected' : '';
+      html += `<div class="tradeoff-opt ${sel}" onclick="selectOption('${q.id}',${opt.score})">
+        <div class="tradeoff-letter">${letters[i]}</div>
+        <div class="tradeoff-text">${opt.text}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (q.type === 'scenario') {
+    const cur = state.answers[q.id];
+    html += `<div class="scenario-wrap">
+      <div class="q-text" style="margin-bottom:32px">${displayText}</div>
+      <div class="q-type-label">Which response fits you most honestly?</div>
+      <div class="scenario-options">`;
+    opts.forEach(opt => {
+      const sel = cur === opt.score ? 'selected' : '';
+      html += `<div class="scenario-opt ${sel}" onclick="selectOption('${q.id}',${opt.score})">${opt.text}</div>`;
+    });
+    html += '</div></div>';
+  }
+
+  const hasAnswer = state.answers[q.id] !== undefined;
+  const isLast = state.currentQ === totalQ - 1;
+  html += `<div class="quiz-nav">
+    ${state.currentQ > 0 ? '<button class="btn-back" onclick="prevQ()">Back</button>' : ''}
+    <button class="btn-next ${hasAnswer ? 'enabled' : ''}" onclick="nextQ()">
+      ${isLast ? 'See my results' : 'Next'}
+    </button>
+  </div>`;
+
+  document.getElementById('quiz-body').innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+function selectLikert(qid, val) {
+  state.answers[qid] = val;
+  renderQuestion();
+}
+
+function selectOption(qid, score) {
+  state.answers[qid] = score;
+  renderQuestion();
+}
+
+function nextQ() {
+  const q = state.shuffledQuestions[state.currentQ];
+  if (!q || state.answers[q.id] === undefined) return;
+  if (state.currentQ < state.shuffledQuestions.length - 1) {
+    state.currentQ++;
+    renderQuestion();
+  } else {
+    generateReport();
+  }
+}
+
+function prevQ() {
+  if (state.currentQ > 0) {
+    state.currentQ--;
+    renderQuestion();
+  }
+}
+
 // ══════════════════════════════════════════
 // QUIZ FLOATING GLOW SYSTEM
 // ══════════════════════════════════════════
