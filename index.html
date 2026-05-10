@@ -704,7 +704,7 @@ body::before {
   text-transform: uppercase;
   margin-bottom: 28px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid rgba(255,255,255,0.15);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -725,7 +725,36 @@ body::before {
   font-weight: 400;
 }
 
-/* AXIS BARS — refreshed */
+/* REPORT TEXT BLOCKS — bordered containers for key content */
+.report-text-block {
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--r);
+  padding: 28px 32px;
+  margin-bottom: 0;
+}
+.report-text-block p {
+  margin-bottom: 1.2em;
+  font-size: 19px;
+  line-height: 1.85;
+  color: var(--text);
+}
+.report-text-block p:last-child { margin-bottom: 0; }
+
+/* Section container — adds background block to each major section */
+.report-section-block {
+  background: rgba(255,255,255,0.02);
+  border: 2px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  padding: 36px;
+  margin-bottom: 28px;
+}
+.report-section-block .section-label {
+  margin-top: 0;
+}
+
+/* Axis bar track — slightly stronger */
 .axis-bars { display: flex; flex-direction: column; gap: 20px; }
 .axis-row { display: flex; flex-direction: column; gap: 6px; }
 .axis-meta {
@@ -772,7 +801,7 @@ body::before {
 .contradiction-cards { display: flex; flex-direction: column; gap: 20px; }
 .contradiction-card {
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-left: 4px solid var(--danger);
   border-radius: var(--r);
   padding: 24px 28px;
@@ -795,7 +824,7 @@ body::before {
 }
 .alignment-card {
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
   padding: 24px;
   transition: border-color 0.2s;
@@ -819,7 +848,7 @@ body::before {
   gap: 20px;
   padding: 22px 24px;
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
   align-items: flex-start;
 }
@@ -842,7 +871,7 @@ body::before {
 @media (max-width: 600px) { .media-grid { grid-template-columns: 1fr; } }
 .media-category {
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
   padding: 20px;
 }
@@ -878,7 +907,7 @@ body::before {
 }
 .famous-card {
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
   padding: 20px;
   text-align: center;
@@ -906,7 +935,7 @@ body::before {
 }
 .pattern-card {
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
   padding: 22px;
 }
@@ -929,7 +958,7 @@ body::before {
 
 .alignment-block {
   background: var(--surface);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
   overflow: hidden;
 }
@@ -1496,15 +1525,15 @@ select.modal-input option { background: #12101e; }
       <div class="report-stats" id="report-stats" style="display:none">
         <div class="report-stat">
           <span class="report-stat-val" id="stat-archetype-pct">—</span>
-          <span class="report-stat-label">Archetype rarity</span>
+          <span class="report-stat-label">Worldview rarity</span>
         </div>
         <div class="report-stat">
           <span class="report-stat-val" id="stat-top-axis">—</span>
-          <span class="report-stat-label">Strongest axis</span>
+          <span class="report-stat-label">Conviction score</span>
         </div>
         <div class="report-stat">
           <span class="report-stat-val" id="stat-contradictions">—</span>
-          <span class="report-stat-label">Contradictions</span>
+          <span class="report-stat-label">Dominant axis</span>
         </div>
       </div>
       <div id="report-thinkers-line" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:28px;"></div>
@@ -3892,206 +3921,206 @@ Return ONLY this JSON, no markdown:
 const MEDIA_BY_FAMILY = {
   'The Determined Humanist': {
     films: [
-      {title:'Arrival', note:'Language shapes causation — and meaning'},
-      {title:'The Truman Show', note:'Constructed reality, discovered self'},
-      {title:'Blade Runner 2049', note:'What makes a caused life worth living'}
+      {title:'Good Will Hunting (1997)', note:'Talent shaped by circumstance, not character'},
+      {title:'The Shawshank Redemption (1994)', note:'Systems that break people — and those who survive'},
+      {title:'Arrival (2016)', note:'Time, causation, and meaning without free will'}
     ],
     music: [
-      {title:'Tool — Lateralus', note:'Fibonacci spirals in determined matter'},
-      {title:'Radiohead — OK Computer', note:'Machine causation and human alienation'},
-      {title:'Nick Cave — Skeleton Tree', note:'Meaning built in the face of loss'}
+      {title:'Rage Against the Machine', note:'Systems, power, and who gets crushed by them'},
+      {title:'Kendrick Lamar — To Pimp a Butterfly', note:'Structural analysis as poetry'},
+      {title:'Bruce Springsteen — Born in the USA', note:'The American system, honestly accounted'}
     ],
     books: [
       {title:'Determined — Robert Sapolsky', note:'The book that maps your exact position'},
-      {title:'The Stranger — Albert Camus', note:'Radical honesty about a purposeless world'},
-      {title:'Being Mortal — Atul Gawande', note:'How caused beings face their ending'}
+      {title:'The Kite Runner — Khaled Hosseini', note:'How circumstance shapes who we become'},
+      {title:'Outliers — Malcolm Gladwell', note:'Success as product of context, not just will'}
     ]
   },
   'The Structural Reformer': {
     films: [
-      {title:'Parasite', note:'Class structure rendered in architecture'},
-      {title:'Sorry to Bother You', note:'What it costs to unsee structural reality'},
-      {title:'Judas and the Black Messiah', note:'Power and its mechanisms'}
+      {title:'Parasite (2019)', note:'Class structure rendered in architecture'},
+      {title:'The Big Short (2015)', note:'The system fails everyone except those who built it'},
+      {title:'Selma (2014)', note:'How power changes — and what it costs'}
     ],
     music: [
-      {title:'Kendrick Lamar — To Pimp a Butterfly', note:'Structural analysis as poetry'},
-      {title:'Rage Against the Machine', note:'The system, named directly'},
-      {title:'Nina Simone — I Wish I Knew', note:'Structural grief, personal voice'}
+      {title:'Kendrick Lamar — DAMN.', note:'Structural violence made personal'},
+      {title:'Bob Dylan — The Times They Are A-Changin'', note:'The old order must move'},
+      {title:'U2 — War', note:'Politics is always personal'}
     ],
     books: [
-      {title:'The New Jim Crow — Michelle Alexander', note:'Mass incarceration as structure'},
-      {title:'Utopia for Realists — Rutger Bregman', note:'What structural reform actually looks like'},
-      {title:'The Dispossessed — Ursula K. Le Guin', note:'Anarchism tested against itself'}
+      {title:'The New Jim Crow — Michelle Alexander', note:'Mass incarceration as structural design'},
+      {title:'1984 — George Orwell', note:'What total structural power looks like'},
+      {title:'Fast Food Nation — Eric Schlosser', note:'The system behind what you eat'}
     ]
   },
   'The Rational Empiricist': {
     films: [
-      {title:'Contact', note:'Scientific humility vs. faith, honestly portrayed'},
-      {title:'The Big Short', note:'Reality vs. what people want to believe'},
-      {title:'Oppenheimer', note:'Knowledge without wisdom, empiricism with consequences'}
+      {title:'Contact (1997)', note:'Scientific humility vs faith, honestly portrayed'},
+      {title:'The Martian (2015)', note:'Reason and method over hope and prayer'},
+      {title:'Interstellar (2014)', note:'Physics, time, and what science can and cannot do'}
     ],
     music: [
-      {title:'Brian Eno — Ambient 1', note:'Structure and emergence, no metaphysics needed'},
-      {title:'Philip Glass — Metamorphosis', note:'Pattern as meaning, nothing more required'},
-      {title:'Boards of Canada — Music Has the Right', note:'Scientific nostalgia'}
+      {title:'David Bowie — Heroes', note:'Human meaning without cosmic permission'},
+      {title:'Radiohead — OK Computer', note:'Technology, alienation, and what we made'},
+      {title:'Pink Floyd — The Wall', note:'Reason applied to the unreasonable'}
     ],
     books: [
-      {title:'The Beginning of Infinity — David Deutsch', note:'Optimism grounded in epistemology'},
-      {title:'The Demon-Haunted World — Carl Sagan', note:'The candle in the dark'},
+      {title:'A Brief History of Time — Stephen Hawking', note:'The universe explained, clearly'},
+      {title:'The God Delusion — Richard Dawkins', note:'The empirical case against faith'},
       {title:'Thinking Fast and Slow — Daniel Kahneman', note:'The empirical self-portrait'}
     ]
   },
   'The Existential Architect': {
     films: [
-      {title:'Eternal Sunshine of the Spotless Mind', note:'Memory, identity, chosen meaning'},
-      {title:'Synecdoche, New York', note:'Building meaning in the face of mortality'},
-      {title:'The Royal Tenenbaums', note:'Constructed family, authentic grief'}
+      {title:'Eternal Sunshine of the Spotless Mind (2004)', note:'Memory, identity, chosen meaning'},
+      {title:'Fight Club (1999)', note:'Constructing a self from scratch'},
+      {title:'Her (2013)', note:'What connection means when you choose it freely'}
     ],
     music: [
-      {title:'Sufjan Stevens — Carrie and Lowell', note:'Meaning made from loss, not given'},
-      {title:'Bon Iver — For Emma, Forever Ago', note:'Identity built in isolation'},
-      {title:'Jeff Buckley — Grace', note:'Beauty as its own justification'}
+      {title:'Radiohead — The Bends', note:'Identity built under pressure'},
+      {title:'David Bowie — Ziggy Stardust', note:'The self as conscious creation'},
+      {title:'Nine Inch Nails — The Downward Spiral', note:'What happens when the constructed self collapses'}
     ],
     books: [
-      {title:'Being and Nothingness — Sartre', note:'The full weight of radical freedom'},
-      {title:'The Myth of Sisyphus — Camus', note:'Why you keep pushing'},
-      {title:'Man\'s Search for Meaning — Viktor Frankl', note:'Meaning under maximum pressure'}
+      {title:'The Stranger — Albert Camus', note:'Radical honesty about a purposeless world'},
+      {title:'Into the Wild — Jon Krakauer', note:'The cost and reward of choosing your own meaning'},
+      {title:'Man's Search for Meaning — Viktor Frankl', note:'Meaning under maximum pressure'}
     ]
   },
   'The Moral Realist': {
     films: [
-      {title:'Schindler\'s List', note:'When moral reality demands response'},
-      {title:'12 Angry Men', note:'Reason applied to moral truth'},
-      {title:'A Man for All Seasons', note:'Moral conviction against all pressure'}
+      {title:'Schindler's List (1993)', note:'When moral reality demands a response'},
+      {title:'12 Angry Men (1957)', note:'Reason applied to moral truth under pressure'},
+      {title:'Philadelphia (1993)', note:'Justice as non-negotiable, even when inconvenient'}
     ],
     music: [
-      {title:'Beethoven — Symphony No. 9', note:'Moral aspiration in sound'},
-      {title:'U2 — Achtung Baby', note:'Idealism examined and retained'},
-      {title:'Johnny Cash — At Folsom Prison', note:'Moral seriousness about real lives'}
+      {title:'U2 — The Joshua Tree', note:'Moral conviction about real world suffering'},
+      {title:'Bob Marley — Redemption Song', note:'Freedom as a moral absolute'},
+      {title:'Michael Jackson — Man in the Mirror', note:'The individual moral imperative'}
     ],
     books: [
-      {title:'Reasons and Persons — Derek Parfit', note:'Moral realism pushed to its limits'},
-      {title:'The Nicomachean Ethics — Aristotle', note:'The original case for objective virtue'},
-      {title:'Justice — Michael Sandel', note:'Moral philosophy made accessible'}
+      {title:'To Kill a Mockingbird — Harper Lee', note:'Moral courage in an immoral system'},
+      {title:'Justice — Michael Sandel', note:'Moral philosophy made accessible'},
+      {title:'The Road — Cormac McCarthy', note:'What survives when everything else is stripped away'}
     ]
   },
   'The Compassionate Collectivist': {
     films: [
-      {title:'Moonlight', note:'Care as the axis of identity'},
-      {title:'Portrait of a Lady on Fire', note:'Attention as the deepest form of love'},
-      {title:'Beasts of the Southern Wild', note:'Community as cosmology'}
+      {title:'Schindler's List (1993)', note:'The cost of choosing to care'},
+      {title:'Forrest Gump (1994)', note:'Kindness as a radical act'},
+      {title:'Dead Poets Society (1989)', note:'What it means to truly see another person'}
     ],
     music: [
-      {title:'Nina Simone — Feeling Good', note:'Liberation as collective project'},
-      {title:'Mavis Staples — We Get By', note:'Care across generations'},
-      {title:'Bob Marley — Redemption Song', note:'Freedom through collective consciousness'}
+      {title:'Bon Jovi — Livin' on a Prayer', note:'Solidarity with people left behind'},
+      {title:'John Lennon — Imagine', note:'Collective care as the alternative to war'},
+      {title:'Tracy Chapman — Fast Car', note:'What compassion looks like for people the system forgot'}
     ],
     books: [
-      {title:'Braiding Sweetgrass — Robin Wall Kimmerer', note:'Reciprocity with all living things'},
-      {title:'The Body Keeps the Score — Bessel van der Kolk', note:'Care for the ones who suffered'},
-      {title:'All About Love — bell hooks', note:'Love as the foundation of ethics'}
+      {title:'The Body Keeps the Score — Bessel van der Kolk', note:'Care for those who suffered'},
+      {title:'A Man Called Ove — Fredrik Backman', note:'Gruff exterior, tender core — community heals'},
+      {title:'The Alchemist — Paulo Coelho', note:'Following your heart matters'}
     ]
   },
   'The Principled Libertarian': {
     films: [
-      {title:'Brazil', note:'The state as existential threat'},
-      {title:'The Lives of Others', note:'Surveillance and the destruction of the self'},
-      {title:'Braveheart', note:'Freedom as the only value worth dying for'}
+      {title:'Braveheart (1995)', note:'Freedom worth dying for'},
+      {title:'The Truman Show (1998)', note:'The right to live outside the constructed cage'},
+      {title:'V for Vendetta (2005)', note:'Individual conscience against total state power'}
     ],
     music: [
+      {title:'Tom Petty — I Won't Back Down', note:'The line you do not cross'},
       {title:'The Clash — London Calling', note:'Rebellion with principle'},
-      {title:'Neil Young — Rockin\' in the Free World', note:'Freedom, honestly accounted'},
-      {title:'Bob Dylan — The Times They Are A-Changin\'', note:'Individual conscience against institution'}
+      {title:'Eminem — Lose Yourself', note:'Autonomy, risk, and the moment that matters'}
     ],
     books: [
-      {title:'On Liberty — John Stuart Mill', note:'The original case for individual freedom'},
-      {title:'Anarchy, State, and Utopia — Robert Nozick', note:'Rights as side constraints'},
-      {title:'The Road to Serfdom — Friedrich Hayek', note:'What collective planning costs'}
+      {title:'Atlas Shrugged — Ayn Rand', note:'Individual freedom as the only moral foundation'},
+      {title:'1984 — George Orwell', note:'What you lose when the state controls everything'},
+      {title:'The Fountainhead — Ayn Rand', note:'The individual vs the collective demand to conform'}
     ]
   },
   'The Stoic Naturalist': {
     films: [
-      {title:'Cast Away', note:'What remains when everything is stripped away'},
-      {title:'The Revenant', note:'Nature as indifferent, resilience as chosen'},
-      {title:'Ikiru', note:'One life, fully lived, in full knowledge of its end'}
+      {title:'Cast Away (2000)', note:'What remains when everything is stripped away'},
+      {title:'The Revenant (2015)', note:'Nature indifferent, resilience chosen'},
+      {title:'Gladiator (2000)', note:'Duty, endurance, and what survives death'}
     ],
     music: [
-      {title:'Johann Sebastian Bach — Goldberg Variations', note:'Order, acceptance, transcendence'},
-      {title:'Nick Drake — Pink Moon', note:'Equanimity in darkness'},
-      {title:'Nils Frahm — All Melody', note:'Presence without agenda'}
+      {title:'Johnny Cash — Hurt', note:'Equanimity staring at the full cost of a life'},
+      {title:'Simon & Garfunkel — The Sound of Silence', note:'Composure in a world of noise'},
+      {title:'Nick Drake — Pink Moon', note:'Stillness as strength'}
     ],
     books: [
-      {title:'Meditations — Marcus Aurelius', note:'The practice, written for no one'},
-      {title:'A Guide to the Good Life — William Irvine', note:'Stoicism for the actual present'},
-      {title:'When Breath Becomes Air — Paul Kalanithi', note:'A life examined at its ending'}
+      {title:'Man's Search for Meaning — Viktor Frankl', note:'Equanimity under the worst conditions'},
+      {title:'The Old Man and the Sea — Hemingway', note:'Dignity in the face of defeat'},
+      {title:'Meditations — Marcus Aurelius', note:'The practice, written for no one'}
     ]
   },
   'The Spiritual Naturalist': {
     films: [
-      {title:'Tree of Life', note:'The universe and a human life, held together'},
-      {title:'Koyaanisqatsi', note:'Civilisation and nature, no narrator needed'},
-      {title:'Baraka', note:'Sacred attention without doctrine'}
+      {title:'Tree of Life (2011)', note:'The universe and a human life, held together'},
+      {title:'Life of Pi (2012)', note:'The sacred without dogma — story as truth'},
+      {title:'Interstellar (2014)', note:'Science and wonder, not at war'}
     ],
     music: [
-      {title:'Arvo Pärt — Spiegel im Spiegel', note:'Silence as meaning'},
-      {title:'Sigur Rós — Ágætis byrjun', note:'The sacred in the natural'},
-      {title:'Max Richter — Sleep', note:'Consciousness between waking and mystery'}
+      {title:'Sigur Rós — Ágætis byrjun', note:'The sacred in sound without doctrine'},
+      {title:'Enya — Orinoco Flow', note:'Nature as the only cathedral needed'},
+      {title:'Massive Attack — Teardrop', note:'Mystery in the everyday'}
     ],
     books: [
       {title:'The Power of Now — Eckhart Tolle', note:'Presence stripped of metaphysics'},
-      {title:'Why Buddhism is True — Robert Wright', note:'The secular case for contemplative practice'},
-      {title:'The Living Mountain — Nan Shepherd', note:'Nature as the only cathedral needed'}
+      {title:'The Alchemist — Paulo Coelho', note:'Following what the universe seems to be telling you'},
+      {title:'Siddhartha — Hermann Hesse', note:'The spiritual path as lived experience'}
     ]
   },
   'The Conservative Traditionalist': {
     films: [
-      {title:'Chariots of Fire', note:'Character formed by tradition and tested by it'},
-      {title:'Gosford Park', note:'A world ordered by hierarchy, honestly portrayed'},
-      {title:'The Remains of the Day', note:'Duty, restraint, and what they cost'}
+      {title:'Chariots of Fire (1981)', note:'Character formed by tradition and tested by it'},
+      {title:'The Remains of the Day (1993)', note:'Duty, restraint, and the cost of fidelity'},
+      {title:'It's a Wonderful Life (1946)', note:'Community, continuity, and what matters most'}
     ],
     music: [
-      {title:'Ralph Vaughan Williams — The Lark Ascending', note:'The English pastoral tradition'},
-      {title:'Johnny Cash — American IV', note:'Death faced with dignity and faith'},
-      {title:'Leonard Cohen — You Want It Darker', note:'Tradition held even at the end'}
+      {title:'Johnny Cash — Ring of Fire', note:'Passion within form and commitment'},
+      {title:'Frank Sinatra — My Way', note:'A life lived with conviction and on principle'},
+      {title:'Eagles — Hotel California', note:'Something valuable was lost when tradition was abandoned'}
     ],
     books: [
-      {title:'Reflections on the Revolution in France — Edmund Burke', note:'The case for inheritance'},
-      {title:'The Conservative Mind — Russell Kirk', note:'Tradition as accumulated wisdom'},
-      {title:'After Virtue — Alasdair MacIntyre', note:'What we lost when we abandoned tradition'}
+      {title:'The Lord of the Rings — J.R.R. Tolkien', note:'Tradition, loyalty, and the defense of what matters'},
+      {title:'Jane Eyre — Charlotte Brontë', note:'Integrity and principle above desire'},
+      {title:'A Man for All Seasons — Robert Bolt', note:'Moral conviction against all pressure'}
     ]
   },
   'The Pragmatic Centrist': {
     films: [
-      {title:'Lincoln', note:'Pragmatism in service of principle'},
-      {title:'The Big Lebowski', note:'When certainty breaks down, abide'},
-      {title:'Moneyball', note:'Evidence against conventional wisdom'}
+      {title:'The Big Short (2015)', note:'Reality vs what people want to believe'},
+      {title:'Moneyball (2011)', note:'Evidence beats conventional wisdom, every time'},
+      {title:'Lincoln (2012)', note:'Pragmatism in service of principle'}
     ],
     music: [
       {title:'Paul Simon — Graceland', note:'Synthesis across difference'},
-      {title:'Talking Heads — Remain in Light', note:'Western mind, African rhythm, honest result'},
-      {title:'Joni Mitchell — Blue', note:'Emotional intelligence without ideology'}
+      {title:'Sting — Fields of Gold', note:'Beauty in the middle ground'},
+      {title:'Fleetwood Mac — Go Your Own Way', note:'Honest disagreement without demonising the other'}
     ],
     books: [
-      {title:'Pragmatism — William James', note:'Truth as what works'},
-      {title:'The Righteous Mind — Jonathan Haidt', note:'Why people disagree and how to bridge it'},
-      {title:'Factfulness — Hans Rosling', note:'The world, accurately'}
+      {title:'Outliers — Malcolm Gladwell', note:'What the data actually shows about success'},
+      {title:'Freakonomics — Levitt & Dubner', note:'Counterintuitive findings from honest analysis'},
+      {title:'The Righteous Mind — Jonathan Haidt', note:'Why people disagree and how to bridge it'}
     ]
   },
   'The Nihilist Reductionist': {
     films: [
-      {title:'No Country for Old Men', note:'Chance, violence, no redemptive arc'},
-      {title:'Melancholia', note:'The end of everything, without comfort'},
-      {title:'Dogville', note:'Strip away civilization and see what remains'}
+      {title:'No Country for Old Men (2007)', note:'Chance, violence, no redemptive arc'},
+      {title:'Fight Club (1999)', note:'Consumer meaning is no meaning at all'},
+      {title:'Requiem for a Dream (2000)', note:'The void beneath every desire'}
     ],
     music: [
-      {title:'Nine Inch Nails — The Downward Spiral', note:'Nihilism without the pretense'},
-      {title:'Scott Walker — Bish Bosch', note:'Language after meaning has collapsed'},
-      {title:'Swans — The Seer', note:'Endurance without purpose'}
+      {title:'Nine Inch Nails — Closer', note:'Nihilism without the pretense'},
+      {title:'Nirvana — Nevermind', note:'The meaninglessness of the mainstream'},
+      {title:'The Cure — Disintegration', note:'Beauty in the dissolving of hope'}
     ],
     books: [
-      {title:'The Conspiracy Against the Human Race — Thomas Ligotti', note:'Pessimism, fully committed'},
-      {title:'Straw Dogs — John Gray', note:'Humanism dismantled'},
-      {title:'Thus Spoke Zarathustra — Nietzsche', note:'Nihilism confronted and what comes after'}
+      {title:'Thus Spoke Zarathustra — Nietzsche', note:'Nihilism confronted and what comes after'},
+      {title:'The Stranger — Albert Camus', note:'The universe owes you nothing'},
+      {title:'Brave New World — Aldous Huxley', note:'Happiness as the ultimate distraction from meaning'}
     ]
   }
 };
@@ -4099,64 +4128,64 @@ const MEDIA_BY_FAMILY = {
 // Famous types by family
 const FAMOUS_BY_FAMILY = {
   'The Determined Humanist': [
-    {name:'Robert Sapolsky', desc:'Neurobiologist · Hard determinist · No free will, no blame'},
-    {name:'Albert Camus', desc:'Author · Absurdist · Meaning built in the face of nothing'},
-    {name:'Christopher Hitchens', desc:'Writer · Atheist humanist · Reason as the only authority'}
+    {name:'Robert Sapolsky', desc:'Neuroscientist · No free will, no blame · Author of Determined'},
+    {name:'Christopher Hitchens', desc:'Writer · Atheist humanist · Reason over faith'},
+    {name:'Brené Brown', desc:'Researcher · Shaped by history, not broken by it'}
   ],
   'The Structural Reformer': [
-    {name:'Bryan Stevenson', desc:'Lawyer · Just Mercy · Justice as structural redesign'},
-    {name:'Angela Davis', desc:'Activist · Abolitionist · Systems over individuals'},
-    {name:'Ibram X. Kendi', desc:'Historian · Structural racism as policy problem'}
+    {name:'Barack Obama', desc:'44th US President · Systems thinker · Long-game reformer'},
+    {name:'Malala Yousafzai', desc:'Activist · Education as structural liberation'},
+    {name:'Bryan Stevenson', desc:'Lawyer · Just Mercy · Justice as structural redesign'}
   ],
   'The Rational Empiricist': [
-    {name:'Carl Sagan', desc:'Astronomer · The candle in the dark'},
-    {name:'David Deutsch', desc:'Physicist · Beginning of Infinity · Knowledge grows forever'},
-    {name:'Richard Feynman', desc:'Physicist · The pleasure of finding things out'}
+    {name:'Richard Dawkins', desc:'Evolutionary biologist · The Selfish Gene · Evidence first'},
+    {name:'Neil deGrasse Tyson', desc:'Astrophysicist · Science communicator · Curiosity as identity'},
+    {name:'Elon Musk', desc:'Entrepreneur · First principles thinking · Evidence over consensus'}
   ],
   'The Existential Architect': [
-    {name:'Jean-Paul Sartre', desc:'Philosopher · Existence precedes essence'},
-    {name:'Simone de Beauvoir', desc:'Author · Freedom is what you do with what is done to you'},
-    {name:'Albert Camus', desc:'Author · One must imagine Sisyphus happy'}
+    {name:'Steve Jobs', desc:'Apple co-founder · Life as deliberate creation'},
+    {name:'Oprah Winfrey', desc:'Media mogul · Intentional self-construction · Meaning as practice'},
+    {name:'Jim Carrey', desc:'Actor · The self is chosen · Meaning beyond success'}
   ],
   'The Moral Realist': [
-    {name:'Peter Singer', desc:'Philosopher · Effective altruism · Suffering is the only currency'},
-    {name:'Derek Parfit', desc:'Philosopher · Moral realism without God'},
-    {name:'Martha Nussbaum', desc:'Philosopher · Human capabilities as moral foundation'}
+    {name:'Nelson Mandela', desc:'President · Anti-apartheid icon · Justice is real and non-negotiable'},
+    {name:'Peter Singer', desc:'Philosopher · Effective altruism · Suffering has objective weight'},
+    {name:'Martin Luther King Jr.', desc:'Civil rights leader · The arc of the moral universe bends toward justice'}
   ],
   'The Compassionate Collectivist': [
-    {name:'bell hooks', desc:'Author · Love and liberation · Care as political act'},
-    {name:'Bryan Stevenson', desc:'Lawyer · Proximity as the only real knowledge'},
-    {name:'Paul Farmer', desc:'Physician · Structural violence and the obligation to act'}
+    {name:'Mother Teresa', desc:'Missionary · Care as the only response to suffering'},
+    {name:'Fred Rogers', desc:'TV host · Radical empathy as a daily practice'},
+    {name:'Princess Diana', desc:'Princess of Wales · Closeness to the suffering others turned away from'}
   ],
   'The Principled Libertarian': [
-    {name:'John Stuart Mill', desc:'Philosopher · On Liberty · The harm principle'},
-    {name:'Friedrich Hayek', desc:'Economist · Spontaneous order over central planning'},
-    {name:'Rosa Parks', desc:'Activist · Individual conscience against unjust authority'}
+    {name:'Elon Musk', desc:'Entrepreneur · Free speech absolutist · Individual over institution'},
+    {name:'Ron Paul', desc:'Politician · Libertarian · The state is always the problem'},
+    {name:'Edward Snowden', desc:'Whistleblower · Individual conscience over institutional loyalty'}
   ],
   'The Stoic Naturalist': [
-    {name:'Marcus Aurelius', desc:'Emperor · Meditations · Written to no one, meant for himself'},
-    {name:'Epictetus', desc:'Philosopher · The dichotomy of control'},
-    {name:'Viktor Frankl', desc:'Psychiatrist · Meaning found even in extremity'}
+    {name:'Marcus Aurelius', desc:'Roman Emperor · Meditations · Written to no one, meant for himself'},
+    {name:'Ernest Hemingway', desc:'Author · Dignity under pressure · The world breaks everyone'},
+    {name:'David Goggins', desc:'Endurance athlete · Pain is information · Equanimity through suffering'}
   ],
   'The Spiritual Naturalist': [
-    {name:'William James', desc:'Philosopher · Pragmatism · Religious experience as data'},
-    {name:'David Chalmers', desc:'Philosopher · The hard problem is genuinely hard'},
-    {name:'Robin Wall Kimmerer', desc:'Botanist · Nature as sacred text, no God required'}
+    {name:'Deepak Chopra', desc:'Author · Consciousness and the cosmos · Science meets spirit'},
+    {name:'Eckhart Tolle', desc:'Author · The Power of Now · Presence without doctrine'},
+    {name:'Oprah Winfrey', desc:'Media mogul · Spiritual naturalism as a lived practice'}
   ],
   'The Conservative Traditionalist': [
-    {name:'Edmund Burke', desc:'Statesman · Conserving what works over risking what is unknown'},
-    {name:'Roger Scruton', desc:'Philosopher · Beauty, home, and what we owe to the past'},
-    {name:'T.S. Eliot', desc:'Poet · Tradition as the living presence of the dead'}
+    {name:'Jordan Peterson', desc:'Psychologist · Tradition, order, and personal responsibility'},
+    {name:'J.R.R. Tolkien', desc:'Author · Myth, loyalty, and the defense of what matters'},
+    {name:'Roger Scruton', desc:'Philosopher · Beauty, home, and what we owe to the past'}
   ],
   'The Pragmatic Centrist': [
-    {name:'John Dewey', desc:'Philosopher · Democracy as a way of life'},
-    {name:'Barack Obama', desc:'Politician · Long-game thinking, coalition-building'},
-    {name:'Elinor Ostrom', desc:'Economist · Commons managed without dogma'}
+    {name:'Barack Obama', desc:'44th US President · Coalition builder · Evidence over ideology'},
+    {name:'Bill Gates', desc:'Philanthropist · Data-driven pragmatism · What actually works'},
+    {name:'Angela Merkel', desc:'German Chancellor · Quiet pragmatism · Stability over drama'}
   ],
   'The Nihilist Reductionist': [
-    {name:'Friedrich Nietzsche', desc:'Philosopher · God is dead, now what'},
-    {name:'Emil Cioran', desc:'Philosopher · The honest ledger of existence'},
-    {name:'Alex Rosenberg', desc:'Philosopher · Eliminativism without apology'}
+    {name:'Friedrich Nietzsche', desc:'Philosopher · God is dead, now what · Nihilism confronted'},
+    {name:'Kurt Cobain', desc:'Musician · The meaninglessness beneath the mainstream'},
+    {name:'Camus' Meursault', desc:'Fictional character · The Stranger · The universe is indifferent'}
   ]
 };
 
@@ -4733,9 +4762,17 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   if (statsEl) {
     const topFP = fingerprint[0];
     const topAxisLabel = topFP ? (AXIS_META[topFP.axis]?.label || topFP.axis) : '—';
+    // Conviction score = average deviation from centre across all axes
+    const axScoreKeys = Object.keys(scores);
+    const totalDeviation = axScoreKeys.reduce((sum,k) => sum + Math.abs((scores[k]||4) - 4), 0);
+    const convictionScore = Math.round((totalDeviation / (axScoreKeys.length * 3)) * 100);
+    // Dominant pole — which pole does this person lean toward overall
+    const rightDev = axScoreKeys.filter(k => (scores[k]||4) > 4).length;
+    const totalScored = axScoreKeys.filter(k => scores[k] !== undefined).length;
+
     document.getElementById('stat-archetype-pct').textContent = rarity.pct;
-    document.getElementById('stat-top-axis').textContent = topAxisLabel;
-    document.getElementById('stat-contradictions').textContent = contradictions.length > 0 ? contradictions.length : '✓';
+    document.getElementById('stat-top-axis').textContent = convictionScore + '%';
+    document.getElementById('stat-contradictions').textContent = topAxisLabel;
     statsEl.style.display = 'flex';
   }
 
@@ -4749,9 +4786,11 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
 
   // ── IDENTITY ──
   document.getElementById('report-identity').innerHTML =
+    '<div class="report-text-block">' +
     (report.identity || arch.description).split('\n\n').map(p =>
-      `<p style="margin-bottom:1.4em">${p}</p>`
-    ).join('');
+      `<p>${p}</p>`
+    ).join('') +
+    '</div>';
 
   // ── FAMOUS TYPES ──
   const famousData = FAMOUS_BY_FAMILY[family] || [];
@@ -5068,8 +5107,8 @@ function renderCardToCanvas(container) {
         ctx.fillText(line, x, curY);
         line=word; curY+=lineH; count++;
         if (maxLines && count>=maxLines) {
-          while(ctx.measureText(line+'...').width>maxW&&line.length>3) line=line.slice(0,-1);
-          ctx.fillText(line+'...', x, curY);
+          // Complete the last word rather than truncating
+          ctx.fillText(line, x, curY);
           return curY+lineH;
         }
       } else { line=test; }
@@ -5219,16 +5258,25 @@ function renderCardToCanvas(container) {
   ctx.strokeStyle='rgba(201,169,110,0.2)';
   ctx.beginPath(); ctx.moveTo(bx2+24,y+46); ctx.lineTo(bx2+COLB-24,y+46); ctx.stroke();
 
-  // Stat items
+  // Stat items — meaningful values
   const fp0 = (cardData.fingerprint||[])[0];
-  const topAxisLabel = fp0 ? (AXIS_META[fp0.axis]?.label||fp0.axis) : '—';
-  const topScore = fp0 ? (cardData.axisScores?.[fp0.axis]||fp0.score||0).toFixed(1) : '—';
-  const contCount = 0; // can expand later
+  const fp1 = (cardData.fingerprint||[])[1];
+  // Conviction score = average deviation from centre across all axes
+  const axKeys2 = Object.keys(AXIS_META);
+  const totalDev = axKeys2.reduce((sum,k) => {
+    const sc = cardData.axisScores?.[k] || 4;
+    return sum + Math.abs(sc - 4);
+  }, 0);
+  const convictionPct = Math.round((totalDev / (axKeys2.length * 3)) * 100);
+  // Dominant axis score
+  const dominantScore = fp0 ? (cardData.axisScores?.[fp0.axis]||fp0.score||4).toFixed(1) : '—';
+  const dominantLabel = fp0 ? (AXIS_META[fp0.axis]?.label||fp0.axis) : '—';
+  const dominantShort = dominantLabel.length > 11 ? dominantLabel.slice(0,10)+'.' : dominantLabel;
 
   const stats = [
-    {val: rarityMap[cardData.archetypeName]||'RARE', label:'Rarity'},
-    {val: topScore+'/7', label: topAxisLabel.length>12?topAxisLabel.slice(0,11)+'.':topAxisLabel},
-    {val: (cardData.fingerprint||[]).length+' axes', label:'Defining'},
+    {val: rarityMap[cardData.archetypeName]||'RARE', label:'Worldview rarity'},
+    {val: convictionPct+'%', label:'Conviction score'},
+    {val: dominantScore+'/7', label: dominantShort},
   ];
   stats.forEach((s,i) => {
     const sy = y+84+i*70;
