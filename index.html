@@ -50,19 +50,75 @@ body::before {
 .screen.active { display: flex; flex-direction: column; }
 
 /* ── INTRO SCREEN ── */
+/* ══════════════════════════════════════════
+   INTRO SCREEN — dramatic, layered
+══════════════════════════════════════════ */
 #screen-intro {
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
+/* Animated background glows */
+#screen-intro::before {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120,100,240,0.28) 0%, transparent 70%);
+  top: -200px; left: -150px;
+  animation: driftA 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+#screen-intro::after {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,0.20) 0%, transparent 70%);
+  bottom: -150px; right: -100px;
+  animation: driftB 15s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes driftA {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(80px,60px) scale(1.15); }
+}
+@keyframes driftB {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-60px,-80px) scale(1.1); }
+}
+.intro-inner { position: relative; z-index: 1; }
 .intro-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 24px;
+  opacity: 0.9;
+}
+/* Floating symbols behind the title */
+.intro-symbols {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.intro-symbol {
+  position: absolute;
+  opacity: 0;
+  animation: floatSymbol 20s ease-in-out infinite;
+  color: rgba(157,147,232,0.12);
+}
+@keyframes floatSymbol {
+  0%   { opacity:0; transform:translateY(20px) rotate(0deg); }
+  15%  { opacity:1; }
+  85%  { opacity:1; }
+  100% { opacity:0; transform:translateY(-40px) rotate(15deg); }
 }
 .intro-title {
   font-family: 'Playfair Display', serif;
@@ -70,10 +126,14 @@ body::before {
   line-height: 1.05;
   color: var(--text);
   margin-bottom: 8px;
+  position: relative;
 }
 .intro-title em {
   font-style: italic;
-  color: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #a87fd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .intro-sub {
   font-size: 19px;
@@ -84,64 +144,87 @@ body::before {
 }
 .intro-meta {
   display: flex;
-  gap: 32px;
+  gap: 0;
   justify-content: center;
   margin-bottom: 48px;
   flex-wrap: wrap;
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .intro-meta-item {
   text-align: center;
+  flex: 1;
+  padding: 16px 12px;
+  background: var(--surface);
+  border-right: 1px solid var(--border2);
 }
+.intro-meta-item:last-child { border-right: none; }
 .intro-meta-item .num {
   font-family: 'Playfair Display', serif;
-  font-size: 32px;
+  font-size: 30px;
   color: var(--accent);
   display: block;
+  line-height: 1;
+  margin-bottom: 4px;
 }
 .intro-meta-item .label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   font-family: 'IBM Plex Mono', monospace;
   letter-spacing: 0.08em;
 }
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #b8894e);
   color: #1a1410;
   border: none;
-  padding: 16px 40px;
+  padding: 18px 48px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 19px;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 50px;
   cursor: pointer;
   letter-spacing: 0.04em;
   transition: all 0.2s;
   display: inline-block;
+  box-shadow: 0 4px 28px rgba(201,169,110,0.3);
 }
-.btn-primary:hover { background: #ddc08a; transform: translateY(-1px); }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px rgba(201,169,110,0.45);
+}
 .tier-preview {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   margin-top: 48px;
   justify-content: center;
   flex-wrap: wrap;
   max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .tier-pill {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   padding: 6px 14px;
   border-radius: 50px;
   border: 1px solid;
-  opacity: 0.7;
+  opacity: 0.65;
+  transition: opacity 0.2s;
 }
-.tier-pill.t1 { color: var(--tier1); border-color: var(--tier1); }
-.tier-pill.t2 { color: var(--tier2); border-color: var(--tier2); }
-.tier-pill.t3 { color: var(--tier3); border-color: var(--tier3); }
-.tier-pill.t4 { color: var(--tier4); border-color: var(--tier4); }
+.tier-pill:hover { opacity: 1; }
+.tier-pill.t1 { color: var(--tier1); border-color: var(--tier1); background: rgba(157,147,232,0.06); }
+.tier-pill.t2 { color: var(--tier2); border-color: var(--tier2); background: rgba(91,191,148,0.06); }
+.tier-pill.t3 { color: var(--tier3); border-color: var(--tier3); background: rgba(224,120,74,0.06); }
+.tier-pill.t4 { color: var(--tier4); border-color: var(--tier4); background: rgba(139,111,158,0.06); }
 
-/* ── QUIZ SCREEN ── */
+/* ══════════════════════════════════════════
+   QUIZ SCREEN
+══════════════════════════════════════════ */
 #screen-quiz { padding: 0; }
 /* ── INTAKE SCREEN ── */
 #screen-intake {
@@ -233,8 +316,32 @@ body::before {
   color: var(--muted);
   white-space: nowrap;
 }
-/* ── QUIZ BODY ── */
-.quiz-body {
+/* ── QUIZ SKETCH LAYER ── */
+.quiz-sketch-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  transition: opacity 0.6s ease;
+}
+.quiz-sketch-layer svg {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.quiz-sketch-layer svg.visible {
+  opacity: 1;
+}
+/* Tier ambient glow on quiz screen */
+.quiz-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: background 1.2s ease;
+}
+.quiz-body { position: relative; z-index: 1; }
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1074,7 +1181,47 @@ body::before {
      SCREEN 1: INTRO
 ══════════════════════════════════════════ -->
 <div id="screen-intro" class="screen active">
-  <div>
+  <!-- Floating philosophical symbols -->
+  <div class="intro-symbols" aria-hidden="true">
+    <svg class="intro-symbol" style="left:8%;top:15%;font-size:0;animation-delay:0s;animation-duration:22s;" width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <!-- Atom / orbits -->
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6" transform="rotate(60 40 40)"/>
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6" transform="rotate(120 40 40)"/>
+      <circle cx="40" cy="40" r="5" fill="currentColor" opacity="0.8"/>
+    </svg>
+    <svg class="intro-symbol" style="right:10%;top:20%;animation-delay:4s;animation-duration:18s;" width="70" height="70" viewBox="0 0 70 70" fill="none">
+      <!-- Eye of reason -->
+      <path d="M5 35 Q35 5 65 35 Q35 65 5 35Z" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="35" cy="35" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="35" cy="35" r="4" fill="currentColor" opacity="0.7"/>
+    </svg>
+    <svg class="intro-symbol" style="left:15%;bottom:20%;animation-delay:8s;animation-duration:25s;" width="60" height="60" viewBox="0 0 60 60" fill="none" color="rgba(201,169,110,0.15)">
+      <!-- Scales -->
+      <line x1="30" y1="5" x2="30" y2="55" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="10" y1="15" x2="50" y2="15" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M6 28 Q10 36 18 28" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M42 28 Q46 36 54 28" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    </svg>
+    <svg class="intro-symbol" style="right:8%;bottom:25%;animation-delay:2s;animation-duration:20s;" width="75" height="75" viewBox="0 0 75 75" fill="none" color="rgba(165,133,188,0.12)">
+      <!-- Infinity -->
+      <path d="M10 37.5 C10 25 22 15 32 23 C38 27 32 52 38 52 C48 52 62 42 62 37.5 C62 25 50 15 40 23 C34 27 40 52 32 52 C22 52 10 42 10 37.5Z" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <svg class="intro-symbol" style="left:45%;top:8%;animation-delay:12s;animation-duration:28s;" width="55" height="55" viewBox="0 0 55 55" fill="none" color="rgba(201,169,110,0.1)">
+      <!-- Compass -->
+      <circle cx="27.5" cy="27.5" r="24" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="27.5,6 30,24 27.5,28 25,24" fill="currentColor" opacity="0.7"/>
+      <polygon points="27.5,49 25,31 27.5,27 30,31" fill="currentColor" opacity="0.3"/>
+      <circle cx="27.5" cy="27.5" r="3" fill="currentColor"/>
+    </svg>
+    <svg class="intro-symbol" style="right:20%;top:60%;animation-delay:6s;animation-duration:24s;" width="65" height="65" viewBox="0 0 65 65" fill="none" color="rgba(91,191,148,0.1)">
+      <!-- Mountain -->
+      <path d="M32 8 L58 54 H6 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M24 38 L32 22 L40 38" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="intro-inner">
     <div class="intro-eyebrow">The Life PM · Beta</div>
     <h1 class="intro-title">Your<br/><em>Philosophical</em><br/>OS</h1>
     <p class="intro-sub">A rigorous belief assessment that maps your complete worldview and tells you what to do with it.</p>
@@ -1126,6 +1273,8 @@ body::before {
      SCREEN 2: QUIZ
 ══════════════════════════════════════════ -->
 <div id="screen-quiz" class="screen">
+  <div class="quiz-ambient" id="quiz-ambient"></div>
+  <div class="quiz-sketch-layer" id="quiz-sketch-layer" aria-hidden="true"></div>
   <div class="quiz-header">
     <div class="quiz-logo">PHIL/OS</div>
     <div class="progress-bar-wrap">
@@ -2432,6 +2581,585 @@ function injectName(text, qIndex, name) {
 // ══════════════════════════════════════════
 // RENDER QUESTION
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// AXIS SKETCHES — SVG doodle per axis
+// Positioned in background, large and semi-transparent
+// ══════════════════════════════════════════
+const AXIS_SKETCHES = {
+  naturalism: {
+    glow: 'rgba(120,100,240,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:380px;height:380px;opacity:0.07;">
+      <!-- Atom orbits — nature as physical -->
+      <ellipse cx="200" cy="200" rx="180" ry="70" stroke="white" stroke-width="2"/>
+      <ellipse cx="200" cy="200" rx="180" ry="70" stroke="white" stroke-width="2" transform="rotate(60 200 200)"/>
+      <ellipse cx="200" cy="200" rx="180" ry="70" stroke="white" stroke-width="2" transform="rotate(120 200 200)"/>
+      <circle cx="200" cy="200" r="28" stroke="white" stroke-width="2.5"/>
+      <circle cx="200" cy="200" r="12" fill="white" opacity="0.6"/>
+      <!-- Small electrons -->
+      <circle cx="380" cy="200" r="8" fill="white" opacity="0.5"/>
+      <circle cx="110" cy="79" r="8" fill="white" opacity="0.5"/>
+      <circle cx="110" cy="321" r="8" fill="white" opacity="0.5"/>
+    </svg>`
+  },
+  physicalism: {
+    glow: 'rgba(100,80,220,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Brain sketch -->
+      <path d="M200 60 C260 40 340 80 340 140 C360 160 360 200 340 220 C360 260 340 320 290 330 C260 350 230 340 200 330 C170 340 140 350 110 330 C60 320 40 260 60 220 C40 200 40 160 60 140 C60 80 140 40 200 60Z" stroke="white" stroke-width="2"/>
+      <path d="M200 60 C200 100 200 330 200 330" stroke="white" stroke-width="1.5" stroke-dasharray="8 6"/>
+      <path d="M120 130 Q160 110 200 130 Q240 110 280 130" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M100 190 Q150 170 200 190 Q250 170 300 190" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M110 250 Q155 230 200 250 Q245 230 290 250" stroke="white" stroke-width="1.5" fill="none"/>
+    </svg>`
+  },
+  realism: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-50px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Eye with crosshair -->
+      <path d="M20 200 Q200 20 380 200 Q200 380 20 200Z" stroke="white" stroke-width="2.5"/>
+      <circle cx="200" cy="200" r="70" stroke="white" stroke-width="2.5"/>
+      <circle cx="200" cy="200" r="30" stroke="white" stroke-width="2"/>
+      <circle cx="200" cy="200" r="8" fill="white" opacity="0.7"/>
+      <!-- Crosshair lines -->
+      <line x1="200" y1="130" x2="200" y2="155" stroke="white" stroke-width="1.5"/>
+      <line x1="200" y1="245" x2="200" y2="270" stroke="white" stroke-width="1.5"/>
+      <line x1="130" y1="200" x2="155" y2="200" stroke="white" stroke-width="1.5"/>
+      <line x1="245" y1="200" x2="270" y2="200" stroke="white" stroke-width="1.5"/>
+    </svg>`
+  },
+  determinism: {
+    glow: 'rgba(157,147,232,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-30px;top:50%;transform:translateY(-50%);width:380px;height:380px;opacity:0.07;">
+      <!-- Chain of cause and effect -->
+      <rect x="20" y="170" width="80" height="60" rx="30" stroke="white" stroke-width="2.5"/>
+      <rect x="160" y="170" width="80" height="60" rx="30" stroke="white" stroke-width="2.5"/>
+      <rect x="300" y="170" width="80" height="60" rx="30" stroke="white" stroke-width="2.5"/>
+      <line x1="100" y1="200" x2="160" y2="200" stroke="white" stroke-width="2.5"/>
+      <line x1="240" y1="200" x2="300" y2="200" stroke="white" stroke-width="2.5"/>
+      <!-- Arrow -->
+      <polyline points="360,185 380,200 360,215" stroke="white" stroke-width="2" fill="none"/>
+      <!-- Dominos above -->
+      <rect x="80" y="60" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
+      <rect x="130" y="70" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
+      <rect x="180" y="80" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
+      <rect x="230" y="72" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
+      <rect x="280" y="62" width="18" height="50" rx="4" stroke="white" stroke-width="1.5"/>
+    </svg>`
+  },
+  moral_ground: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Scales of justice -->
+      <line x1="200" y1="30" x2="200" y2="370" stroke="white" stroke-width="2.5"/>
+      <line x1="60" y1="100" x2="340" y2="100" stroke="white" stroke-width="2.5"/>
+      <line x1="60" y1="100" x2="60" y2="200" stroke="white" stroke-width="2"/>
+      <line x1="340" y1="100" x2="340" y2="200" stroke="white" stroke-width="2"/>
+      <path d="M20 200 Q60 250 100 200" stroke="white" stroke-width="2" fill="none"/>
+      <path d="M300 200 Q340 250 380 200" stroke="white" stroke-width="2" fill="none"/>
+      <line x1="140" y1="370" x2="260" y2="370" stroke="white" stroke-width="2.5"/>
+      <!-- Star at top -->
+      <circle cx="200" cy="30" r="12" stroke="white" stroke-width="2"/>
+    </svg>`
+  },
+  meaning: {
+    glow: 'rgba(165,133,188,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Compass — meaning as direction -->
+      <circle cx="200" cy="200" r="175" stroke="white" stroke-width="2"/>
+      <circle cx="200" cy="200" r="140" stroke="white" stroke-width="1" stroke-dasharray="6 10"/>
+      <polygon points="200,40 215,180 200,200 185,180" fill="white" opacity="0.7"/>
+      <polygon points="200,360 215,220 200,200 185,220" fill="white" opacity="0.3"/>
+      <circle cx="200" cy="200" r="14" stroke="white" stroke-width="2.5"/>
+      <circle cx="200" cy="200" r="5" fill="white"/>
+      <!-- Cardinal marks -->
+      <line x1="200" y1="25" x2="200" y2="45" stroke="white" stroke-width="2.5"/>
+      <line x1="200" y1="355" x2="200" y2="375" stroke="white" stroke-width="2.5"/>
+      <line x1="25" y1="200" x2="45" y2="200" stroke="white" stroke-width="2.5"/>
+      <line x1="355" y1="200" x2="375" y2="200" stroke="white" stroke-width="2.5"/>
+    </svg>`
+  },
+  teleology: {
+    glow: 'rgba(120,100,240,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Arrow curving toward a star — direction, purpose -->
+      <path d="M40 350 C80 280 160 180 300 80" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <polyline points="270,60 300,80 280,110" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Star at destination -->
+      <path d="M340 40 L348 62 L372 62 L352 76 L360 98 L340 84 L320 98 L328 76 L308 62 L332 62Z" stroke="white" stroke-width="2" fill="none"/>
+      <!-- Spiral origin -->
+      <path d="M40 350 Q20 330 30 310 Q50 290 70 300 Q90 310 80 330" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/>
+    </svg>`
+  },
+  human_nature: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Two human figures — one solid, one dashed (nature vs nurture) -->
+      <circle cx="140" cy="100" r="38" stroke="white" stroke-width="2.5"/>
+      <line x1="140" y1="138" x2="140" y2="260" stroke="white" stroke-width="2.5"/>
+      <line x1="80" y1="190" x2="200" y2="190" stroke="white" stroke-width="2.5"/>
+      <line x1="140" y1="260" x2="90" y2="350" stroke="white" stroke-width="2.5"/>
+      <line x1="140" y1="260" x2="190" y2="350" stroke="white" stroke-width="2.5"/>
+      <!-- Second figure — dashed / constructed -->
+      <circle cx="270" cy="100" r="38" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
+      <line x1="270" y1="138" x2="270" y2="260" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
+      <line x1="210" y1="190" x2="330" y2="190" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
+      <line x1="270" y1="260" x2="220" y2="350" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
+      <line x1="270" y1="260" x2="320" y2="350" stroke="white" stroke-width="2" stroke-dasharray="8 6"/>
+    </svg>`
+  },
+  epistemic_method: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Test tube and stars — empirical vs revealed -->
+      <rect x="160" y="40" width="50" height="180" rx="10" stroke="white" stroke-width="2.5"/>
+      <path d="M150 220 Q200 300 250 220" stroke="white" stroke-width="2.5" fill="none"/>
+      <line x1="155" y1="130" x2="215" y2="130" stroke="white" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <circle cx="185" cy="160" r="8" fill="white" opacity="0.6"/>
+      <circle cx="195" cy="185" r="5" fill="white" opacity="0.4"/>
+      <!-- Stars above — revelation -->
+      <path d="M60 80 L65 95 L80 95 L68 104 L73 119 L60 110 L47 119 L52 104 L40 95 L55 95Z" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M310 60 L313 72 L325 72 L315 79 L319 91 L310 84 L301 91 L305 79 L295 72 L307 72Z" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M330 140 L332 148 L340 148 L334 153 L336 161 L330 157 L324 161 L326 153 L320 148 L328 148Z" stroke="white" stroke-width="1.2" fill="none"/>
+    </svg>`
+  },
+  social_ontology: {
+    glow: 'rgba(157,147,232,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Network nodes — individual vs structure -->
+      <circle cx="200" cy="60" r="22" stroke="white" stroke-width="2.5"/>
+      <circle cx="80" cy="200" r="22" stroke="white" stroke-width="2.5"/>
+      <circle cx="320" cy="200" r="22" stroke="white" stroke-width="2.5"/>
+      <circle cx="130" cy="330" r="22" stroke="white" stroke-width="2.5"/>
+      <circle cx="270" cy="330" r="22" stroke="white" stroke-width="2.5"/>
+      <line x1="200" y1="82" x2="98" y2="182" stroke="white" stroke-width="1.5"/>
+      <line x1="200" y1="82" x2="302" y2="182" stroke="white" stroke-width="1.5"/>
+      <line x1="98" y1="218" x2="148" y2="310" stroke="white" stroke-width="1.5"/>
+      <line x1="302" y1="218" x2="252" y2="310" stroke="white" stroke-width="1.5"/>
+      <line x1="152" y1="330" x2="248" y2="330" stroke="white" stroke-width="1.5"/>
+      <line x1="98" y1="200" x2="298" y2="200" stroke="white" stroke-width="1" stroke-dasharray="5 6"/>
+    </svg>`
+  },
+  temporal_orientation: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Hourglass -->
+      <path d="M60 30 L340 30 L200 200 L340 370 L60 370 L200 200 Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
+      <line x1="60" y1="30" x2="340" y2="30" stroke="white" stroke-width="2.5"/>
+      <line x1="60" y1="370" x2="340" y2="370" stroke="white" stroke-width="2.5"/>
+      <!-- Sand particles top -->
+      <circle cx="150" cy="80" r="4" fill="white" opacity="0.6"/>
+      <circle cx="200" cy="100" r="4" fill="white" opacity="0.6"/>
+      <circle cx="250" cy="75" r="4" fill="white" opacity="0.6"/>
+      <circle cx="180" cy="130" r="4" fill="white" opacity="0.5"/>
+      <circle cx="220" cy="145" r="3" fill="white" opacity="0.4"/>
+      <!-- Trickle at centre -->
+      <line x1="200" y1="185" x2="200" y2="215" stroke="white" stroke-width="1.5"/>
+    </svg>`
+  },
+  moral_authority: {
+    glow: 'rgba(165,133,188,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Crown vs individual — authority source -->
+      <!-- Crown -->
+      <path d="M80 160 L80 240 L320 240 L320 160 L270 200 L200 140 L130 200 Z" stroke="white" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
+      <line x1="80" y1="260" x2="320" y2="260" stroke="white" stroke-width="2"/>
+      <!-- Jewels -->
+      <circle cx="200" cy="155" r="12" stroke="white" stroke-width="2"/>
+      <circle cx="130" cy="205" r="8" stroke="white" stroke-width="1.5"/>
+      <circle cx="270" cy="205" r="8" stroke="white" stroke-width="1.5"/>
+      <!-- Person below -->
+      <circle cx="200" cy="320" r="22" stroke="white" stroke-width="2"/>
+      <line x1="200" y1="260" x2="200" y2="298" stroke="white" stroke-width="1.5" stroke-dasharray="5 5"/>
+    </svg>`
+  },
+  epistemic_humility: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Question mark large, dissolving at edges -->
+      <path d="M200 60 C280 60 320 120 300 180 C285 220 220 230 200 260" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <circle cx="200" cy="320" r="16" stroke="white" stroke-width="5"/>
+      <!-- Dissolving dots around -->
+      <circle cx="100" cy="80" r="5" fill="white" opacity="0.3"/>
+      <circle cx="320" cy="100" r="4" fill="white" opacity="0.2"/>
+      <circle cx="80" cy="300" r="6" fill="white" opacity="0.25"/>
+      <circle cx="340" cy="280" r="4" fill="white" opacity="0.2"/>
+      <circle cx="150" cy="360" r="5" fill="white" opacity="0.15"/>
+    </svg>`
+  },
+  knowledge: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Open book with light rays -->
+      <path d="M60 280 L200 260 L340 280 L340 120 L200 140 L60 120 Z" stroke="white" stroke-width="2.5" fill="none"/>
+      <line x1="200" y1="140" x2="200" y2="260" stroke="white" stroke-width="2"/>
+      <!-- Lines of text -->
+      <line x1="90" y1="170" x2="185" y2="162" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <line x1="90" y1="190" x2="185" y2="182" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <line x1="90" y1="210" x2="185" y2="202" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <line x1="215" y1="162" x2="310" y2="170" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <line x1="215" y1="182" x2="310" y2="190" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <!-- Light rays from above -->
+      <line x1="200" y1="60" x2="200" y2="140" stroke="white" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.5"/>
+      <line x1="150" y1="70" x2="170" y2="140" stroke="white" stroke-width="1" stroke-dasharray="4 6" opacity="0.4"/>
+      <line x1="250" y1="70" x2="230" y2="140" stroke="white" stroke-width="1" stroke-dasharray="4 6" opacity="0.4"/>
+    </svg>`
+  },
+  science: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Telescope pointing at stars -->
+      <rect x="100" y="200" width="220" height="50" rx="8" stroke="white" stroke-width="2.5" transform="rotate(-30 200 225)"/>
+      <line x1="240" y1="140" x2="320" y2="60" stroke="white" stroke-width="2" stroke-dasharray="5 6"/>
+      <!-- Stars -->
+      <path d="M310 40 L315 55 L330 55 L318 63 L323 78 L310 70 L297 78 L302 63 L290 55 L305 55Z" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M360 100 L363 110 L373 110 L365 116 L368 126 L360 120 L352 126 L355 116 L347 110 L357 110Z" stroke="white" stroke-width="1.2" fill="none"/>
+      <circle cx="270" cy="80" r="5" fill="white" opacity="0.6"/>
+      <!-- Tripod -->
+      <line x1="155" y1="245" x2="100" y2="370" stroke="white" stroke-width="2"/>
+      <line x1="205" y1="260" x2="200" y2="370" stroke="white" stroke-width="2"/>
+      <line x1="155" y1="245" x2="280" y2="370" stroke="white" stroke-width="2"/>
+    </svg>`
+  },
+  freewill_practice: {
+    glow: 'rgba(157,147,232,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Fork in road -->
+      <line x1="200" y1="370" x2="200" y2="200" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      <path d="M200 200 Q180 150 80 80" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M200 200 Q220 150 320 80" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <!-- Arrow left -->
+      <polyline points="100,95 80,80 96,68" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Arrow right -->
+      <polyline points="302,95 320,80 306,66" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Figure at fork -->
+      <circle cx="200" cy="240" r="18" stroke="white" stroke-width="2"/>
+    </svg>`
+  },
+  justice: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Prison bars vs open door -->
+      <rect x="40" y="80" width="150" height="260" rx="6" stroke="white" stroke-width="2.5"/>
+      <line x1="90" y1="80" x2="90" y2="340" stroke="white" stroke-width="2"/>
+      <line x1="135" y1="80" x2="135" y2="340" stroke="white" stroke-width="2"/>
+      <line x1="180" y1="80" x2="180" y2="340" stroke="white" stroke-width="2"/>
+      <!-- Open door/exit on right -->
+      <rect x="240" y="120" width="120" height="220" rx="6" stroke="white" stroke-width="2.5"/>
+      <path d="M240 120 Q240 100 300 100 Q360 100 360 120" stroke="white" stroke-width="2"/>
+      <circle cx="245" cy="230" r="8" stroke="white" stroke-width="2"/>
+      <!-- Arrow from bars to door -->
+      <line x1="200" y1="210" x2="235" y2="210" stroke="white" stroke-width="2" stroke-dasharray="5 4"/>
+      <polyline points="228,200 240,210 228,220" stroke="white" stroke-width="2" fill="none"/>
+    </svg>`
+  },
+  ethics: {
+    glow: 'rgba(165,133,188,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Trolley problem — track with switch -->
+      <line x1="40" y1="200" x2="360" y2="200" stroke="white" stroke-width="3"/>
+      <line x1="40" y1="210" x2="360" y2="210" stroke="white" stroke-width="1.5"/>
+      <!-- Switch -->
+      <path d="M200 200 Q220 160 260 160" stroke="white" stroke-width="3" fill="none"/>
+      <line x1="260" y1="155" x2="360" y2="155" stroke="white" stroke-width="3"/>
+      <line x1="260" y1="165" x2="360" y2="165" stroke="white" stroke-width="1.5"/>
+      <circle cx="200" cy="200" r="10" stroke="white" stroke-width="2.5"/>
+      <!-- Figures on tracks -->
+      <circle cx="320" cy="190" r="12" stroke="white" stroke-width="2"/>
+      <circle cx="310" cy="145" r="10" stroke="white" stroke-width="2" opacity="0.5"/>
+      <circle cx="340" cy="145" r="10" stroke="white" stroke-width="2" opacity="0.5"/>
+      <circle cx="325" cy="145" r="10" stroke="white" stroke-width="2" opacity="0.5"/>
+      <!-- Trolley -->
+      <rect x="80" y="175" width="70" height="40" rx="5" stroke="white" stroke-width="2.5"/>
+      <circle cx="95" cy="218" r="8" stroke="white" stroke-width="2"/>
+      <circle cx="135" cy="218" r="8" stroke="white" stroke-width="2"/>
+    </svg>`
+  },
+  religion: {
+    glow: 'rgba(120,100,240,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Two paths — church and empty road -->
+      <!-- Church outline -->
+      <rect x="60" y="180" width="120" height="160" stroke="white" stroke-width="2.5"/>
+      <path d="M60 180 L120 100 L180 180" stroke="white" stroke-width="2.5" fill="none"/>
+      <line x1="120" y1="80" x2="120" y2="100" stroke="white" stroke-width="3"/>
+      <line x1="108" y1="88" x2="132" y2="88" stroke="white" stroke-width="2.5"/>
+      <rect x="100" y="260" width="40" height="80" rx="0" stroke="white" stroke-width="2"/>
+      <!-- Open horizon on right -->
+      <line x1="240" y1="300" x2="380" y2="300" stroke="white" stroke-width="2.5"/>
+      <path d="M240 300 Q290 200 380 220" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="5 6"/>
+      <!-- Sun rising -->
+      <path d="M280 200 Q310 160 340 200" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/>
+      <circle cx="310" cy="185" r="18" stroke="white" stroke-width="2"/>
+    </svg>`
+  },
+  politics: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Single figure vs crowd/system -->
+      <!-- Single person left -->
+      <circle cx="90" cy="140" r="30" stroke="white" stroke-width="2.5"/>
+      <line x1="90" y1="170" x2="90" y2="280" stroke="white" stroke-width="2.5"/>
+      <line x1="40" y1="220" x2="140" y2="220" stroke="white" stroke-width="2.5"/>
+      <line x1="90" y1="280" x2="50" y2="360" stroke="white" stroke-width="2.5"/>
+      <line x1="90" y1="280" x2="130" y2="360" stroke="white" stroke-width="2.5"/>
+      <!-- System/building right -->
+      <rect x="210" y="100" width="160" height="260" rx="4" stroke="white" stroke-width="2.5"/>
+      <rect x="230" y="120" width="30" height="30" stroke="white" stroke-width="1.5"/>
+      <rect x="280" y="120" width="30" height="30" stroke="white" stroke-width="1.5"/>
+      <rect x="330" y="120" width="30" height="30" stroke="white" stroke-width="1.5"/>
+      <rect x="230" y="180" width="30" height="30" stroke="white" stroke-width="1.5"/>
+      <rect x="280" y="180" width="30" height="30" stroke="white" stroke-width="1.5"/>
+      <rect x="330" y="180" width="30" height="30" stroke="white" stroke-width="1.5"/>
+      <rect x="270" y="280" width="50" height="80" stroke="white" stroke-width="2"/>
+      <!-- vs -->
+      <text x="175" y="220" fill="white" font-size="28" opacity="0.6" text-anchor="middle" font-family="serif">vs</text>
+    </svg>`
+  },
+  self: {
+    glow: 'rgba(157,147,232,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Mirror / reflection -->
+      <rect x="160" y="40" width="80" height="320" rx="40" stroke="white" stroke-width="2.5"/>
+      <!-- Figure reflected -->
+      <circle cx="200" cy="140" r="28" stroke="white" stroke-width="2"/>
+      <line x1="200" y1="168" x2="200" y2="260" stroke="white" stroke-width="2"/>
+      <line x1="160" y1="210" x2="240" y2="210" stroke="white" stroke-width="2"/>
+      <line x1="200" y1="260" x2="170" y2="320" stroke="white" stroke-width="2"/>
+      <line x1="200" y1="260" x2="230" y2="320" stroke="white" stroke-width="2"/>
+      <!-- Question marks on either side -->
+      <text x="80" y="220" fill="white" font-size="60" opacity="0.5" text-anchor="middle" font-family="serif">?</text>
+      <text x="320" y="220" fill="white" font-size="60" opacity="0.5" text-anchor="middle" font-family="serif">?</text>
+    </svg>`
+  },
+  moral_scope: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Expanding circles — widening moral circle -->
+      <circle cx="200" cy="200" r="30" stroke="white" stroke-width="2.5"/>
+      <circle cx="200" cy="200" r="80" stroke="white" stroke-width="2" stroke-dasharray="6 6"/>
+      <circle cx="200" cy="200" r="140" stroke="white" stroke-width="1.5" stroke-dasharray="6 8"/>
+      <circle cx="200" cy="200" r="180" stroke="white" stroke-width="1" stroke-dasharray="4 10" opacity="0.6"/>
+      <!-- Human at centre, animals at outer rings -->
+      <circle cx="200" cy="185" r="10" fill="white" opacity="0.7"/>
+      <circle cx="265" cy="145" r="7" stroke="white" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="320" cy="200" r="9" stroke="white" stroke-width="1.5" opacity="0.5"/>
+      <circle cx="260" cy="265" r="8" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    </svg>`
+  },
+  meaning_practice: {
+    glow: 'rgba(165,133,188,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Sisyphus pushing boulder — the practice of meaning -->
+      <!-- Hill -->
+      <path d="M20 380 Q150 200 380 120" stroke="white" stroke-width="3" fill="none"/>
+      <!-- Boulder -->
+      <circle cx="240" cy="205" r="40" stroke="white" stroke-width="2.5"/>
+      <!-- Figure pushing -->
+      <circle cx="175" cy="248" r="20" stroke="white" stroke-width="2"/>
+      <line x1="175" y1="268" x2="185" y2="330" stroke="white" stroke-width="2"/>
+      <line x1="185" y1="295" x2="155" y2="330" stroke="white" stroke-width="2"/>
+      <line x1="185" y1="295" x2="210" y2="320" stroke="white" stroke-width="2"/>
+      <line x1="190" y1="272" x2="205" y2="230" stroke="white" stroke-width="2"/>
+      <line x1="190" y1="272" x2="160" y2="245" stroke="white" stroke-width="2"/>
+    </svg>`
+  },
+  society: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Single star vs constellation — individual vs collective -->
+      <path d="M200 60 L212 100 L254 100 L220 124 L232 164 L200 140 L168 164 L180 124 L146 100 L188 100Z" stroke="white" stroke-width="2" fill="none"/>
+      <!-- Constellation of smaller stars -->
+      <circle cx="80" cy="240" r="8" stroke="white" stroke-width="1.5"/>
+      <circle cx="140" cy="300" r="6" stroke="white" stroke-width="1.5"/>
+      <circle cx="200" cy="260" r="9" stroke="white" stroke-width="1.5"/>
+      <circle cx="260" cy="310" r="7" stroke="white" stroke-width="1.5"/>
+      <circle cx="320" cy="250" r="8" stroke="white" stroke-width="1.5"/>
+      <circle cx="180" cy="350" r="5" stroke="white" stroke-width="1.5"/>
+      <circle cx="240" cy="370" r="6" stroke="white" stroke-width="1.5"/>
+      <line x1="80" y1="240" x2="140" y2="300" stroke="white" stroke-width="1" opacity="0.5"/>
+      <line x1="140" y1="300" x2="200" y2="260" stroke="white" stroke-width="1" opacity="0.5"/>
+      <line x1="200" y1="260" x2="260" y2="310" stroke="white" stroke-width="1" opacity="0.5"/>
+      <line x1="260" y1="310" x2="320" y2="250" stroke="white" stroke-width="1" opacity="0.5"/>
+      <line x1="140" y1="300" x2="180" y2="350" stroke="white" stroke-width="1" opacity="0.5"/>
+      <line x1="180" y1="350" x2="240" y2="370" stroke="white" stroke-width="1" opacity="0.5"/>
+    </svg>`
+  },
+  responsibility: {
+    glow: 'rgba(120,100,240,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Hand reaching down, roots below — personal vs structural -->
+      <!-- Hand -->
+      <path d="M200 80 L200 200" stroke="white" stroke-width="10" stroke-linecap="round"/>
+      <path d="M200 120 L160 100" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <path d="M200 140 L145 135" stroke="white" stroke-width="6" stroke-linecap="round"/>
+      <path d="M200 155 L150 165" stroke="white" stroke-width="6" stroke-linecap="round"/>
+      <path d="M200 120 L240 100" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <!-- Roots below — structural causes -->
+      <line x1="200" y1="200" x2="200" y2="320" stroke="white" stroke-width="2.5"/>
+      <path d="M200 240 Q160 260 120 290" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M200 270 Q170 290 150 330" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M200 240 Q240 260 280 290" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M200 270 Q230 290 250 330" stroke="white" stroke-width="1.5" fill="none"/>
+    </svg>`
+  },
+  identity: {
+    glow: 'rgba(165,133,188,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Masks / layers of self -->
+      <ellipse cx="200" cy="200" rx="150" ry="180" stroke="white" stroke-width="2.5"/>
+      <ellipse cx="200" cy="200" rx="110" ry="140" stroke="white" stroke-width="2" stroke-dasharray="6 6"/>
+      <ellipse cx="200" cy="200" rx="70" ry="100" stroke="white" stroke-width="1.5" stroke-dasharray="4 8"/>
+      <!-- Face in centre -->
+      <circle cx="170" cy="180" r="10" stroke="white" stroke-width="2"/>
+      <circle cx="230" cy="180" r="10" stroke="white" stroke-width="2"/>
+      <path d="M165 230 Q200 255 235 230" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>`
+  },
+  authority: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Column/institution vs individual with raised fist -->
+      <rect x="40" y="100" width="140" height="260" rx="4" stroke="white" stroke-width="2.5"/>
+      <line x1="40" y1="100" x2="180" y2="100" stroke="white" stroke-width="3"/>
+      <line x1="60" y1="140" x2="60" y2="360" stroke="white" stroke-width="2"/>
+      <line x1="100" y1="140" x2="100" y2="360" stroke="white" stroke-width="2"/>
+      <line x1="140" y1="140" x2="140" y2="360" stroke="white" stroke-width="2"/>
+      <!-- Person with raised arm on right -->
+      <circle cx="300" cy="130" r="28" stroke="white" stroke-width="2"/>
+      <line x1="300" y1="158" x2="300" y2="270" stroke="white" stroke-width="2.5"/>
+      <line x1="270" y1="200" x2="300" y2="175" stroke="white" stroke-width="2.5"/>
+      <line x1="300" y1="175" x2="320" y2="120" stroke="white" stroke-width="2.5"/>
+      <line x1="300" y1="270" x2="270" y2="360" stroke="white" stroke-width="2.5"/>
+      <line x1="300" y1="270" x2="330" y2="360" stroke="white" stroke-width="2.5"/>
+    </svg>`
+  },
+  economics: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Market graph vs redistribution arrows -->
+      <!-- Graph axes -->
+      <line x1="60" y1="340" x2="360" y2="340" stroke="white" stroke-width="2"/>
+      <line x1="60" y1="60" x2="60" y2="340" stroke="white" stroke-width="2"/>
+      <!-- Free market curve — exponential -->
+      <path d="M80 320 Q120 300 160 260 Q200 200 250 120 Q290 60 340 40" stroke="white" stroke-width="2.5" fill="none"/>
+      <!-- Redistributive — flat line with arrows down -->
+      <line x1="80" y1="200" x2="340" y2="200" stroke="white" stroke-width="2" stroke-dasharray="6 6"/>
+      <line x1="290" y1="60" x2="290" y2="195" stroke="white" stroke-width="1.5" opacity="0.6"/>
+      <polyline points="282,185 290,200 298,185" stroke="white" stroke-width="1.5" fill="none" opacity="0.6"/>
+      <line x1="130" y1="200" x2="130" y2="315" stroke="white" stroke-width="1.5" opacity="0.6"/>
+      <polyline points="122,305 130,320 138,305" stroke="white" stroke-width="1.5" fill="none" opacity="0.6"/>
+    </svg>`
+  },
+  uncertainty: {
+    glow: 'rgba(157,147,232,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Fog / dissolving landscape -->
+      <path d="M40 300 Q100 260 160 280 Q220 300 280 260 Q340 220 380 240" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
+      <path d="M40 340 Q100 300 160 320 Q220 340 280 300 Q340 260 380 280" stroke="white" stroke-width="1.5" fill="none" opacity="0.5"/>
+      <!-- Dissolving dots above -->
+      <circle cx="100" cy="200" r="6" fill="white" opacity="0.4"/>
+      <circle cx="160" cy="160" r="8" fill="white" opacity="0.3"/>
+      <circle cx="220" cy="130" r="5" fill="white" opacity="0.25"/>
+      <circle cx="280" cy="160" r="7" fill="white" opacity="0.2"/>
+      <circle cx="340" cy="120" r="4" fill="white" opacity="0.15"/>
+      <circle cx="80" cy="140" r="5" fill="white" opacity="0.2"/>
+      <circle cx="200" cy="80" r="6" fill="white" opacity="0.15"/>
+      <!-- Large question -->
+      <path d="M200 40 C240 40 265 70 255 100 C248 120 220 125 200 140" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <circle cx="200" cy="180" r="8" fill="white" opacity="0.7"/>
+    </svg>`
+  },
+  mind_consciousness: {
+    glow: 'rgba(120,100,240,0.12)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Lightbulb with neural network inside -->
+      <path d="M200 40 C280 40 340 100 340 180 C340 230 310 265 280 290 L280 330 L120 330 L120 290 C90 265 60 230 60 180 C60 100 120 40 200 40Z" stroke="white" stroke-width="2.5" fill="none"/>
+      <line x1="140" y1="330" x2="260" y2="330" stroke="white" stroke-width="2.5"/>
+      <line x1="150" y1="350" x2="250" y2="350" stroke="white" stroke-width="2"/>
+      <line x1="160" y1="370" x2="240" y2="370" stroke="white" stroke-width="1.5"/>
+      <!-- Neural connections inside -->
+      <circle cx="200" cy="200" r="12" stroke="white" stroke-width="2"/>
+      <circle cx="155" cy="160" r="8" stroke="white" stroke-width="1.5"/>
+      <circle cx="245" cy="160" r="8" stroke="white" stroke-width="1.5"/>
+      <circle cx="165" cy="240" r="8" stroke="white" stroke-width="1.5"/>
+      <circle cx="235" cy="240" r="8" stroke="white" stroke-width="1.5"/>
+      <line x1="163" y1="165" x2="192" y2="194" stroke="white" stroke-width="1.5"/>
+      <line x1="237" y1="165" x2="208" y2="194" stroke="white" stroke-width="1.5"/>
+      <line x1="173" y1="235" x2="193" y2="212" stroke="white" stroke-width="1.5"/>
+      <line x1="227" y1="235" x2="207" y2="212" stroke="white" stroke-width="1.5"/>
+      <!-- Glow lines -->
+      <line x1="200" y1="100" x2="200" y2="148" stroke="white" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5"/>
+    </svg>`
+  },
+  animal_ethics: {
+    glow: 'rgba(91,191,148,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Human hand and animal paw touching — Sistine Chapel style -->
+      <!-- Human hand from left -->
+      <path d="M40 220 L160 200" stroke="white" stroke-width="10" stroke-linecap="round"/>
+      <path d="M140 200 L180 170" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <path d="M140 198 L175 192" stroke="white" stroke-width="6" stroke-linecap="round"/>
+      <path d="M140 202 L172 216" stroke="white" stroke-width="6" stroke-linecap="round"/>
+      <path d="M140 200 L175 228" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <!-- Paw from right -->
+      <path d="M360 200 L240 200" stroke="white" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="220" cy="175" r="18" stroke="white" stroke-width="2"/>
+      <circle cx="248" cy="165" r="12" stroke="white" stroke-width="2"/>
+      <circle cx="272" cy="172" r="14" stroke="white" stroke-width="2"/>
+      <circle cx="270" cy="200" r="10" stroke="white" stroke-width="2"/>
+      <!-- Gap between -->
+      <circle cx="200" cy="200" r="6" fill="white" opacity="0.5"/>
+    </svg>`
+  },
+  progress: {
+    glow: 'rgba(201,169,110,0.10)',
+    svg: `<svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.07;">
+      <!-- Rocket vs ruins — optimism vs pessimism -->
+      <!-- Rocket -->
+      <path d="M200 40 L230 100 L230 220 L200 250 L170 220 L170 100 Z" stroke="white" stroke-width="2.5" fill="none"/>
+      <path d="M170 200 L130 240 L170 220" stroke="white" stroke-width="2" fill="none"/>
+      <path d="M230 200 L270 240 L230 220" stroke="white" stroke-width="2" fill="none"/>
+      <circle cx="200" cy="130" r="20" stroke="white" stroke-width="2"/>
+      <!-- Flames -->
+      <path d="M180 250 Q200 310 220 250" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="4 4" opacity="0.6"/>
+      <!-- Ruins below -->
+      <line x1="40" y1="360" x2="160" y2="360" stroke="white" stroke-width="2"/>
+      <line x1="240" y1="360" x2="360" y2="360" stroke="white" stroke-width="2"/>
+      <path d="M60 360 L80 310 L100 330 L120 300 L140 360" stroke="white" stroke-width="1.5" fill="none"/>
+      <path d="M260 360 L280 320 L300 340 L320 310 L340 360" stroke="white" stroke-width="1.5" fill="none"/>
+    </svg>`
+  },
+};
+
+// Tier ambient colours for quiz screen background
+const TIER_AMBIENTS = {
+  1: 'radial-gradient(ellipse at 20% 20%, rgba(120,100,240,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(165,133,188,0.08) 0%, transparent 60%)',
+  2: 'radial-gradient(ellipse at 20% 20%, rgba(91,191,148,0.10) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(201,169,110,0.08) 0%, transparent 60%)',
+  3: 'radial-gradient(ellipse at 20% 20%, rgba(201,169,110,0.10) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(224,120,74,0.07) 0%, transparent 60%)',
+};
+
+function updateQuizBackground(axis, tier) {
+  const ambient = document.getElementById('quiz-ambient');
+  const sketchLayer = document.getElementById('quiz-sketch-layer');
+  if (!ambient || !sketchLayer) return;
+
+  // Update ambient glow
+  ambient.style.background = TIER_AMBIENTS[tier] || TIER_AMBIENTS[1];
+
+  // Update sketch
+  const sketchData = AXIS_SKETCHES[axis];
+  if (sketchData) {
+    sketchLayer.innerHTML = sketchData.svg;
+  } else {
+    // Fallback: generic floating symbols
+    sketchLayer.innerHTML = `<svg viewBox="0 0 400 400" fill="none" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.06;">
+      <circle cx="200" cy="200" r="160" stroke="white" stroke-width="2" stroke-dasharray="8 12"/>
+      <circle cx="200" cy="200" r="100" stroke="white" stroke-width="1.5" stroke-dasharray="5 10"/>
+      <circle cx="200" cy="200" r="40" stroke="white" stroke-width="2"/>
+    </svg>`;
+  }
+}
+
 function renderQuestion() {
   const allQ = state.shuffledQuestions;
   const q = allQ[state.currentQ];
@@ -2450,6 +3178,9 @@ function renderQuestion() {
 
   const displayText = injectName(q.text, state.currentQ, state.userName);
   const opts = state.shuffledOptions[q.id] || q.options;
+
+  // Update background sketch and ambient glow
+  updateQuizBackground(q.axis, q.tier);
 
   // Scenario questions show text in the scenario-box — no q-text needed
   let html = `<div class="q-number">${state.currentQ + 1} of ${totalQ}</div>
@@ -3644,6 +4375,282 @@ function philTerm(label) {
   </span>`;
 }
 
+// ══════════════════════════════════════════
+// ARCHETYPE ICONS
+// Each family gets a unique abstract symbol.
+// svgPath: for inline SVG in the report header
+// draw: function(ctx, cx, cy, size, color) for canvas card
+// ══════════════════════════════════════════
+const ARCHETYPE_ICONS = {
+  'The Determined Humanist': {
+    // Interlocking chain links — causation
+    symbol: 'chain',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="24" width="22" height="16" rx="8" stroke="currentColor" stroke-width="4"/>
+      <rect x="38" y="24" width="22" height="16" rx="8" stroke="currentColor" stroke-width="4"/>
+      <line x1="26" y1="32" x2="38" y2="32" stroke="currentColor" stroke-width="4"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const r = size * 0.28, lw = size * 0.09;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      // left link
+      ctx.beginPath(); ctx.ellipse(cx - size*0.22, cy, r*0.9, r*0.55, 0, 0, Math.PI*2); ctx.stroke();
+      // right link
+      ctx.beginPath(); ctx.ellipse(cx + size*0.22, cy, r*0.9, r*0.55, 0, 0, Math.PI*2); ctx.stroke();
+      // connector
+      ctx.beginPath(); ctx.moveTo(cx-size*0.08, cy); ctx.lineTo(cx+size*0.08, cy); ctx.stroke();
+    }
+  },
+  'The Structural Reformer': {
+    // Network nodes — systems
+    symbol: 'network',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="12" r="6" fill="currentColor"/>
+      <circle cx="12" cy="48" r="6" fill="currentColor"/>
+      <circle cx="52" cy="48" r="6" fill="currentColor"/>
+      <line x1="32" y1="18" x2="12" y2="42" stroke="currentColor" stroke-width="3"/>
+      <line x1="32" y1="18" x2="52" y2="42" stroke="currentColor" stroke-width="3"/>
+      <line x1="18" y1="48" x2="46" y2="48" stroke="currentColor" stroke-width="3"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const r = size*0.1, lw = size*0.06;
+      ctx.fillStyle = color; ctx.strokeStyle = color; ctx.lineWidth = lw;
+      const pts = [[cx, cy-size*0.35],[cx-size*0.32, cy+size*0.22],[cx+size*0.32, cy+size*0.22]];
+      // lines first
+      ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); ctx.lineTo(pts[1][0],pts[1][1]); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); ctx.lineTo(pts[2][0],pts[2][1]); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pts[1][0],pts[1][1]); ctx.lineTo(pts[2][0],pts[2][1]); ctx.stroke();
+      pts.forEach(p => { ctx.beginPath(); ctx.arc(p[0],p[1],r,0,Math.PI*2); ctx.fill(); });
+    }
+  },
+  'The Rational Empiricist': {
+    // Microscope / magnifying lens — observation
+    symbol: 'lens',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="26" cy="26" r="18" stroke="currentColor" stroke-width="4"/>
+      <line x1="39" y1="39" x2="58" y2="58" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <line x1="19" y1="26" x2="33" y2="26" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="26" y1="19" x2="26" y2="33" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const r = size*0.3, lw = size*0.08;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(cx-size*0.08, cy-size*0.08, r, 0, Math.PI*2); ctx.stroke();
+      ctx.lineWidth = lw*1.3;
+      ctx.beginPath(); ctx.moveTo(cx+size*0.16,cy+size*0.16); ctx.lineTo(cx+size*0.42,cy+size*0.42); ctx.stroke();
+      ctx.lineWidth = lw*0.7;
+      ctx.beginPath(); ctx.moveTo(cx-size*0.22,cy-size*0.08); ctx.lineTo(cx+size*0.06,cy-size*0.08); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-size*0.08,cy-size*0.22); ctx.lineTo(cx-size*0.08,cy+size*0.06); ctx.stroke();
+    }
+  },
+  'The Existential Architect': {
+    // Compass — self-direction
+    symbol: 'compass',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="26" stroke="currentColor" stroke-width="3.5"/>
+      <polygon points="32,10 36,30 32,34 28,30" fill="currentColor"/>
+      <polygon points="32,54 28,34 32,30 36,34" fill="currentColor" opacity="0.4"/>
+      <circle cx="32" cy="32" r="3" fill="currentColor"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const r = size*0.4, lw = size*0.07;
+      ctx.strokeStyle = color; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      // north arrow
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.moveTo(cx,cy-r*0.75); ctx.lineTo(cx+r*0.18,cy); ctx.lineTo(cx,cy+r*0.18); ctx.lineTo(cx-r*0.18,cy); ctx.closePath(); ctx.fill();
+      // south arrow dim
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath(); ctx.moveTo(cx,cy+r*0.75); ctx.lineTo(cx-r*0.18,cy); ctx.lineTo(cx,cy-r*0.18); ctx.lineTo(cx+r*0.18,cy); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(cx,cy,lw*0.8,0,Math.PI*2); ctx.fill();
+    }
+  },
+  'The Moral Realist': {
+    // Scales of justice — balance
+    symbol: 'scales',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="32" y1="8" x2="32" y2="56" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="12" y1="16" x2="52" y2="16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="12" y1="16" x2="8" y2="32" stroke="currentColor" stroke-width="2.5"/>
+      <line x1="52" y1="16" x2="56" y2="32" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4 32 Q8 40 16 32" stroke="currentColor" stroke-width="2.5" fill="none"/>
+      <path d="M48 32 Q52 40 60 32" stroke="currentColor" stroke-width="2.5" fill="none"/>
+      <line x1="24" y1="56" x2="40" y2="56" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.07;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(cx,cy-size*0.42); ctx.lineTo(cx,cy+size*0.42); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-size*0.38,cy-size*0.22); ctx.lineTo(cx+size*0.38,cy-size*0.22); ctx.stroke();
+      ctx.lineWidth = lw*0.8;
+      ctx.beginPath(); ctx.moveTo(cx-size*0.38,cy-size*0.22); ctx.lineTo(cx-size*0.44,cy+size*0.05); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+size*0.38,cy-size*0.22); ctx.lineTo(cx+size*0.44,cy+size*0.05); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx-size*0.36,cy+size*0.05,size*0.12,0,Math.PI,false); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx+size*0.36,cy+size*0.05,size*0.12,0,Math.PI,false); ctx.stroke();
+      ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.moveTo(cx-size*0.2,cy+size*0.42); ctx.lineTo(cx+size*0.2,cy+size*0.42); ctx.stroke();
+    }
+  },
+  'The Compassionate Collectivist': {
+    // Hands / heart — care
+    symbol: 'heart',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 52 C32 52 8 38 8 22 C8 14 14 8 22 10 C26 11 30 14 32 18 C34 14 38 11 42 10 C50 8 56 14 56 22 C56 38 32 52 32 52Z" stroke="currentColor" stroke-width="3.5" fill="none"/>
+      <path d="M20 32 Q26 26 32 32 Q38 26 44 32" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.07;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      const s = size*0.42;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy+s*0.55);
+      ctx.bezierCurveTo(cx-s*1.1,cy,cx-s*1.1,cy-s*0.9,cx-s*0.55,cy-s*0.9);
+      ctx.bezierCurveTo(cx-s*0.2,cy-s*0.9,cx,cy-s*0.5,cx,cy-s*0.5);
+      ctx.bezierCurveTo(cx,cy-s*0.5,cx+s*0.2,cy-s*0.9,cx+s*0.55,cy-s*0.9);
+      ctx.bezierCurveTo(cx+s*1.1,cy-s*0.9,cx+s*1.1,cy,cx,cy+s*0.55);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx-s*0.45,cy+s*0.05);
+      ctx.quadraticCurveTo(cx-s*0.15,cy-s*0.25,cx,cy+s*0.05);
+      ctx.quadraticCurveTo(cx+s*0.15,cy-s*0.25,cx+s*0.45,cy+s*0.05);
+      ctx.lineWidth = lw*0.75; ctx.stroke();
+    }
+  },
+  'The Principled Libertarian': {
+    // Key — freedom, access
+    symbol: 'key',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="14" stroke="currentColor" stroke-width="3.5"/>
+      <line x1="32" y1="32" x2="58" y2="58" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="48" y1="44" x2="44" y2="52" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="54" y1="50" x2="50" y2="58" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="22" cy="22" r="5" fill="currentColor"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.08;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      const ocx = cx-size*0.22, ocy = cy-size*0.22, or2 = size*0.26;
+      ctx.beginPath(); ctx.arc(ocx,ocy,or2,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(ocx,ocy,or2*0.35,0,Math.PI*2); ctx.fill();
+      const ang = Math.PI*0.75;
+      const kx = ocx+or2*Math.cos(ang), ky = ocy+or2*Math.sin(ang);
+      ctx.lineWidth = lw; ctx.beginPath();
+      ctx.moveTo(kx,ky); ctx.lineTo(cx+size*0.42,cy+size*0.42); ctx.stroke();
+      ctx.lineWidth = lw*0.8;
+      ctx.beginPath(); ctx.moveTo(cx+size*0.18,cy+size*0.28); ctx.lineTo(cx+size*0.10,cy+size*0.40); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+size*0.30,cy+size*0.38); ctx.lineTo(cx+size*0.22,cy+size*0.50); ctx.stroke();
+    }
+  },
+  'The Stoic Naturalist': {
+    // Mountain — endurance, equanimity
+    symbol: 'mountain',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 8 L56 52 H8 Z" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" fill="none"/>
+      <path d="M24 36 L32 20 L40 36" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.08;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy-size*0.44);
+      ctx.lineTo(cx+size*0.46, cy+size*0.4);
+      ctx.lineTo(cx-size*0.46, cy+size*0.4);
+      ctx.closePath(); ctx.stroke();
+      ctx.lineWidth = lw*0.75;
+      ctx.beginPath();
+      ctx.moveTo(cx-size*0.16, cy+size*0.06);
+      ctx.lineTo(cx, cy-size*0.2);
+      ctx.lineTo(cx+size*0.16, cy+size*0.06);
+      ctx.stroke();
+    }
+  },
+  'The Spiritual Naturalist': {
+    // Infinity loop — openness, flow
+    symbol: 'infinity',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 32 C8 20 20 12 30 20 C36 24 28 44 34 44 C44 44 56 36 56 32 C56 20 44 12 34 20 C28 24 36 44 30 44 C20 44 8 36 8 32Z" stroke="currentColor" stroke-width="3.5" fill="none"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.08;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      const s = size*0.38;
+      ctx.beginPath();
+      ctx.moveTo(cx-s*0.05, cy);
+      ctx.bezierCurveTo(cx-s*0.3,cy-s*0.85,cx-s*1.35,cy-s*0.85,cx-s*1.1,cy);
+      ctx.bezierCurveTo(cx-s*0.85,cy+s*0.85,cx+s*0.3,cy+s*0.85,cx+s*0.05,cy);
+      ctx.bezierCurveTo(cx+s*0.3,cy-s*0.85,cx+s*1.35,cy-s*0.85,cx+s*1.1,cy);
+      ctx.bezierCurveTo(cx+s*0.85,cy+s*0.85,cx-s*0.3,cy+s*0.85,cx-s*0.05,cy);
+      ctx.stroke();
+    }
+  },
+  'The Conservative Traditionalist': {
+    // Column / pillar — tradition, structure
+    symbol: 'pillar',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="8" width="44" height="8" rx="2" stroke="currentColor" stroke-width="3"/>
+      <rect x="10" y="48" width="44" height="8" rx="2" stroke="currentColor" stroke-width="3"/>
+      <rect x="18" y="16" width="8" height="32" rx="2" stroke="currentColor" stroke-width="2.5"/>
+      <rect x="28" y="16" width="8" height="32" rx="2" stroke="currentColor" stroke-width="2.5"/>
+      <rect x="38" y="16" width="8" height="32" rx="2" stroke="currentColor" stroke-width="2.5"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.07;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'square';
+      const tw = size*0.8, th = size*0.12, ty1=cy-size*0.44, ty2=cy+size*0.32;
+      // top and bottom bars
+      ctx.strokeRect(cx-tw/2, ty1, tw, th);
+      ctx.strokeRect(cx-tw/2, ty2, tw, th);
+      // three pillars
+      const pw = size*0.12, ph = ty2-ty1-th, offsets=[-size*0.24,0,size*0.24];
+      offsets.forEach(ox => {
+        ctx.strokeRect(cx+ox-pw/2, ty1+th, pw, ph);
+      });
+    }
+  },
+  'The Pragmatic Centrist': {
+    // Venn / overlap circles — synthesis
+    symbol: 'venn',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="32" r="20" stroke="currentColor" stroke-width="3.5" fill="none"/>
+      <circle cx="40" cy="32" r="20" stroke="currentColor" stroke-width="3.5" fill="none"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.08, r = size*0.36;
+      ctx.strokeStyle = color; ctx.lineWidth = lw;
+      ctx.beginPath(); ctx.arc(cx-r*0.42, cy, r, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx+r*0.42, cy, r, 0, Math.PI*2); ctx.stroke();
+    }
+  },
+  'The Nihilist Reductionist': {
+    // Broken circle / void — dissolution
+    symbol: 'void',
+    svgPath: `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 8 A24 24 0 0 1 54 44" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M50 50 A24 24 0 0 1 10 32" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity="0.5"/>
+      <line x1="28" y1="28" x2="36" y2="36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="36" y1="28" x2="28" y2="36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    </svg>`,
+    draw(ctx, cx, cy, size, color) {
+      const lw = size*0.08, r = size*0.38;
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*1.35); ctx.stroke();
+      ctx.globalAlpha=0.4;
+      ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*1.45,Math.PI*1.95); ctx.stroke();
+      ctx.globalAlpha=1;
+      const xs = size*0.14;
+      ctx.lineWidth = lw*0.9;
+      ctx.beginPath(); ctx.moveTo(cx-xs,cy-xs); ctx.lineTo(cx+xs,cy+xs); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+xs,cy-xs); ctx.lineTo(cx-xs,cy+xs); ctx.stroke();
+    }
+  },
+};
+
+function getArchetypeIcon(family) {
+  return ARCHETYPE_ICONS[family] || ARCHETYPE_ICONS['The Pragmatic Centrist'];
+}
+
 const RARITY_BY_FAMILY = {
   'The Determined Humanist': {pct: '4%', label: 'Exceptionally rare worldview'},
   'The Structural Reformer': {pct: '9%', label: 'Uncommon position'},
@@ -3853,6 +4860,17 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   // ── HEADER ──
   document.getElementById('report-archetype').textContent = report.archetypeName || family;
   document.getElementById('report-tagline').textContent = report.tagline || arch.description.split('.')[0] + '.';
+
+  // Icon in report header
+  const iconData = getArchetypeIcon(family);
+  let iconEl = document.getElementById('report-archetype-icon');
+  if (!iconEl) {
+    iconEl = document.createElement('div');
+    iconEl.id = 'report-archetype-icon';
+    iconEl.style.cssText = 'margin: 0 auto 20px; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(157,147,232,0.1); border: 1.5px solid rgba(157,147,232,0.25); border-radius: 50%; color: rgba(200,190,255,0.9);';
+    document.getElementById('report-archetype').before(iconEl);
+  }
+  iconEl.innerHTML = iconData ? iconData.svgPath.replace('<svg ', '<svg width="44" height="44" ') : '';
 
   // Variant line
   const variantLine = document.getElementById('report-variant-line');
@@ -4183,12 +5201,26 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  const W = 1080, H = 2160, PAD = 72;
+  const W = 1080, H = 2160, PAD = 48;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
+  // ── HELPERS ──
   function strip(t) { return (t||'').replace(/\*\*/g,'').replace(/\*/g,'').trim(); }
+
+  function roundRect(x,y,w,h,r,fill,stroke,strokeW) {
+    if(w<=0||h<=0) return;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+    if(fill) { ctx.fillStyle=fill; ctx.fill(); }
+    if(stroke) { ctx.strokeStyle=stroke; ctx.lineWidth=strokeW||1; ctx.stroke(); }
+  }
 
   function wrapText(text, x, y, maxW, lineH, maxLines) {
     text = strip(text);
@@ -4210,228 +5242,314 @@ function renderCardToCanvas(container) {
     return curY+lineH;
   }
 
-  function hline(y, alpha, color) {
-    ctx.strokeStyle = color||('rgba(255,255,255,'+(alpha||0.12)+')');
-    ctx.lineWidth=1; ctx.beginPath();
-    ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke();
-  }
+  // ── COLOUR PALETTE ──
+  const DARK    = '#0a0818';
+  const PURPLE  = '#7c6fd4';
+  const PURPLE2 = '#9d93e8';
+  const GOLD    = '#c9a96e';
+  const GOLD2   = '#e8c87a';
+  const TEAL    = '#4a9e7a';
+  const ORANGE  = '#e05f3a';
+  const MUTED   = 'rgba(255,255,255,0.45)';
+  const TEXT    = '#f0ede6';
+  const BLOCK1  = '#13102a';  // deep purple block
+  const BLOCK2  = '#1a1008';  // deep gold block
+  const BLOCK3  = '#0e1e18';  // deep teal block
+  const BLOCK4  = '#1a100a';  // deep amber block
+  const BORDER  = 'rgba(255,255,255,0.08)';
 
-  function rr(x,y,w,h,r) {
-    if(w<=0||h<=0) return;
-    ctx.beginPath(); ctx.moveTo(x+r,y);
-    ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
-  }
+  // ── BACKGROUND ──
+  ctx.fillStyle = DARK; ctx.fillRect(0,0,W,H);
 
-  // ═══ BACKGROUND ═══
-  ctx.fillStyle='#07051a'; ctx.fillRect(0,0,W,H);
-
-  // Big purple glow top
-  const g1=ctx.createRadialGradient(W/2,200,0,W/2,200,1000);
-  g1.addColorStop(0,'rgba(110,90,240,0.55)');
-  g1.addColorStop(0.45,'rgba(90,70,200,0.22)');
-  g1.addColorStop(1,'rgba(70,50,160,0)');
+  // Ambient glows
+  const g1 = ctx.createRadialGradient(W*0.3,0,0,W*0.3,0,900);
+  g1.addColorStop(0,'rgba(100,80,220,0.5)'); g1.addColorStop(1,'rgba(100,80,220,0)');
   ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
-
-  // Gold glow — starts from H*0.4, fills bottom half
-  const g2=ctx.createRadialGradient(W*0.85,H*0.75,0,W*0.85,H*0.75,1100);
-  g2.addColorStop(0,'rgba(255,185,70,0.38)');
-  g2.addColorStop(0.35,'rgba(201,169,110,0.20)');
-  g2.addColorStop(1,'rgba(201,169,110,0)');
+  const g2 = ctx.createRadialGradient(W,H,0,W,H,1000);
+  g2.addColorStop(0,'rgba(220,160,50,0.35)'); g2.addColorStop(1,'rgba(220,160,50,0)');
   ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
 
-  // Secondary gold glow — left side mid
-  const g2b=ctx.createRadialGradient(0,H*0.6,0,0,H*0.6,700);
-  g2b.addColorStop(0,'rgba(220,160,60,0.22)');
-  g2b.addColorStop(1,'rgba(220,160,60,0)');
-  ctx.fillStyle=g2b; ctx.fillRect(0,0,W,H);
+  let y = 0;
 
-  // Pink glow left
-  const g3=ctx.createRadialGradient(0,H*0.45,0,0,H*0.45,600);
-  g3.addColorStop(0,'rgba(180,80,200,0.18)');
-  g3.addColorStop(1,'rgba(180,80,200,0)');
-  ctx.fillStyle=g3; ctx.fillRect(0,0,W,H);
+  // ══════════════════════════════════════════
+  // BLOCK 1 — HEADER (full width, dark purple)
+  // ══════════════════════════════════════════
+  const B1H = 380;
+  roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 1);
 
-  // Dot texture
-  ctx.fillStyle='rgba(255,255,255,0.02)';
-  for(let gx=60;gx<W;gx+=62) for(let gy=60;gy<H;gy+=62) {
-    ctx.beginPath(); ctx.arc(gx,gy,1.2,0,Math.PI*2); ctx.fill();
-  }
-  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
-  ctx.strokeRect(18,18,W-36,H-36);
+  // PHIL/OS wordmark
+  ctx.font = '700 30px "IBM Plex Mono",monospace';
+  ctx.fillStyle = GOLD; ctx.textAlign = 'left';
+  ctx.fillText('PHIL/OS', PAD+36, PAD+56);
+  ctx.font = '400 24px "IBM Plex Mono",monospace';
+  ctx.fillStyle = MUTED; ctx.textAlign = 'right';
+  ctx.fillText('thelifepm.com', W-PAD-36, PAD+56);
 
-  // ═══ TOP BAR ═══
-  ctx.font='700 36px "IBM Plex Mono",monospace'; ctx.fillStyle='#c9a96e';
-  ctx.textAlign='left'; ctx.fillText('PHIL/OS',PAD,100);
-  ctx.font='400 26px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.32)';
-  ctx.textAlign='right'; ctx.fillText('thelifepm.com',W-PAD,100);
-  ctx.textAlign='left';
-  hline(128,0,'rgba(201,169,110,0.35)');
+  // Divider
+  ctx.strokeStyle = 'rgba(201,169,110,0.25)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+36, PAD+72); ctx.lineTo(W-PAD-36, PAD+72); ctx.stroke();
 
-  // ═══ ARCHETYPE NAME ═══
-  let y = 192;
-  ctx.font='600 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.75)';
-  ctx.fillText('THE', PAD, y); y+=14;
+  // THE label
+  ctx.font = '600 22px "IBM Plex Mono",monospace';
+  ctx.fillStyle = 'rgba(201,169,110,0.7)'; ctx.textAlign = 'left';
+  ctx.fillText('THE', PAD+36, PAD+108);
 
+  // Archetype name — large
   const nameWords = cardData.archetypeName.replace('The ','').split(' ');
-  ctx.fillStyle='#ffffff';
+  ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
   if(nameWords.length <= 2) {
-    ctx.font='bold 148px "Playfair Display",serif';
+    ctx.font = 'bold 118px "Playfair Display",serif';
     nameWords.forEach((w,i) => {
-      const mw=ctx.measureText(w).width;
-      if(mw>W-PAD*2) ctx.font='bold '+Math.floor(148*(W-PAD*2)/mw)+'px "Playfair Display",serif';
-      ctx.fillText(w, PAD, y+160+i*164);
-      ctx.font='bold 148px "Playfair Display",serif';
+      const mw = ctx.measureText(w).width;
+      if(mw > W-PAD*2-72) ctx.font = 'bold '+Math.floor(118*(W-PAD*2-72)/mw)+'px "Playfair Display",serif';
+      ctx.fillText(w, PAD+36, PAD+200+i*128);
+      ctx.font = 'bold 118px "Playfair Display",serif';
     });
-    y += 160 + nameWords.length*164;
   } else {
-    ctx.font='bold 108px "Playfair Display",serif';
+    ctx.font = 'bold 86px "Playfair Display",serif';
     const mid=Math.ceil(nameWords.length/2);
-    ctx.fillText(nameWords.slice(0,mid).join(' '), PAD, y+110);
-    ctx.fillText(nameWords.slice(mid).join(' '), PAD, y+230);
-    y += 280;
+    ctx.fillText(nameWords.slice(0,mid).join(' '), PAD+36, PAD+180);
+    ctx.fillText(nameWords.slice(mid).join(' '), PAD+36, PAD+272);
   }
-  y += 18;
 
-  // Variant left, rarity pill right
-  ctx.font='500 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.9)';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD, y);
+  // Icon — top right of header block
+  const icon = getArchetypeIcon(cardData.archetypeName);
+  if (icon && icon.draw) {
+    const iconSize = 90, iconX = W-PAD-36-iconSize/2, iconY = PAD+130;
+    ctx.save();
+    // Glow behind icon
+    const ig = ctx.createRadialGradient(iconX,iconY,0,iconX,iconY,iconSize*0.8);
+    ig.addColorStop(0,'rgba(157,147,232,0.22)'); ig.addColorStop(1,'rgba(157,147,232,0)');
+    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconY,iconSize,0,Math.PI*2); ctx.fill();
+    icon.draw(ctx, iconX, iconY, iconSize, 'rgba(200,190,255,0.85)');
+    ctx.restore();
+  }
+
+  // Variant + rarity pill
+  ctx.font = '500 24px "IBM Plex Mono",monospace';
+  ctx.fillStyle = 'rgba(180,160,220,0.9)'; ctx.textAlign = 'left';
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, PAD+B1H-32);
 
   const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
-  const rPct=(rarityMap[cardData.archetypeName]||'RARE')+' RAREST';
-  ctx.font='600 22px "IBM Plex Mono",monospace';
-  const pillW=ctx.measureText('◆ '+rPct).width+36;
-  const pillX=W-PAD-pillW;
-  rr(pillX,y-28,pillW,40,20); ctx.fillStyle='rgba(110,90,240,0.2)'; ctx.fill();
-  rr(pillX,y-28,pillW,40,20); ctx.strokeStyle='rgba(157,147,232,0.55)'; ctx.lineWidth=1.5; ctx.stroke();
-  ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
-  ctx.fillText('◆ '+rPct, W-PAD-18, y); ctx.textAlign='left';
-  y += 50;
+  const rPct = (rarityMap[cardData.archetypeName]||'RARE')+' RAREST';
+  ctx.font = '700 20px "IBM Plex Mono",monospace';
+  const pillW = ctx.measureText('◆ '+rPct).width + 28;
+  roundRect(W-PAD-36-pillW, PAD+B1H-56, pillW, 36, 18, 'rgba(110,90,240,0.25)', 'rgba(157,147,232,0.5)', 1);
+  ctx.fillStyle = PURPLE2; ctx.textAlign = 'right';
+  ctx.fillText('◆ '+rPct, W-PAD-36-14, PAD+B1H-33);
 
-  hline(y,0,'rgba(157,147,232,0.3)'); y+=48;
+  y = PAD + B1H + 16;
 
-  // ═══ DESCRIPTION ═══
-  const rawDesc=strip(cardData.cardDescription||cardData.cardTagline||'');
-  const sentences=(rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
-  const descText=sentences.slice(0,3).join(' ').trim();
-  ctx.font='italic 41px "Playfair Display",serif';
-  ctx.fillStyle='rgba(255,255,255,0.88)';
-  y=wrapText(descText, PAD, y, W-PAD*2, 58, 5)+18;
+  // ══════════════════════════════════════════
+  // ROW A — DESCRIPTION + QUICK STATS (2 blocks side by side)
+  // ══════════════════════════════════════════
+  const ROWAH = 310;
+  const COLA = (W-PAD*2-16)*0.62;
+  const COLB = (W-PAD*2-16)*0.38;
 
-  hline(y,0.12); y+=46;
+  // A1 — Description block
+  roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 1);
+  ctx.font = '600 18px "IBM Plex Mono",monospace';
+  ctx.fillStyle = GOLD; ctx.textAlign = 'left';
+  ctx.fillText('WHO YOU ARE', PAD+24, y+36);
+  ctx.strokeStyle='rgba(201,169,110,0.2)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(PAD+COLA-24,y+46); ctx.stroke();
+  const rawDesc = strip(cardData.cardDescription||cardData.cardTagline||'');
+  const sentences = (rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
+  const descText = sentences.slice(0,3).join(' ').trim();
+  ctx.font = 'italic 33px "Playfair Display",serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  wrapText(descText, PAD+24, y+84, COLA-48, 46, 5);
 
-  // ═══ BELIEF FINGERPRINT ═══
-  ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-  ctx.fillText('BELIEF FINGERPRINT', PAD, y); y+=44;
+  // A2 — Quick stats block
+  const bx2 = PAD + COLA + 16;
+  roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 1);
+  ctx.font = '600 18px "IBM Plex Mono",monospace';
+  ctx.fillStyle = GOLD; ctx.textAlign = 'left';
+  ctx.fillText('YOUR STATS', bx2+24, y+36);
+  ctx.strokeStyle='rgba(201,169,110,0.2)';
+  ctx.beginPath(); ctx.moveTo(bx2+24,y+46); ctx.lineTo(bx2+COLB-24,y+46); ctx.stroke();
 
-  const lblW=260, trackW=W-PAD*2-lblW-76, bH=16, bGap=62;
-  (cardData.fingerprint||[]).forEach((fp,i) => {
-    const meta=AXIS_META[fp.axis]; if(!meta) return;
-    const fy=y+i*bGap;
-    const raw=cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
-    const pct=Math.max(0,Math.min(1,(raw-1)/6));
-    const fw=Math.max(bH,Math.round(pct*trackW));
-    ctx.font='500 26px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(240,237,230,0.88)'; ctx.textAlign='left';
-    const lbl=meta.label.length>15?meta.label.slice(0,14)+'.':meta.label;
-    ctx.fillText(lbl, PAD, fy+12);
-    const tx=PAD+lblW;
-    rr(tx,fy,trackW,bH,bH/2); ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.fill();
-    if(fw>bH) {
-      const gr=ctx.createLinearGradient(tx,0,tx+fw,0);
-      gr.addColorStop(0,'rgba(110,90,240,0.7)'); gr.addColorStop(1,'#9d93e8');
-      ctx.fillStyle=gr; rr(tx,fy,fw,bH,bH/2); ctx.fill();
-      ctx.shadowColor='rgba(157,147,232,0.45)'; ctx.shadowBlur=10;
-      rr(tx,fy,fw,bH,bH/2); ctx.strokeStyle='rgba(157,147,232,0.25)'; ctx.lineWidth=1; ctx.stroke();
-      ctx.shadowBlur=0;
-    }
-    ctx.font='700 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(200,190,255,1)'; ctx.textAlign='right';
-    ctx.fillText(raw.toFixed(1), W-PAD, fy+12); ctx.textAlign='left';
+  // Stat items
+  const fp0 = (cardData.fingerprint||[])[0];
+  const topAxisLabel = fp0 ? (AXIS_META[fp0.axis]?.label||fp0.axis) : '—';
+  const topScore = fp0 ? (cardData.axisScores?.[fp0.axis]||fp0.score||0).toFixed(1) : '—';
+  const contCount = 0; // can expand later
+
+  const stats = [
+    {val: rarityMap[cardData.archetypeName]||'RARE', label:'Rarity'},
+    {val: topScore+'/7', label: topAxisLabel.length>12?topAxisLabel.slice(0,11)+'.':topAxisLabel},
+    {val: (cardData.fingerprint||[]).length+' axes', label:'Defining'},
+  ];
+  stats.forEach((s,i) => {
+    const sy = y+84+i*70;
+    ctx.font = 'bold 36px "Playfair Display",serif';
+    ctx.fillStyle = GOLD2; ctx.textAlign = 'left';
+    ctx.fillText(s.val, bx2+24, sy);
+    ctx.font = '400 18px "IBM Plex Mono",monospace';
+    ctx.fillStyle = MUTED;
+    ctx.fillText(s.label, bx2+24, sy+22);
   });
-  y+=(cardData.fingerprint||[]).length*bGap+38;
-  hline(y,0.12); y+=46;
 
-  // ═══ YOUR WORLD ═══
-  const mediaMap2=typeof MEDIA_BY_FAMILY!=='undefined'?MEDIA_BY_FAMILY:{};
-  const media=mediaMap2[cardData.archetypeName];
+  y += ROWAH + 16;
+
+  // ══════════════════════════════════════════
+  // BLOCK 2 — BELIEF FINGERPRINT (full width)
+  // ══════════════════════════════════════════
+  const fpCount = (cardData.fingerprint||[]).length;
+  const B2H = 60 + fpCount*62 + 24;
+  roundRect(PAD, y, W-PAD*2, B2H, 16, BLOCK3, BORDER, 1);
+
+  ctx.font = '600 18px "IBM Plex Mono",monospace';
+  ctx.fillStyle = TEAL; ctx.textAlign = 'left';
+  ctx.fillText('BELIEF FINGERPRINT', PAD+24, y+36);
+  ctx.strokeStyle='rgba(74,158,122,0.25)';
+  ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(W-PAD-24,y+46); ctx.stroke();
+
+  const lblW = 240, trackW = W-PAD*2-48-lblW-80, bH = 20, bGap = 62;
+  (cardData.fingerprint||[]).forEach((fp,i) => {
+    const meta = AXIS_META[fp.axis]; if(!meta) return;
+    const fy = y+60+i*bGap;
+    const raw = cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
+    const pct = Math.max(0,Math.min(1,(raw-1)/6));
+    const fw = Math.max(bH,Math.round(pct*trackW));
+    const tx = PAD+24+lblW;
+
+    ctx.font = '500 24px "IBM Plex Sans",sans-serif';
+    ctx.fillStyle = TEXT; ctx.textAlign = 'left';
+    const lbl = meta.label.length>14?meta.label.slice(0,13)+'.':meta.label;
+    ctx.fillText(lbl, PAD+24, fy+16);
+
+    roundRect(tx,fy,trackW,bH,bH/2,'rgba(255,255,255,0.06)',null);
+    if(fw>bH) {
+      const gr = ctx.createLinearGradient(tx,0,tx+fw,0);
+      gr.addColorStop(0,'rgba(74,158,122,0.7)'); gr.addColorStop(1,'#4a9e7a');
+      roundRect(tx,fy,fw,bH,bH/2,null); ctx.fillStyle=gr; ctx.fill();
+      ctx.shadowColor='rgba(74,158,122,0.4)'; ctx.shadowBlur=8;
+      ctx.fill(); ctx.shadowBlur=0;
+    }
+    ctx.font = '700 22px "IBM Plex Mono",monospace';
+    ctx.fillStyle = TEAL; ctx.textAlign = 'right';
+    ctx.fillText(raw.toFixed(1), W-PAD-24, fy+16); ctx.textAlign='left';
+  });
+
+  y += B2H + 16;
+
+  // ══════════════════════════════════════════
+  // ROW B — YOUR WORLD (media, 3 equal blocks)
+  // ══════════════════════════════════════════
+  const mediaMap2 = typeof MEDIA_BY_FAMILY!=='undefined'?MEDIA_BY_FAMILY:{};
+  const media = mediaMap2[cardData.archetypeName];
   if(media) {
-    ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-    ctx.fillText('YOUR WORLD', PAD, y); y+=44;
-    const colW=(W-PAD*2)/3;
-    [{label:'FILM',items:media.films.slice(0,2)},{label:'MUSIC',items:media.music.slice(0,2)},{label:'BOOKS',items:media.books.slice(0,2)}].forEach((cat,ci) => {
-      const cx=PAD+ci*colW;
-      ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
-      ctx.fillText(cat.label, cx, y);
+    const ROWBH = 300;
+    const colW3 = Math.floor((W-PAD*2-32)/3);
+    const cats = [
+      {label:'FILM', icon:'🎬', items:media.films.slice(0,2), bg:BLOCK1, accent:'rgba(157,147,232,0.9)'},
+      {label:'MUSIC', icon:'🎵', items:media.music.slice(0,2), bg:BLOCK2, accent:GOLD},
+      {label:'BOOKS', icon:'📚', items:media.books.slice(0,2), bg:BLOCK3, accent:'rgba(74,158,122,0.9)'},
+    ];
+    cats.forEach((cat,ci) => {
+      const cx = PAD + ci*(colW3+16);
+      roundRect(cx, y, colW3, ROWBH, 16, cat.bg, BORDER, 1);
+      ctx.font = '600 17px "IBM Plex Mono",monospace';
+      ctx.fillStyle = cat.accent; ctx.textAlign='left';
+      ctx.fillText(cat.icon+' '+cat.label, cx+20, y+36);
+      ctx.strokeStyle='rgba(255,255,255,0.1)';
+      ctx.beginPath(); ctx.moveTo(cx+20,y+46); ctx.lineTo(cx+colW3-20,y+46); ctx.stroke();
       cat.items.forEach((item,ii) => {
-        const iy=y+30+ii*58;
-        ctx.font='600 22px "IBM Plex Sans",sans-serif'; ctx.fillStyle='rgba(255,255,255,0.92)';
-        let t=item.title; while(ctx.measureText(t).width>colW-16&&t.length>4) t=t.slice(0,-4)+'...';
-        ctx.fillText(t, cx, iy);
-        ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.52)';
-        let n=item.note; while(ctx.measureText(n).width>colW-16&&n.length>4) n=n.slice(0,-4)+'...';
-        ctx.fillText(n, cx, iy+22);
+        const iy = y+68+ii*100;
+        ctx.font = '600 21px "IBM Plex Sans",sans-serif';
+        ctx.fillStyle = TEXT;
+        let t=item.title; while(ctx.measureText(t).width>colW3-40&&t.length>4) t=t.slice(0,-4)+'...';
+        ctx.fillText(t, cx+20, iy);
+        ctx.font = '400 16px "IBM Plex Mono",monospace';
+        ctx.fillStyle = MUTED;
+        let n=item.note; while(ctx.measureText(n).width>colW3-40&&n.length>4) n=n.slice(0,-4)+'...';
+        ctx.fillText(n, cx+20, iy+24);
+        // Subtle divider between items
+        if(ii<cat.items.length-1) {
+          ctx.strokeStyle='rgba(255,255,255,0.06)';
+          ctx.beginPath(); ctx.moveTo(cx+20,iy+40); ctx.lineTo(cx+colW3-20,iy+40); ctx.stroke();
+        }
       });
     });
-    y+=182; hline(y,0.12); y+=46;
+    y += ROWBH + 16;
   }
 
-  // ═══ MINDS LIKE YOURS ═══
-  ctx.font='700 22px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.85)';
-  ctx.fillText('MINDS LIKE YOURS', PAD, y); y+=44;
-  const famous=(cardData.famousTypes||[]).slice(0,3);
+  // ══════════════════════════════════════════
+  // BLOCK 3 — MINDS LIKE YOURS (3 equal blocks)
+  // ══════════════════════════════════════════
+  const famous = (cardData.famousTypes||[]).slice(0,3);
   if(famous.length>0) {
-    const fW=(W-PAD*2)/3;
+    const B3H = 180;
+    const fColW = Math.floor((W-PAD*2-32)/3);
+    const fColors = [PURPLE2, GOLD, 'rgba(74,158,122,0.9)'];
+    const fBgs = [BLOCK1, BLOCK2, BLOCK3];
+
+    // Header spanning all 3
+    ctx.font = '600 18px "IBM Plex Mono",monospace';
+    ctx.fillStyle = MUTED; ctx.textAlign='left';
+    ctx.fillText('MINDS LIKE YOURS', PAD, y+28);
+    y += 40;
+
     famous.forEach((f,i) => {
-      const fx=PAD+i*fW;
-      ctx.font='700 24px "Playfair Display",serif'; ctx.fillStyle='rgba(255,255,255,0.96)';
-      ctx.fillText(f.name, fx, y+22);
-      const parts=(f.desc||'').split('·').map(s=>s.trim());
-      ctx.font='400 17px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,176,168,0.62)';
-      parts.slice(0,2).forEach((p,pi) => {
-        let d=p; while(ctx.measureText(d).width>fW-14&&d.length>4) d=d.slice(0,-4)+'...';
-        ctx.fillText(d, fx, y+44+pi*22);
+      const fx = PAD + i*(fColW+16);
+      roundRect(fx, y, fColW, B3H, 16, fBgs[i], BORDER, 1);
+      // Accent top bar
+      roundRect(fx, y, fColW, 5, 0, fColors[i], null);
+      ctx.font = '700 24px "Playfair Display",serif';
+      ctx.fillStyle = TEXT; ctx.textAlign='left';
+      ctx.fillText(f.name, fx+20, y+48);
+      const parts = (f.desc||'').split('·').map(s=>s.trim());
+      ctx.font = '400 16px "IBM Plex Mono",monospace';
+      ctx.fillStyle = MUTED;
+      parts.slice(0,3).forEach((p,pi) => {
+        let d=p; while(ctx.measureText(d).width>fColW-40&&d.length>4) d=d.slice(0,-4)+'...';
+        ctx.fillText(d, fx+20, y+72+pi*22);
       });
     });
-    y+=98;
-  } else {
-    ctx.font='500 24px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(180,160,220,0.85)';
-    ctx.fillText(strip(cardData.thinkers||''), PAD, y); y+=52;
+    y += B3H + 16;
   }
-  hline(y,0.12); y+=36;
 
-  // ═══ DNA STRIP ═══
-  ctx.font='600 18px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(255,255,255,0.22)';
-  ctx.textAlign='center'; ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, y+16);
-  ctx.textAlign='left'; y+=34;
+  // ══════════════════════════════════════════
+  // BLOCK 4 — DNA STRIP (full width)
+  // ══════════════════════════════════════════
+  const B4H = 160;
+  roundRect(PAD, y, W-PAD*2, B4H, 16, BLOCK4, BORDER, 1);
 
-  const stripH=120;
-  const stripTopY=y;
-  const axKeys=Object.keys(AXIS_META);
-  const bW2=Math.floor((W-PAD*2)/axKeys.length);
+  ctx.font = '600 16px "IBM Plex Mono",monospace';
+  ctx.fillStyle = MUTED; ctx.textAlign='center';
+  ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, y+26);
 
-  ctx.fillStyle='rgba(255,255,255,0.025)'; ctx.fillRect(PAD,stripTopY,W-PAD*2,stripH);
-  hline(stripTopY,0.08); hline(stripTopY+stripH,0.08);
-  const midLine=stripTopY+stripH/2;
-  hline(midLine,0,'rgba(255,255,255,0.05)');
+  const dnaInnerY = y+38, dnaInnerH = B4H-58;
+  const axKeys = Object.keys(AXIS_META);
+  const bW3 = (W-PAD*2-48)/axKeys.length;
+  const midLine = dnaInnerY + dnaInnerH/2;
+
+  // centre line
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+24,midLine); ctx.lineTo(W-PAD-24,midLine); ctx.stroke();
 
   axKeys.forEach((k,i) => {
-    const sc=cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const dev=(sc-4)/3;
-    const barH2=Math.max(3,Math.abs(dev)*(stripH/2-8));
-    const bx=PAD+i*bW2+1;
-    const by=dev>=0 ? midLine-barH2 : midLine;
-    const alpha=0.18+Math.abs(dev)*0.65;
-    ctx.fillStyle=dev>=0?`rgba(157,147,232,${alpha})`:`rgba(201,169,110,${alpha})`;
-    ctx.fillRect(bx, by, bW2-2, barH2);
+    const sc = cardData.axisScores?(cardData.axisScores[k]||4):4;
+    const dev = (sc-4)/3;
+    const bh2 = Math.max(3, Math.abs(dev)*(dnaInnerH/2-4));
+    const bx3 = PAD+24+i*bW3+0.5;
+    const by3 = dev>=0 ? midLine-bh2 : midLine;
+    const alpha = 0.15 + Math.abs(dev)*0.7;
+    ctx.fillStyle = dev>=0 ? `rgba(157,147,232,${alpha})` : `rgba(201,169,110,${alpha})`;
+    ctx.fillRect(bx3, by3, bW3-1, bh2);
   });
 
-  y=stripTopY+stripH+50;
+  y += B4H + 16;
 
-  // ═══ BOTTOM BRANDING ═══
-  hline(y,0,'rgba(201,169,110,0.25)'); y+=40;
-  ctx.font='700 28px "IBM Plex Mono",monospace'; ctx.fillStyle='rgba(201,169,110,0.72)';
-  ctx.textAlign='center'; ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, y+10);
+  // ══════════════════════════════════════════
+  // FOOTER BAR
+  // ══════════════════════════════════════════
+  roundRect(PAD, y, W-PAD*2, 80, 16, 'rgba(201,169,110,0.07)', 'rgba(201,169,110,0.2)', 1);
+  ctx.font = '700 28px "IBM Plex Mono",monospace';
+  ctx.fillStyle = GOLD; ctx.textAlign='center';
+  ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, y+48);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
