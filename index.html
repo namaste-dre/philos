@@ -1143,6 +1143,100 @@ body::before {
   margin-top: 12px;
   letter-spacing: 0.06em;
 }
+/* ── EMAIL CAPTURE MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal-box {
+  background: #12101e;
+  border: 1px solid rgba(157,147,232,0.3);
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(120,100,240,0.15);
+  animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp { from { transform:translateY(40px);opacity:0; } to { transform:translateY(0);opacity:1; } }
+.modal-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.18em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 16px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px,4vw,32px);
+  color: var(--text); font-weight: 700; margin-bottom: 12px; line-height: 1.2;
+}
+.modal-sub { font-size: 16px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+.modal-field { margin-bottom: 16px; }
+.modal-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em;
+  color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 8px;
+}
+.modal-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px; color: var(--text);
+  padding: 14px 18px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 17px;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s; display: block;
+}
+.modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,169,110,0.12); }
+.modal-input::placeholder { color: rgba(255,255,255,0.25); }
+select.modal-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center;
+  padding-right: 44px; cursor: pointer; background-color: rgba(255,255,255,0.05);
+}
+select.modal-input option { background: #12101e; }
+.modal-gdpr {
+  display: flex; gap: 12px; align-items: flex-start;
+  margin: 24px 0 28px; padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.modal-gdpr input[type=checkbox] { width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--accent);cursor:pointer; }
+.modal-gdpr-text { font-size: 14px; color: var(--muted); line-height: 1.55; }
+.modal-gdpr-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.modal-actions { display: flex; flex-direction: column; gap: 12px; }
+.modal-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), #b8894e);
+  border: none; color: #1a1410;
+  padding: 16px; border-radius: 50px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 17px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 24px rgba(201,169,110,0.3);
+}
+.modal-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,169,110,0.4); }
+.modal-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.modal-skip {
+  background: none; border: none; color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  text-align: center; padding: 4px; transition: color 0.2s;
+}
+.modal-skip:hover { color: var(--text); }
+.modal-error {
+  font-size: 13px; color: var(--danger);
+  font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 8px; display: none;
+}
+
 /* ── RETRY BUTTON ── */
 .retry-wrap { text-align: center; margin-top: 48px; }
 .btn-secondary {
@@ -1297,6 +1391,76 @@ body::before {
     <div class="progress-label" id="progress-label"></div>
   </div>
   <div class="quiz-body" id="quiz-body"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     EMAIL CAPTURE MODAL
+══════════════════════════════════════════ -->
+<div id="email-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-eyebrow">Almost there</div>
+    <div class="modal-title">Where should we send your report?</div>
+    <div class="modal-sub">We'll email your full Philosophical OS report and let you know when your archetype's content drops.</div>
+
+    <div class="modal-field">
+      <label class="modal-label" for="modal-name">Your first name</label>
+      <input id="modal-name" class="modal-input" type="text" placeholder="First name" maxlength="40" autocomplete="given-name"/>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label" for="modal-email">Email address <span style="color:var(--danger)">*</span></label>
+      <input id="modal-email" class="modal-input" type="email" placeholder="you@example.com" maxlength="120" autocomplete="email"/>
+      <div class="modal-error" id="modal-email-error">Please enter a valid email address.</div>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label" for="modal-country">Country</label>
+      <select id="modal-country" class="modal-input">
+        <option value="">Select your country</option>
+        <option>Netherlands</option>
+        <option>United States</option>
+        <option>United Kingdom</option>
+        <option>Germany</option>
+        <option>France</option>
+        <option>Belgium</option>
+        <option>Australia</option>
+        <option>Canada</option>
+        <option>Spain</option>
+        <option>Italy</option>
+        <option>Sweden</option>
+        <option>Denmark</option>
+        <option>Norway</option>
+        <option>Switzerland</option>
+        <option>Austria</option>
+        <option>New Zealand</option>
+        <option>South Africa</option>
+        <option>Brazil</option>
+        <option>Mexico</option>
+        <option>Japan</option>
+        <option>South Korea</option>
+        <option>India</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="modal-gdpr">
+      <input type="checkbox" id="modal-gdpr" />
+      <div class="modal-gdpr-text">
+        I agree to receive my report and occasional updates from The Life PM.
+        Your data is never sold or shared. You can unsubscribe any time.
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <div class="modal-error" id="modal-gdpr-error">Please tick the box to continue.</div>
+      <button class="modal-submit" id="modal-submit-btn" onclick="submitEmailCapture()">
+        Build my report →
+      </button>
+      <button class="modal-skip" onclick="skipEmailCapture()">
+        Skip — just show me my results
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -2688,7 +2852,7 @@ function nextQ() {
     state.currentQ++;
     renderQuestion();
   } else {
-    generateReport();
+    showEmailCapture();
   }
 }
 
@@ -2823,6 +2987,47 @@ function updateQuizBackground(axis, tier) {
 // Signature axes (for current 6 T1 axes):
 // [naturalism, physicalism, realism, determinism, moral_ground, meaning]
 // Score 1-7. null = not defining for this type (skipped in distance calc)
+// ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// AXIS METADATA — 34 axes
+// ══════════════════════════════════════════
+const AXIS_META = {
+  naturalism:          {label:'Naturalism',            poleL:'Supernatural',        poleR:'Naturalist',             tier:1, color:'var(--tier1)'},
+  physicalism:         {label:'Physicalism',            poleL:'Non-physical mind',   poleR:'Physicalist',            tier:1, color:'var(--tier1)'},
+  realism:             {label:'Epistemic Realism',      poleL:'Anti-realist',        poleR:'Realist',                tier:1, color:'var(--tier1)'},
+  determinism:         {label:'Determinism',            poleL:'Free will',           poleR:'Hard determinism',       tier:1, color:'var(--tier1)'},
+  moral_ground:        {label:'Moral Realism',          poleL:'Anti-realist',        poleR:'Moral realist',          tier:1, color:'var(--tier1)'},
+  meaning:             {label:'Meaning Realism',        poleL:'Constructivist',      poleR:'Meaning realist',        tier:1, color:'var(--tier1)'},
+  teleology:           {label:'Teleology',              poleL:'No direction',        poleR:'Inherent purpose',       tier:1, color:'var(--tier1)'},
+  human_nature:        {label:'Human Nature',           poleL:'Constructed',         poleR:'Universal essence',      tier:1, color:'var(--tier1)'},
+  epistemic_method:    {label:'Epistemic Method',       poleL:'Revelation/intuition',poleR:'Empirical',              tier:1, color:'var(--tier1)'},
+  social_ontology:     {label:'Social Ontology',        poleL:'Individualist',       poleR:'Structural/holist',      tier:1, color:'var(--tier1)'},
+  temporal_orientation:{label:'Temporal Orientation',   poleL:'Past authority',      poleR:'Future potential',       tier:1, color:'var(--tier1)'},
+  moral_authority:     {label:'Moral Authority',        poleL:'Divine/tradition',    poleR:'Individual conscience',  tier:1, color:'var(--tier1)'},
+  epistemic_humility:  {label:'Epistemic Humility',     poleL:'Confident',           poleR:'Genuinely uncertain',    tier:1, color:'var(--tier1)'},
+  knowledge:           {label:'Knowledge Source',       poleL:'Intuition/revealed',  poleR:'Empirical',              tier:2, color:'var(--tier2)'},
+  science:             {label:'Science Trust',          poleL:'Skeptical',           poleR:'Trusting',               tier:2, color:'var(--tier2)'},
+  freewill_practice:   {label:'Free Will in Practice',  poleL:'Accountability-based',poleR:'Causal/structural',      tier:2, color:'var(--tier2)'},
+  justice:             {label:'Justice',                poleL:'Desert-based',        poleR:'Rehabilitative',         tier:3, color:'var(--tier3)'},
+  ethics:              {label:'Ethics Engine',          poleL:'Deontological',       poleR:'Consequentialist',       tier:3, color:'var(--tier3)'},
+  religion:            {label:'Religion',               poleL:'Faith-positive',      poleR:'Anti-theist',            tier:3, color:'var(--tier3)'},
+  politics:            {label:'Politics',               poleL:'Individual/market',   poleR:'Structural/collective',  tier:3, color:'var(--tier3)'},
+  self:                {label:'Self',                   poleL:'Authored/free',       poleR:'Causal/constructed',     tier:3, color:'var(--tier3)'},
+  moral_scope:         {label:'Moral Scope',            poleL:'Human-centric',       poleR:'All sentient',           tier:3, color:'var(--tier3)'},
+  meaning_practice:    {label:'Meaning Practice',       poleL:'Nihilism',            poleR:'Committed meaning',      tier:3, color:'var(--tier3)'},
+  society:             {label:'Society',                poleL:'Individualist',       poleR:'Collectivist',           tier:3, color:'var(--tier3)'},
+  responsibility:      {label:'Responsibility',         poleL:'Personal',            poleR:'Structural',             tier:3, color:'var(--tier3)'},
+  identity:            {label:'Identity',               poleL:'Essential',           poleR:'Constructed',            tier:3, color:'var(--tier3)'},
+  authority:           {label:'Authority',              poleL:'Deferential',         poleR:'Skeptical',              tier:3, color:'var(--tier3)'},
+  economics:           {label:'Economics',              poleL:'Free market',         poleR:'Redistributive',         tier:3, color:'var(--tier3)'},
+  uncertainty:         {label:'Uncertainty Tolerance',  poleL:'Low tolerance',       poleR:'High tolerance',         tier:3, color:'var(--tier3)'},
+  mind_consciousness:  {label:'Mind/Consciousness',     poleL:'Non-physical',        poleR:'Physical/explainable',   tier:3, color:'var(--tier3)'},
+  animal_ethics:       {label:'Animal Ethics',          poleL:'Human priority',      poleR:'Equal moral weight',     tier:3, color:'var(--tier3)'},
+  progress:            {label:'Progress',               poleL:'Pessimist',           poleR:'Optimist',               tier:3, color:'var(--tier3)'},
+};
+
+// ══════════════════════════════════════════
+// ARCHETYPES — 60 types
 // ══════════════════════════════════════════
 const ARCHETYPES = [
   // ── FAMILY 1: THE DETERMINED HUMANIST ──
@@ -3465,6 +3670,102 @@ function testReport() {
 }
 
 // ══════════════════════════════════════════
+// SUPABASE — saves via secure Netlify function
+// No keys needed in the frontend
+// ══════════════════════════════════════════
+async function saveToSupabase(payload) {
+  try {
+    await fetch('/.netlify/functions/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch(e) {
+    // Silent fail — never block the user experience
+    console.warn('Data capture failed silently:', e.message);
+  }
+}
+
+// ══════════════════════════════════════════
+// EMAIL CAPTURE MODAL
+// ══════════════════════════════════════════
+function showEmailCapture() {
+  const modal = document.getElementById('email-modal');
+  if (!modal) { generateReport(); return; }
+
+  // Pre-fill name from intake if available
+  const nameInput = document.getElementById('modal-name');
+  if (nameInput && state.userName) nameInput.value = state.userName;
+
+  modal.style.display = 'flex';
+  // Focus email field
+  setTimeout(() => {
+    const emailInput = document.getElementById('modal-email');
+    if (emailInput) emailInput.focus();
+  }, 350);
+}
+
+function hideEmailModal() {
+  const modal = document.getElementById('email-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+async function submitEmailCapture() {
+  const nameEl    = document.getElementById('modal-name');
+  const emailEl   = document.getElementById('modal-email');
+  const countryEl = document.getElementById('modal-country');
+  const gdprEl    = document.getElementById('modal-gdpr');
+  const emailErr  = document.getElementById('modal-email-error');
+  const gdprErr   = document.getElementById('modal-gdpr-error');
+  const submitBtn = document.getElementById('modal-submit-btn');
+
+  // Validate
+  let valid = true;
+  emailErr.style.display = 'none';
+  gdprErr.style.display = 'none';
+
+  if (!emailEl.value || !validateEmail(emailEl.value)) {
+    emailErr.style.display = 'block';
+    emailEl.focus();
+    valid = false;
+  }
+  if (!gdprEl.checked) {
+    gdprErr.style.display = 'block';
+    valid = false;
+  }
+  if (!valid) return;
+
+  // Save name from modal back to state
+  if (nameEl && nameEl.value.trim()) state.userName = nameEl.value.trim();
+
+  // Store capture data on state for Supabase after report generates
+  state.captureData = {
+    first_name: nameEl ? nameEl.value.trim() : (state.userName || ''),
+    email: emailEl.value.trim().toLowerCase(),
+    country: countryEl ? countryEl.value : '',
+    gdpr_consent: true,
+    consented_at: new Date().toISOString(),
+  };
+
+  // Disable button, show loading
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Building your report…';
+
+  hideEmailModal();
+  generateReport();
+}
+
+function skipEmailCapture() {
+  state.captureData = null;
+  hideEmailModal();
+  generateReport();
+}
+
+// ══════════════════════════════════════════
 // GENERATE REPORT
 // ══════════════════════════════════════════
 async function generateReport() {
@@ -3545,7 +3846,23 @@ Return ONLY this JSON, no markdown:
     // Final step done
     setTimeout(() => {
       steps[steps.length-1].classList.add('done');
-      setTimeout(() => renderReport(scores, contradictions, archetypeResult, fingerprint, report), 400);
+      setTimeout(() => {
+        renderReport(scores, contradictions, archetypeResult, fingerprint, report);
+        // Save to Supabase after render
+        const arch = archetypeResult.primary;
+        const payload = {
+          ...(state.captureData || {}),
+          first_name: state.captureData?.first_name || state.userName || null,
+          archetype_family: arch.family,
+          archetype_variant: arch.variant,
+          scores: scores,
+          fingerprint: fingerprint.map(f => ({axis: f.axis, score: f.score})),
+          contradictions_count: contradictions.length,
+          completed_at: new Date().toISOString(),
+          source: 'philos-thelifepm.netlify.app',
+        };
+        saveToSupabase(payload);
+      }, 400);
     }, delays[delays.length-1] + 600);
 
   } catch(err) {
