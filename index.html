@@ -1456,9 +1456,6 @@ select.modal-input option { background: #12101e; }
       <button class="modal-submit" id="modal-submit-btn" onclick="submitEmailCapture()">
         Build my report →
       </button>
-      <button class="modal-skip" onclick="skipEmailCapture()">
-        Skip — just show me my results
-      </button>
     </div>
   </div>
 </div>
@@ -5078,7 +5075,7 @@ function renderCardToCanvas(container) {
   const BLOCK2  = '#221508';  // deep gold block
   const BLOCK3  = '#0a2018';  // deep teal block
   const BLOCK4  = '#241408';  // deep amber block
-  const BORDER  = 'rgba(255,255,255,0.14)';
+  const BORDER  = 'rgba(255,255,255,0.30)';
 
   // ── BACKGROUND ──
   ctx.fillStyle = DARK; ctx.fillRect(0,0,W,H);
@@ -5097,7 +5094,7 @@ function renderCardToCanvas(container) {
   // BLOCK 1 — HEADER (full width, dark purple)
   // ══════════════════════════════════════════
   const B1H = 380;
-  roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 1);
+  roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 2);
   // Top accent line on header
   const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
   hGrad.addColorStop(0,'rgba(157,147,232,0)'); hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)'); hGrad.addColorStop(1,'rgba(201,169,110,0.4)');
@@ -5142,7 +5139,7 @@ function renderCardToCanvas(container) {
   // Icon — right side of header, sized to match archetype name height
   const icon = getArchetypeIcon(cardData.archetypeName);
   if (icon && icon.draw) {
-    const iconSize = 160;
+    const iconSize = 220;
     const iconX = W - PAD - 36 - iconSize/2;
     const iconY = PAD + B1H/2 + 30;
     ctx.save();
@@ -5183,7 +5180,7 @@ function renderCardToCanvas(container) {
   const COLB = (W-PAD*2-16)*0.38;
 
   // A1 — Description block
-  roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 1);
+  roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 2);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('WHO YOU ARE', PAD+28, y+38);
@@ -5198,7 +5195,7 @@ function renderCardToCanvas(container) {
 
   // A2 — Quick stats block
   const bx2 = PAD + COLA + 16;
-  roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 1);
+  roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 2);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('YOUR STATS', bx2+28, y+38);
@@ -5233,7 +5230,7 @@ function renderCardToCanvas(container) {
   // ══════════════════════════════════════════
   const fpCount = (cardData.fingerprint||[]).length;
   const B2H = 60 + fpCount*62 + 24;
-  roundRect(PAD, y, W-PAD*2, B2H, 16, BLOCK3, BORDER, 1);
+  roundRect(PAD, y, W-PAD*2, B2H, 16, BLOCK3, BORDER, 2);
 
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = TEAL; ctx.textAlign = 'left';
@@ -5285,7 +5282,7 @@ function renderCardToCanvas(container) {
     ];
     cats.forEach((cat,ci) => {
       const cx = PAD + ci*(colW3+16);
-      roundRect(cx, y, colW3, ROWBH, 16, cat.bg, BORDER, 1);
+      roundRect(cx, y, colW3, ROWBH, 16, cat.bg, BORDER, 2);
       ctx.font = '600 17px "IBM Plex Mono",monospace';
       ctx.fillStyle = cat.accent; ctx.textAlign='left';
       ctx.fillText(cat.icon+' '+cat.label, cx+20, y+36);
@@ -5329,7 +5326,7 @@ function renderCardToCanvas(container) {
 
     famous.forEach((f,i) => {
       const fx = PAD + i*(fColW+16);
-      roundRect(fx, y, fColW, B3H, 16, fBgs[i], BORDER, 1);
+      roundRect(fx, y, fColW, B3H, 16, fBgs[i], BORDER, 2);
       // Accent top bar
       roundRect(fx, y, fColW, 5, 0, fColors[i], null);
       ctx.font = '700 24px "Playfair Display",serif';
@@ -5350,7 +5347,7 @@ function renderCardToCanvas(container) {
   // BLOCK 4 — DNA STRIP (full width)
   // ══════════════════════════════════════════
   const B4H = 160;
-  roundRect(PAD, y, W-PAD*2, B4H, 16, BLOCK4, BORDER, 1);
+  roundRect(PAD, y, W-PAD*2, B4H, 16, BLOCK4, BORDER, 2);
 
   ctx.font = '600 16px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign='center';
