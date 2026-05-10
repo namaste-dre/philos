@@ -5443,10 +5443,38 @@ function renderCardToCanvas(container) {
   // ══════════════════════════════════════════
   // FOOTER BAR
   // ══════════════════════════════════════════
-  roundRect(PAD, y, W-PAD*2, 80, 16, 'rgba(201,169,110,0.07)', 'rgba(201,169,110,0.2)', 1);
-  ctx.font = '700 28px "IBM Plex Mono",monospace';
+  // CTA BLOCK
+  const ctaH = 170;
+  const ctaGrad = ctx.createLinearGradient(PAD, y, W-PAD, y+ctaH);
+  ctaGrad.addColorStop(0, 'rgba(100,80,240,0.45)');
+  ctaGrad.addColorStop(0.5, 'rgba(157,147,232,0.30)');
+  ctaGrad.addColorStop(1, 'rgba(180,120,60,0.35)');
+  roundRect(PAD, y, W-PAD*2, ctaH, 16, null, null); ctx.fillStyle=ctaGrad; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.40)'; ctx.lineWidth=2.5;
+  roundRect(PAD, y, W-PAD*2, ctaH, 16, null, null); ctx.stroke();
+  // Hook
+  ctx.font = 'bold italic 36px "Playfair Display",serif';
+  ctx.fillStyle='#ffffff'; ctx.textAlign='center'; ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=8;
+  ctx.fillText('What does your worldview say about you?', W/2, y+52); ctx.shadowBlur=0;
+  // Sub
+  ctx.font = '500 24px "IBM Plex Mono",monospace';
+  ctx.fillStyle='rgba(220,200,255,0.90)';
+  ctx.fillText('156 questions · 34 belief axes · your archetype', W/2, y+88);
+  // URL — pill style
+  const urlText = 'philos-thelifepm.netlify.app';
+  ctx.font = '700 26px "IBM Plex Mono",monospace';
+  const urlW = ctx.measureText(urlText).width + 48;
+  roundRect(W/2-urlW/2, y+104, urlW, 46, 23, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
+  ctx.strokeStyle='rgba(201,169,110,0.6)'; ctx.lineWidth=1.5;
+  roundRect(W/2-urlW/2, y+104, urlW, 46, 23, null, null); ctx.stroke();
+  ctx.fillStyle=GOLD2; ctx.fillText(urlText, W/2, y+133);
+  y += ctaH + 14;
+
+  // BRANDING FOOTER
+  roundRect(PAD, y, W-PAD*2, 70, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
+  ctx.font = '600 26px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign='center';
-  ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, y+48);
+  ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, y+43);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
