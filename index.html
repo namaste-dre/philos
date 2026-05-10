@@ -289,6 +289,7 @@ body::before {
   display: flex;
   align-items: center;
   gap: 20px;
+  position: relative;
 }
 .quiz-logo {
   font-family: 'IBM Plex Mono', monospace;
@@ -323,15 +324,16 @@ body::before {
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-  transition: opacity 0.6s ease;
 }
 .quiz-sketch-layer svg {
   position: absolute;
-  opacity: 0;
-  transition: opacity 0.8s ease, transform 0.8s ease;
-}
-.quiz-sketch-layer svg.visible {
-  opacity: 1;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(420px, 40vw);
+  height: min(420px, 40vw);
+  opacity: 0.07;
+  transition: opacity 0.6s ease;
 }
 /* Tier ambient glow on quiz screen */
 .quiz-ambient {
@@ -341,7 +343,21 @@ body::before {
   z-index: 0;
   transition: background 1.2s ease;
 }
-.quiz-body { position: relative; z-index: 1; }
+
+/* ── QUIZ BODY ── */
+.quiz-body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 28px 72px;
+  max-width: 740px;
+  margin: 0 auto;
+  width: 100%;
+}
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -3146,13 +3162,14 @@ function updateQuizBackground(axis, tier) {
   // Update ambient glow
   ambient.style.background = TIER_AMBIENTS[tier] || TIER_AMBIENTS[1];
 
-  // Update sketch
+  // Update sketch — strip inline style from SVG, CSS handles positioning
   const sketchData = AXIS_SKETCHES[axis];
   if (sketchData) {
-    sketchLayer.innerHTML = sketchData.svg;
+    // Remove inline style attribute from SVG so CSS takes over
+    const cleaned = sketchData.svg.replace(/style="[^"]*"/, '');
+    sketchLayer.innerHTML = cleaned;
   } else {
-    // Fallback: generic floating symbols
-    sketchLayer.innerHTML = `<svg viewBox="0 0 400 400" fill="none" style="position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:0.06;">
+    sketchLayer.innerHTML = `<svg viewBox="0 0 400 400" fill="none">
       <circle cx="200" cy="200" r="160" stroke="white" stroke-width="2" stroke-dasharray="8 12"/>
       <circle cx="200" cy="200" r="100" stroke="white" stroke-width="1.5" stroke-dasharray="5 10"/>
       <circle cx="200" cy="200" r="40" stroke="white" stroke-width="2"/>
