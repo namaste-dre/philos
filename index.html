@@ -3666,11 +3666,9 @@ function testReport() {
       state.answers[q.id] = opts[0].score;
     }
   });
-  generateReport();
+  showEmailCapture();
 }
 
-// ══════════════════════════════════════════
-// SUPABASE — saves via secure Netlify function
 // No keys needed in the frontend
 // ══════════════════════════════════════════
 async function saveToSupabase(payload) {
@@ -5076,11 +5074,11 @@ function renderCardToCanvas(container) {
   const ORANGE  = '#e05f3a';
   const MUTED   = 'rgba(255,255,255,0.45)';
   const TEXT    = '#f0ede6';
-  const BLOCK1  = '#13102a';  // deep purple block
-  const BLOCK2  = '#1a1008';  // deep gold block
-  const BLOCK3  = '#0e1e18';  // deep teal block
-  const BLOCK4  = '#1a100a';  // deep amber block
-  const BORDER  = 'rgba(255,255,255,0.08)';
+  const BLOCK1  = '#16123a';  // deep purple block
+  const BLOCK2  = '#221508';  // deep gold block
+  const BLOCK3  = '#0a2018';  // deep teal block
+  const BLOCK4  = '#241408';  // deep amber block
+  const BORDER  = 'rgba(255,255,255,0.14)';
 
   // ── BACKGROUND ──
   ctx.fillStyle = DARK; ctx.fillRect(0,0,W,H);
@@ -5100,6 +5098,11 @@ function renderCardToCanvas(container) {
   // ══════════════════════════════════════════
   const B1H = 380;
   roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 1);
+  // Top accent line on header
+  const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
+  hGrad.addColorStop(0,'rgba(157,147,232,0)'); hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)'); hGrad.addColorStop(1,'rgba(201,169,110,0.4)');
+  ctx.strokeStyle=hGrad; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(PAD+20,PAD+1); ctx.lineTo(W-PAD-20,PAD+1); ctx.stroke();
 
   // PHIL/OS wordmark
   ctx.font = '700 30px "IBM Plex Mono",monospace';
@@ -5136,16 +5139,24 @@ function renderCardToCanvas(container) {
     ctx.fillText(nameWords.slice(mid).join(' '), PAD+36, PAD+272);
   }
 
-  // Icon — top right of header block
+  // Icon — right side of header, sized to match archetype name height
   const icon = getArchetypeIcon(cardData.archetypeName);
   if (icon && icon.draw) {
-    const iconSize = 90, iconX = W-PAD-36-iconSize/2, iconY = PAD+130;
+    const iconSize = 160;
+    const iconX = W - PAD - 36 - iconSize/2;
+    const iconY = PAD + B1H/2 + 30;
     ctx.save();
-    // Glow behind icon
-    const ig = ctx.createRadialGradient(iconX,iconY,0,iconX,iconY,iconSize*0.8);
-    ig.addColorStop(0,'rgba(157,147,232,0.22)'); ig.addColorStop(1,'rgba(157,147,232,0)');
-    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconY,iconSize,0,Math.PI*2); ctx.fill();
-    icon.draw(ctx, iconX, iconY, iconSize, 'rgba(200,190,255,0.85)');
+    // Large glow behind icon
+    const ig = ctx.createRadialGradient(iconX, iconY, 0, iconX, iconY, iconSize);
+    ig.addColorStop(0, 'rgba(157,147,232,0.28)');
+    ig.addColorStop(0.5, 'rgba(120,100,240,0.10)');
+    ig.addColorStop(1, 'rgba(157,147,232,0)');
+    ctx.fillStyle = ig;
+    ctx.beginPath(); ctx.arc(iconX, iconY, iconSize*1.2, 0, Math.PI*2); ctx.fill();
+    // Circle frame
+    ctx.strokeStyle = 'rgba(157,147,232,0.25)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(iconX, iconY, iconSize*0.72, 0, Math.PI*2); ctx.stroke();
+    icon.draw(ctx, iconX, iconY, iconSize, 'rgba(210,200,255,0.9)');
     ctx.restore();
   }
 
@@ -5162,7 +5173,7 @@ function renderCardToCanvas(container) {
   ctx.fillStyle = PURPLE2; ctx.textAlign = 'right';
   ctx.fillText('◆ '+rPct, W-PAD-36-14, PAD+B1H-33);
 
-  y = PAD + B1H + 16;
+  y = PAD + B1H + 24;
 
   // ══════════════════════════════════════════
   // ROW A — DESCRIPTION + QUICK STATS (2 blocks side by side)
@@ -5175,7 +5186,7 @@ function renderCardToCanvas(container) {
   roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 1);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('WHO YOU ARE', PAD+24, y+36);
+  ctx.fillText('WHO YOU ARE', PAD+28, y+38);
   ctx.strokeStyle='rgba(201,169,110,0.2)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(PAD+COLA-24,y+46); ctx.stroke();
   const rawDesc = strip(cardData.cardDescription||cardData.cardTagline||'');
@@ -5190,7 +5201,7 @@ function renderCardToCanvas(container) {
   roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 1);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('YOUR STATS', bx2+24, y+36);
+  ctx.fillText('YOUR STATS', bx2+28, y+38);
   ctx.strokeStyle='rgba(201,169,110,0.2)';
   ctx.beginPath(); ctx.moveTo(bx2+24,y+46); ctx.lineTo(bx2+COLB-24,y+46); ctx.stroke();
 
@@ -5215,7 +5226,7 @@ function renderCardToCanvas(container) {
     ctx.fillText(s.label, bx2+24, sy+22);
   });
 
-  y += ROWAH + 16;
+  y += ROWAH + 24;
 
   // ══════════════════════════════════════════
   // BLOCK 2 — BELIEF FINGERPRINT (full width)
@@ -5226,7 +5237,7 @@ function renderCardToCanvas(container) {
 
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = TEAL; ctx.textAlign = 'left';
-  ctx.fillText('BELIEF FINGERPRINT', PAD+24, y+36);
+  ctx.fillText('BELIEF FINGERPRINT', PAD+28, y+38);
   ctx.strokeStyle='rgba(74,158,122,0.25)';
   ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(W-PAD-24,y+46); ctx.stroke();
 
@@ -5257,7 +5268,7 @@ function renderCardToCanvas(container) {
     ctx.fillText(raw.toFixed(1), W-PAD-24, fy+16); ctx.textAlign='left';
   });
 
-  y += B2H + 16;
+  y += B2H + 24;
 
   // ══════════════════════════════════════════
   // ROW B — YOUR WORLD (media, 3 equal blocks)
@@ -5297,7 +5308,7 @@ function renderCardToCanvas(container) {
         }
       });
     });
-    y += ROWBH + 16;
+    y += ROWBH + 24;
   }
 
   // ══════════════════════════════════════════
@@ -5332,7 +5343,7 @@ function renderCardToCanvas(container) {
         ctx.fillText(d, fx+20, y+72+pi*22);
       });
     });
-    y += B3H + 16;
+    y += B3H + 24;
   }
 
   // ══════════════════════════════════════════
@@ -5365,7 +5376,7 @@ function renderCardToCanvas(container) {
     ctx.fillRect(bx3, by3, bW3-1, bh2);
   });
 
-  y += B4H + 16;
+  y += B4H + 24;
 
   // ══════════════════════════════════════════
   // FOOTER BAR
