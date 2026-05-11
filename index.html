@@ -4188,14 +4188,14 @@ CONTRADICTIONS:
 ${contradictionSummary}
 
 Return ONLY valid JSON, no markdown fences:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence — specific to these axis scores, not a generic archetype description.","cardTagline":"2 punchy lines max 12 words each. Bold declarative statement about this worldview.","identity":"4-5 paragraphs. Name ${userName} by name. Cover: (1) defining axis combination, (2) metaphysical foundations and how they shape perception, (3) meaning and ethics framework, (4) epistemic character and how they handle evidence. If contradictions exist add a 5th paragraph naming the tension. Be specific — ${userName} should not be able to swap this with another person's report.","alignment":[{"label":"Work","text":"3 sentences specific to this axis combination."},{"label":"Relationships","text":"3 sentences — resonance, friction, what they need."},{"label":"Decisions","text":"3 sentences — how epistemic method and uncertainty tolerance shape this."},{"label":"Conflict","text":"3 sentences — triggers, what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences specific to this profile."},{"type":"negative","label":"Failure Mode","text":"2 sentences specific to this profile."}],"growth":["Growth edge 1 — specific tension in their scores.","Growth edge 2 — different dimension.","Growth edge 3 — the hardest one, what this profile most resists."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence specific to these axis scores.","cardTagline":"2 punchy lines max 10 words each.","identity":"3 paragraphs 3 sentences each. Use ${userName} by name. Para 1: defining axis combination and what is specific about this profile. Para 2: metaphysical foundations and how they shape perception. Para 3: meaning framework and key tension if contradictions exist.","alignment":[{"label":"Work","text":"2 sentences."},{"label":"Relationships","text":"2 sentences."},{"label":"Decisions","text":"2 sentences."},{"label":"Conflict","text":"2 sentences."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences."},{"type":"negative","label":"Failure Mode","text":"2 sentences."}],"growth":["One sentence specific tension.","One sentence different dimension.","One sentence hardest edge."]}`;
   try {
     const response = await fetch('/.netlify/functions/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 1500
+        max_tokens: 2000
       })
     });
 
