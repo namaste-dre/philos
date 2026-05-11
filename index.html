@@ -1567,7 +1567,7 @@ select.modal-input option { background: #12101e; }
     <p class="intro-sub">A rigorous belief assessment that maps your complete worldview and tells you what to do with it.</p>
     <div class="intro-meta">
       <div class="intro-meta-item">
-        <span class="num">156</span>
+        <span class="num">160</span>
         <span class="label">questions</span>
       </div>
       <div class="intro-meta-item">
@@ -1797,6 +1797,11 @@ select.modal-input option { background: #12101e; }
       <div class="axis-bars" id="axes-t2"></div>
       <div class="tier-divider" style="margin-top:28px"><div class="tier-divider-line"></div><span class="tier-divider-label t3">Applied</span><div class="tier-divider-line"></div></div>
       <div class="axis-bars" id="axes-t3"></div>
+    </div>
+
+    <div class="report-section" id="section-ocean">
+      <div class="section-label">Personality profile — OCEAN</div>
+      <div id="report-ocean-content"></div>
     </div>
 
     <div class="retry-wrap">
@@ -2896,6 +2901,33 @@ const QUESTIONS = [
    {text:'A combination of insiders pushing reform and outsiders pushing harder.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
+// ── BEHAVIORAL: EXTRAVERSION (2 questions, tier 4, weight 1.0) ──
+// These measure social energy preference — not archetype-relevant but required for OCEAN + compatibility
+{id:'t4ex01',tier:4,axis:'extraversion',type:'likert',
+ text:'After a full day of social interaction with other people, I tend to feel energised rather than drained.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t4ex02',tier:4,axis:'extraversion',type:'tradeoff',
+ text:'When you have a free weekend with no obligations, your ideal way to spend it is:',
+ options:[
+   {text:'Out — seeing people, being in the mix, something social or stimulating.',score:7},
+   {text:'In — quiet, my own pace, recharging away from people.',score:1},
+   {text:'A mix — some time out, but I need stretches of genuine solitude.',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
+// ── BEHAVIORAL: NEUROTICISM / EMOTIONAL STABILITY (2 questions, tier 4, weight 1.0) ──
+{id:'t4ne01',tier:4,axis:'neuroticism',type:'likert',
+ text:'When something goes wrong or someone criticises me, I tend to recover my equilibrium fairly quickly.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+
+{id:'t4ne02',tier:4,axis:'neuroticism',type:'tradeoff',
+ text:'When you are dealing with a stressful or uncertain situation over several days, you typically:',
+ options:[
+   {text:'Stay fairly steady. I feel the stress but it does not take over my thinking.',score:7},
+   {text:'Find it takes up a lot of mental space. I keep returning to it even when I try not to.',score:1},
+   {text:'Varies. Some situations I handle well, others get under my skin more than I would like.',score:4}
+ ],poleLeft:'',poleRight:'',weight:1.0},
+
 ];
 
 
@@ -3267,6 +3299,8 @@ const AXIS_META = {
   mind_consciousness:  {label:'Mind/Consciousness',     poleL:'Non-physical',        poleR:'Physical/explainable',   tier:3, color:'var(--tier3)'},
   animal_ethics:       {label:'Animal Ethics',          poleL:'Human priority',      poleR:'Equal moral weight',     tier:3, color:'var(--tier3)'},
   progress:            {label:'Progress',               poleL:'Pessimist',           poleR:'Optimist',               tier:3, color:'var(--tier3)'},
+  extraversion:        {label:'Extraversion',           poleL:'Introverted',         poleR:'Extraverted',            tier:4, color:'var(--tier4)'},
+  neuroticism:         {label:'Emotional Stability',    poleL:'High neuroticism',    poleR:'High stability',         tier:4, color:'var(--tier4)'},
 };
 
 // ══════════════════════════════════════════
@@ -3752,13 +3786,17 @@ function computeArchetype(scores) {
 }
 
 function computeFingerprint(scores) {
-  // Top 5 axes by deviation from centre (4.0)
-  const deviations = Object.entries(scores).map(([axis, score]) => ({
-    axis,
-    score,
-    deviation: Math.abs(score - 4.0),
-    direction: score >= 4 ? 'right' : 'left',
-  }));
+  // Top 5 philosophical axes by deviation from centre (4.0)
+  // Excludes tier 4 behavioral axes (extraversion, neuroticism) — these are not philosophical positions
+  const BEHAVIORAL_AXES = new Set(['extraversion','neuroticism']);
+  const deviations = Object.entries(scores)
+    .filter(([axis]) => !BEHAVIORAL_AXES.has(axis))
+    .map(([axis, score]) => ({
+      axis,
+      score,
+      deviation: Math.abs(score - 4.0),
+      direction: score >= 4 ? 'right' : 'left',
+    }));
   deviations.sort((a, b) => b.deviation - a.deviation);
   return deviations.slice(0, 5);
 }
@@ -4148,47 +4186,56 @@ async function generateReport() {
     if (i > 0) setTimeout(() => steps[i-1].classList.add('done'), delays[i]);
   });
 
-  // Build scores summary
-  const scoresSummary = Object.entries(scores).map(([axis, score]) => {
-    const meta = AXIS_META[axis];
-    const pct = Math.round(((score-1)/6)*100);
-    const direction = score >= 4 ? meta.poleR : meta.poleL;
-    return `${meta ? meta.label : axis}: ${score.toFixed(1)}/7 — leaning ${direction}`;
-  }).join('\n');
-
-  // Fingerprint summary
+  // Fingerprint summary — top 5 most extreme axes only (not all 32)
   const fingerprintSummary = fingerprint.map(f => {
     const meta = AXIS_META[f.axis];
     const pole = f.direction === 'right' ? meta.poleR : meta.poleL;
-    return `${meta ? meta.label : f.axis} (${f.score.toFixed(1)}) — strong ${pole}`;
-  }).join('\n');
+    return `${meta ? meta.label : f.axis}: ${f.score.toFixed(1)}/7 — ${pole}`;
+  }).join(', ');
 
   const contradictionSummary = contradictions.length > 0
-    ? contradictions.map(c => `[${c.tier}] ${c.title}`).join('\n')
-    : 'None detected';
+    ? contradictions.map(c => `[${c.tier}] ${c.title}`).join(', ')
+    : 'None';
 
   const liminalNote = archetypeResult.isLiminal && archetypeResult.secondary
-    ? `Note: This person sits between "${arch.family}: ${arch.variant}" and "${archetypeResult.secondary.family}: ${archetypeResult.secondary.variant}" — the two closest archetypes. Acknowledge this in the report.`
+    ? `Liminal — sits between ${arch.family}/${arch.variant} and ${archetypeResult.secondary.family}/${archetypeResult.secondary.variant}.`
     : '';
+
+  // OCEAN — O, C, A inferred from philosophical axes; E and N directly measured
+  const getScore = k => scores[k] || 4;
+  const oceanO = ((getScore('epistemic_humility') + getScore('uncertainty') + getScore('progress')
+                   + (getScore('epistemic_method') > 4 ? getScore('epistemic_method') : 8 - getScore('epistemic_method'))) / 4).toFixed(1);
+  const oceanC = ((getScore('temporal_orientation') + (8 - getScore('responsibility'))
+                   + getScore('authority')) / 3).toFixed(1);
+  const oceanA = ((getScore('moral_scope') + getScore('animal_ethics') + getScore('society')
+                   + getScore('ethics')) / 4).toFixed(1);
+  // E and N: directly measured if questions answered, otherwise mark as not-measured
+  const eRaw = scores['extraversion'];
+  const nRaw = scores['neuroticism'];
+  const oceanE = eRaw !== undefined ? parseFloat(eRaw).toFixed(1) : null;
+  const oceanN = nRaw !== undefined ? parseFloat(nRaw).toFixed(1) : null;
+  const oceanSummary = `O(Openness):${oceanO}/7 C(Conscientiousness):${oceanC}/7 A(Agreeableness):${oceanA}/7 E(Extraversion):${oceanE !== null ? oceanE+'/7' : 'not-measured'} N(Stability):${oceanN !== null ? oceanN+'/7' : 'not-measured'}`;
 
   const userName = state.userName || 'this person';
 
-  const prompt = `Generate a philosophical profile report as JSON for ${userName}.
+  // Full axis scores — compact format, philosophical axes only (excludes behavioral E/N)
+  const BEHAVIORAL_AXES = new Set(['extraversion','neuroticism']);
+  const axisDump = Object.entries(scores)
+    .filter(([axis]) => !BEHAVIORAL_AXES.has(axis))
+    .map(([axis, score]) => {
+      const meta = AXIS_META[axis];
+      const pole = score >= 4 ? meta.poleR : meta.poleL;
+      return `${meta ? meta.label : axis}:${score.toFixed(1)} (${pole})`;
+    }).join(' | ');
 
-ARCHETYPE: ${arch.family} — ${arch.variant}
-DESCRIPTION: ${arch.description}
-STRENGTH: ${arch.strength}
-FAILURE MODE: ${arch.failureMode}
+  const prompt = `Profile for ${userName}. Archetype: ${arch.family} — ${arch.variant}.
+${arch.description}
+Strength: ${arch.strength} | Failure mode: ${arch.failureMode}
 ${liminalNote}
-
-TOP 5 FINGERPRINT AXES:
-${fingerprintSummary}
-
-ALL 32 AXIS SCORES:
-${scoresSummary}
-
-CONTRADICTIONS:
-${contradictionSummary}
+ALL 32 AXES: ${axisDump}
+TOP 5: ${fingerprintSummary}
+CONTRADICTIONS: ${contradictionSummary}
+OCEAN (inferred): ${oceanSummary}
 
 Return ONLY valid JSON, no markdown fences:
 {"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One precise sentence naming the specific axis combination that defines this profile.","cardTagline":"Line 1: bold identity statement 8 words max. Line 2: what this worldview produces 8 words max.","identity":"4 paragraphs. Use ${userName} by name. Each paragraph 2-3 sentences only. Para 1: the defining axis combination — name the actual scores, what makes this profile specific. Para 2: metaphysical foundations (naturalism, physicalism, determinism scores) and how they shape perception of the world. Para 3: moral and meaning framework — what they believe about ethics and purpose based on scores. Para 4: if contradictions exist name the key tension and what it costs them. If no contradictions use para 4 for epistemic character.","alignment":[{"label":"Work","text":"2 sentences. Name specific environments and why this axis combination creates them."},{"label":"Relationships","text":"2 sentences. Who resonates and who creates friction based on this profile."},{"label":"Decisions","text":"2 sentences. How epistemic method and uncertainty scores shape this."},{"label":"Conflict","text":"2 sentences. What triggers defensiveness and what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences specific to this axis signature."},{"type":"negative","label":"Failure Mode","text":"2 sentences specific to this axis signature."}],"growth":["2 sentences — specific tension in actual scores and what to do about it.","2 sentences — a different dimension of growth.","2 sentences — the hardest edge, what this profile most resists and why."]}`;
@@ -5124,11 +5171,11 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   if (statsEl) {
     const topFP = fingerprint[0];
     const topAxisLabel = topFP ? (AXIS_META[topFP.axis]?.label || topFP.axis) : '—';
-    // Conviction score = average deviation from centre across all axes
-    const axScoreKeys = Object.keys(scores);
+    // Conviction score = average deviation from centre across philosophical axes only (not E/N)
+    const BEHAVIORAL = new Set(['extraversion','neuroticism']);
+    const axScoreKeys = Object.keys(scores).filter(k => !BEHAVIORAL.has(k));
     const totalDeviation = axScoreKeys.reduce((sum,k) => sum + Math.abs((scores[k]||4) - 4), 0);
     const convictionScore = Math.round((totalDeviation / (axScoreKeys.length * 3)) * 100);
-    // Dominant pole — which pole does this person lean toward overall
     const rightDev = axScoreKeys.filter(k => (scores[k]||4) > 4).length;
     const totalScored = axScoreKeys.filter(k => scores[k] !== undefined).length;
 
@@ -5386,6 +5433,67 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     }).join('');
   });
 
+  // ── OCEAN SECTION ──
+  const oceanEl = document.getElementById('report-ocean-content');
+  if (oceanEl) {
+    const BEHAVIORAL = new Set(['extraversion','neuroticism']);
+    const getS = k => scores[k] || 4;
+
+    // Compute all 5 dimensions
+    const oceanO = ((getS('epistemic_humility') + getS('uncertainty') + getS('progress')
+                    + (getS('epistemic_method') > 4 ? getS('epistemic_method') : 8 - getS('epistemic_method'))) / 4);
+    const oceanC = ((getS('temporal_orientation') + (8 - getS('responsibility')) + getS('authority')) / 3);
+    const oceanA = ((getS('moral_scope') + getS('animal_ethics') + getS('society') + getS('ethics')) / 4);
+    const oceanE = scores['extraversion'] !== undefined ? scores['extraversion'] : null;
+    const oceanN = scores['neuroticism'] !== undefined ? scores['neuroticism'] : null;
+
+    const dims = [
+      { key:'O', label:'Openness',           score: oceanO, poleL:'Conventional', poleR:'Open',          color:'var(--tier1)',
+        note:'Curiosity, tolerance for ambiguity, openness to new ideas. Inferred from epistemic humility, uncertainty tolerance, and empirical method.' },
+      { key:'C', label:'Conscientiousness',  score: oceanC, poleL:'Flexible',     poleR:'Conscientious', color:'var(--tier2)',
+        note:'Dependability, self-discipline, goal-orientation. Inferred from temporal orientation, personal responsibility, and authority relationship.' },
+      { key:'E', label:'Extraversion',       score: oceanE, poleL:'Introverted',  poleR:'Extraverted',   color:'var(--accent)',
+        note:'Social energy preference — whether interaction energises or drains. Directly measured.' },
+      { key:'A', label:'Agreeableness',      score: oceanA, poleL:'Challenging',  poleR:'Agreeable',     color:'var(--tier3)',
+        note:'Cooperation, empathy, moral scope. Inferred from moral scope, animal ethics, collectivism, and ethical framework.' },
+      { key:'N', label:'Emotional Stability',score: oceanN, poleL:'High neuroticism', poleR:'High stability', color:'var(--purple2)',
+        note:'Recovery from stress and criticism. Directly measured.' },
+    ];
+
+    oceanEl.innerHTML = `
+      <div style="margin-bottom:16px;font-size:15px;color:var(--muted);line-height:1.6;">
+        O, C, and A are inferred from your philosophical axis scores. E and N are directly measured from your behavioral responses.
+        These five dimensions form a compatibility fingerprint used in partner and group comparisons.
+      </div>
+      <div class="axis-bars">
+        ${dims.map(d => {
+          if (d.score === null) {
+            return `<div class="axis-row" style="opacity:0.5">
+              <div class="axis-meta">
+                <span class="axis-name">${d.key} — ${d.label}</span>
+                <span class="axis-score" style="color:var(--muted)">—</span>
+              </div>
+              <div class="axis-track"><div class="axis-fill" style="width:0%;background:${d.color}"></div></div>
+              <div class="axis-poles"><span>${d.poleL}</span><span>${d.poleR}</span></div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;font-family:'IBM Plex Mono',monospace;">${d.note}</div>
+            </div>`;
+          }
+          const pct = Math.round(((d.score-1)/6)*100);
+          return `<div class="axis-row">
+            <div class="axis-meta">
+              <span class="axis-name">${d.key} — ${d.label}</span>
+              <span class="axis-score" style="color:${d.color}">${d.score.toFixed(1)}</span>
+            </div>
+            <div class="axis-track">
+              <div class="axis-fill" style="width:${pct}%;background:${d.color}"></div>
+            </div>
+            <div class="axis-poles"><span>${d.poleL}</span><span>${d.poleR}</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;font-family:'IBM Plex Mono',monospace;opacity:0.7;">${d.note}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
   show('screen-report');
 
   // ── CARD ──
@@ -5634,14 +5742,14 @@ function renderCardToCanvas(container) {
   // Stat items — meaningful values
   const fp0 = (cardData.fingerprint||[])[0];
   const fp1 = (cardData.fingerprint||[])[1];
-  // Conviction score = average deviation from centre across all axes
-  const axKeys2 = Object.keys(AXIS_META);
+  // Conviction score — philosophical axes only, exclude behavioral E/N
+  const CARD_BEHAVIORAL = new Set(['extraversion','neuroticism']);
+  const axKeys2 = Object.keys(AXIS_META).filter(k => !CARD_BEHAVIORAL.has(k));
   const totalDev = axKeys2.reduce((sum,k) => {
     const sc = cardData.axisScores?.[k] || 4;
     return sum + Math.abs(sc - 4);
   }, 0);
   const convictionPct = Math.round((totalDev / (axKeys2.length * 3)) * 100);
-  // Dominant axis score
   const dominantScore = fp0 ? (cardData.axisScores?.[fp0.axis]||fp0.score||4).toFixed(1) : '—';
   const dominantLabel = fp0 ? (AXIS_META[fp0.axis]?.label||fp0.axis) : '—';
   const dominantShort = dominantLabel.length > 11 ? dominantLabel.slice(0,10)+'.' : dominantLabel;
@@ -5792,7 +5900,7 @@ function renderCardToCanvas(container) {
   ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, y+26);
 
   const dnaInnerY = y+38, dnaInnerH = B4H-58;
-  const axKeys = Object.keys(AXIS_META);
+  const axKeys = Object.keys(AXIS_META).filter(k => !['extraversion','neuroticism'].includes(k));
   const bW3 = (W-PAD*2-48)/axKeys.length;
   const midLine = dnaInnerY + dnaInnerH/2;
 
