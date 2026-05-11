@@ -28,8 +28,8 @@ exports.handler = async function(event, context) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: body.max_tokens || 2000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: body.max_tokens || 1400,
         messages: body.messages,
       }),
     });

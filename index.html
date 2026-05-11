@@ -278,12 +278,11 @@ body::before {
 
 /* Tier pills */
 .tier-preview {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 52px;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 640px;
+  max-width: 480px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -291,12 +290,17 @@ body::before {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.08em;
-  padding: 7px 16px;
+  padding: 9px 16px;
   border-radius: 50px;
   border: 1px solid;
   opacity: 0.6;
   transition: opacity 0.2s, transform 0.2s;
   text-transform: uppercase;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
 }
 .tier-pill:hover { opacity: 1; transform: translateY(-1px); }
 .tier-pill.t1 { color: var(--tier1); border-color: var(--tier1); background: rgba(157,147,232,0.07); }
@@ -1585,7 +1589,7 @@ select.modal-input option { background: #12101e; }
       <span class="tier-pill t1">Tier 1 · Foundations</span>
       <span class="tier-pill t2">Tier 2 · Epistemic + Meaning</span>
       <span class="tier-pill t3">Tier 3 · Applied positions</span>
-      <span class="tier-pill t4">Tier 4 · Behavioral (inferred)</span>
+      <span class="tier-pill t4">Tier 4 · Behavioral</span>
     </div>
   </div>
 </div>
@@ -3014,8 +3018,7 @@ function renderQuestion() {
 
   if (q.type === 'likert') {
     const cur = state.answers[q.id];
-    html += `<div class="q-type-label">1 = strongly disagree &nbsp;&middot;&nbsp; 7 = strongly agree</div>
-    <div class="likert-wrap"><div class="likert-scale">`;
+    html += `<div class="likert-wrap"><div class="likert-scale">`;
     for (let i = 1; i <= 7; i++) {
       html += `<button class="likert-btn ${cur === i ? 'selected' : ''}" onclick="selectLikert('${q.id}',${i})">${i}</button>`;
     }
@@ -4188,14 +4191,14 @@ CONTRADICTIONS:
 ${contradictionSummary}
 
 Return ONLY valid JSON, no markdown fences:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence specific to these axis scores.","cardTagline":"2 punchy lines max 10 words each.","identity":"3 paragraphs 3 sentences each. Use ${userName} by name. Para 1: defining axis combination and what is specific about this profile. Para 2: metaphysical foundations and how they shape perception. Para 3: meaning framework and key tension if contradictions exist.","alignment":[{"label":"Work","text":"2 sentences."},{"label":"Relationships","text":"2 sentences."},{"label":"Decisions","text":"2 sentences."},{"label":"Conflict","text":"2 sentences."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences."},{"type":"negative","label":"Failure Mode","text":"2 sentences."}],"growth":["One sentence specific tension.","One sentence different dimension.","One sentence hardest edge."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One precise sentence naming the specific axis combination that defines this profile.","cardTagline":"Line 1: bold identity statement 8 words max. Line 2: what this worldview produces 8 words max.","identity":"4 paragraphs. Use ${userName} by name. Each paragraph 2-3 sentences only. Para 1: the defining axis combination — name the actual scores, what makes this profile specific. Para 2: metaphysical foundations (naturalism, physicalism, determinism scores) and how they shape perception of the world. Para 3: moral and meaning framework — what they believe about ethics and purpose based on scores. Para 4: if contradictions exist name the key tension and what it costs them. If no contradictions use para 4 for epistemic character.","alignment":[{"label":"Work","text":"2 sentences. Name specific environments and why this axis combination creates them."},{"label":"Relationships","text":"2 sentences. Who resonates and who creates friction based on this profile."},{"label":"Decisions","text":"2 sentences. How epistemic method and uncertainty scores shape this."},{"label":"Conflict","text":"2 sentences. What triggers defensiveness and what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences specific to this axis signature."},{"type":"negative","label":"Failure Mode","text":"2 sentences specific to this axis signature."}],"growth":["2 sentences — specific tension in actual scores and what to do about it.","2 sentences — a different dimension of growth.","2 sentences — the hardest edge, what this profile most resists and why."]}`;
   try {
     const response = await fetch('/.netlify/functions/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 2000
+        max_tokens: 1400
       })
     });
 
