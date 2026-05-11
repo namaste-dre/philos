@@ -4238,14 +4238,14 @@ CONTRADICTIONS: ${contradictionSummary}
 OCEAN (inferred): ${oceanSummary}
 
 Return ONLY valid JSON, no markdown fences:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One precise sentence naming the specific axis combination that defines this profile.","cardTagline":"Line 1: bold identity statement 8 words max. Line 2: what this worldview produces 8 words max.","identity":"4 paragraphs. Use ${userName} by name. Each paragraph 2-3 sentences only. Para 1: the defining axis combination — name the actual scores, what makes this profile specific. Para 2: metaphysical foundations (naturalism, physicalism, determinism scores) and how they shape perception of the world. Para 3: moral and meaning framework — what they believe about ethics and purpose based on scores. Para 4: if contradictions exist name the key tension and what it costs them. If no contradictions use para 4 for epistemic character.","alignment":[{"label":"Work","text":"2 sentences. Name specific environments and why this axis combination creates them."},{"label":"Relationships","text":"2 sentences. Who resonates and who creates friction based on this profile."},{"label":"Decisions","text":"2 sentences. How epistemic method and uncertainty scores shape this."},{"label":"Conflict","text":"2 sentences. What triggers defensiveness and what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences specific to this axis signature."},{"type":"negative","label":"Failure Mode","text":"2 sentences specific to this axis signature."}],"growth":["2 sentences — specific tension in actual scores and what to do about it.","2 sentences — a different dimension of growth.","2 sentences — the hardest edge, what this profile most resists and why."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence, names the specific axis combination.","cardTagline":"8 words max per line, 2 lines.","identity":"3 paragraphs, 2 sentences each. Use ${userName} by name. P1: defining axis combo and what makes it specific. P2: how top scores shape how they see the world. P3: moral/meaning framework or key contradiction if one exists.","alignment":[{"label":"Work","text":"1-2 sentences specific to this profile."},{"label":"Relationships","text":"1-2 sentences specific to this profile."},{"label":"Decisions","text":"1-2 sentences specific to this profile."},{"label":"Conflict","text":"1-2 sentences specific to this profile."}],"patterns":[{"type":"positive","label":"Superpower","text":"1-2 sentences."},{"type":"negative","label":"Failure Mode","text":"1-2 sentences."}],"growth":["1 sentence.","1 sentence.","1 sentence."]}`;
   try {
     const response = await fetch('/.netlify/functions/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 1400
+        max_tokens: 1000
       })
     });
 
