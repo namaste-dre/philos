@@ -1650,13 +1650,13 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1n04',tier:1,axis:'naturalism',type:'likert',
- text:'Supernatural explanations like gods, souls, and spirits are placeholders for things we have not yet figured out naturally.',
+ text:'When something cannot currently be explained by natural means, a supernatural explanation is a genuine possibility, not merely a temporary gap in our knowledge.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1n05',tier:1,axis:'naturalism',type:'tradeoff',
  text:'Which statement feels most true to you?',
  options:[
-   {text:'The universe is made of matter, energy, and the laws that govern them. Nothing more.',score:7},
+   {text:'The universe is fully constituted by matter, energy, and the laws that govern them.',score:7},
    {text:'The universe contains or is animated by something beyond pure matter and energy',score:2},
    {text:'I genuinely do not know what the universe is ultimately made of',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
@@ -1685,13 +1685,13 @@ const QUESTIONS = [
 {id:'t1d03',tier:1,axis:'determinism',type:'tradeoff',
  text:'If neuroscience could perfectly predict your next decision 10 seconds before you made it, what would that tell you?',
  options:[
-   {text:'That the decision was always going to happen. Free will is an illusion.',score:7},
+   {text:'That the decision was always going to happen — the feeling of choosing is real, but the outcome was fixed.',score:7},
    {text:'That the brain is predictable but the person still chose freely',score:3},
    {text:'Nothing definitive. Prediction does not eliminate genuine agency.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1d04',tier:1,axis:'determinism',type:'likert',
- text:'When I make a bad decision, the most accurate explanation is always found in the history and conditions that shaped me, not in some uncaused act of will.',
+ text:'When I make a bad decision, the most accurate explanation is found in the history and conditions that shaped me, not in a free choice made independently of those influences.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1d05',tier:1,axis:'determinism',type:'scenario',
@@ -1782,7 +1782,7 @@ const QUESTIONS = [
 
 // ── KNOWLEDGE SOURCE (5 questions) ──
 {id:'t2k01',tier:2,axis:'knowledge',type:'likert',
- text:'The most reliable path to truth about the world is careful observation, testing, and evidence. Intuition, tradition, and revelation fall short.',
+ text:'The most reliable path to truth about the world is careful observation, testing, and evidence.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2k02',tier:2,axis:'knowledge',type:'tradeoff',
@@ -1848,7 +1848,7 @@ const QUESTIONS = [
 
 // ── MEANING SOURCE (5 questions) ──
 {id:'t2me01',tier:2,axis:'meaning',type:'likert',
- text:'There is no pre-given purpose to human existence. Any meaning we have is meaning we create ourselves.',
+ text:'Human existence has no pre-given purpose from outside. Any meaning we have is meaning we create for ourselves.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2me02',tier:2,axis:'meaning',type:'scenario',
@@ -1868,11 +1868,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2me04',tier:2,axis:'meaning',type:'likert',
- text:'Even in a universe without ultimate purpose, a human life can be deeply meaningful.',
+ text:'A human life can be deeply meaningful regardless of whether the universe has any ultimate purpose built into it.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2me05',tier:2,axis:'meaning',type:'scenario',
- text:'Someone tells you: "Once I realised the universe has no meaning, I actually felt free." What is your honest reaction?',
+ text:'Someone tells you: "Once I stopped believing the universe had a plan for me, I actually felt free." What is your honest reaction?',
  options:[
    {text:'That makes complete sense to me, the absence of imposed meaning is a kind of liberation',score:7},
    {text:'I understand it but it would not feel like freedom to me, it would feel like loss',score:3},
@@ -1920,7 +1920,7 @@ const QUESTIONS = [
 {id:'t3j02',tier:3,axis:'justice',type:'scenario',
  text:'A man commits a brutal assault. Brain scans reveal a tumour in the region governing impulse control. Removing it eliminates the aggressive behaviour entirely.',
  options:[
-   {text:'The tumour explains the behaviour. Punishment is clearly the wrong response here.',score:7},
+   {text:'The tumour explains the behaviour. Punishment is the wrong response here.',score:7},
    {text:'It explains things, but does not erase accountability. Something still has to happen.',score:4},
    {text:'The harm was real and the action was deliberate. Medical findings do not change that.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
@@ -1940,7 +1940,7 @@ const QUESTIONS = [
 {id:'t3j05',tier:3,axis:'justice',type:'tradeoff',
  text:'Which concept of justice do you find most compelling?',
  options:[
-   {text:'Retributive, people deserve to suffer in proportion to the harm they caused',score:2},
+   {text:'Retributive, people deserve consequences proportional to the harm they caused',score:2},
    {text:'Restorative, justice means repairing harm and rebuilding relationships where possible',score:6},
    {text:'Transformative, justice means changing the systems that produce harm in the first place',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
@@ -1985,34 +1985,34 @@ const QUESTIONS = [
 
 // ── RELIGION (5 questions) ──
 {id:'t3r01',tier:3,axis:'religion',type:'likert',
- text:'Looking at the full historical record, organised religion has caused more harm than good.',
+ text:'Organised religion has, on balance, been a net positive force in human history.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3r02',tier:3,axis:'religion',type:'tradeoff',
  text:'When someone uses their personal faith as the main reason to support a public policy that affects others, your honest response is:',
  options:[
-   {text:'That is not a valid justification in shared public life. Reasons need to be accessible to everyone.',score:7},
+   {text:'Faith is a personal matter and public policy decisions should be justified in terms accessible to everyone, regardless of their beliefs.',score:7},
    {text:'Faith-based reasoning deserves equal standing alongside any other deeply held value.',score:2},
    {text:'It depends entirely on what they are advocating and whether it causes harm',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3r03',tier:3,axis:'religion',type:'scenario',
- text:'A child is raised in a religious tradition that teaches they are inherently flawed, that questioning the faith is risky, and that people outside the faith are spiritually lost. No physical harm is occurring.',
+ text:'A child is raised in a strictly orthodox religious tradition that teaches they are inherently flawed, that questioning the faith is dangerous, and that people outside the faith are spiritually lost. No physical harm is occurring.',
  options:[
-   {text:'This is a form of harm, shaping a child\'s mind around fear and shame causes real damage',score:7},
+   {text:'This is a form of harm — the psychological weight of being taught you are fundamentally flawed and that doubt is dangerous causes real damage.',score:7},
    {text:'Uncomfortable to me, but parents have the right to raise children within their belief system.',score:2},
    {text:'The long-term psychological effect on the specific child matters more than the doctrine alone',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3r04',tier:3,axis:'religion',type:'likert',
- text:'Private religious belief, even when kept to oneself, tends to reinforce ways of thinking that make the world harder to navigate well.',
+ text:'Private religious belief shapes a person\'s reasoning in ways that are broadly beneficial to how they navigate the world.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3r05',tier:3,axis:'religion',type:'tradeoff',
  text:'For someone grieving a devastating loss, religious belief that offers comfort and community is:',
  options:[
    {text:'A net positive regardless of whether it is true, human wellbeing matters',score:3},
-   {text:'A concern, comforting falsehoods still carry costs over time',score:6},
+   {text:'Worth examining — comforting beliefs that may not be true still carry costs over time',score:6},
    {text:'Their choice, I do not make that judgment for others',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -2028,7 +2028,7 @@ const QUESTIONS = [
 {id:'t3p02',tier:3,axis:'politics',type:'scenario',
  text:'A billionaire built their fortune through genuine innovation and hard work. They now have more wealth than the bottom 40% of their country combined.',
  options:[
-   {text:'No individual effort justifies that concentration, the system that allowed it is broken',score:7},
+   {text:'No individual effort justifies that concentration of wealth. Something is wrong with a system that produces it.',score:7},
    {text:'They earned it legitimately, redistribution by force raises serious moral problems',score:2},
    {text:'The accumulation itself is less important than what it does to power, democracy, and others',score:5}
  ],poleLeft:'',poleRight:'',weight:1.0},
@@ -2048,9 +2048,9 @@ const QUESTIONS = [
 {id:'t3p05',tier:3,axis:'politics',type:'scenario',
  text:'A policy would significantly improve outcomes for the poorest 30% of the population but would require meaningfully higher taxes on the wealthiest 5%. You:',
  options:[
-   {text:'Support it, this is exactly what collective governance is for',score:7},
+   {text:'Support it — improving outcomes for the poorest is a legitimate and important use of collective resources.',score:7},
    {text:'Support it cautiously, I want to understand the economic effects on growth and incentives',score:4},
-   {text:'Oppose it, forced redistribution, even for good outcomes, raises fundamental rights concerns',score:2}
+   {text:'Oppose it — using taxation to redistribute wealth, even for good outcomes, raises serious concerns about individual rights.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 // ── SELF (5 questions) ──
@@ -2082,7 +2082,7 @@ const QUESTIONS = [
  text:'When you change significantly over time, your values, beliefs, personality, what is the right description?',
  options:[
    {text:'Growth, the self is capable of genuine self-directed development',score:3},
-   {text:'Transformation, you are shaped by circumstances in ways that feel like choice but are not',score:6},
+   {text:'Transformation, you are shaped by circumstances more than it feels like from the inside',score:6},
    {text:'Both, some changes are driven by us, others happen to us, and it is hard to tell which is which',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -2117,7 +2117,7 @@ const QUESTIONS = [
 
 // ── MEANING PRACTICE (5 questions) ──
 {id:'t3mp01',tier:3,axis:'meaning_practice',type:'tradeoff',
- text:'Knowing there is no cosmic purpose to existence, how do you actually live?',
+ text:'If there is no cosmic purpose to existence, how do you think you would actually live?',
  options:[
    {text:'I face the lack of cosmic purpose directly and commit to my choices anyway. That is the whole point of it.',score:7},
    {text:'I build discipline and endurance, resilience in the face of meaninglessness',score:5},
@@ -2130,12 +2130,12 @@ const QUESTIONS = [
  options:[
    {text:'Meaning is not waiting to be found, you have to build it, even knowing it is constructed',score:7},
    {text:'Sit with the void rather than rushing to fill it, the discomfort is real and worth facing',score:5},
-   {text:'There are things worth caring about even if the universe does not care, focus there',score:6},
+   {text:'There are things worth caring about regardless of what the cosmos ultimately is — focus there',score:6},
    {text:'Find something larger than yourself to serve or connect to',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3mp03',tier:3,axis:'meaning_practice',type:'likert',
- text:'The most honest response to a meaningless universe is to stop pretending things matter and accept that they do not.',
+ text:'If the universe is ultimately without inherent meaning, the most honest response is to stop pretending things matter and accept that they do not.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3mp04',tier:3,axis:'meaning_practice',type:'tradeoff',
@@ -2243,7 +2243,7 @@ const QUESTIONS = [
 
 // ── AUTHORITY (4 questions) ──
 {id:'t3auth01',tier:3,axis:'authority',type:'likert',
- text:'Established institutions, governments, churches, universities, courts, deserve significant skepticism by default, not deference.',
+ text:'Established institutions, governments, churches, universities, courts, deserve significant skepticism by default rather than automatic deference.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3auth02',tier:3,axis:'authority',type:'tradeoff',
@@ -2263,7 +2263,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3auth04',tier:3,axis:'authority',type:'likert',
- text:'Most people would be better off if they questioned authority more and deferred to it less.',
+ text:'The instinct to question and challenge authority is generally healthier than the instinct to comply and defer.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 // ── ECONOMICS (4 questions) ──
@@ -2278,7 +2278,7 @@ const QUESTIONS = [
 {id:'t3ec02',tier:3,axis:'economics',type:'scenario',
  text:'A pharmaceutical company holds a patent on a drug that saves lives. Producing it costs €2 per dose. They charge €40,000 per course of treatment.',
  options:[
-   {text:'This is a predictable and unacceptable result of treating healthcare as a market',score:7},
+   {text:'This is an unacceptable result of treating healthcare as a market — access to life-saving medicine should not depend on ability to pay.',score:7},
    {text:'Problematic, but patents and profit incentives are what produce these drugs initially',score:3},
    {text:'The system needs reform, but removing incentives for innovation carries real costs',score:5}
  ],poleLeft:'',poleRight:'',weight:1.0},
@@ -2371,7 +2371,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3an04',tier:3,axis:'animal_ethics',type:'likert',
- text:'The way industrial societies treat animals is one of the greatest ongoing moral failures of our time.',
+ text:'The way industrial societies treat animals represents a serious and largely unacknowledged moral failure.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 // ── PROGRESS (4 questions) ──
@@ -2531,7 +2531,7 @@ const QUESTIONS = [
 {id:'t15so05',tier:1,axis:'social_ontology',type:'tradeoff',
  text:'Which statement feels more true to you?',
  options:[
-   {text:'Societies change when individuals change. Fix the people and you fix the system.',score:2},
+   {text:'Societies change when individuals change. Lasting progress comes from changes in how people think and act.',score:2},
    {text:'Individuals are largely products of their social systems. Fix the system and people change.',score:7},
    {text:'The relationship runs in both directions. You cannot fully separate them.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
@@ -2602,7 +2602,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15lma05',tier:1,axis:'moral_authority',type:'likert',
- text:'What makes something morally right has nothing to do with God, tradition, or consensus. It has to do with what reason and evidence support.',
+ text:'Reason and evidence are more reliable guides to moral truth than religious authority, tradition, or consensus.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 // ── EPISTEMIC HUMILITY (5 questions) ──
@@ -3661,6 +3661,118 @@ const CONTRADICTIONS = [
     check:(r,id) => r >= 5.5 && id >= 5.5,
     title:'Strong Realism + Constructed Identity (Interesting Tension)',
     text:'You hold strong epistemic realism — facts exist independently of minds — alongside a strongly constructed view of personal identity. This is worth examining: if mind-independent facts exist about everything, are there mind-independent facts about persons? Strong social constructivism about identity holds that the self is substantially constituted by social and linguistic practices — a position that applies constructivist, not realist, logic to persons. This need not be a contradiction — social facts can be real while being mind-dependent in a different way than physical facts — but the tension deserves explicit philosophical attention.',
+  },
+  {
+    id:'C13', tier:'A',
+    a:'physicalism', b:'mind_consciousness',
+    check:(ph,mc) => ph >= 5.5 && mc <= 2.5,
+    title:'Physicalism + Non-Physical Consciousness',
+    text:'You hold that reality is fundamentally physical — that everything that exists is constituted by physical processes — yet also hold that consciousness has properties that cannot be captured by physical description. This is the hard problem of consciousness in direct conflict with your metaphysical commitments. If physicalism is true, consciousness must be fully explicable in physical terms; if consciousness genuinely resists physical explanation, physicalism is false or incomplete. You cannot coherently hold both at strong values simultaneously without doing the philosophical work to show how they are compatible. The standard resolution paths are: eliminative materialism (deny that non-physical consciousness exists — it is an illusion), property dualism (physical substance, non-reducible mental properties), or accepting that physicalism requires revision.',
+  },
+  {
+    id:'C14', tier:'A',
+    a:'epistemic_method', b:'science',
+    check:(em,sc) => em <= 2.5 && sc >= 5.5,
+    title:'Revelation/Intuition Epistemology + Strong Science Trust',
+    text:'You hold that revelation or intuition is the primary route to knowledge — yet also hold high trust in science as an epistemic authority. These ground knowledge in incompatible sources. Science is constitutively empirical: it derives knowledge from observation, hypothesis testing, and falsification — not revelation or intuition. To trust science highly is implicitly to endorse empirical method. The tension here is not merely academic: when scientific findings conflict with revealed or intuitive beliefs, which wins? The position requires explicit ranking. Resolution options include compartmentalisation (science for nature, revelation for meaning) with acknowledgement that this is a pragmatic division rather than a principled epistemology, or revising one of the two commitments.',
+  },
+  {
+    id:'C15', tier:'A',
+    a:'teleology', b:'naturalism',
+    check:(t,n) => t >= 5.5 && n >= 5.5,
+    title:'Strong Teleology + Hard Naturalism',
+    text:'You hold that reality has inherent direction or purpose — that things tend toward ends — alongside hard naturalism, which holds that everything is explicable through natural, non-directed physical processes. These are in direct tension. Classical teleology (Aristotelian final causes) was explicitly rejected by the scientific revolution precisely because natural explanation does not require purposes. In a fully naturalist framework, what exists is what has been selected, not what is aimed at. This combination is not impossible — some philosophers (Nagel in "Mind and Cosmos") argue that naturalism itself requires teleological enrichment — but it demands explicit philosophical work. The easy path of holding both unreflectively produces incoherence.',
+  },
+  {
+    id:'C16', tier:'A',
+    a:'moral_authority', b:'religion',
+    check:(ma,rel) => ma <= 2.0 && rel <= 2.0,
+    title:'Divine Moral Authority + Anti-Theism',
+    text:'You hold that the primary source of moral authority is divine command or religious tradition — yet also hold a strongly anti-theist position on religion. This is a direct contradiction: divine command theory requires a divine commander, and anti-theism denies that any divine commander exists or treats the concept as net harmful. You cannot coherently ground moral authority in a divine source you simultaneously reject. This combination often appears in people in religious transition — retaining the moral authority structure of religion while abandoning its metaphysical claims. Resolution requires either revising the moral authority axis (move to individual conscience, reason, or secular tradition) or revising the religion axis.',
+  },
+  {
+    id:'C17', tier:'B',
+    a:'social_ontology', b:'society',
+    check:(so,soc) => so <= 2.5 && soc >= 5.5,
+    title:'Individualist Ontology + Collectivist Society',
+    text:'You hold that social reality is constituted by individuals — that groups and structures are reducible to the actions of persons — yet also hold a strongly collectivist view of how society should be organised. These apply inconsistent logic to the same question. If social reality is fundamentally individual, collectivist social arrangements must be understood as aggregations of individual choices — which limits their normative force. If collectivism is normatively compelling, it generally presupposes that groups and social structures have genuine independent standing. The tension is not fatal — methodological individualists can advocate for redistributive structures on purely individual-welfare grounds — but this requires explicit justification, not assumed compatibility.',
+  },
+  {
+    id:'C18', tier:'B',
+    a:'authority', b:'epistemic_humility',
+    check:(auth,eh) => auth <= 2.0 && eh <= 2.5,
+    title:'Authority Skepticism + Low Epistemic Humility',
+    text:'You hold a strongly skeptical position toward authority — resisting deference to institutions, tradition, or expertise — alongside low epistemic humility, meaning you are confident in your own assessments. This combination is worth examining carefully. Skepticism of authority is most coherent when paired with genuine uncertainty — the recognition that established views may be wrong, but so might yours. When skepticism of authority is paired with high confidence in personal judgment, it can function not as principled epistemic independence but as a self-exemption from the same scrutiny applied to others. The most consistent position applies equal epistemic standards to both institutional claims and personal beliefs.',
+  },
+  {
+    id:'C19', tier:'B',
+    a:'human_nature', b:'responsibility',
+    check:(hn,r) => hn >= 5.5 && r >= 5.5,
+    title:'Universal Human Nature + Structural Responsibility',
+    text:'You hold that human nature is fixed and universal — there are stable, essential features of persons — yet also hold that outcomes are primarily explained by structural forces rather than individual choices. These apply competing causal logics. If human nature is fixed, variation in outcomes across individuals and societies must be explained by something other than nature — which points toward structure. This is actually more consistent than it might appear: a fixed human nature in different structural environments could produce radically different outcomes. But the tension arises at the level of responsibility: if nature is fixed and structure is primary, individual responsibility for outcomes becomes difficult to ground. The position requires explicit articulation of where individual agency enters the causal chain.',
+  },
+  {
+    id:'C20', tier:'B',
+    a:'knowledge', b:'epistemic_method',
+    check:(kn,em) => Math.abs(kn - em) >= 3.0,
+    title:'Knowledge Source / Epistemic Method Misalignment',
+    text:'Your applied knowledge source and your stated epistemic method are pointing in significantly different directions. This is a common and important gap: people often endorse empiricism at the level of abstract principle while actually relying on intuition, testimony, or revealed authority in practice — or vice versa. The question is not which one is right, but which one is actually governing your beliefs. Genuine intellectual coherence requires that the method you endorse and the method you use converge. When they do not, your stated epistemology is a performance rather than an operating system.',
+  },
+  {
+    id:'C21', tier:'B',
+    a:'ethics', b:'justice',
+    check:(eth,j) => eth <= 2.5 && j <= 2.5,
+    title:'Deontological Ethics + Desert-Based Justice',
+    text:'You hold a deontological ethical framework — actions are right or wrong regardless of consequences — alongside desert-based justice, which holds that punishment is warranted by what people deserve for their choices. These are more compatible than they are contradictory, but the combination creates a demanding standard: it requires that people are genuinely free and could have chosen otherwise, or the desert claim loses its force. Pure deontologists who apply rights-based reasoning consistently often arrive at strong procedural justice rather than desert-based punishment. The question worth sitting with: does your desert-based justice follow from your deontological principles, or is it a separate intuition that has not been brought into reflective equilibrium with them?',
+  },
+  {
+    id:'C22', tier:'B',
+    a:'temporal_orientation', b:'progress',
+    check:(to,pr) => to <= 2.5 && pr >= 5.5,
+    title:'Past Authority + Progress Optimism',
+    text:'You hold that past authority, tradition, or established norms are a primary reference point — yet also hold strong optimism about civilisational progress and improvement. These point in opposite directions. Reverence for past authority typically implies that inherited wisdom is the most reliable guide — which limits how much improvement is possible without abandoning established frameworks. Strong progress optimism implies that better arrangements are available ahead — which tends to require revising rather than preserving inherited structures. This combination is not impossible (a traditionalist who believes tradition is itself progressivist), but requires explicit articulation of how tradition and improvement are understood to be compatible.',
+  },
+  {
+    id:'C23', tier:'B',
+    a:'uncertainty', b:'epistemic_humility',
+    check:(unc,eh) => unc <= 2.5 && eh <= 2.5,
+    title:'Low Uncertainty Tolerance + Low Epistemic Humility',
+    text:'You have both low tolerance for uncertainty — preferring resolved positions over open questions — and low epistemic humility — high confidence in your own assessments. This combination is worth flagging not as a logical contradiction but as a psychological profile with known failure modes. High confidence combined with discomfort with ambiguity tends to produce premature closure: positions adopted and defended before sufficient evidence is available, because the discomfort of not knowing exceeds the discomfort of being wrong. The most intellectually rigorous position holds uncertainty tolerance and epistemic calibration together — confidence proportioned to evidence, with genuine comfort in saying "I do not know yet."',
+  },
+  {
+    id:'C24', tier:'B',
+    a:'economics', b:'society',
+    check:(eco,soc) => eco <= 2.5 && soc <= 2.5,
+    title:'Free Market Economics + Individualist Society',
+    text:'You hold both free market economics and individualist social organisation. These are mutually reinforcing positions, but together they produce a coherent worldview with a specific and important blind spot: collective action problems. Markets and individual freedom both perform well when individual choices aggregate into beneficial outcomes. They perform badly when individually rational choices produce collectively harmful outcomes — pollution, arms races, public goods underproduction, coordination failures. The combination of both positions without a mechanism for collective action creates systematic vulnerability to exactly these problems. The question is not whether this combination is internally consistent (it is), but whether it is complete.',
+  },
+  {
+    id:'C25', tier:'C',
+    a:'freewill_practice', b:'determinism',
+    check:(fwp,det) => fwp <= 2.5 && det >= 5.5,
+    title:'Accountability-Based Practice + Hard Determinism (Interesting Tension)',
+    text:'You hold hard determinism at the theoretical level — every action is the inevitable product of prior causes — yet your practical orientation toward free will is strongly accountability-based, treating people as genuine originators of their choices. This is the most common split in thoughtful people: the intellectual and the practical positions are in direct tension. This is not necessarily incoherent — Dennett and others argue that a robust account of accountability can be built within determinism — but the tension deserves explicit attention rather than remaining as two separately held positions. The question worth sitting with: what exactly grounds accountability if not the ability to have done otherwise?',
+  },
+  {
+    id:'C26', tier:'C',
+    a:'religion', b:'meaning',
+    check:(rel,m) => rel >= 5.5 && m <= 2.5,
+    title:'Faith-Positive Religion + Constructivist Meaning (Interesting Tension)',
+    text:'You hold a faith-positive orientation toward religion alongside a constructivist view of meaning — the position that meaning is made rather than discovered. This combination is worth examining because most religious traditions ground meaning in discovery: meaning is real, given, and waiting to be apprehended through faith and practice. A constructivist who is faith-positive is choosing a religious orientation for reasons other than metaphysical conviction — perhaps community, ritual, aesthetic experience, or moral framework. That is a coherent position, but it is a substantially different relationship to religious tradition than the tradition itself typically demands. Worth asking: what is the actual function of religious commitment in your meaning-making?',
+  },
+  {
+    id:'C27', tier:'C',
+    a:'moral_ground', b:'ethics',
+    check:(mg,eth) => mg <= 2.5 && eth <= 2.5,
+    title:'Anti-Realist Moral Ground + Deontological Ethics (Interesting Tension)',
+    text:'You hold moral anti-realism — moral facts are not mind-independent — alongside a deontological ethical framework that treats certain actions as intrinsically right or wrong regardless of consequences. Classical deontology (Kant, Ross) was typically grounded in claims about objective moral reality or rational necessity — the idea that some duties are real independently of what anyone prefers. Anti-realist deontology is possible — Korsgaard constructs deontological obligations from the structure of practical reason — but it is philosophically demanding. The tension worth examining: if moral facts are not mind-independent, what gives deontological rules their categorical force? "Wrong regardless of consequences" needs a grounding that anti-realism makes harder to supply.',
+  },
+  {
+    id:'C28', tier:'C',
+    a:'self', b:'identity',
+    check:(s,id) => s <= 2.0 && id <= 2.0,
+    title:'Authored Self + Essential Identity (Interesting Tension)',
+    text:'You hold a strongly authored view of the self — the self as a free, originating source of choices — alongside a strongly essentialist view of identity — that there is a fixed nature or essence to who you are. These are in gentle tension: the authored self emphasises radical freedom to constitute oneself through choices, while essentialist identity implies a nature that precedes and constrains those choices. The question is what the self is authoring if it has a fixed essential nature. These positions can coexist if the authoring is understood as expressing and actualising a given nature rather than creating it from scratch — but this limits the scope of self-authorship considerably. Sartrean authenticity (existence precedes essence) sits at one pole; Aristotelian eudaimonia (actualise your given nature) at the other.',
   },
 ];
 
