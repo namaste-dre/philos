@@ -7,21 +7,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --bg: #0a0a0b;
-  --surface: #141416;
-  --surface2: #1c1c20;
-  --border: rgba(255,255,255,0.10);
-  --border2: rgba(255,255,255,0.18);
+  --bg: #07061a;
+  --bg2: #0d0b24;
+  --surface: #111028;
+  --surface2: #181535;
+  --surface3: #1e1b40;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.16);
+  --border3: rgba(157,147,232,0.22);
   --text: #f0ede6;
-  --muted: #b8b4aa;
+  --text2: #ccc8be;
+  --muted: #8c88a0;
   --accent: #c9a96e;
-  --accent2: #a585bc;
+  --accent2: #e8c87a;
+  --purple: #9d93e8;
+  --purple2: #b8aef5;
+  --purple3: rgba(157,147,232,0.12);
+  --teal: #5bbf94;
+  --orange: #e0784a;
+  --danger: #e87070;
   --tier1: #9d93e8;
   --tier2: #5bbf94;
   --tier3: #e0784a;
   --tier4: #8a8a92;
-  --danger: #e87070;
-  --r: 10px;
+  --r: 12px;
+  --glow-purple: 0 0 40px rgba(157,147,232,0.18);
+  --glow-gold: 0 0 40px rgba(201,169,110,0.18);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -35,23 +46,33 @@ body {
   font-weight: 400;
 }
 
-/* ── NOISE TEXTURE ── */
+/* ── GRAIN TEXTURE OVERLAY ── */
 body::before {
   content: '';
   position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.7;
+}
+
+/* ── SIGNATURE CONSTELLATION CANVAS ── */
+#constellation-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
 }
 
 /* ── SCREENS ── */
 .screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .screen.active { display: flex; flex-direction: column; }
 
+
 /* ── INTRO SCREEN ── */
 /* ══════════════════════════════════════════
-   INTRO SCREEN — dramatic, layered
+   INTRO SCREEN
 ══════════════════════════════════════════ */
 #screen-intro {
   align-items: center;
@@ -61,48 +82,78 @@ body::before {
   position: relative;
   overflow: hidden;
 }
-/* Animated background glows */
+/* Primary deep-purple glow — top left */
 #screen-intro::before {
   content: '';
   position: absolute;
-  width: 800px; height: 800px;
+  width: 900px; height: 900px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(120,100,255,0.45) 0%, rgba(100,80,220,0.15) 40%, transparent 70%);
-  top: -300px; left: -200px;
-  animation: driftA 14s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(100,80,255,0.55) 0%, rgba(80,60,200,0.18) 40%, transparent 70%);
+  top: -380px; left: -260px;
+  animation: driftA 16s ease-in-out infinite alternate;
   pointer-events: none;
-  filter: blur(40px);
+  filter: blur(60px);
 }
+/* Gold glow — bottom right */
 #screen-intro::after {
   content: '';
   position: absolute;
   width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.40) 0%, rgba(201,169,110,0.15) 40%, transparent 70%);
-  bottom: -200px; right: -150px;
-  animation: driftB 18s ease-in-out infinite alternate;
+  background: radial-gradient(circle, rgba(220,160,50,0.45) 0%, rgba(201,169,110,0.12) 40%, transparent 70%);
+  bottom: -220px; right: -180px;
+  animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
-  filter: blur(50px);
+  filter: blur(70px);
+}
+/* Third accent glow — pink/violet mid-left */
+.intro-glow3 {
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,100,220,0.30) 0%, transparent 70%);
+  top: 40%; left: -100px;
+  animation: driftC 24s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(80px);
 }
 @keyframes driftA {
-  0% { transform: translate(0,0) scale(1); }
-  100% { transform: translate(80px,60px) scale(1.15); }
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(90px,70px) scale(1.2); }
 }
 @keyframes driftB {
-  0% { transform: translate(0,0) scale(1); }
-  100% { transform: translate(-60px,-80px) scale(1.1); }
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-70px,-90px) scale(1.15); }
+}
+@keyframes driftC {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(40px,-60px) scale(1.1); }
 }
 .intro-inner { position: relative; z-index: 1; }
+
+/* Eyebrow */
 .intro-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  letter-spacing: 0.28em;
   color: var(--accent);
   text-transform: uppercase;
-  margin-bottom: 24px;
-  opacity: 0.9;
+  margin-bottom: 28px;
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
-/* Floating symbols behind the title */
+.intro-eyebrow::before,
+.intro-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 28px; height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+/* Floating philosophical symbols */
 .intro-symbols {
   position: absolute;
   inset: 0;
@@ -113,121 +164,152 @@ body::before {
 .intro-symbol {
   position: absolute;
   opacity: 0;
-  animation: floatSymbol 20s ease-in-out infinite;
-  color: rgba(157,147,232,0.12);
+  animation: floatSymbol 22s ease-in-out infinite;
+  color: rgba(157,147,232,0.10);
 }
 @keyframes floatSymbol {
-  0%   { opacity:0; transform:translateY(20px) rotate(0deg); }
-  15%  { opacity:1; }
-  85%  { opacity:1; }
-  100% { opacity:0; transform:translateY(-40px) rotate(15deg); }
+  0%   { opacity:0; transform:translateY(30px) rotate(0deg) scale(0.9); }
+  12%  { opacity:1; }
+  88%  { opacity:1; }
+  100% { opacity:0; transform:translateY(-50px) rotate(18deg) scale(1.05); }
 }
+
+/* Main title */
 .intro-title {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(42px, 8vw, 80px);
-  line-height: 1.05;
+  font-size: clamp(48px, 9vw, 88px);
+  line-height: 1.02;
   color: var(--text);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   position: relative;
+  letter-spacing: -0.02em;
 }
 .intro-title em {
   font-style: italic;
-  background: linear-gradient(135deg, var(--accent), #a87fd4);
+  background: linear-gradient(135deg, var(--accent) 0%, #c490e8 50%, var(--purple2) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Subtitle */
 .intro-sub {
   font-size: 19px;
   color: var(--muted);
   max-width: 520px;
-  margin: 0 auto 48px;
+  margin: 0 auto 52px;
   font-weight: 400;
+  line-height: 1.7;
 }
+
+/* Stats strip */
 .intro-meta {
   display: flex;
   gap: 0;
   justify-content: center;
   margin-bottom: 48px;
   flex-wrap: wrap;
-  border: 1px solid var(--border2);
+  border: 1px solid var(--border3);
   border-radius: var(--r);
   overflow: hidden;
   max-width: 480px;
   margin-left: auto;
   margin-right: auto;
+  box-shadow: var(--glow-purple), inset 0 1px 0 rgba(157,147,232,0.08);
 }
 .intro-meta-item {
   text-align: center;
   flex: 1;
-  padding: 16px 12px;
+  padding: 18px 12px;
   background: var(--surface);
-  border-right: 1px solid var(--border2);
+  border-right: 1px solid var(--border3);
+  transition: background 0.2s;
 }
 .intro-meta-item:last-child { border-right: none; }
+.intro-meta-item:hover { background: var(--surface2); }
 .intro-meta-item .num {
   font-family: 'Playfair Display', serif;
-  font-size: 30px;
+  font-size: 32px;
   color: var(--accent);
   display: block;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 .intro-meta-item .label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
   font-family: 'IBM Plex Mono', monospace;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
 }
+
+/* Primary CTA */
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #b8894e);
-  color: #1a1410;
+  background: linear-gradient(135deg, var(--accent) 0%, #b8894e 100%);
+  color: #1a1208;
   border: none;
-  padding: 18px 48px;
+  padding: 20px 56px;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 19px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   border-radius: 50px;
   cursor: pointer;
-  letter-spacing: 0.04em;
-  transition: all 0.2s;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.25s;
   display: inline-block;
-  box-shadow: 0 4px 28px rgba(201,169,110,0.3);
+  box-shadow: 0 6px 32px rgba(201,169,110,0.35), 0 1px 0 rgba(255,255,255,0.15) inset;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  border-radius: 50px;
+  pointer-events: none;
 }
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 40px rgba(201,169,110,0.45);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 48px rgba(201,169,110,0.5), 0 1px 0 rgba(255,255,255,0.15) inset;
 }
+.btn-primary:active { transform: translateY(-1px); }
+
+/* Tier pills */
 .tier-preview {
   display: flex;
   gap: 10px;
-  margin-top: 48px;
+  margin-top: 52px;
   justify-content: center;
   flex-wrap: wrap;
-  max-width: 600px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
 }
 .tier-pill {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  padding: 6px 14px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 7px 16px;
   border-radius: 50px;
   border: 1px solid;
-  opacity: 0.65;
-  transition: opacity 0.2s;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+  text-transform: uppercase;
 }
-.tier-pill:hover { opacity: 1; }
-.tier-pill.t1 { color: var(--tier1); border-color: var(--tier1); background: rgba(157,147,232,0.06); }
-.tier-pill.t2 { color: var(--tier2); border-color: var(--tier2); background: rgba(91,191,148,0.06); }
-.tier-pill.t3 { color: var(--tier3); border-color: var(--tier3); background: rgba(224,120,74,0.06); }
-.tier-pill.t4 { color: var(--tier4); border-color: var(--tier4); background: rgba(139,111,158,0.06); }
+.tier-pill:hover { opacity: 1; transform: translateY(-1px); }
+.tier-pill.t1 { color: var(--tier1); border-color: var(--tier1); background: rgba(157,147,232,0.07); }
+.tier-pill.t2 { color: var(--tier2); border-color: var(--tier2); background: rgba(91,191,148,0.07); }
+.tier-pill.t3 { color: var(--tier3); border-color: var(--tier3); background: rgba(224,120,74,0.07); }
+.tier-pill.t4 { color: var(--tier4); border-color: var(--tier4); background: rgba(138,138,146,0.07); }
+
 
 /* ══════════════════════════════════════════
    QUIZ SCREEN
 ══════════════════════════════════════════ */
 #screen-quiz { padding: 0; }
+
 /* ── INTAKE SCREEN ── */
 #screen-intake {
   align-items: center;
@@ -238,8 +320,8 @@ body::before {
 .intake-wrap { max-width: 520px; width: 100%; }
 .intake-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.16em;
+  font-size: 11px;
+  letter-spacing: 0.20em;
   color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 32px;
@@ -274,51 +356,53 @@ body::before {
   box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
 }
 .intake-input::placeholder { color: var(--muted); font-weight: 400; }
-.intake-hint {
-  font-size: 16px;
-  color: var(--muted);
-  margin-bottom: 32px;
-}
-/* ── QUIZ HEADER REFRESH ── */
+.intake-hint { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
+
+/* ── QUIZ HEADER ── */
 .quiz-header {
   position: sticky;
   top: 0;
-  background: rgba(10,10,11,0.97);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
+  background: rgba(7,6,26,0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(157,147,232,0.12);
   padding: 14px 28px;
   z-index: 100;
   display: flex;
   align-items: center;
   gap: 20px;
-  position: relative;
 }
 .quiz-logo {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.1em;
+  font-size: 13px;
+  letter-spacing: 0.14em;
   color: var(--accent);
   white-space: nowrap;
+  font-weight: 500;
 }
 .progress-bar-wrap {
   flex: 1;
-  height: 3px;
-  background: var(--border);
+  height: 2px;
+  background: rgba(255,255,255,0.06);
   border-radius: 2px;
   overflow: hidden;
+  position: relative;
 }
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--tier1), var(--accent));
+  background: linear-gradient(90deg, var(--purple) 0%, var(--accent) 60%, var(--accent2) 100%);
   border-radius: 2px;
-  transition: width 0.5s ease;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 8px rgba(201,169,110,0.4);
 }
 .progress-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
+  letter-spacing: 0.04em;
 }
+
 /* ── QUIZ FLOATING GLOWS ── */
 .quiz-glow-layer {
   position: fixed;
@@ -330,15 +414,15 @@ body::before {
 .quiz-glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(90px);
   animation: floatGlow linear infinite;
   mix-blend-mode: screen;
 }
 @keyframes floatGlow {
   0%   { transform: translate(0, 0) scale(1); }
   25%  { transform: translate(var(--dx1), var(--dy1)) scale(1.15); }
-  50%  { transform: translate(var(--dx2), var(--dy2)) scale(0.95); }
-  75%  { transform: translate(var(--dx3), var(--dy3)) scale(1.1); }
+  50%  { transform: translate(var(--dx2), var(--dy2)) scale(0.92); }
+  75%  { transform: translate(var(--dx3), var(--dy3)) scale(1.08); }
   100% { transform: translate(0, 0) scale(1); }
 }
 
@@ -351,68 +435,60 @@ body::before {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 56px 28px 72px;
-  max-width: 740px;
-  margin: 0 auto;
-  width: 100%;
-}
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 56px 28px 72px;
+  padding: 56px 28px 80px;
   max-width: 740px;
   margin: 0 auto;
   width: 100%;
 }
 .q-number {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--accent);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   margin-bottom: 8px;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 .q-tier-badge {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  padding: 4px 12px;
+  border-radius: 50px;
+  margin-bottom: 24px;
   display: inline-block;
 }
-.q-tier-badge.t1 { background: rgba(157,147,232,0.12); color: var(--tier1); border: 1px solid rgba(157,147,232,0.25); }
-.q-tier-badge.t2 { background: rgba(91,191,148,0.12); color: var(--tier2); border: 1px solid rgba(91,191,148,0.25); }
-.q-tier-badge.t3 { background: rgba(224,120,74,0.12); color: var(--tier3); border: 1px solid rgba(224,120,74,0.25); }
+.q-tier-badge.t1 { background: rgba(157,147,232,0.10); color: var(--tier1); border: 1px solid rgba(157,147,232,0.22); }
+.q-tier-badge.t2 { background: rgba(91,191,148,0.10); color: var(--tier2); border: 1px solid rgba(91,191,148,0.22); }
+.q-tier-badge.t3 { background: rgba(224,120,74,0.10); color: var(--tier3); border: 1px solid rgba(224,120,74,0.22); }
 .q-axis {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
-  margin-bottom: 14px;
-  letter-spacing: 0.08em;
-  opacity: 0.7;
+  margin-bottom: 16px;
+  letter-spacing: 0.10em;
+  opacity: 0.6;
+  text-transform: uppercase;
 }
 .q-text {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(22px, 4vw, 31px);
+  font-size: clamp(22px, 4vw, 32px);
   font-weight: 700;
   line-height: 1.38;
   color: var(--text);
-  margin-bottom: 44px;
+  margin-bottom: 48px;
   text-align: center;
 }
 .q-type-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
-  letter-spacing: 0.1em;
-  margin-bottom: 18px;
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.6;
 }
+
 /* ── LIKERT ── */
 .likert-wrap { width: 100%; }
 .likert-scale {
@@ -423,10 +499,8 @@ body::before {
   margin-bottom: 14px;
 }
 .likert-btn {
-  width: 52px;
-  height: 52px;
-  min-width: 0;
-  flex-shrink: 1;
+  width: 52px; height: 52px;
+  min-width: 0; flex-shrink: 1;
   border-radius: 50%;
   border: 1.5px solid var(--border2);
   background: var(--surface);
@@ -435,48 +509,67 @@ body::before {
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 @media (max-width: 480px) {
   .likert-btn { width: 42px; height: 42px; font-size: 14px; }
-  .likert-scale { gap: 6px; }
+  .likert-scale { gap: 5px; }
 }
-.likert-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.1); }
-.likert-btn.selected { background: var(--accent); border-color: var(--accent); color: #1a1410; transform: scale(1.1); font-weight: 700; }
+.likert-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.12); box-shadow: 0 0 16px rgba(201,169,110,0.2); }
+.likert-btn.selected { background: var(--accent); border-color: var(--accent); color: #1a1208; transform: scale(1.12); font-weight: 700; box-shadow: 0 4px 20px rgba(201,169,110,0.35); }
 .likert-labels {
   display: flex;
   justify-content: space-between;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
   padding: 0 6px;
-  opacity: 0.7;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
+
 /* ── TRADEOFF ── */
-.tradeoff-wrap { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.tradeoff-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .tradeoff-opt {
   padding: 20px 24px;
   border: 1.5px solid var(--border2);
   border-radius: var(--r);
   background: var(--surface);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s;
   text-align: left;
+  position: relative;
+  overflow: hidden;
 }
-.tradeoff-opt:hover { border-color: var(--accent); background: rgba(201,169,110,0.07); transform: translateY(-1px); }
-.tradeoff-opt.selected { border-color: var(--accent); background: rgba(201,169,110,0.13); }
+.tradeoff-opt::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform 0.18s;
+  border-radius: 0 2px 2px 0;
+}
+.tradeoff-opt:hover { border-color: rgba(201,169,110,0.4); background: rgba(201,169,110,0.06); transform: translateX(2px); }
+.tradeoff-opt:hover::before { transform: scaleY(1); }
+.tradeoff-opt.selected { border-color: var(--accent); background: rgba(201,169,110,0.10); }
+.tradeoff-opt.selected::before { transform: scaleY(1); }
 .tradeoff-letter {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--accent);
   margin-bottom: 7px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   opacity: 0.7;
+  text-transform: uppercase;
 }
-.tradeoff-text { font-size: 18px; color: var(--text); line-height: 1.5; font-weight: 500; }
+.tradeoff-text { font-size: 18px; color: var(--text); line-height: 1.55; font-weight: 500; }
+
 /* ── SCENARIO ── */
 .scenario-wrap { width: 100%; }
 .scenario-box {
@@ -487,30 +580,44 @@ body::before {
   padding: 22px 26px;
   margin-bottom: 28px;
   font-size: 17px;
-  color: var(--muted);
-  line-height: 1.68;
+  color: var(--text2);
+  line-height: 1.72;
 }
-.scenario-options { display: flex; flex-direction: column; gap: 11px; }
+.scenario-options { display: flex; flex-direction: column; gap: 10px; }
 .scenario-opt {
   padding: 18px 22px;
   border: 1.5px solid var(--border2);
   border-radius: var(--r);
   background: var(--surface);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s;
   font-size: 17px;
   font-weight: 500;
   color: var(--text);
   text-align: left;
-  line-height: 1.45;
+  line-height: 1.5;
+  position: relative;
+  overflow: hidden;
 }
-.scenario-opt:hover { border-color: var(--accent2); background: rgba(165,133,188,0.07); transform: translateY(-1px); }
-.scenario-opt.selected { border-color: var(--accent2); background: rgba(165,133,188,0.13); }
+.scenario-opt::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--purple);
+  transform: scaleY(0);
+  transition: transform 0.18s;
+}
+.scenario-opt:hover { border-color: rgba(157,147,232,0.4); background: rgba(157,147,232,0.06); transform: translateX(2px); }
+.scenario-opt:hover::before { transform: scaleY(1); }
+.scenario-opt.selected { border-color: var(--purple); background: rgba(157,147,232,0.09); }
+.scenario-opt.selected::before { transform: scaleY(1); }
+
 /* ── NAV BUTTONS ── */
 .quiz-nav {
   display: flex;
   gap: 14px;
-  margin-top: 48px;
+  margin-top: 52px;
   align-items: center;
   justify-content: center;
 }
@@ -518,30 +625,33 @@ body::before {
   background: transparent;
   border: 1px solid var(--border2);
   color: var(--muted);
-  padding: 13px 26px;
+  padding: 13px 28px;
   border-radius: 50px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 15px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s;
+  letter-spacing: 0.02em;
 }
-.btn-back:hover { border-color: var(--text); color: var(--text); }
+.btn-back:hover { border-color: var(--text2); color: var(--text); }
 .btn-next {
   background: var(--accent);
   border: none;
-  color: #1a1410;
-  padding: 13px 36px;
+  color: #1a1208;
+  padding: 14px 40px;
   border-radius: 50px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.15s;
-  opacity: 0.35;
+  transition: all 0.18s;
+  opacity: 0.3;
   pointer-events: none;
 }
 .btn-next.enabled { opacity: 1; pointer-events: all; }
-.btn-next.enabled:hover { background: #ddc08a; transform: translateY(-1px); }
+.btn-next.enabled:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(201,169,110,0.35); }
+
 
 /* ── GENERATING SCREEN ── */
 #screen-generating {
@@ -550,25 +660,21 @@ body::before {
   padding: 48px 24px;
   text-align: center;
 }
-.gen-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 36px;
-  margin-bottom: 16px;
-}
+.gen-title { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 16px; }
 .gen-sub { color: var(--muted); margin-bottom: 48px; font-size: 19px; }
 .gen-steps { text-align: left; max-width: 400px; margin: 0 auto; }
 .gen-step {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 0;
+  padding: 13px 0;
   border-bottom: 1px solid var(--border);
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--muted);
   transition: color 0.3s;
 }
-.gen-step.done { color: var(--tier2); }
+.gen-step.done { color: var(--teal); }
 .gen-step.active { color: var(--text); }
 .gen-dot {
   width: 8px; height: 8px;
@@ -577,18 +683,20 @@ body::before {
   flex-shrink: 0;
   transition: background 0.3s;
 }
-.gen-step.done .gen-dot { background: var(--tier2); }
+.gen-step.done .gen-dot { background: var(--teal); box-shadow: 0 0 8px rgba(91,191,148,0.5); }
 .gen-step.active .gen-dot { background: var(--accent); animation: pulse 1s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
 
-/* ── REPORT SCREEN ── */
+/* ══════════════════════════════════════════
+   REPORT SCREEN
+══════════════════════════════════════════ */
 #screen-report { padding: 0; }
 
-/* REPORT HEADER — dramatic hero */
+/* REPORT HEADER — dramatic cinematic hero */
 .report-header {
   position: relative;
   overflow: hidden;
-  padding: 72px 28px 56px;
+  padding: 80px 28px 64px;
   text-align: center;
   background: var(--bg);
 }
@@ -597,276 +705,351 @@ body::before {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(157,147,232,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(201,169,110,0.14) 0%, transparent 60%);
+    radial-gradient(ellipse 90% 70% at 15% -10%, rgba(120,100,255,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 60% at 85% 110%, rgba(201,169,110,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(157,147,232,0.06) 0%, transparent 70%);
   pointer-events: none;
+}
+/* Horizontal rule across top of report header */
+.report-header::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(157,147,232,0.5) 30%, rgba(201,169,110,0.4) 70%, transparent 100%);
 }
 .report-header-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
 .report-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 10px;
+  letter-spacing: 0.28em;
   color: var(--accent);
   text-transform: uppercase;
-  margin-bottom: 20px;
-  opacity: 0.8;
+  margin-bottom: 24px;
+  opacity: 0.75;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.report-eyebrow::before, .report-eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 32px; height: 1px;
+  background: var(--accent);
+  opacity: 0.45;
 }
 .report-archetype {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(44px, 8vw, 80px);
+  font-size: clamp(44px, 8vw, 84px);
   color: var(--text);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  line-height: 1.03;
+  letter-spacing: -0.025em;
+}
+/* Archetype reveal animation */
+@keyframes archetypeReveal {
+  from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.report-archetype.revealed { animation: archetypeReveal 0.8s cubic-bezier(0.22,1,0.36,1) both; }
+
+.report-variant-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--purple2);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  opacity: 0.85;
 }
 .report-tagline {
   font-family: 'Playfair Display', serif;
   font-style: italic;
-  font-size: clamp(18px, 2.5vw, 24px);
+  font-size: clamp(18px, 2.5vw, 23px);
   color: var(--accent);
-  max-width: 600px;
-  margin: 0 auto 24px;
+  max-width: 620px;
+  margin: 0 auto 28px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 /* Rarity badge */
 .report-rarity {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(165,133,188,0.12);
-  border: 1px solid rgba(165,133,188,0.3);
+  background: rgba(157,147,232,0.10);
+  border: 1px solid rgba(157,147,232,0.28);
   border-radius: 50px;
-  padding: 6px 16px;
+  padding: 7px 18px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: var(--accent2);
-  letter-spacing: 0.08em;
-  margin-bottom: 28px;
+  font-size: 11px;
+  color: var(--purple2);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  box-shadow: 0 0 20px rgba(157,147,232,0.10);
 }
 .report-rarity-dot {
   width: 6px; height: 6px;
-  background: var(--accent2);
+  background: var(--purple2);
   border-radius: 50%;
-  animation: pulse 2s infinite;
+  animation: pulse 2.5s infinite;
+  box-shadow: 0 0 6px var(--purple2);
 }
 /* Stat strip */
 .report-stats {
   display: flex;
   gap: 0;
   justify-content: center;
-  margin: 32px auto 36px;
-  max-width: 600px;
-  border: 1px solid var(--border2);
+  margin: 32px auto 40px;
+  max-width: 560px;
+  border: 1px solid var(--border3);
   border-radius: var(--r);
   overflow: hidden;
+  box-shadow: var(--glow-purple);
 }
 .report-stat {
   flex: 1;
-  padding: 18px 16px;
+  padding: 20px 16px;
   text-align: center;
-  border-right: 1px solid var(--border2);
+  border-right: 1px solid var(--border3);
   background: var(--surface);
+  transition: background 0.2s;
 }
+.report-stat:hover { background: var(--surface2); }
 .report-stat:last-child { border-right: none; }
 .report-stat-val {
   font-family: 'Playfair Display', serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   color: var(--accent);
   display: block;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 .report-stat-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--muted);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 /* Header divider */
 .report-header-divider {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent2), var(--accent));
-  margin: 0 auto 32px;
+  width: 48px; height: 2px;
+  background: linear-gradient(90deg, var(--purple), var(--accent));
+  margin: 0 auto 36px;
   border-radius: 1px;
+  box-shadow: 0 0 12px rgba(201,169,110,0.3);
 }
 
 /* REPORT BODY */
 .report-body {
   max-width: 860px;
   margin: 0 auto;
-  padding: 56px 28px 100px;
+  padding: 64px 28px 120px;
 }
-.report-section { margin-bottom: 72px; }
+.report-section { margin-bottom: 76px; }
 .section-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: 10px;
+  letter-spacing: 0.22em;
   color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 28px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid rgba(255,255,255,0.15);
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(201,169,110,0.18);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 .section-label::before {
   content: '';
   display: inline-block;
-  width: 3px;
-  height: 14px;
-  background: var(--accent);
+  width: 3px; height: 12px;
+  background: linear-gradient(180deg, var(--accent), var(--purple));
   border-radius: 2px;
   flex-shrink: 0;
 }
 .report-text {
   font-size: 19px;
   color: var(--text);
-  line-height: 1.85;
+  line-height: 1.88;
   font-weight: 400;
 }
 
-/* REPORT TEXT BLOCKS — bordered containers for key content */
+/* REPORT TEXT BLOCKS */
 .report-text-block {
-  background: rgba(255,255,255,0.03);
-  border: 2px solid rgba(255,255,255,0.12);
-  border-left: 4px solid var(--accent);
+  background: rgba(157,147,232,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-left: 3px solid var(--purple);
   border-radius: var(--r);
-  padding: 28px 32px;
+  padding: 32px 36px;
   margin-bottom: 0;
+  position: relative;
+}
+/* Pull-quote accent on first paragraph */
+.report-text-block p:first-child::first-line {
+  color: var(--text);
+  font-weight: 500;
 }
 .report-text-block p {
-  margin-bottom: 1.2em;
+  margin-bottom: 1.3em;
   font-size: 19px;
-  line-height: 1.85;
+  line-height: 1.88;
   color: var(--text);
 }
 .report-text-block p:last-child { margin-bottom: 0; }
 
-/* Section container — adds background block to each major section */
+/* Section container */
 .report-section-block {
   background: rgba(255,255,255,0.02);
-  border: 2px solid rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: 16px;
   padding: 36px;
   margin-bottom: 28px;
 }
-.report-section-block .section-label {
-  margin-top: 0;
-}
+.report-section-block .section-label { margin-top: 0; }
 
-/* Axis bar track — slightly stronger */
-.axis-bars { display: flex; flex-direction: column; gap: 20px; }
+/* Axis bars */
+.axis-bars { display: flex; flex-direction: column; gap: 22px; }
 .axis-row { display: flex; flex-direction: column; gap: 6px; }
-.axis-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
+.axis-meta { display: flex; justify-content: space-between; align-items: baseline; }
 .axis-name {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-  color: var(--text);
+  font-size: 12px;
+  color: var(--text2);
   letter-spacing: 0.04em;
   font-weight: 500;
 }
 .axis-score {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--accent);
   font-weight: 700;
 }
 .axis-track {
-  height: 10px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 5px;
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
   overflow: hidden;
   position: relative;
 }
 .axis-fill {
   height: 100%;
-  border-radius: 5px;
-  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  border-radius: 4px;
+  transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
 }
 .axis-poles {
   display: flex;
   justify-content: space-between;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--muted);
   margin-top: 3px;
-  opacity: 0.6;
+  opacity: 0.5;
+  letter-spacing: 0.04em;
 }
 
-/* CONTRADICTION CARDS */
+/* CONTRADICTION CARDS — upgraded with severity indicator */
 .contradiction-cards { display: flex; flex-direction: column; gap: 20px; }
 .contradiction-card {
   background: var(--surface);
-  border: 2px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.10);
   border-left: 4px solid var(--danger);
   border-radius: var(--r);
-  padding: 24px 28px;
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
 }
+.contradiction-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 100%;
+  background: radial-gradient(ellipse at right center, rgba(232,112,112,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.contradiction-card.tier-b { border-left-color: var(--accent); }
+.contradiction-card.tier-b::before { background: radial-gradient(ellipse at right center, rgba(201,169,110,0.05) 0%, transparent 70%); }
+.contradiction-card.tier-c { border-left-color: var(--purple); }
+.contradiction-card.tier-c::before { background: radial-gradient(ellipse at right center, rgba(157,147,232,0.05) 0%, transparent 70%); }
+.contradiction-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
 .contradiction-title {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--danger);
-  margin-bottom: 10px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.10em;
   font-weight: 600;
+  text-transform: uppercase;
+  flex: 1;
 }
-.contradiction-text { font-size: 17px; color: var(--text); line-height: 1.75; font-weight: 400; opacity: 0.9; }
+.contradiction-card.tier-b .contradiction-title { color: var(--accent); }
+.contradiction-card.tier-c .contradiction-title { color: var(--purple2); }
+.contradiction-tier-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 3px 10px;
+  border-radius: 50px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.contradiction-card .contradiction-tier-badge { color: var(--danger); border-color: rgba(232,112,112,0.3); background: rgba(232,112,112,0.08); }
+.contradiction-card.tier-b .contradiction-tier-badge { color: var(--accent); border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.08); }
+.contradiction-card.tier-c .contradiction-tier-badge { color: var(--purple2); border-color: rgba(157,147,232,0.3); background: rgba(157,147,232,0.08); }
+.contradiction-text { font-size: 16px; color: var(--text2); line-height: 1.78; font-weight: 400; }
 
 /* LIFE ALIGNMENT */
 .alignment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 .alignment-card {
   background: var(--surface);
-  border: 2px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: var(--r);
-  padding: 24px;
-  transition: border-color 0.2s;
+  padding: 26px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
-.alignment-card:hover { border-color: var(--accent); }
+.alignment-card:hover { border-color: rgba(201,169,110,0.3); transform: translateY(-2px); box-shadow: var(--glow-gold); }
 .alignment-card-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: 9px;
+  letter-spacing: 0.18em;
   color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 12px;
   font-weight: 600;
 }
-.alignment-card-text { font-size: 16px; color: var(--text); line-height: 1.7; font-weight: 400; }
+.alignment-card-text { font-size: 16px; color: var(--text); line-height: 1.75; font-weight: 400; }
 
 /* GROWTH EDGES */
-.growth-list { display: flex; flex-direction: column; gap: 14px; }
+.growth-list { display: flex; flex-direction: column; gap: 12px; }
 .growth-item {
   display: flex;
-  gap: 20px;
-  padding: 22px 24px;
+  gap: 22px;
+  padding: 24px 26px;
   background: var(--surface);
-  border: 2px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: var(--r);
   align-items: flex-start;
+  transition: border-color 0.2s;
 }
+.growth-item:hover { border-color: rgba(157,147,232,0.25); }
 .growth-num {
   font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  color: var(--accent2);
-  line-height: 1;
+  font-size: 26px;
+  color: var(--purple2);
+  line-height: 1.1;
   flex-shrink: 0;
   font-weight: 700;
+  opacity: 0.75;
 }
-.growth-text { font-size: 17px; color: var(--text); line-height: 1.75; font-weight: 400; }
+.growth-text { font-size: 17px; color: var(--text); line-height: 1.78; font-weight: 400; }
 
 /* MEDIA ECOSYSTEM */
 .media-grid {
@@ -877,25 +1060,27 @@ body::before {
 @media (max-width: 600px) { .media-grid { grid-template-columns: 1fr; } }
 .media-category {
   background: var(--surface);
-  border: 2px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: var(--r);
-  padding: 20px;
+  padding: 22px;
+  transition: border-color 0.2s;
 }
+.media-category:hover { border-color: rgba(157,147,232,0.2); }
 .media-category-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  color: var(--accent2);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--purple2);
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   font-weight: 600;
 }
 .media-item {
-  padding: 8px 0;
+  padding: 9px 0;
   border-bottom: 1px solid var(--border);
   font-size: 15px;
   color: var(--text);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 .media-item:last-child { border-bottom: none; padding-bottom: 0; }
 .media-item-sub {
@@ -1323,11 +1508,13 @@ select.modal-input option { background: #12101e; }
 </style>
 </head>
 <body>
+<canvas id="constellation-bg"></canvas>
 
 <!-- ══════════════════════════════════════════
      SCREEN 1: INTRO
 ══════════════════════════════════════════ -->
 <div id="screen-intro" class="screen active">
+  <div class="intro-glow3"></div>
   <!-- Floating philosophical symbols -->
   <div class="intro-symbols" aria-hidden="true">
     <!-- Third glow blob — teal/green, centre -->
@@ -1371,7 +1558,7 @@ select.modal-input option { background: #12101e; }
   </div>
 
   <div class="intro-inner">
-    <div class="intro-eyebrow">The Life PM · Beta</div>
+    <div class="intro-eyebrow">Philosophical OS · Beta</div>
     <h1 class="intro-title">Your<br/><em>Philosophical</em><br/>OS</h1>
     <p class="intro-sub">A rigorous belief assessment that maps your complete worldview and tells you what to do with it.</p>
     <div class="intro-meta">
@@ -1724,7 +1911,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1r03',tier:1,axis:'realism',type:'likert',
- text:'What we call reality is always filtered through our senses and concepts. We never access the world as it truly is.',
+ text:'The world has properties that exist independently of how our minds perceive or categorise it.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1r04',tier:1,axis:'realism',type:'scenario',
@@ -1765,7 +1952,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1p04',tier:1,axis:'physicalism',type:'likert',
- text:'There is something it is like to be conscious, a subjective inner experience, that cannot be fully explained by describing brain states alone.',
+ text:'What we call subjective inner experience — the feeling of being conscious — is ultimately a physical process that a complete neuroscience will fully explain.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1p05',tier:1,axis:'physicalism',type:'tradeoff',
@@ -1802,11 +1989,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2k04',tier:2,axis:'knowledge',type:'likert',
- text:'Personal revelation or spiritual insight can be a legitimate source of genuine knowledge about reality.',
+ text:'Claims derived from personal revelation or spiritual insight require the same evidential scrutiny as any other knowledge claim.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2k05',tier:2,axis:'knowledge',type:'tradeoff',
- text:'Which is more epistemically honest?',
+ text:'Which approach to belief feels more intellectually honest to you?',
  options:[
    {text:'Withholding belief until there is good evidence, even on questions that matter deeply',score:7},
    {text:'Some questions are too important to wait for evidence, we have to commit and act',score:3},
@@ -1848,7 +2035,7 @@ const QUESTIONS = [
 
 // ── MEANING SOURCE (5 questions) ──
 {id:'t2me01',tier:2,axis:'meaning',type:'likert',
- text:'Human existence has no pre-given purpose from outside. Any meaning we have is meaning we create for ourselves.',
+ text:'Meaning is something that exists independently of human minds — it is discovered, not invented.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2me02',tier:2,axis:'meaning',type:'scenario',
@@ -1868,7 +2055,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2me04',tier:2,axis:'meaning',type:'likert',
- text:'A human life can be deeply meaningful regardless of whether the universe has any ultimate purpose built into it.',
+ text:'The meaningfulness of a life depends on whether it connects to something genuinely and objectively worth caring about — not just what a person decides to care about.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2me05',tier:2,axis:'meaning',type:'scenario',
@@ -1901,7 +2088,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2s04',tier:2,axis:'science',type:'likert',
- text:'Scientists and scientific institutions can be wrong, biased, and corrupted, so their authority should not be taken at face value.',
+ text:'Even accounting for institutional failures and human bias, the scientific method produces more reliable knowledge about the world than any alternative we have.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 // ══════════════════════════════════════════
@@ -2005,14 +2192,14 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3r04',tier:3,axis:'religion',type:'likert',
- text:'Private religious belief shapes a person\'s reasoning in ways that are broadly beneficial to how they navigate the world.',
+ text:'Private religious belief shapes a person\'s reasoning in ways that are broadly harmful — it insulates conclusions from evidence and reason.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3r05',tier:3,axis:'religion',type:'tradeoff',
  text:'For someone grieving a devastating loss, religious belief that offers comfort and community is:',
  options:[
+   {text:'Still worth scrutinising — beliefs that insulate themselves from truth carry real costs, even when comforting',score:7},
    {text:'A net positive regardless of whether it is true, human wellbeing matters',score:3},
-   {text:'Worth examining — comforting beliefs that may not be true still carry costs over time',score:6},
    {text:'Their choice, I do not make that judgment for others',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -2135,11 +2322,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3mp03',tier:3,axis:'meaning_practice',type:'likert',
- text:'If the universe is ultimately without inherent meaning, the most honest response is to stop pretending things matter and accept that they do not.',
+ text:'Even if the universe has no inherent meaning, the most honest response is to build meaning anyway — to commit fully rather than disengage.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3mp04',tier:3,axis:'meaning_practice',type:'tradeoff',
- text:'Camus said we must imagine Sisyphus happy, pushing his rock forever with no destination. That image feels:',
+ text:'Imagine Sisyphus: condemned to push a rock up a hill forever, only for it to roll back each time — no purpose, no destination, no end. The idea that he could be happy doing this feels:',
  options:[
    {text:'Right, the rebellion itself is the point, not the outcome',score:7},
    {text:'Dishonest, dressing up futility as meaning does not change what it is',score:2},
@@ -2201,7 +2388,8 @@ const QUESTIONS = [
  options:[
    {text:'A useful social fiction, it motivates behaviour even if it is philosophically questionable',score:6},
    {text:'Genuinely real, people are the authors of their choices in a meaningful sense',score:2},
-   {text:'Meaningful in a limited sense, we are responsible for what flows from who we are, even if we did not choose who we are',score:4}
+   {text:'Meaningful in a limited sense, we are responsible for what flows from who we are, even if we did not choose who we are',score:4},
+   {text:'Largely illusory. Our choices are the product of causes we did not choose, which means assigning responsibility is a category error',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3resp04',tier:3,axis:'responsibility',type:'scenario',
@@ -2284,7 +2472,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3ec03',tier:3,axis:'economics',type:'likert',
- text:'Economic growth that increases inequality, where the rich get richer but the poor also get somewhat richer, is still a good outcome.',
+ text:'Economic growth that increases inequality is not acceptable even if absolute conditions improve across the board — how wealth is distributed matters morally, not just whether the total grows.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3ec04',tier:3,axis:'economics',type:'tradeoff',
@@ -2338,11 +2526,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3mind03',tier:3,axis:'mind_consciousness',type:'likert',
- text:'The hard problem of consciousness, why physical processes produce subjective experience, is one of the genuinely deepest unsolved problems in science.',
+ text:'The hard problem of consciousness is largely a philosophical confusion — once we fully explain all the brain\'s functions, there will be nothing left requiring a separate explanation.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3mind04',tier:3,axis:'mind_consciousness',type:'tradeoff',
- text:'Panpsychism, the idea that consciousness is a fundamental feature of reality, present to some degree in all matter, is:',
+ text:'Panpsychism is the idea that consciousness is not exclusive to brains — it is a basic feature of reality present in some form in all matter, from animals to atoms. It is not a spiritual claim but a philosophical response to why physical processes produce subjective experience at all. This view is:',
  options:[
    {text:'An interesting attempt to solve a real problem, worth taking seriously',score:5},
    {text:'Implausible, consciousness clearly emerges from complex systems, it is not fundamental',score:7},
@@ -2458,7 +2646,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15hn04',tier:1,axis:'human_nature',type:'likert',
- text:'Gender, personality, and moral character are substantially shaped by biology and universal human nature, not primarily by culture.',
+ text:'Personality and moral character are substantially shaped by biology and universal human nature, not primarily by culture and environment.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t15hn05',tier:1,axis:'human_nature',type:'tradeoff',
@@ -2480,7 +2668,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15em02',tier:1,axis:'epistemic_method',type:'likert',
- text:'Personal intuition and lived experience are legitimate sources of knowledge about reality, not just data to be explained away.',
+ text:'Personal intuition and lived experience are starting points that need to be tested and refined — they are not sufficient on their own as reliable knowledge sources.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t15em03',tier:1,axis:'epistemic_method',type:'scenario',
@@ -2500,7 +2688,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15em05',tier:1,axis:'epistemic_method',type:'likert',
- text:'Spiritual insight or contemplative practice can reveal genuine truths about reality that other methods miss.',
+ text:'Spiritual or contemplative practices can have genuine personal value, but the claims they produce about reality still need to be assessed by the same standards as any other knowledge claim.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 // ── SOCIAL ONTOLOGY (5 questions) ──
@@ -2546,7 +2734,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15to02',tier:1,axis:'temporal_orientation',type:'likert',
- text:'Accumulated cultural wisdom from the past deserves significant weight when making decisions about how to live and how to organise society.',
+ text:'Accumulated cultural wisdom from the past is useful context, but it should never override what better current knowledge and ethical understanding tell us.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t15to03',tier:1,axis:'temporal_orientation',type:'scenario',
@@ -2598,7 +2786,7 @@ const QUESTIONS = [
    {text:'God or sacred tradition. That is the only foundation that holds.',score:1},
    {text:'Reason. Principles that can be justified to anyone, regardless of their beliefs.',score:5},
    {text:'The affected people themselves, working through what they can all accept.',score:6},
-   {text:'The facts of human nature. What beings like us genuinely need to flourish.',score:5}
+   {text:'The facts of human nature. What beings like us genuinely need to flourish.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15lma05',tier:1,axis:'moral_authority',type:'likert',
@@ -2640,11 +2828,11 @@ const QUESTIONS = [
 
 // ── FREE WILL IN PRACTICE (5 questions) ──
 {id:'t2fwip01',tier:2,axis:'freewill_practice',type:'tradeoff',
- text:'Even if you believe that human behaviour is substantially caused by prior conditions, in daily life you:',
+ text:'When someone behaves in a way that causes harm, your instinctive response is to:',
  options:[
-   {text:'Hold people accountable for their actions, including yourself. The causal view does not change how I operate.',score:3},
-   {text:'Try to understand what produced the behaviour before deciding how to respond. The causal view shapes everything.',score:7},
-   {text:'Vary my approach depending on the situation. Both frames are useful in different contexts.',score:5}
+   {text:'Hold them accountable for their actions. Whatever caused it, the response has to be about responsibility.',score:3},
+   {text:'Ask what produced the behaviour — their history, circumstances, state of mind. Understanding comes first.',score:7},
+   {text:'Vary my approach depending on what is at stake. Both frames have their place.',score:5}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2fwip02',tier:2,axis:'freewill_practice',type:'likert',
@@ -2652,7 +2840,7 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2fwip03',tier:2,axis:'freewill_practice',type:'scenario',
- text:'Someone you care about does something that hurts you. Setting aside your philosophical views about causation, what do you actually feel?',
+ text:'Someone you care about does something that hurts you. What do you actually feel?',
  options:[
    {text:'I feel they could have done otherwise. The anger and hurt are real.',score:2},
    {text:'I try to understand what drove the behaviour. The causal frame is my genuine first response.',score:7},
@@ -2660,7 +2848,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2fwip04',tier:2,axis:'freewill_practice',type:'likert',
- text:'Holding someone responsible for their actions feels right to me even when I acknowledge their behaviour was shaped by factors outside their control.',
+ text:'While acknowledging that behaviour may be shaped by factors outside their control, I believe we should hold people responsible for their actions.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2fwip05',tier:2,axis:'freewill_practice',type:'tradeoff',
@@ -2779,10 +2967,10 @@ function startQuiz() {
 // Name injection positions (question indices)
 const NAME_SLOTS = new Set([8, 20, 35, 52, 68, 84, 100]);
 const NAME_OPENERS = [
-  (n) => `${n}, think honestly about this:`,
-  (n) => `A direct one for you, ${n}:`,
-  (n) => `${n}, this one matters:`,
-  (n) => `Take your time with this one, ${n}:`,
+  (n) => `${n},`,
+  (n) => `${n},`,
+  (n) => `${n},`,
+  (n) => `${n},`,
 ];
 let nameOpenerIdx = 0;
 function injectName(text, qIndex, name) {
@@ -2822,8 +3010,7 @@ function renderQuestion() {
   // Update background glow and sketch
   updateQuizBackground(q.axis, q.tier);
 
-  let html = `<div class="q-number">${state.currentQ + 1}</div>
-    ${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
+  let html = `${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
 
   if (q.type === 'likert') {
     const cur = state.answers[q.id];
@@ -2842,7 +3029,7 @@ function renderQuestion() {
     opts.forEach((opt, i) => {
       const letters = ['A', 'B', 'C', 'D'];
       const sel = cur === opt.score ? 'selected' : '';
-      html += `<div class="tradeoff-opt ${sel}" onclick="selectOption('${q.id}',${opt.score})">
+      html += `<div class="tradeoff-opt ${sel}" data-score="${opt.score}" onclick="selectOption('${q.id}',${opt.score})">
         <div class="tradeoff-letter">${letters[i]}</div>
         <div class="tradeoff-text">${opt.text}</div>
       </div>`;
@@ -2858,7 +3045,7 @@ function renderQuestion() {
       <div class="scenario-options">`;
     opts.forEach(opt => {
       const sel = cur === opt.score ? 'selected' : '';
-      html += `<div class="scenario-opt ${sel}" onclick="selectOption('${q.id}',${opt.score})">${opt.text}</div>`;
+      html += `<div class="scenario-opt ${sel}" data-score="${opt.score}" onclick="selectOption('${q.id}',${opt.score})">${opt.text}</div>`;
     });
     html += '</div></div>';
   }
@@ -2888,10 +3075,10 @@ function selectLikert(qid, val) {
 
 function selectOption(qid, score) {
   state.answers[qid] = score;
-  // Only update option selection — don't rebuild the whole question
+  // Read score from data-score attribute — avoids false matches when two options share a score value
   const allOpts = document.querySelectorAll('.tradeoff-opt, .scenario-opt');
   allOpts.forEach(opt => {
-    const optScore = parseInt(opt.getAttribute('onclick').match(/,(\-?\d+\.?\d*)\)/)?.[1]);
+    const optScore = parseFloat(opt.getAttribute('data-score'));
     opt.classList.toggle('selected', optScore === score);
   });
   const nextBtn = document.querySelector('.btn-next');
@@ -3092,7 +3279,7 @@ const ARCHETYPES = [
    failureMode:'Activist burnout without personal meaning scaffolding. When structural problems feel endless, the absence of cosmic purpose can become exhaustion rather than committed absurdist action.'},
 
   {id:'1B', family:'The Determined Humanist', variant:'The Philosopher',
-   sig:[7,7,6,7,2,1],
+   sig:[7,7,7,6,2,1],
    description:'You hold hard determinism and naturalism with intellectual rigour and genuine curiosity rather than as a battle cry. You are more interested in understanding the implications of your position than in deploying it as a weapon. The question of how a determined being acts with genuine commitment is the most interesting problem you know.',
    thinkers:'Daniel Dennett · Patricia Churchland · Galen Strawson',
    strength:'Intellectual consistency under pressure — you can follow an argument wherever it leads without flinching.',
@@ -3106,7 +3293,7 @@ const ARCHETYPES = [
    failureMode:'Technocratic drift — the pragmatist can optimise for measurable outcomes and lose sight of what cannot be measured.'},
 
   {id:'1D', family:'The Determined Humanist', variant:'The Quiet',
-   sig:[7,7,6,7,2,1],
+   sig:[7,5,5,7,2,1],
    description:'You hold your determinist and naturalist foundations privately and without performance. You do not need others to agree with you. The conclusions are simply where honest thinking led. You live consistently with what you believe — in how you treat people, how you assign responsibility, how you make sense of suffering — without requiring an audience for it.',
    thinkers:'Marcus Aurelius · Oliver Sacks · Albert Camus (private mode)',
    strength:'Integrity — positions held privately are positions genuinely held.',
@@ -3322,7 +3509,7 @@ const ARCHETYPES = [
    failureMode:'Platforming harm. Defending freedom of speech without adequately accounting for structural power differentials.'},
 
   {id:'7D', family:'The Principled Libertarian', variant:'The Voluntaryist',
-   sig:[6,5,5,4,4,3],
+   sig:[5,5,5,4,2,3],
    description:'You hold that all legitimate social arrangements must be based on voluntary consent — that no collective has the right to impose arrangements on individuals who have not agreed to them. You are skeptical of the state as an institution, preferring voluntary association, mutual aid, and market coordination over coercive governance.',
    thinkers:'Murray Rothbard · David Friedman · Lysander Spooner',
    strength:'Consistency — you apply the consent principle universally rather than selectively.',
@@ -3344,7 +3531,7 @@ const ARCHETYPES = [
    failureMode:'Emotional suppression masquerading as equanimity. True Stoicism acknowledges feeling; false Stoicism denies it.'},
 
   {id:'8B', family:'The Stoic Naturalist', variant:'The Modern Stoic',
-   sig:[7,7,7,6,3,2],
+   sig:[7,6,7,6,3,2],
    description:'You apply Stoic practice to a fully contemporary naturalist and determinist worldview. The dichotomy of control remains central: focus on what is within your sphere of influence, accept what is not. You do not believe in the logos as a cosmic rational principle, but you find Stoic practice genuinely useful without the metaphysical framework.',
    thinkers:'Ryan Holiday · Massimo Pigliucci · William Irvine',
    strength:'Practical philosophy — you have integrated your beliefs into daily practice rather than holding them as abstract positions.',
@@ -3394,7 +3581,7 @@ const ARCHETYPES = [
    failureMode:'Intellectual dishonesty. Retaining religious forms while denying their content can become a way of having the community and ritual without the cost of genuine belief.'},
 
   {id:'9D', family:'The Spiritual Naturalist', variant:'The Deep Ecologist',
-   sig:[5,4,5,4,5,5],
+   sig:[6,2,5,4,5,5],
    description:'You hold that nature is not merely a resource but a domain of value, meaning, and moral claim in its own right. The natural world has intrinsic value independent of its utility to humans, and human beings are participants in an ecosystem rather than owners of it. Your spirituality is ecological.',
    thinkers:'Arne Næss · Robin Wall Kimmerer · Gary Snyder',
    strength:'Expanding the moral community beyond humans — you see value that others are trained not to notice.',
@@ -3437,7 +3624,7 @@ const ARCHETYPES = [
    failureMode:'Teleological overspecification from a contested account of human nature — the "natural" often tracks cultural preferences more than biological facts.'},
 
   {id:'10E', family:'The Conservative Traditionalist', variant:'The Communitarian',
-   sig:[5,5,5,4,6,5],
+   sig:[3,4,5,4,6,5],
    description:'You hold that individuals are constituted by their communities and that the liberal fiction of the self-creating individual misunderstands what persons actually are. You are conservative about community, tradition, and cultural identity — recognising that human beings cannot flourish without embeddedness in particular communities with particular histories.',
    thinkers:'Alasdair MacIntyre · Charles Taylor · Michael Sandel',
    strength:'Thick account of the self — you take seriously what liberal individualism abstracts away.',
@@ -3473,7 +3660,7 @@ const ARCHETYPES = [
    failureMode:'Incoherence. Holding tradition and reform in tension without explicit principles for adjudicating between them can produce inconsistent decisions.'},
 
   {id:'11E', family:'The Pragmatic Centrist', variant:'The Problem Solver',
-   sig:[6,5,6,4,4,3],
+   sig:[6,5,4,4,3,3],
    description:'Your primary philosophical orientation is practical problem-solving rather than theoretical commitment. You bring strong empirical thinking, high tolerance for ambiguity, and genuine curiosity to every question. You are willing to work with people across the ideological spectrum if they are genuinely interested in solving problems rather than winning arguments.',
    thinkers:'John Dewey · Amartya Sen · Elinor Ostrom',
    strength:'Getting things done across ideological lines — you find the practical overlap between competing frameworks.',
@@ -3488,7 +3675,7 @@ const ARCHETYPES = [
    failureMode:'Affective numbing. The honest nihilist can cut off genuine feeling in the name of intellectual consistency.'},
 
   {id:'12B', family:'The Nihilist Reductionist', variant:'The Error Theorist',
-   sig:[7,7,6,5,1,1],
+   sig:[7,7,6,5,1,2],
    description:'You hold that moral claims are systematically false — not merely subjective, but actually false, because they presuppose mind-independent moral facts that do not exist. When people say "torturing children is wrong" they are making a claim that would be true only if objective moral facts existed. No such facts exist, so the claim is false.',
    thinkers:'J.L. Mackie · Richard Joyce · Stefan Olsson',
    strength:'Following the argument to its conclusion with intellectual courage.',
@@ -3502,14 +3689,14 @@ const ARCHETYPES = [
    failureMode:'Performative self-contradiction. The eliminativist who uses beliefs and reasons to argue against beliefs and reasons faces a well-known performative challenge.'},
 
   {id:'12D', family:'The Nihilist Reductionist', variant:'The Pessimist',
-   sig:[7,6,5,5,2,1],
+   sig:[7,5,4,7,2,1],
    description:'You hold not only that the universe has no purpose but that existence, on balance, involves more suffering than flourishing — and that this is a structural fact about conscious life rather than a correctable condition. Your pessimism is not mood but metaphysics. You have thought this through and find it honest.',
    thinkers:'Arthur Schopenhauer · David Benatar · Thomas Ligotti',
    strength:'Honest accounting of suffering that optimistic frameworks systematically undercount.',
    failureMode:'Paralysis or contagion. Pessimism as a metaphysical position is coherent; pessimism as a social orientation tends to drain the people around you.'},
 
   {id:'12E', family:'The Nihilist Reductionist', variant:'The Functional Nihilist',
-   sig:[7,7,6,6,1,1],
+   sig:[7,7,6,6,2,2],
    description:'You hold nihilist positions at the metaphysical and metaethical level while continuing to function fully in practical life — not through self-deception but through a clear-eyed acknowledgment that caring, valuing, and acting are features of your psychology that do not require cosmic grounding to be real. The positions are correct; life continues anyway.',
    thinkers:'Alex Rosenberg · Richard Rorty (anti-metaphysical) · Nietzsche (post-nihilism)',
    strength:'The most psychologically stable nihilist type — you have integrated the positions without requiring them to produce paralysis.',
@@ -3826,9 +4013,16 @@ function testReport() {
       else if (highScope.includes(axis)) state.answers[q.id] = 7;
       else state.answers[q.id] = 5;
     } else if (q.options) {
-      // Pick first option
       const opts = q.options;
-      state.answers[q.id] = opts[0].score;
+      // For axes with known strong positions, pick the option closest to that pole
+      const highScoreAxes = [...hardDeterminist, ...antiReligion, ...constructivist, ...structural, ...highScope];
+      if (highScoreAxes.includes(axis)) {
+        // Pick the option with the highest score (right-pole / anti-theist / determinist)
+        const best = opts.reduce((a, b) => b.score > a.score ? b : a);
+        state.answers[q.id] = best.score;
+      } else {
+        state.answers[q.id] = opts[0].score;
+      }
     }
   });
   showEmailCapture();
@@ -3979,14 +4173,25 @@ async function generateReport() {
   const prompt = `Generate a philosophical profile report as JSON for ${userName}.
 
 ARCHETYPE: ${arch.family} — ${arch.variant}
+ARCHETYPE DESCRIPTION: ${arch.description}
 STRENGTH: ${arch.strength}
 FAILURE MODE: ${arch.failureMode}
 THINKERS: ${arch.thinkers}
-TOP 5 AXES: ${fingerprintSummary}
-CONTRADICTIONS: ${contradictionSummary}
+${liminalNote}
+
+TOP 5 AXIS FINGERPRINT (most extreme deviations from centre):
+${fingerprintSummary}
+
+ALL 32 AXIS SCORES (1=left pole, 7=right pole, 4=centre):
+${scoresSummary}
+
+CONTRADICTIONS DETECTED:
+${contradictionSummary}
+
+Generate a report that makes ${userName} feel completely seen. Use their actual axis scores throughout — name specific positions, not generic archetype descriptions. Reference the contradictions where relevant. The identity section must be specific enough that ${userName} could not swap it with another person's report.
 
 Return ONLY this JSON, no markdown:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence capturing this worldview.","cardTagline":"Punchy 1-2 lines for a shareable card. Max 12 words per line. Bold and declarative.","identity":"3 paragraphs about ${userName}'s worldview based on their scores. Plain language. Personal. Reference ${userName} by name.","alignment":[{"label":"Work","text":"What environments fit and drain this type."},{"label":"Relationships","text":"What creates resonance and friction."},{"label":"Decisions","text":"How this type decides under uncertainty."},{"label":"Conflict","text":"How this type handles disagreement."}],"patterns":[{"type":"positive","label":"Superpower","text":"Core strength from this axis signature."},{"type":"negative","label":"Failure Mode","text":"Primary cognitive trap for this type."}],"growth":["First growth edge.","Second growth edge."],"contradictions":[${contradictions.map(c => `{"tier":"${c.tier}","title":"${c.title.replace(/"/g,"'")}"}`).join(',')}]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One precise sentence capturing this specific worldview combination. Not generic — reference actual axis positions.","cardTagline":"2 punchy lines for a shareable card. Max 12 words per line. Bold and declarative. First-person or declarative statement.","identity":"5-6 paragraphs. Paragraph 1: open with ${userName}'s most defining axis combination — what makes this profile specific. Paragraph 2: how their metaphysical foundations (naturalism, physicalism, determinism) shape how they see the world. Paragraph 3: their meaning and moral framework — what they actually believe about ethics and purpose. Paragraph 4: how their T3 applied positions (politics, justice, economics, religion, authority) form a coherent pattern. Paragraph 5: their epistemic character — how they handle uncertainty, evidence, and knowledge. Paragraph 6 (if contradictions exist): name the most significant tension and what it means for how they live. Use ${userName} by name. Plain language. No jargon without explanation. Make it feel like the most accurate thing anyone has ever said about them.","alignment":[{"label":"Work","text":"3-4 sentences. Specific to this axis combination — what environments produce flow, what produces friction, what leadership style emerges from these scores."},{"label":"Relationships","text":"3-4 sentences. Who creates deep resonance with this profile and why. Who creates friction and why. What this person needs from close relationships."},{"label":"Decisions","text":"3-4 sentences. How this specific combination of epistemic method, uncertainty tolerance, and moral framework shapes decision-making under pressure."},{"label":"Conflict","text":"3-4 sentences. What this profile does in genuine disagreement — what triggers defensiveness, what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2-3 sentences. The specific cognitive or moral capacity that this axis combination produces at its best."},{"type":"negative","label":"Failure Mode","text":"2-3 sentences. The specific trap this profile falls into — precise to these scores, not generic archetype description."}],"growth":["First growth edge — specific to a tension in their actual scores, 2 sentences.","Second growth edge — addresses a different dimension, 2 sentences.","Third growth edge — the hardest one, the thing this profile most resists, 2 sentences."]}`;
 
   try {
     const response = await fetch('/.netlify/functions/generate', {
@@ -3994,7 +4199,7 @@ Return ONLY this JSON, no markdown:
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 800
+        max_tokens: 2500
       })
     });
 
@@ -4845,7 +5050,12 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   const family = arch.family;
 
   // ── HEADER ──
-  document.getElementById('report-archetype').textContent = report.archetypeName || family;
+  const archetypeEl = document.getElementById('report-archetype');
+  archetypeEl.textContent = report.archetypeName || family;
+  archetypeEl.classList.remove('revealed');
+  void archetypeEl.offsetWidth;
+  archetypeEl.classList.add('revealed');
+
   document.getElementById('report-tagline').textContent = report.tagline || arch.description.split('.')[0] + '.';
 
   // Icon in report header
@@ -4854,16 +5064,16 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   if (!iconEl) {
     iconEl = document.createElement('div');
     iconEl.id = 'report-archetype-icon';
-    iconEl.style.cssText = 'margin: 0 auto 20px; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(157,147,232,0.1); border: 1.5px solid rgba(157,147,232,0.25); border-radius: 50%; color: rgba(200,190,255,0.9);';
+    iconEl.style.cssText = 'margin: 0 auto 24px; width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; background: rgba(157,147,232,0.09); border: 1px solid rgba(157,147,232,0.22); border-radius: 50%; color: rgba(200,190,255,0.85); box-shadow: 0 0 32px rgba(157,147,232,0.12);';
     document.getElementById('report-archetype').before(iconEl);
   }
   iconEl.innerHTML = iconData ? iconData.svgPath.replace('<svg ', '<svg width="44" height="44" ') : '';
 
-  // Variant line
+  // Variant label — use CSS class
   const variantLine = document.getElementById('report-variant-line');
   if (variantLine) {
-    variantLine.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:0.12em;color:var(--accent2);margin-bottom:20px;';
-    variantLine.textContent = `variant — ${report.archetypeVariant || arch.variant}`;
+    variantLine.className = 'report-variant-label';
+    variantLine.textContent = (report.archetypeVariant || arch.variant).toUpperCase();
   }
 
   // Thinkers
@@ -5109,12 +5319,14 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   if (contEl) {
     if (contradictions.length > 0) {
       const tierLabels = {A:'Hard Contradiction', B:'Consistency Flag', C:'Interesting Tension'};
-      const tierColors = {A:'var(--danger)', B:'#e8a048', C:'var(--tier2)'};
+      const tierClasses = {A:'', B:'tier-b', C:'tier-c'};
       contEl.innerHTML = contradictions.map(c => {
-        const tierColor = tierColors[c.tier] || 'var(--danger)';
-        return `<div class="contradiction-card" style="border-left-color:${tierColor}">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.12em;color:${tierColor};margin-bottom:6px;opacity:0.8;">${tierLabels[c.tier] || ''}</div>
-          <div class="contradiction-title" style="color:${tierColor}">${c.title}</div>
+        const tierClass = tierClasses[c.tier] || '';
+        return `<div class="contradiction-card ${tierClass}">
+          <div class="contradiction-header">
+            <div class="contradiction-title">${c.title}</div>
+            <div class="contradiction-tier-badge">${tierLabels[c.tier] || c.tier}</div>
+          </div>
           <div class="contradiction-text">${c.text || ''}</div>
         </div>`;
       }).join('');
@@ -5296,22 +5508,29 @@ function renderCardToCanvas(container) {
   ctx.fillStyle = 'rgba(201,169,110,0.7)'; ctx.textAlign = 'left';
   ctx.fillText('THE', PAD+36, PAD+108);
 
-  // Archetype name — large
+  // Archetype name — large, constrained to leave icon zone clear (icon at x~886)
+  const nameMaxW = W - PAD - 36 - 220 - 40 - (PAD + 36); // leave 220px + 40px gap for icon
   const nameWords = cardData.archetypeName.replace('The ','').split(' ');
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
   if(nameWords.length <= 2) {
     ctx.font = 'bold 118px "Playfair Display",serif';
     nameWords.forEach((w,i) => {
       const mw = ctx.measureText(w).width;
-      if(mw > W-PAD*2-72) ctx.font = 'bold '+Math.floor(118*(W-PAD*2-72)/mw)+'px "Playfair Display",serif';
+      if(mw > nameMaxW) ctx.font = 'bold '+Math.floor(118*nameMaxW/mw)+'px "Playfair Display",serif';
       ctx.fillText(w, PAD+36, PAD+200+i*128);
       ctx.font = 'bold 118px "Playfair Display",serif';
     });
   } else {
     ctx.font = 'bold 86px "Playfair Display",serif';
     const mid=Math.ceil(nameWords.length/2);
-    ctx.fillText(nameWords.slice(0,mid).join(' '), PAD+36, PAD+180);
-    ctx.fillText(nameWords.slice(mid).join(' '), PAD+36, PAD+272);
+    const line1 = nameWords.slice(0,mid).join(' ');
+    const line2 = nameWords.slice(mid).join(' ');
+    const mw1 = ctx.measureText(line1).width;
+    const mw2 = ctx.measureText(line2).width;
+    const maxMw = Math.max(mw1, mw2);
+    if(maxMw > nameMaxW) ctx.font = 'bold '+Math.floor(86*nameMaxW/maxMw)+'px "Playfair Display",serif';
+    ctx.fillText(line1, PAD+36, PAD+180);
+    ctx.fillText(line2, PAD+36, PAD+272);
   }
 
   // Icon — right side of header, sized to match archetype name height
@@ -5335,10 +5554,13 @@ function renderCardToCanvas(container) {
     ctx.restore();
   }
 
-  // Variant + rarity pill
-  ctx.font = '500 24px "IBM Plex Mono",monospace';
-  ctx.fillStyle = 'rgba(180,160,220,0.9)'; ctx.textAlign = 'left';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, PAD+B1H-32);
+  // Variant label — sits at bottom of header block with clear separation from name
+  ctx.font = '500 22px "IBM Plex Mono",monospace';
+  ctx.fillStyle = 'rgba(180,160,220,0.75)'; ctx.textAlign = 'left';
+  // Thin separator line above variant
+  ctx.strokeStyle='rgba(157,147,232,0.2)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+36, PAD+B1H-62); ctx.lineTo(PAD+420, PAD+B1H-62); ctx.stroke();
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, PAD+B1H-38);
 
   const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
   const rPct = (rarityMap[cardData.archetypeName]||'RARE')+' RAREST';
@@ -5364,12 +5586,11 @@ function renderCardToCanvas(container) {
   ctx.fillText('WHO YOU ARE', PAD+28, y+38);
   ctx.strokeStyle='rgba(201,169,110,0.2)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(PAD+COLA-24,y+46); ctx.stroke();
-  const rawDesc = strip(cardData.cardDescription||cardData.cardTagline||'');
-  const sentences = (rawDesc.match(/[^.!?]+[.!?]+/g)||[rawDesc]);
-  const descText = sentences.slice(0,3).join(' ').trim();
-  ctx.font = 'italic 33px "Playfair Display",serif';
+  // Use cardTagline (punchy AI-generated lines) — cardDescription is the full paragraph and overflows
+  const rawDesc = strip(cardData.cardTagline || cardData.cardDescription || '');
+  ctx.font = 'italic 27px "Playfair Display",serif';
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  wrapText(descText, PAD+24, y+84, COLA-48, 46, 5);
+  wrapText(rawDesc, PAD+24, y+84, COLA-48, 38, 4);
 
   // A2 — Quick stats block
   const bx2 = PAD + COLA + 16;
@@ -5630,6 +5851,95 @@ function downloadCard() {
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
+
+// ══════════════════════════════════════════
+// CONSTELLATION BACKGROUND — signature visual motif
+// Persistent animated node network across all screens
+// ══════════════════════════════════════════
+(function initConstellation() {
+  const cvs = document.getElementById('constellation-bg');
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d');
+
+  let W, H, nodes, animId;
+  const NODE_COUNT = 38;
+  const MAX_DIST = 180;
+  const NODE_COLORS = [
+    'rgba(157,147,232,',   // purple
+    'rgba(201,169,110,',   // gold
+    'rgba(91,191,148,',    // teal
+    'rgba(184,174,245,',   // light purple
+  ];
+
+  function resize() {
+    W = cvs.width  = window.innerWidth;
+    H = cvs.height = window.innerHeight;
+    initNodes();
+  }
+
+  function initNodes() {
+    nodes = Array.from({length: NODE_COUNT}, (_, i) => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.28,
+      vy: (Math.random() - 0.5) * 0.28,
+      r: Math.random() * 1.8 + 0.6,
+      color: NODE_COLORS[i % NODE_COLORS.length],
+      pulse: Math.random() * Math.PI * 2,
+      pulseSpeed: Math.random() * 0.02 + 0.008,
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Update positions
+    nodes.forEach(n => {
+      n.x += n.vx;
+      n.y += n.vy;
+      n.pulse += n.pulseSpeed;
+      if (n.x < -10) n.x = W + 10;
+      if (n.x > W + 10) n.x = -10;
+      if (n.y < -10) n.y = H + 10;
+      if (n.y > H + 10) n.y = -10;
+    });
+
+    // Draw edges
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[j].x - nodes[i].x;
+        const dy = nodes[j].y - nodes[i].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * 0.12;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(157,147,232,${alpha})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw nodes
+    nodes.forEach(n => {
+      const pulse = Math.sin(n.pulse);
+      const r = n.r + pulse * 0.5;
+      const alpha = 0.35 + pulse * 0.15;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = n.color + alpha + ')';
+      ctx.fill();
+    });
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
 </script>
 </body>
 </html>
