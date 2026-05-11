@@ -417,14 +417,16 @@ body::before {
 .likert-wrap { width: 100%; }
 .likert-scale {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin-bottom: 14px;
 }
 .likert-btn {
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
+  min-width: 0;
+  flex-shrink: 1;
   border-radius: 50%;
   border: 1.5px solid var(--border2);
   background: var(--surface);
@@ -437,6 +439,10 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+@media (max-width: 480px) {
+  .likert-btn { width: 42px; height: 42px; font-size: 14px; }
+  .likert-scale { gap: 6px; }
 }
 .likert-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.1); }
 .likert-btn.selected { background: var(--accent); border-color: var(--accent); color: #1a1410; transform: scale(1.1); font-weight: 700; }
@@ -1180,21 +1186,25 @@ body::before {
   backdrop-filter: blur(12px);
   z-index: 500;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 24px;
   animation: fadeIn 0.3s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 .modal-box {
   background: #12101e;
   border: 1px solid rgba(157,147,232,0.3);
   border-radius: 20px;
-  padding: 48px 40px;
+  padding: 40px 32px;
   max-width: 520px;
   width: 100%;
   box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(120,100,240,0.15);
   animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  margin: auto;
+  flex-shrink: 0;
 }
 @keyframes slideUp { from { transform:translateY(40px);opacity:0; } to { transform:translateY(0);opacity:1; } }
 .modal-eyebrow {
@@ -2812,7 +2822,7 @@ function renderQuestion() {
   // Update background glow and sketch
   updateQuizBackground(q.axis, q.tier);
 
-  let html = `<div class="q-number">${state.currentQ + 1} of ${totalQ}</div>
+  let html = `<div class="q-number">${state.currentQ + 1}</div>
     ${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
 
   if (q.type === 'likert') {
