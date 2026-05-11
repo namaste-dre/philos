@@ -4173,35 +4173,42 @@ async function generateReport() {
   const prompt = `Generate a philosophical profile report as JSON for ${userName}.
 
 ARCHETYPE: ${arch.family} — ${arch.variant}
-ARCHETYPE DESCRIPTION: ${arch.description}
+DESCRIPTION: ${arch.description}
 STRENGTH: ${arch.strength}
 FAILURE MODE: ${arch.failureMode}
-THINKERS: ${arch.thinkers}
 ${liminalNote}
 
-TOP 5 AXIS FINGERPRINT (most extreme deviations from centre):
+TOP 5 FINGERPRINT AXES:
 ${fingerprintSummary}
 
-ALL 32 AXIS SCORES (1=left pole, 7=right pole, 4=centre):
+ALL 32 AXIS SCORES:
 ${scoresSummary}
 
-CONTRADICTIONS DETECTED:
+CONTRADICTIONS:
 ${contradictionSummary}
 
-Generate a report that makes ${userName} feel completely seen. Use their actual axis scores throughout — name specific positions, not generic archetype descriptions. Reference the contradictions where relevant. The identity section must be specific enough that ${userName} could not swap it with another person's report.
-
-Return ONLY this JSON, no markdown:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One precise sentence capturing this specific worldview combination. Not generic — reference actual axis positions.","cardTagline":"2 punchy lines for a shareable card. Max 12 words per line. Bold and declarative. First-person or declarative statement.","identity":"5-6 paragraphs. Paragraph 1: open with ${userName}'s most defining axis combination — what makes this profile specific. Paragraph 2: how their metaphysical foundations (naturalism, physicalism, determinism) shape how they see the world. Paragraph 3: their meaning and moral framework — what they actually believe about ethics and purpose. Paragraph 4: how their T3 applied positions (politics, justice, economics, religion, authority) form a coherent pattern. Paragraph 5: their epistemic character — how they handle uncertainty, evidence, and knowledge. Paragraph 6 (if contradictions exist): name the most significant tension and what it means for how they live. Use ${userName} by name. Plain language. No jargon without explanation. Make it feel like the most accurate thing anyone has ever said about them.","alignment":[{"label":"Work","text":"3-4 sentences. Specific to this axis combination — what environments produce flow, what produces friction, what leadership style emerges from these scores."},{"label":"Relationships","text":"3-4 sentences. Who creates deep resonance with this profile and why. Who creates friction and why. What this person needs from close relationships."},{"label":"Decisions","text":"3-4 sentences. How this specific combination of epistemic method, uncertainty tolerance, and moral framework shapes decision-making under pressure."},{"label":"Conflict","text":"3-4 sentences. What this profile does in genuine disagreement — what triggers defensiveness, what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2-3 sentences. The specific cognitive or moral capacity that this axis combination produces at its best."},{"type":"negative","label":"Failure Mode","text":"2-3 sentences. The specific trap this profile falls into — precise to these scores, not generic archetype description."}],"growth":["First growth edge — specific to a tension in their actual scores, 2 sentences.","Second growth edge — addresses a different dimension, 2 sentences.","Third growth edge — the hardest one, the thing this profile most resists, 2 sentences."]}`;
-
+Return ONLY valid JSON, no markdown fences:
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence — specific to these axis scores, not a generic archetype description.","cardTagline":"2 punchy lines max 12 words each. Bold declarative statement about this worldview.","identity":"4-5 paragraphs. Name ${userName} by name. Cover: (1) defining axis combination, (2) metaphysical foundations and how they shape perception, (3) meaning and ethics framework, (4) epistemic character and how they handle evidence. If contradictions exist add a 5th paragraph naming the tension. Be specific — ${userName} should not be able to swap this with another person's report.","alignment":[{"label":"Work","text":"3 sentences specific to this axis combination."},{"label":"Relationships","text":"3 sentences — resonance, friction, what they need."},{"label":"Decisions","text":"3 sentences — how epistemic method and uncertainty tolerance shape this."},{"label":"Conflict","text":"3 sentences — triggers, what produces growth."}],"patterns":[{"type":"positive","label":"Superpower","text":"2 sentences specific to this profile."},{"type":"negative","label":"Failure Mode","text":"2 sentences specific to this profile."}],"growth":["Growth edge 1 — specific tension in their scores.","Growth edge 2 — different dimension.","Growth edge 3 — the hardest one, what this profile most resists."]}`;
   try {
     const response = await fetch('/.netlify/functions/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 2500
+        max_tokens: 1500
       })
     });
+
+    // Netlify returns HTML on 504/5xx — detect before trying JSON.parse
+    const contentType = response.headers.get('content-type') || '';
+    if (!response.ok || !contentType.includes('application/json')) {
+      const statusText = response.status === 504
+        ? 'The report is taking too long to generate. Please try again.'
+        : response.status === 503
+        ? 'Service temporarily unavailable. Please try again in a moment.'
+        : `Server error (${response.status}). Please try again.`;
+      throw new Error(statusText);
+    }
 
     const data = await response.json();
     if (!data || !data.content) {
@@ -4209,7 +4216,20 @@ Return ONLY this JSON, no markdown:
     }
     const raw = data.content.map(b => b.text || '').join('');
     const clean = raw.replace(/```json|```/g,'').trim();
-    const report = JSON.parse(clean);
+
+    // Safely parse JSON — catch malformed output
+    let report;
+    try {
+      report = JSON.parse(clean);
+    } catch(parseErr) {
+      // Try extracting JSON object from the response if model added preamble
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        report = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Report generation produced unexpected output. Please try again.');
+      }
+    }
 
     // Final step done
     setTimeout(() => {
@@ -4234,8 +4254,15 @@ Return ONLY this JSON, no markdown:
     }, delays[delays.length-1] + 600);
 
   } catch(err) {
+    const errMsg = err.message || 'Unknown error';
+    const isTimeout = errMsg.includes('too long') || errMsg.includes('504') || errMsg.includes('connection');
     document.getElementById('gen-error').innerHTML =
-      `<div class="error-box">Generation failed: ${err.message}.<br/>Check API connectivity and try again.</div>`;
+      `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+        <div>${isTimeout ? '⏱ ' : '⚠ '}${errMsg}</div>
+        <button onclick="generateReport()" style="background:var(--accent);border:none;color:#1a1208;padding:10px 24px;border-radius:50px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;">
+          Try again
+        </button>
+      </div>`;
   }
 }
 
