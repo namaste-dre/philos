@@ -35,7 +35,7 @@
   --glow-gold: 0 0 40px rgba(201,169,110,0.18);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -43,6 +43,7 @@ body {
   font-size: 18px;
   line-height: 1.65;
   min-height: 100vh;
+  overflow-x: hidden;
   font-weight: 400;
 }
 
@@ -63,6 +64,9 @@ body::before {
   pointer-events: none;
   z-index: 0;
   opacity: 0.55;
+}
+@media (min-width: 768px) {
+  #constellation-bg { opacity: 0.9; }
 }
 
 /* ── SCREENS ── */
@@ -106,6 +110,18 @@ body::before {
   pointer-events: none;
   filter: blur(70px);
 }
+@media (min-width: 768px) {
+  #screen-intro::before {
+    width: 1200px; height: 1200px;
+    background: radial-gradient(circle, rgba(100,80,255,0.75) 0%, rgba(80,60,200,0.30) 40%, transparent 70%);
+    filter: blur(80px);
+  }
+  #screen-intro::after {
+    width: 1000px; height: 1000px;
+    background: radial-gradient(circle, rgba(220,160,50,0.65) 0%, rgba(201,169,110,0.22) 40%, transparent 70%);
+    filter: blur(90px);
+  }
+}
 /* Third accent glow — pink/violet mid-left */
 .intro-glow3 {
   position: absolute;
@@ -117,6 +133,18 @@ body::before {
   pointer-events: none;
   filter: blur(80px);
 }
+@media (min-width: 768px) {
+  .intro-glow3 {
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(180,100,220,0.50) 0%, transparent 70%);
+    filter: blur(100px);
+  }
+}
+/* Sketches: desktop only — too much visual noise on mobile */
+@media (max-width: 767px) {
+  #quiz-sketch-img { display: none !important; }
+}
+
 @keyframes driftA {
   0%   { transform: translate(0,0) scale(1); }
   100% { transform: translate(90px,70px) scale(1.2); }
@@ -829,8 +857,10 @@ body::before {
   font-weight: 700;
   color: var(--accent);
   display: block;
-  line-height: 1;
+  line-height: 1.1;
   margin-bottom: 5px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .report-stat-label {
   font-family: 'IBM Plex Mono', monospace;
@@ -838,6 +868,33 @@ body::before {
   color: var(--muted);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+@media (max-width: 480px) {
+  .report-stats {
+    flex-direction: column;
+    max-width: 100%;
+  }
+  .report-stat {
+    border-right: none;
+    border-bottom: 1px solid var(--border3);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    gap: 12px;
+  }
+  .report-stat:last-child { border-bottom: none; }
+  .report-stat-val {
+    font-size: 22px;
+    flex-shrink: 0;
+    max-width: 55%;
+    text-align: right;
+  }
+  .report-stat-label {
+    font-size: 9px;
+    flex: 1;
+  }
 }
 /* Header divider */
 .report-header-divider {
@@ -1005,6 +1062,37 @@ body::before {
 .contradiction-card.tier-b .contradiction-tier-badge { color: var(--accent); border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.08); }
 .contradiction-card.tier-c .contradiction-tier-badge { color: var(--purple2); border-color: rgba(157,147,232,0.3); background: rgba(157,147,232,0.08); }
 .contradiction-text { font-size: 16px; color: var(--text2); line-height: 1.78; font-weight: 400; }
+.contradiction-questions {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.contradiction-questions-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.contradiction-question {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.contradiction-question::before {
+  content: '→';
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.contradiction-card.tier-c .contradiction-question::before { color: var(--purple2); }
 
 /* LIFE ALIGNMENT */
 .alignment-grid {
@@ -1260,25 +1348,17 @@ body::before {
 .phil-term {
   cursor: help;
   border-bottom: 1px dotted rgba(201,169,110,0.5);
-  position: relative;
+  position: static;
   display: inline;
 }
-.phil-term:hover .phil-tip,
-.phil-term:focus .phil-tip {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
 .phil-tip {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
+  position: fixed;
   background: #1e1c2e;
   border: 1px solid rgba(201,169,110,0.35);
   border-radius: 8px;
   padding: 12px 16px;
   width: 280px;
+  max-width: calc(100vw - 24px);
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 14px;
   font-style: normal;
@@ -1287,19 +1367,28 @@ body::before {
   line-height: 1.55;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.18s, transform 0.18s;
-  z-index: 1000;
+  transition: opacity 0.18s ease;
+  z-index: 9999;
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   white-space: normal;
+  /* position is set via JS inline styles */
+}
+.phil-tip.tip-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 .phil-tip::after {
   content: '';
   position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
   border: 6px solid transparent;
+}
+.phil-tip.tip-above::after {
+  top: 100%;
   border-top-color: rgba(201,169,110,0.35);
+}
+.phil-tip.tip-below::after {
+  bottom: 100%;
+  border-bottom-color: rgba(201,169,110,0.35);
 }
 .phil-tip-term {
   font-family: 'IBM Plex Mono', monospace;
@@ -1309,21 +1398,6 @@ body::before {
   text-transform: uppercase;
   display: block;
   margin-bottom: 6px;
-}
-/* On mobile — tip opens below */
-@media (max-width: 600px) {
-  .phil-tip {
-    bottom: auto;
-    top: calc(100% + 10px);
-    transform: translateX(-50%) translateY(-4px);
-  }
-  .phil-tip::after {
-    top: auto;
-    bottom: 100%;
-    border-top-color: transparent;
-    border-bottom-color: rgba(201,169,110,0.35);
-  }
-  .phil-term:hover .phil-tip { transform: translateX(-50%) translateY(0); }
 }
 .card-download-btn {
   display: inline-flex;
@@ -3173,19 +3247,25 @@ function updateQuizBackground(axis, tier) {
     const layer = document.getElementById('quiz-glow-layer');
     if (layer) {
       const palette = TIER_GLOW_PALETTES[tier] || TIER_GLOW_PALETTES[1];
-      layer.innerHTML = palette.map(g => `
-        <div class="quiz-glow" style="
-          background: radial-gradient(circle, ${g.color} 0%, transparent 70%);
-          width: ${g.size}px; height: ${g.size}px;
+      const isDesktop = window.innerWidth >= 768;
+      const glowScale = isDesktop ? 1.9 : 1;
+      layer.innerHTML = palette.map(g => {
+        const size = Math.round(g.size * glowScale);
+        const color = isDesktop
+          ? g.color.replace(/([\d.]+)\)$/, (_, v) => Math.min(1, parseFloat(v) * 1.6) + ')')
+          : g.color;
+        return `<div class="quiz-glow" style="
+          background: radial-gradient(circle, ${color} 0%, transparent 70%);
+          width: ${size}px; height: ${size}px;
           left: ${g.x}; top: ${g.y};
-          margin-left: -${g.size/2}px; margin-top: -${g.size/2}px;
+          margin-left: -${size/2}px; margin-top: -${size/2}px;
           animation-duration: ${g.dur}s;
           --dx1: ${g.dx1}; --dy1: ${g.dy1};
           --dx2: ${g.dx2}; --dy2: ${g.dy2};
           --dx3: ${g.dx3}; --dy3: ${g.dy3};
           animation-delay: ${Math.random()*-10}s;
-        "></div>
-      `).join('');
+        "></div>`;
+      }).join('');
     }
   }
 
@@ -3219,7 +3299,7 @@ function updateQuizBackground(axis, tier) {
       filter: invert(1) opacity(0.12);
       mix-blend-mode: screen;
       transition: opacity 0.6s ease;
-    "/>`;
+    " onerror="this.parentElement.style.display='none';console.warn('Phil OS: sketch not found —', '${imgUrl}')"/>`;
     sketchEl.style.display = 'flex';
   } else if (sketchEl) {
     sketchEl.style.display = 'none';
@@ -3569,29 +3649,29 @@ const ARCHETYPES = [
    strength:'Taking consciousness seriously as a genuine explanatory challenge rather than explaining it away.',
    failureMode:'Combination problem. Panpsychism faces serious difficulties explaining how micro-conscious entities combine into unified conscious experience.'},
 
-  {id:'9B', family:'The Spiritual Naturalist', variant:'The Meaning Seeker',
-   sig:[5,4,5,4,4,5],
-   description:'You hold genuine uncertainty about most deep metaphysical questions while maintaining a strong intuition that there is more to reality than a purely reductionist account captures. You seek meaning not as construction but as something to be found — in nature, in relationship, in contemplative experience, in art.',
-   thinkers:'William James · Karen Armstrong · Alain de Botton',
-   strength:'Holding questions open with genuine intellectual honesty rather than forcing premature closure.',
-   failureMode:'Vagueness as a permanent resting place. Some questions do have answers, and permanent meaning-seeking can become a way of avoiding commitment.'},
+  {id:'9B', family:'The Spiritual Naturalist', variant:'The Metaphysical Idealist',
+   sig:[2,1,2,2,4,6],
+   description:'You hold that consciousness, mind, or spirit is primary — that matter is either derived from or dependent upon a deeper mental or spiritual reality. Reality is not the blind machinery of physics but something closer to mind all the way down. This may express as Law of Attraction thinking, idealist philosophy, energy-based spirituality, or the conviction that intention shapes reality in ways science has not yet fully mapped.',
+   thinkers:'George Berkeley · Rupert Sheldrake · Amit Goswami',
+   strength:'Taking the hard problem of consciousness seriously and refusing to accept a purely materialist account that leaves experience unexplained.',
+   failureMode:'Magical thinking. The metaphysical idealist can slide from a philosophically serious position into unfalsifiable claims about reality that serve wish-fulfilment rather than truth.'},
 
   {id:'9C', family:'The Spiritual Naturalist', variant:'The Religious Humanist',
-   sig:[5,4,5,4,5,5],
-   description:'You hold humanist values within a framework that retains religious forms, rituals, and language emptied of supernatural content. You find meaning in the stories, practices, and communities of religious tradition without requiring literal belief in their metaphysical claims. Religion, for you, is poetry rather than proposition.',
-   thinkers:'Alain de Botton · Ronald Dworkin · Don Cupitt',
-   strength:'Access to depth traditions without supernaturalism — you draw on millennia of accumulated wisdom.',
-   failureMode:'Intellectual dishonesty. Retaining religious forms while denying their content can become a way of having the community and ritual without the cost of genuine belief.'},
+   sig:[4,3,6,3,6,5],
+   description:'You hold humanist values within a framework that retains genuine, if reinterpreted, religious commitment. You take the moral and meaning content of religious tradition seriously — as real guides to human flourishing — without requiring literal assent to every metaphysical claim. Religion, for you, is not merely poetry but a tested system of practice and meaning that liberal secular culture has not adequately replaced.',
+   thinkers:'Alain de Botton · Ronald Dworkin · Rabbi Jonathan Sacks',
+   strength:'Access to depth traditions with epistemic honesty — you draw on millennia of accumulated wisdom without pretending certainty you do not have.',
+   failureMode:'Selective tradition. The religious humanist can retain the parts of tradition that are comfortable while quietly dropping the demands that are costly.'},
 
-  {id:'9D', family:'The Spiritual Naturalist', variant:'The Deep Ecologist',
-   sig:[6,2,5,4,5,5],
-   description:'You hold that nature is not merely a resource but a domain of value, meaning, and moral claim in its own right. The natural world has intrinsic value independent of its utility to humans, and human beings are participants in an ecosystem rather than owners of it. Your spirituality is ecological.',
-   thinkers:'Arne Næss · Robin Wall Kimmerer · Gary Snyder',
-   strength:'Expanding the moral community beyond humans — you see value that others are trained not to notice.',
-   failureMode:'Misanthropy disguised as ecology. Some forms of deep ecology hold human beings as the problem in ways that are philosophically confused.'},
+  {id:'9D', family:'The Spiritual Naturalist', variant:'The Dharmic Practitioner',
+   sig:[5,2,4,3,5,3],
+   description:'You hold a position shaped by Buddhist, Hindu, Jain, or related dharmic traditions — in which consciousness is not reducible to matter, moral reality is structured by karma and the conditions of suffering and liberation, and meaning is discovered through disciplined practice rather than either secular construction or divine revelation. You may or may not hold the metaphysical superstructure literally, but the ethical and contemplative core is genuinely yours.',
+   thinkers:'Thich Nhat Hanh · B.R. Ambedkar · Ramana Maharshi',
+   strength:'Integration of ethics, practice, and metaphysics — your philosophy is lived, not merely held.',
+   failureMode:'Spiritual bypassing. The dharmic practitioner can use practice and non-attachment as reasons to avoid engaging with structural injustice or personal psychological work.'},
 
   {id:'9E', family:'The Spiritual Naturalist', variant:'The Contemplative Agnostic',
-   sig:[4,3,4,4,4,4],
+   sig:[4,3,4,4,3,4],
    description:'You hold genuine and considered uncertainty about most of the deepest metaphysical questions. This is not intellectual timidity but a hard-won epistemic position: the questions about consciousness, meaning, and the nature of reality are genuinely difficult, and the honest answer to most of them is "I do not know." You sit with that uncertainty rather than resolving it prematurely.',
    thinkers:'William James · Thomas Nagel · Simone Weil',
    strength:'Intellectual honesty under social pressure to have confident views.',
@@ -3801,7 +3881,7 @@ const CONTRADICTIONS = [
     a:'determinism', b:'responsibility',
     check:(d,r) => d >= 5.0 && r <= 3.0,
     title:'Determinism + High Personal Responsibility',
-    text:'You lean toward determinism — behaviour is substantially caused by prior conditions — yet also hold strong personal responsibility, implying people are the genuine authors of their choices. These apply incompatible causal frameworks to the same question. This is one of the most common tensions in thoughtful people: the philosophical position is determinist but the emotional and practical stance retains strong responsibility intuitions. Resolution options: pragmatic responsibility (useful fiction that motivates behaviour), compatibilist responsibility (responsible for what flows from your character even if you didn\'t choose your character), or weakening one position toward the other.',
+    text:'You lean toward determinism — behaviour is substantially caused by prior conditions — yet also hold strong personal responsibility, implying people are the genuine authors of their choices. These apply incompatible causal frameworks to the same question. This is one of the most common tensions in thoughtful people: the philosophical position is determinist but the emotional and practical stance retains strong responsibility intuitions. Resolution options: pragmatic responsibility (useful fiction that motivates behaviour), compatibilist responsibility (responsible for what flows from your character even if you didn’t choose your character), or weakening one position toward the other.',
   },
   {
     id:'C06', tier:'B',
@@ -3964,6 +4044,140 @@ const CONTRADICTIONS = [
     title:'Authored Self + Essential Identity (Interesting Tension)',
     text:'You hold a strongly authored view of the self — the self as a free, originating source of choices — alongside a strongly essentialist view of identity — that there is a fixed nature or essence to who you are. These are in gentle tension: the authored self emphasises radical freedom to constitute oneself through choices, while essentialist identity implies a nature that precedes and constrains those choices. The question is what the self is authoring if it has a fixed essential nature. These positions can coexist if the authoring is understood as expressing and actualising a given nature rather than creating it from scratch — but this limits the scope of self-authorship considerably. Sartrean authenticity (existence precedes essence) sits at one pole; Aristotelian eudaimonia (actualise your given nature) at the other.',
   },
+  // ── MIRROR RULES — bidirectional coverage ──
+  // Each mirrors an existing rule in the opposite directional check
+
+  {id:'C01b', tier:'A',
+   a:'determinism', b:'justice',
+   check:(d,j) => j <= 2.0 && d <= 4.5,
+   title:'Desert Justice Without Causal Examination',
+   text:'You hold that people deserve punishment — that justice is about getting what is owed for choices made — without having committed to any view on whether those choices were causally determined. Desert-based justice only makes full sense if people could genuinely have done otherwise. If behaviour is substantially shaped by genetics, upbringing, circumstance, and neurology — as the scientific consensus increasingly shows — the desert framework either requires compatibilism (people deserve consequences for what flows from their character, even if character is caused) or revision. The unexamined combination of strong desert intuitions with no position on causal determinism is where most punitive justice systems live — and where most of their philosophical problems originate.',
+   questions:[
+     'What grounds the claim that someone deserves punishment — what must be true about their choices for desert to apply?',
+     'If a person’s character and choices are substantially shaped by factors outside their control, does that affect how much they deserve punishment?',
+     'Is there a version of justice you could endorse that doesn’t require people to have been able to do otherwise?',
+   ]},
+
+  {id:'C02b', tier:'A',
+   a:'naturalism', b:'physicalism',
+   check:(n,p) => p >= 5.5 && n <= 2.5,
+   title:'Strong Physicalism + Supernatural Worldview',
+   text:'You hold that everything that exists is constituted by physical processes — yet also hold that reality includes supernatural elements beyond the physical order. These are directly contradictory. Physicalism is the claim that physical processes are all there is — no supernatural entities, forces, or interventions that operate outside physical law. A supernatural worldview holds that some aspects of reality are not explicable by physical processes. You cannot hold both simultaneously without redefining one of them beyond recognition. Resolution requires choosing: either the supernatural elements you accept are reinterpreted as natural (appearing supernatural only due to incomplete knowledge), or physicalism is weakened to something like "physical processes are primary" rather than exhaustive.',
+   questions:[
+     'What specifically do you mean by "supernatural" — and is it possible that what you have in mind is actually within the scope of a future physical account?',
+     'If physicalism is true, what happens to the supernatural elements you accept?',
+     'Can you hold that physical processes are primary without claiming they are all there is?',
+   ]},
+
+  {id:'C06b', tier:'B',
+   a:'meaning', b:'meaning_practice',
+   check:(m,mp) => m >= 5.5 && mp <= 2.5,
+   title:'Objective Meaning Realism + Nihilist Practice',
+   text:'You hold that meaning is objectively real — that some things genuinely matter independently of what anyone thinks about them — yet your practical orientation toward meaning scores toward nihilism, as if nothing matters. This is a more acute tension than its reverse: if meaning is not just constructed but genuinely real, nihilism is not a coherent resting place but a failure to engage with something that exists. You are, on this combination, committed to the existence of something you are practically refusing to engage with. The question worth examining: is the nihilist practice a philosophical position, an affective state — depression, exhaustion, alienation — or a failure to connect an abstract belief about objective meaning to any concrete content?',
+   questions:[
+     'If you believe meaning is objectively real, what specific things do you believe carry genuine meaning — and are you engaging with them?',
+     'Is your practical nihilism a considered philosophical position or does it feel more like a mood or emotional state?',
+     'What would it look like to actually live as if objective meaning were real?',
+   ]},
+
+  {id:'C08b', tier:'C',
+   a:'naturalism', b:'meaning',
+   check:(n,m) => n <= 2.5 && m <= 2.5,
+   title:'Supernatural Worldview + Meaning Nihilism (Interesting Tension)',
+   text:'You hold a supernatural or non-naturalist view of reality — that not everything is explicable through physical processes — yet also hold that meaning is absent or constructed rather than given. Most supernatural worldviews — religious traditions, spiritual frameworks, animist ontologies — ground meaning precisely in the non-natural: in divine purpose, cosmic significance, or participation in a reality larger than the physical. A supernatural worldview without meaning realism is philosophically unusual. It suggests either that you hold a supernatural ontology without accepting its meaning implications, or that the supernatural elements of your worldview are not the kind that typically generate purpose. Worth examining what your non-natural commitments actually consist in.',
+   questions:[
+     'What do the supernatural elements of your worldview actually consist in — and do they carry any implications for meaning or purpose?',
+     'Is it possible that your supernatural commitments and your meaning nihilism are operating in separate mental registers that have not been brought into contact?',
+     'What would a supernatural worldview that genuinely entailed nihilism look like — and is that actually your position?',
+   ]},
+
+  {id:'C09b', tier:'B',
+   a:'politics', b:'economics',
+   check:(p,e) => p <= 2.5 && e >= 5.5,
+   title:'Individualist Politics + Redistributive Economics',
+   text:'You hold a strongly individualist or market-oriented political philosophy — one that prioritises individual freedom, limited state, and personal responsibility — yet lean toward redistributive economics, which requires significant collective mechanisms and state intervention to function. These apply inconsistent frameworks to the same underlying question of how social outcomes should be organised. Individualist political philosophy generally entails market economics as its natural expression. Redistributive economics generally entails collective political mechanisms. Holding both requires explicit justification: on what grounds is economic redistribution compatible with political individualism? The most coherent versions involve market-based redistribution mechanisms (negative income tax, UBI) that achieve redistribution through market mechanisms rather than collective political power.',
+   questions:[
+     'What specifically drives your preference for redistribution — and can that goal be achieved without the collective political mechanisms you resist?',
+     'If the state should be limited in political matters, on what grounds should it be more active in economic ones?',
+     'Is the tension between your political and economic positions something you have explicitly thought through, or has it not come into focus before?',
+   ]},
+
+  {id:'C10b', tier:'B',
+   a:'moral_scope', b:'animal_ethics',
+   check:(ms,ae) => ms <= 2.5 && ae >= 5.5,
+   title:'Human-Priority Moral Scope + High Animal Ethics Weight',
+   text:'You hold that the moral circle is primarily or exclusively human — that human interests substantially outweigh non-human interests — yet assign high moral weight to animal ethics, treating animal suffering as carrying genuine moral force. These cannot both be fully true simultaneously. High animal ethics weighting is precisely a claim about the moral scope of your ethical framework — that animals are serious moral patients within it. Human-priority moral scope is a claim that they are not, or not seriously. The position requires resolution: either animal suffering has genuine moral weight comparable to human suffering (which expands your scope beyond humans), or human-priority scope is your actual position (which should reduce your animal ethics weighting).',
+   questions:[
+     'What is it about animals that makes their suffering carry moral weight — and does that same feature not apply across your moral scope?',
+     'Can you articulate a principled reason why human interests take priority that does not also justify ignoring animal suffering entirely?',
+     'If you had to choose between your moral scope position and your animal ethics position, which reflects your deeper commitments?',
+   ]},
+
+  {id:'C12b', tier:'C',
+   a:'realism', b:'identity',
+   check:(r,id) => r <= 2.5 && id <= 2.5,
+   title:'Anti-Realist Epistemics + Essential Fixed Identity (Interesting Tension)',
+   text:'You hold that reality is substantially mind-constructed — that facts do not exist independently of frameworks, perspectives, or practices — yet also hold an essentialist view of personal identity: that there is a fixed nature to who you are that precedes social construction. These apply inconsistent logic to the same question of independence from minds and practices. Anti-realism applied consistently would extend to persons: what we are is substantially constituted by social practices, language, and relationships rather than fixed in advance. The tension is not fatal — some philosophers hold anti-realism about the external world while retaining a robust account of personal identity — but it requires explicit work to show why the constructivist logic stops at the boundary of the self.',
+   questions:[
+     'Why does the constructivist logic you apply to external reality not extend to personal identity?',
+     'What is the fixed essential nature you believe you have — and what is its status if reality is mind-constructed?',
+     'Is there a coherent position that combines anti-realism about the world with essentialism about persons?',
+   ]},
+
+  {id:'C14b', tier:'B',
+   a:'epistemic_method', b:'science',
+   check:(em,sc) => em >= 5.5 && sc <= 2.5,
+   title:'Empiricist Epistemology + Science Skepticism',
+   text:'You hold that empirical evidence and observation are the primary routes to reliable knowledge — yet maintain significant skepticism toward science as an institution and epistemic authority. This is a meaningful tension: science is the most rigorous systematic embodiment of empirical method humanity has developed. Endorsing empiricism while distrusting science suggests either that you believe science is not actually following empirical principles — a concern about replication crises, institutional bias, or funding pressures — or that your empiricism is an abstract commitment that does not translate into trust in its institutional expression. The distinction matters: if your concern is methodological failures within science, the solution is better science, not science skepticism. If your concern is that current science is structurally compromised, you need an account of what genuine empirical inquiry would look like.',
+   questions:[
+     'What specifically drives your skepticism toward science — methodology, institutional incentives, specific findings, or something else?',
+     'If not science, what institutions or practices do you trust to embody empirical method reliably?',
+     'Is your concern that science is failing to be empirical enough — or that empiricism itself has limits?',
+   ]},
+
+  {id:'C16b', tier:'A',
+   a:'moral_authority', b:'religion',
+   check:(ma,rel) => ma >= 5.5 && rel <= 2.5,
+   title:'Divine Moral Authority + Anti-Theism',
+   text:'You hold that the primary source of moral authority is divine command or sacred tradition — yet hold a strongly anti-theist position, rejecting or actively opposing theism. These are directly contradictory: divine command theory requires a divine commander. If no god exists, or if theism is actively harmful, the divine command framework for moral authority has no foundation. This combination appears most often in people who retain the moral authority structure of a religious upbringing — the sense that right and wrong are handed down from above — while abandoning the theological claims that made that structure coherent. Resolution requires either finding a non-divine ground for moral authority (reason, nature, social contract) or revising the anti-theism toward agnosticism to preserve some grounding for the authority structure.',
+   questions:[
+     'If no god exists, what does your sense of divine moral authority actually ground out in?',
+     'Is the authority structure you retained from religious formation something you actually endorse on reflection, or a habit of mind that has not been examined?',
+     'What would a fully non-divine account of the moral authority you feel actually look like?',
+   ]},
+
+  {id:'C17b', tier:'B',
+   a:'social_ontology', b:'society',
+   check:(so,soc) => so >= 5.5 && soc <= 2.5,
+   title:'Collectivist Ontology + Individualist Social Preference',
+   text:'You hold that social reality is genuinely structural — that groups, institutions, and social forces have independent standing and causal power that cannot be reduced to individual actions — yet prefer individualist social arrangements, emphasising personal freedom over collective provision and limiting collective organisation. These apply inconsistent logic. If social structures are real and causally powerful, individualist social arrangements do not make them disappear — they simply leave structural forces unaccountable and ungoverned. The case for collective social organisation is strongest precisely when you accept a holist social ontology: if structures are real and powerful, they should be deliberately shaped rather than left to operate without democratic accountability. The tension worth examining: why accept structural causal power while preferring that those structures remain ungoverned?',
+   questions:[
+     'If structural forces are real and causally powerful, who governs them under your preferred individualist arrangements?',
+     'Is your individualist social preference driven by distrust of specific collective mechanisms, or a principled commitment to individualism?',
+     'Can structural ontology be made consistent with individualist politics — and if so, how?',
+   ]},
+
+  {id:'C22b', tier:'C',
+   a:'temporal_orientation', b:'progress',
+   check:(to,pr) => to >= 5.5 && pr <= 2.5,
+   title:'Future-Orientation + Progress Pessimism (Interesting Tension)',
+   text:'You are oriented toward the future — you look to what could be rather than what has been, and ground your values in possibility rather than precedent — yet hold significant pessimism about whether the civilisational trajectory is actually improving. This is not a logical contradiction but a motivationally significant tension. Future-orientation without progress optimism produces a particular psychological configuration: you are pointed toward a future you do not believe will be better. The question worth examining is whether this is pessimism about the direction things are going (things are getting worse and need to be changed — which is motivating) or pessimism about what is possible (things cannot get substantially better — which tends toward paralysis). The first is a diagnosis; the second is a verdict.',
+   questions:[
+     'Is your pessimism about trajectory (things are heading in the wrong direction) or about possibility (things cannot substantially improve)?',
+     'What would have to change for your progress pessimism to shift — and do you believe those changes are possible?',
+     'How does your future-orientation actually function given your pessimism — what are you oriented toward if not improvement?',
+   ]},
+
+  {id:'C26b', tier:'B',
+   a:'religion', b:'meaning',
+   check:(rel,m) => rel <= 2.5 && m >= 5.5,
+   title:'Anti-Theism + Objective Meaning Realism',
+   text:'You hold a strongly anti-theist position — rejecting or actively opposing theism — yet also hold that meaning is objectively real: that some things genuinely matter independently of what anyone thinks about them. This is a philosophically demanding combination. Most robust accounts of objective meaning have historically been grounded in either divine purpose (which you reject) or natural teleology (which requires showing how natural facts generate genuine meaning without a purposive creator). Secular objective meaning realism is possible — Cornell naturalism, Aristotelian flourishing accounts, Susan Wolf’s fitting fulfilment theory — but it requires explicit philosophical work. The question worth examining: what does your objective meaning actually consist in, and what grounds it in a world without divine purpose?',
+   questions:[
+     'What specific things do you believe carry objective meaning — and what makes them objectively meaningful rather than merely valued by you?',
+     'What grounds the objectivity of meaning in a world without divine purpose — natural facts, rational necessity, or something else?',
+     'Have you encountered a secular account of objective meaning that you find compelling, or is this a position you hold without having fully worked out its foundations?',
+   ]},
 ];
 
 function computeScores() {
@@ -5358,12 +5572,18 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       const tierClasses = {A:'', B:'tier-b', C:'tier-c'};
       contEl.innerHTML = contradictions.map(c => {
         const tierClass = tierClasses[c.tier] || '';
+        const questionsHtml = (c.questions && c.questions.length)
+          ? `<div class="contradiction-questions">
+              <div class="contradiction-questions-label">Questions to sit with</div>
+              ${c.questions.map(q => `<div class="contradiction-question">${q}</div>`).join('')}
+            </div>` : '';
         return `<div class="contradiction-card ${tierClass}">
           <div class="contradiction-header">
             <div class="contradiction-title">${c.title}</div>
             <div class="contradiction-tier-badge">${tierLabels[c.tier] || c.tier}</div>
           </div>
           <div class="contradiction-text">${c.text || ''}</div>
+          ${questionsHtml}
         </div>`;
       }).join('');
     } else {
@@ -5393,6 +5613,11 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   });
 
   show('screen-report');
+
+  // Re-attach tooltips to dynamically injected phil-term nodes
+  if (typeof window.attachTooltipBehaviour === 'function') {
+    setTimeout(window.attachTooltipBehaviour, 50);
+  }
 
   // ── CARD ──
   cardData = null;
@@ -5897,8 +6122,6 @@ function downloadCard() {
   const ctx = cvs.getContext('2d');
 
   let W, H, nodes, animId;
-  const NODE_COUNT = 38;
-  const MAX_DIST = 180;
   const NODE_COLORS = [
     'rgba(157,147,232,',   // purple
     'rgba(201,169,110,',   // gold
@@ -5906,19 +6129,38 @@ function downloadCard() {
     'rgba(184,174,245,',   // light purple
   ];
 
+  // Scale visual density to screen size
+  // Mobile (~390px): base values. Desktop (1440px+): boosted.
+  function getConfig() {
+    const w = window.innerWidth;
+    const isDesktop = w >= 768;
+    return {
+      nodeCount:  isDesktop ? 90  : 38,
+      maxDist:    isDesktop ? 220 : 180,
+      lineAlpha:  isDesktop ? 0.28 : 0.12,
+      lineWidth:  isDesktop ? 0.9  : 0.6,
+      nodeRMin:   isDesktop ? 1.2  : 0.6,
+      nodeRRange: isDesktop ? 2.8  : 1.8,
+      speed:      isDesktop ? 0.32 : 0.28,
+    };
+  }
+
+  let cfg = getConfig();
+
   function resize() {
     W = cvs.width  = window.innerWidth;
     H = cvs.height = window.innerHeight;
+    cfg = getConfig();
     initNodes();
   }
 
   function initNodes() {
-    nodes = Array.from({length: NODE_COUNT}, (_, i) => ({
+    nodes = Array.from({length: cfg.nodeCount}, (_, i) => ({
       x: Math.random() * W,
       y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.28,
-      vy: (Math.random() - 0.5) * 0.28,
-      r: Math.random() * 1.8 + 0.6,
+      vx: (Math.random() - 0.5) * cfg.speed,
+      vy: (Math.random() - 0.5) * cfg.speed,
+      r: Math.random() * cfg.nodeRRange + cfg.nodeRMin,
       color: NODE_COLORS[i % NODE_COLORS.length],
       pulse: Math.random() * Math.PI * 2,
       pulseSpeed: Math.random() * 0.02 + 0.008,
@@ -5945,13 +6187,13 @@ function downloadCard() {
         const dx = nodes[j].x - nodes[i].x;
         const dy = nodes[j].y - nodes[i].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < MAX_DIST) {
-          const alpha = (1 - dist / MAX_DIST) * 0.12;
+        if (dist < cfg.maxDist) {
+          const alpha = (1 - dist / cfg.maxDist) * cfg.lineAlpha;
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
           ctx.lineTo(nodes[j].x, nodes[j].y);
           ctx.strokeStyle = `rgba(157,147,232,${alpha})`;
-          ctx.lineWidth = 0.6;
+          ctx.lineWidth = cfg.lineWidth;
           ctx.stroke();
         }
       }
@@ -5974,6 +6216,94 @@ function downloadCard() {
   window.addEventListener('resize', resize);
   resize();
   draw();
+})();
+
+// ══════════════════════════════════════════
+// TOOLTIP POSITIONING ENGINE
+// Uses fixed positioning + viewport clamping so
+// tooltips never overflow off-screen on mobile.
+// ══════════════════════════════════════════
+(function initTooltips() {
+  const TIP_W = 280;
+  const GAP = 10;
+  const MARGIN = 12; // min distance from screen edge
+
+  function positionTip(term, tip) {
+    const rect = term.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const tipH = tip.offsetHeight || 120; // estimate if not yet visible
+    const tipW = Math.min(TIP_W, vw - MARGIN * 2);
+
+    // Prefer above; fall back to below if not enough space
+    const spaceAbove = rect.top - GAP;
+    const spaceBelow = vh - rect.bottom - GAP;
+    const openBelow = spaceAbove < tipH && spaceBelow > spaceAbove;
+
+    // Vertical position
+    let top;
+    if (openBelow) {
+      top = rect.bottom + GAP;
+      tip.classList.add('tip-below');
+      tip.classList.remove('tip-above');
+    } else {
+      top = rect.top - tipH - GAP;
+      tip.classList.add('tip-above');
+      tip.classList.remove('tip-below');
+    }
+
+    // Horizontal: centre on term, then clamp to viewport
+    let left = rect.left + rect.width / 2 - tipW / 2;
+    left = Math.max(MARGIN, Math.min(left, vw - tipW - MARGIN));
+
+    // Arrow offset relative to tip
+    const arrowLeft = (rect.left + rect.width / 2) - left;
+    const arrowClamped = Math.max(16, Math.min(arrowLeft, tipW - 16));
+
+    tip.style.width = tipW + 'px';
+    tip.style.top = top + 'px';
+    tip.style.left = left + 'px';
+    tip.style.setProperty('--tip-arrow-left', arrowClamped + 'px');
+  }
+
+  function attachTooltipBehaviour() {
+    document.querySelectorAll('.phil-term').forEach(term => {
+      if (term.dataset.tipBound) return;
+      term.dataset.tipBound = '1';
+      const tip = term.querySelector('.phil-tip');
+      if (!tip) return;
+
+      function show() {
+        positionTip(term, tip);
+        tip.classList.add('tip-visible');
+      }
+      function hide() {
+        tip.classList.remove('tip-visible');
+      }
+
+      // Desktop hover
+      term.addEventListener('mouseenter', show);
+      term.addEventListener('mouseleave', hide);
+      // Touch / keyboard
+      term.addEventListener('focus', show);
+      term.addEventListener('blur', hide);
+      term.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (tip.classList.contains('tip-visible')) { hide(); } else { show(); }
+      });
+    });
+
+    // Tap anywhere else to close
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.phil-tip.tip-visible').forEach(t => t.classList.remove('tip-visible'));
+    });
+  }
+
+  // Run on load and after report renders (report injects phil-term nodes dynamically)
+  document.addEventListener('DOMContentLoaded', attachTooltipBehaviour);
+
+  // Expose so renderReport can call it after injecting dynamic content
+  window.attachTooltipBehaviour = attachTooltipBehaviour;
 })();
 </script>
 </body>
