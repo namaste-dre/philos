@@ -1,24 +1,22 @@
-exports.handler = async function(event) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
+export const config = { maxDuration: 60 };
 
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
-  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, note: 'Supabase not configured' }) };
+    return res.status(200).json({ ok: true, note: 'Supabase not configured' });
   }
 
-  let body;
-  try { body = JSON.parse(event.body); }
-  catch(e) { return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }; }
+  const body = req.body;
+  if (!body || typeof body !== 'object') return res.status(400).json({ error: 'Invalid JSON' });
 
   try {
     const response = await fetch(`${supabaseUrl}/rest/v1/completions`, {
@@ -35,12 +33,13 @@ exports.handler = async function(event) {
     if (!response.ok) {
       const text = await response.text();
       console.error('Supabase error:', text);
-      return { statusCode: 200, headers, body: JSON.stringify({ ok: false, note: text }) };
+      return res.status(200).json({ ok: false, note: text });
     }
 
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
-  } catch(e) {
+    return res.status(200).json({ ok: true });
+
+  } catch (e) {
     console.error('Capture error:', e.message);
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: false, error: e.message }) };
+    return res.status(200).json({ ok: false, error: e.message });
   }
-};
+}
