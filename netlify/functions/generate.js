@@ -1,23 +1,18 @@
-exports.handler = async function(event, context) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
+export const config = { maxDuration: 60 };
 
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
-  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return { statusCode: 500, headers, body: JSON.stringify({ error: 'API key not configured' }) };
+  if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
-  let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch(e) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
-  }
+  const body = req.body;
+  if (!body || typeof body !== 'object') return res.status(400).json({ error: 'Invalid JSON' });
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -27,17 +22,17 @@ exports.handler = async function(event, context) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-     body: JSON.stringify({
-  model: 'claude-haiku-4-5-20251001',
-  max_tokens: body.max_tokens || 1000,
-  messages: body.messages,
-}),
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: body.max_tokens || 1000,
+        messages: body.messages,
+      }),
     });
 
     const data = await response.json();
-    return { statusCode: response.status, headers, body: JSON.stringify(data) };
+    return res.status(response.status).json(data);
 
-  } catch(e) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
   }
-};
+}

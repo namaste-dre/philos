@@ -4249,7 +4249,7 @@ function testReport() {
 // ══════════════════════════════════════════
 async function saveToSupabase(payload) {
   try {
-    await fetch('/.netlify/functions/capture', {
+    await fetch('/api/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -4414,7 +4414,7 @@ OCEAN (inferred): ${oceanSummary}
 Return ONLY valid JSON, no markdown fences:
 {"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence, names the specific axis combination.","cardTagline":"8 words max per line, 2 lines.","identity":"3 paragraphs, 2 sentences each. Use ${userName} by name. P1: defining axis combo and what makes it specific. P2: how top scores shape how they see the world. P3: moral/meaning framework or key contradiction if one exists.","alignment":[{"label":"Work","text":"1-2 sentences specific to this profile."},{"label":"Relationships","text":"1-2 sentences specific to this profile."},{"label":"Decisions","text":"1-2 sentences specific to this profile."},{"label":"Conflict","text":"1-2 sentences specific to this profile."}],"patterns":[{"type":"positive","label":"Superpower","text":"1-2 sentences."},{"type":"negative","label":"Failure Mode","text":"1-2 sentences."}],"growth":["1 sentence.","1 sentence.","1 sentence."]}`;
   try {
-    const response = await fetch('/.netlify/functions/generate', {
+    const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/generate.js": {
+      "maxDuration": 60
+    },
+    "api/capture.js": {
+      "maxDuration": 60
+    }
+  }
+}
