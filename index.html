@@ -5692,7 +5692,8 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  const W = 1080, H = 2160, PAD = 48;
+  // 9:16 social story format
+  const W = 1080, H = 1920, PAD = 48;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -5723,7 +5724,6 @@ function renderCardToCanvas(container) {
         ctx.fillText(line, x, curY);
         line=word; curY+=lineH; count++;
         if (maxLines && count>=maxLines) {
-          // Complete the last word rather than truncating
           ctx.fillText(line, x, curY);
           return curY+lineH;
         }
@@ -5740,19 +5740,16 @@ function renderCardToCanvas(container) {
   const GOLD    = '#c9a96e';
   const GOLD2   = '#e8c87a';
   const TEAL    = '#4a9e7a';
-  const ORANGE  = '#e05f3a';
   const MUTED   = 'rgba(255,255,255,0.45)';
   const TEXT    = '#f0ede6';
-  const BLOCK1  = '#16123a';  // deep purple block
-  const BLOCK2  = '#221508';  // deep gold block
-  const BLOCK3  = '#0a2018';  // deep teal block
-  const BLOCK4  = '#241408';  // deep amber block
+  const BLOCK1  = '#16123a';
+  const BLOCK2  = '#221508';
+  const BLOCK3  = '#0a2018';
+  const BLOCK4  = '#241408';
   const BORDER  = 'rgba(255,255,255,0.55)';
 
   // ── BACKGROUND ──
   ctx.fillStyle = DARK; ctx.fillRect(0,0,W,H);
-
-  // Ambient glows
   const g1 = ctx.createRadialGradient(W*0.3,0,0,W*0.3,0,900);
   g1.addColorStop(0,'rgba(100,80,220,0.5)'); g1.addColorStop(1,'rgba(100,80,220,0)');
   ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
@@ -5763,170 +5760,149 @@ function renderCardToCanvas(container) {
   let y = 0;
 
   // ══════════════════════════════════════════
-  // BLOCK 1 — HEADER (full width, dark purple)
+  // BLOCK 1 — HEADER
+  // Compact: PHIL/OS wordmark, THE, archetype name, icon, variant
+  // No URL line. Variant sits tight under the last name word.
   // ══════════════════════════════════════════
-  const B1H = 460;
+
+  // Measure name to determine block height dynamically
+  const nameWords = cardData.archetypeName.replace('The ','').split(' ');
+  const nameMaxW = W - PAD - 36 - 220 - 40 - (PAD + 36);
+  ctx.font = 'bold 96px "Playfair Display",serif';
+  const longestWord = nameWords.reduce((a,b) => ctx.measureText(a).width > ctx.measureText(b).width ? a : b);
+  const longestW = ctx.measureText(longestWord).width;
+  const nameFontSize = longestW > nameMaxW ? Math.floor(96 * nameMaxW / longestW) : 96;
+  const nameLineH = Math.round(nameFontSize * 1.15);
+
+  // Layout constants inside header
+  const HDR_TOP_PAD = 36;      // space above PHIL/OS
+  const HDR_LOGO_H  = 44;     // PHIL/OS line height
+  const HDR_THE_GAP = 20;     // gap between logo divider and THE
+  const HDR_THE_H   = 28;     // THE label height
+  const HDR_NAME_GAP= 8;      // gap between THE and first name word
+  const nameStartY_local = HDR_TOP_PAD + HDR_LOGO_H + HDR_THE_GAP + HDR_THE_H + HDR_NAME_GAP;
+  const nameEndY_local   = nameStartY_local + nameWords.length * nameLineH;
+  const HDR_VARIANT_GAP  = 20;
+  const HDR_VARIANT_H    = 32;
+  const HDR_BOT_PAD      = 28;
+  const B1H = nameEndY_local + HDR_VARIANT_GAP + HDR_VARIANT_H + HDR_BOT_PAD;
+
   roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 3);
-  // Top accent line on header
+
+  // Top accent line
   const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
-  hGrad.addColorStop(0,'rgba(157,147,232,0)'); hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)'); hGrad.addColorStop(1,'rgba(201,169,110,0.4)');
+  hGrad.addColorStop(0,'rgba(157,147,232,0)');
+  hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)');
+  hGrad.addColorStop(1,'rgba(201,169,110,0.4)');
   ctx.strokeStyle=hGrad; ctx.lineWidth=2.5;
   ctx.beginPath(); ctx.moveTo(PAD+20,PAD+1); ctx.lineTo(W-PAD-20,PAD+1); ctx.stroke();
 
-  // PHIL/OS wordmark
-  ctx.font = '700 30px "IBM Plex Mono",monospace';
+  // PHIL/OS wordmark — no URL, centred vertically in logo area
+  const logoY = PAD + HDR_TOP_PAD + 32;
+  ctx.font = '700 32px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('PHIL/OS', PAD+36, PAD+56);
-  ctx.font = '400 22px "IBM Plex Mono",monospace';
-  ctx.fillStyle = MUTED; ctx.textAlign = 'right';
-  ctx.fillText('philos-p446wuyzi-the-life-pm-s-projects.vercel.app', W-PAD-36, PAD+56);
+  ctx.fillText('PHIL/OS', PAD+36, logoY);
 
-  // Divider
-  ctx.strokeStyle = 'rgba(201,169,110,0.25)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+36, PAD+72); ctx.lineTo(W-PAD-36, PAD+72); ctx.stroke();
+  // Thin divider under logo
+  ctx.strokeStyle = 'rgba(201,169,110,0.22)'; ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(PAD+36, PAD + HDR_TOP_PAD + HDR_LOGO_H);
+  ctx.lineTo(W-PAD-36, PAD + HDR_TOP_PAD + HDR_LOGO_H);
+  ctx.stroke();
 
   // THE label
+  const theY = PAD + nameStartY_local - HDR_NAME_GAP - 2;
   ctx.font = '600 22px "IBM Plex Mono",monospace';
-  ctx.fillStyle = 'rgba(201,169,110,0.7)'; ctx.textAlign = 'left';
-  ctx.fillText('THE', PAD+36, PAD+112);
+  ctx.fillStyle = 'rgba(201,169,110,0.75)'; ctx.textAlign = 'left';
+  ctx.fillText('THE', PAD+36, theY);
 
-  // Archetype name — fixed font size, let words stack naturally; icon in its own right zone
-  const nameMaxW = W - PAD - 36 - 240 - 40 - (PAD + 36);
-  const nameWords = cardData.archetypeName.replace('The ','').split(' ');
-  ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
-
-  // Measure name at 100px and scale down if needed
-  ctx.font = 'bold 100px "Playfair Display",serif';
-  const longestWord = nameWords.reduce((a,b) => ctx.measureText(a).width > ctx.measureText(b).width ? a : b);
-  const longestW = ctx.measureText(longestWord).width;
-  const nameFontSize = longestW > nameMaxW ? Math.floor(100 * nameMaxW / longestW) : 100;
-  const nameLineH = Math.round(nameFontSize * 1.18);
+  // Archetype name words stacked
   ctx.font = `bold ${nameFontSize}px "Playfair Display",serif`;
-
-  // Draw each word on its own line starting at a fixed y that gives room
-  const nameStartY = PAD + 148;
+  ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
+  const nameStartY = PAD + nameStartY_local;
   nameWords.forEach((w, i) => {
     ctx.fillText(w, PAD+36, nameStartY + i * nameLineH);
   });
   const nameEndY = nameStartY + nameWords.length * nameLineH;
 
-  // Icon — right side of header, vertically centred in name zone
+  // Icon — right side, vertically centred in name zone
   const icon = getArchetypeIcon(cardData.archetypeName);
   if (icon && icon.draw) {
-    const iconSize = 200;
+    const iconSize = 190;
     const iconX = W - PAD - 36 - iconSize/2;
-    const iconY = PAD + 112 + (nameWords.length * nameLineH) / 2;
+    const iconY = nameStartY - nameLineH*0.3 + (nameWords.length * nameLineH) / 2;
     ctx.save();
     const ig = ctx.createRadialGradient(iconX, iconY, 0, iconX, iconY, iconSize);
-    ig.addColorStop(0, 'rgba(157,147,232,0.28)');
-    ig.addColorStop(0.5, 'rgba(120,100,240,0.10)');
-    ig.addColorStop(1, 'rgba(157,147,232,0)');
-    ctx.fillStyle = ig;
-    ctx.beginPath(); ctx.arc(iconX, iconY, iconSize*1.2, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = 'rgba(157,147,232,0.25)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(iconX, iconY, iconSize*0.72, 0, Math.PI*2); ctx.stroke();
+    ig.addColorStop(0,'rgba(157,147,232,0.26)');
+    ig.addColorStop(0.5,'rgba(120,100,240,0.09)');
+    ig.addColorStop(1,'rgba(157,147,232,0)');
+    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconY,iconSize*1.2,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(157,147,232,0.22)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(iconX,iconY,iconSize*0.72,0,Math.PI*2); ctx.stroke();
     icon.draw(ctx, iconX, iconY, iconSize, 'rgba(210,200,255,0.9)');
     ctx.restore();
   }
 
-  // Variant label — always below the last name word with a guaranteed gap
-  const variantY = Math.max(nameEndY + 28, PAD + B1H - 80);
-  ctx.strokeStyle='rgba(157,147,232,0.2)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+36, variantY - 16); ctx.lineTo(PAD+500, variantY - 16); ctx.stroke();
-  ctx.font = '500 24px "IBM Plex Mono",monospace';
-  ctx.fillStyle = 'rgba(180,160,220,0.80)'; ctx.textAlign = 'left';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY);
+  // Variant label — anchored directly under last name word
+  const variantY = nameEndY + HDR_VARIANT_GAP;
+  ctx.strokeStyle='rgba(157,147,232,0.18)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+36, variantY-10); ctx.lineTo(PAD+480, variantY-10); ctx.stroke();
+  ctx.font = '500 22px "IBM Plex Mono",monospace';
+  ctx.fillStyle = 'rgba(180,160,220,0.82)'; ctx.textAlign = 'left';
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY + 20);
 
-  const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
-  const rPct = (rarityMap[cardData.archetypeName]||'RARE')+' RAREST';
-  ctx.font = '700 20px "IBM Plex Mono",monospace';
-  const pillW = ctx.measureText('◆ '+rPct).width + 28;
-  roundRect(W-PAD-36-pillW, variantY - 18, pillW, 36, 18, 'rgba(110,90,240,0.25)', 'rgba(157,147,232,0.5)', 1);
-  ctx.fillStyle = PURPLE2; ctx.textAlign = 'right';
-  ctx.fillText('◆ '+rPct, W-PAD-36-14, variantY + 6);
-
-  y = PAD + B1H + 24;
+  y = PAD + B1H + 20;
 
   // ══════════════════════════════════════════
-  // ROW A — DESCRIPTION + QUICK STATS (2 blocks side by side)
+  // BLOCK 2 — WHO YOU ARE (full width, tall)
   // ══════════════════════════════════════════
-  const ROWAH = 460;
-  const COLA = (W-PAD*2-16)*0.62;
-  const COLB = (W-PAD*2-16)*0.38;
-
-  // A1 — WHO YOU ARE block — full archetype description
-  roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 3);
-  ctx.font = '600 18px "IBM Plex Mono",monospace';
+  const WHOH = 480;
+  roundRect(PAD, y, W-PAD*2, WHOH, 16, BLOCK1, BORDER, 3);
+  ctx.font = '600 17px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('WHO YOU ARE', PAD+28, y+38);
-  ctx.strokeStyle='rgba(201,169,110,0.2)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(PAD+COLA-24,y+46); ctx.stroke();
+  ctx.fillText('WHO YOU ARE', PAD+28, y+36);
+  ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(W-PAD-24,y+46); ctx.stroke();
 
-  // Use cardDescription (full archetype paragraph) — this is the substantive content
-  // Fall back to cardTagline only if no description
   const rawDesc = strip(cardData.cardDescription || cardData.cardTagline || '');
-  ctx.font = '400 22px "IBM Plex Sans",sans-serif';
-  ctx.fillStyle = 'rgba(240,237,230,0.92)';
-  wrapText(rawDesc, PAD+24, y+80, COLA-52, 34, 12);
+  ctx.font = '400 24px "IBM Plex Sans",sans-serif';
+  ctx.fillStyle = 'rgba(240,237,230,0.94)';
+  wrapText(rawDesc, PAD+28, y+80, W-PAD*2-56, 36, 11);
 
-  // A2 — Quick stats block
-  const bx2 = PAD + COLA + 16;
-  roundRect(bx2, y, COLB, ROWAH, 16, BLOCK2, BORDER, 3);
-  ctx.font = '600 18px "IBM Plex Mono",monospace';
-  ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('YOUR STATS', bx2+28, y+38);
-  ctx.strokeStyle='rgba(201,169,110,0.2)';
-  ctx.beginPath(); ctx.moveTo(bx2+24,y+46); ctx.lineTo(bx2+COLB-24,y+46); ctx.stroke();
+  y += WHOH + 20;
 
-  // Stat items — genuinely useful numbers
-  const fp0 = (cardData.fingerprint||[])[0];
-  const fp1 = (cardData.fingerprint||[])[1];
+  // ══════════════════════════════════════════
+  // STATS STRIP — 3 equal columns, compact
+  // ══════════════════════════════════════════
+  const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
 
-  // Conviction score: how far overall from centre across all axes
   const axKeys2 = Object.keys(AXIS_META);
-  const totalDev = axKeys2.reduce((sum,k) => {
-    const sc = cardData.axisScores?.[k] || 4;
-    return sum + Math.abs(sc - 4);
-  }, 0);
-  const convictionPct = Math.round((totalDev / (axKeys2.length * 3)) * 100);
+  const totalDev = axKeys2.reduce((sum,k)=>{const sc=cardData.axisScores?.[k]||4;return sum+Math.abs(sc-4);},0);
+  const convictionPct = Math.round((totalDev/(axKeys2.length*3))*100);
+  const extremeAxes = axKeys2.filter(k=>{const sc=cardData.axisScores?.[k]||4;return sc<=2.0||sc>=6.0;}).length;
+  const rarityPct = rarityMap[cardData.archetypeName]||'RARE';
 
-  // Rarity %
-  const rarityPct = rarityMap[cardData.archetypeName] || 'RARE';
-
-  // Contradictions count — count axes where score is in strong disagreement zone (< 2.5 or > 5.5) across both poles
-  const extremeAxes = axKeys2.filter(k => {
-    const sc = cardData.axisScores?.[k] || 4;
-    return sc <= 2.0 || sc >= 6.0;
-  }).length;
-
-  // Top pole label — what they're most extreme on
-  const topPoleLabel = fp0 ? (fp0.direction === 'right'
-    ? (AXIS_META[fp0.axis]?.poleR || fp0.axis)
-    : (AXIS_META[fp0.axis]?.poleL || fp0.axis)) : '—';
-  const topPoleShort = topPoleLabel.length > 13 ? topPoleLabel.slice(0,12)+'.' : topPoleLabel;
-
-  // Second top pole
-  const secondPoleLabel = fp1 ? (fp1.direction === 'right'
-    ? (AXIS_META[fp1.axis]?.poleR || fp1.axis)
-    : (AXIS_META[fp1.axis]?.poleL || fp1.axis)) : '—';
-  const secondPoleShort = secondPoleLabel.length > 13 ? secondPoleLabel.slice(0,12)+'.' : secondPoleLabel;
-
+  const STATH = 140;
+  const statColW = Math.floor((W-PAD*2-32)/3);
+  const statBgs = [BLOCK2, BLOCK1, BLOCK3];
+  const statAccents = [GOLD2, PURPLE2, 'rgba(74,158,122,0.9)'];
   const stats = [
-    {val: rarityPct, label: 'of all worldviews'},
+    {val: rarityPct,         label: 'worldview rarity'},
     {val: convictionPct+'%', label: 'conviction strength'},
-    {val: extremeAxes+'', label: 'extreme positions held'},
+    {val: extremeAxes+'',    label: 'extreme positions'},
   ];
   stats.forEach((s,i) => {
-    const sy = y + 100 + i * 118;
-    ctx.font = 'bold 42px "Playfair Display",serif';
-    ctx.fillStyle = GOLD2; ctx.textAlign = 'left';
-    ctx.fillText(s.val, bx2+24, sy);
-    ctx.font = '400 18px "IBM Plex Mono",monospace';
+    const sx = PAD + i*(statColW+16);
+    roundRect(sx, y, statColW, STATH, 16, statBgs[i], BORDER, 3);
+    ctx.font = 'bold 44px "Playfair Display",serif';
+    ctx.fillStyle = statAccents[i]; ctx.textAlign = 'left';
+    ctx.fillText(s.val, sx+24, y+68);
+    ctx.font = '400 17px "IBM Plex Mono",monospace';
     ctx.fillStyle = MUTED;
-    ctx.fillText(s.label, bx2+24, sy+26);
+    ctx.fillText(s.label, sx+24, y+96);
   });
 
-  y += ROWAH + 24;
+  y += STATH + 20;
 
   // ══════════════════════════════════════════
   // BLOCK 2 — BELIEF FINGERPRINT (full width)
