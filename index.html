@@ -4433,7 +4433,7 @@ CONTRADICTIONS: ${contradictionSummary}
 OCEAN (inferred): ${oceanSummary}
 
 Return ONLY valid JSON, no markdown fences:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence that names the specific axis combination that defines this person — not generic, must reference their actual top axes.","cardTagline":"Two punchy lines, 8 words max each. Capture the core tension or defining quality of this exact profile.","identity":"5 paragraphs. Use ${userName} by name throughout. P1 (2-3 sentences): Name the specific combination of top axes that defines this profile — what makes it distinctive from nearby archetypes. P2 (2-3 sentences): How the top 2-3 axis scores shape how ${userName} actually perceives and processes the world day-to-day — concrete, not abstract. P3 (2-3 sentences): The moral and meaning framework — how ${userName} grounds ethical decisions and constructs purpose given their specific positions on moral_ground, meaning, and ethics axes. P4 (2 sentences): The primary internal tension or most significant contradiction detected — name the specific axes in conflict and what it produces in practice. P5 (2 sentences): What ${userName} is built for — the environment, relationships, and challenges where this operating system thrives most.","alignment":[{"label":"Work","text":"2 sentences specific to this exact axis profile — name the type of work environment that fits."},{"label":"Relationships","text":"2 sentences on what ${userName} needs and offers in close relationships given their specific scores."},{"label":"Decisions","text":"2 sentences on how this profile actually makes decisions — what drives and what blocks them."},{"label":"Conflict","text":"2 sentences on this profile's specific conflict pattern — what triggers it and what the default response looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific cognitive or ethical strength that flows directly from the top axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this profile tends to fail, derived from the axis combination not the generic archetype."}],"growth":["1 concrete sentence naming a specific skill or practice to build, tied to the detected weaknesses or contradictions.","1 concrete sentence on a relationship pattern to watch and correct.","1 concrete sentence on an intellectual or philosophical gap this profile tends to have."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence that names the specific axis combination that defines this person — not generic, must reference their actual top axes.","cardTagline":"Two punchy lines, 8 words max each. Capture the core tension or defining quality of this exact profile.","identity":"5 paragraphs separated by \\n\\n. Use ${userName}'s name at most TWICE across all 5 paragraphs — after that use 'you', 'they', 'this profile', etc. P1 (2-3 sentences): Name the specific combination of top axes that defines this profile — what makes it distinctive from nearby archetypes. No name in P1. P2 (2-3 sentences): How the top 2-3 axis scores shape how this person actually perceives and processes the world day-to-day — concrete, not abstract. P3 (2-3 sentences): The moral and meaning framework — how they ground ethical decisions and construct purpose given their specific positions on moral_ground, meaning, and ethics axes. P4 (2 sentences): The primary internal tension or most significant contradiction detected — name the specific axes in conflict and what it produces in practice. P5 (2 sentences): What this operating system is built for — the environment, relationships, and challenges where it thrives most.","alignment":[{"label":"Work","text":"2 sentences specific to this exact axis profile — name the type of work environment that fits."},{"label":"Relationships","text":"2 sentences on what this profile needs and offers in close relationships given their specific scores."},{"label":"Decisions","text":"2 sentences on how this profile actually makes decisions — what drives and what blocks them."},{"label":"Conflict","text":"2 sentences on this profile's specific conflict pattern — what triggers it and what the default response looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific cognitive or ethical strength that flows directly from the top axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this profile tends to fail, derived from the axis combination not the generic archetype."}],"growth":["1 concrete sentence naming a specific skill or practice to build, tied to the detected weaknesses or contradictions.","1 concrete sentence on a relationship pattern to watch and correct.","1 concrete sentence on an intellectual or philosophical gap this profile tends to have."]}`;
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -5765,7 +5765,7 @@ function renderCardToCanvas(container) {
   // ══════════════════════════════════════════
   // BLOCK 1 — HEADER (full width, dark purple)
   // ══════════════════════════════════════════
-  const B1H = 380;
+  const B1H = 460;
   roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 3);
   // Top accent line on header
   const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
@@ -5777,7 +5777,7 @@ function renderCardToCanvas(container) {
   ctx.font = '700 30px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('PHIL/OS', PAD+36, PAD+56);
-  ctx.font = '400 24px "IBM Plex Mono",monospace';
+  ctx.font = '400 22px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign = 'right';
   ctx.fillText('philos-p446wuyzi-the-life-pm-s-projects.vercel.app', W-PAD-36, PAD+56);
 
@@ -5788,91 +5788,86 @@ function renderCardToCanvas(container) {
   // THE label
   ctx.font = '600 22px "IBM Plex Mono",monospace';
   ctx.fillStyle = 'rgba(201,169,110,0.7)'; ctx.textAlign = 'left';
-  ctx.fillText('THE', PAD+36, PAD+108);
+  ctx.fillText('THE', PAD+36, PAD+112);
 
-  // Archetype name — large, constrained to leave icon zone clear (icon at x~886)
-  const nameMaxW = W - PAD - 36 - 220 - 40 - (PAD + 36); // leave 220px + 40px gap for icon
+  // Archetype name — fixed font size, let words stack naturally; icon in its own right zone
+  const nameMaxW = W - PAD - 36 - 240 - 40 - (PAD + 36);
   const nameWords = cardData.archetypeName.replace('The ','').split(' ');
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
-  if(nameWords.length <= 2) {
-    ctx.font = 'bold 118px "Playfair Display",serif';
-    nameWords.forEach((w,i) => {
-      const mw = ctx.measureText(w).width;
-      if(mw > nameMaxW) ctx.font = 'bold '+Math.floor(118*nameMaxW/mw)+'px "Playfair Display",serif';
-      ctx.fillText(w, PAD+36, PAD+200+i*128);
-      ctx.font = 'bold 118px "Playfair Display",serif';
-    });
-  } else {
-    ctx.font = 'bold 86px "Playfair Display",serif';
-    const mid=Math.ceil(nameWords.length/2);
-    const line1 = nameWords.slice(0,mid).join(' ');
-    const line2 = nameWords.slice(mid).join(' ');
-    const mw1 = ctx.measureText(line1).width;
-    const mw2 = ctx.measureText(line2).width;
-    const maxMw = Math.max(mw1, mw2);
-    if(maxMw > nameMaxW) ctx.font = 'bold '+Math.floor(86*nameMaxW/maxMw)+'px "Playfair Display",serif';
-    ctx.fillText(line1, PAD+36, PAD+180);
-    ctx.fillText(line2, PAD+36, PAD+272);
-  }
 
-  // Icon — right side of header, sized to match archetype name height
+  // Measure name at 100px and scale down if needed
+  ctx.font = 'bold 100px "Playfair Display",serif';
+  const longestWord = nameWords.reduce((a,b) => ctx.measureText(a).width > ctx.measureText(b).width ? a : b);
+  const longestW = ctx.measureText(longestWord).width;
+  const nameFontSize = longestW > nameMaxW ? Math.floor(100 * nameMaxW / longestW) : 100;
+  const nameLineH = Math.round(nameFontSize * 1.18);
+  ctx.font = `bold ${nameFontSize}px "Playfair Display",serif`;
+
+  // Draw each word on its own line starting at a fixed y that gives room
+  const nameStartY = PAD + 148;
+  nameWords.forEach((w, i) => {
+    ctx.fillText(w, PAD+36, nameStartY + i * nameLineH);
+  });
+  const nameEndY = nameStartY + nameWords.length * nameLineH;
+
+  // Icon — right side of header, vertically centred in name zone
   const icon = getArchetypeIcon(cardData.archetypeName);
   if (icon && icon.draw) {
-    const iconSize = 220;
+    const iconSize = 200;
     const iconX = W - PAD - 36 - iconSize/2;
-    const iconY = PAD + B1H/2 + 30;
+    const iconY = PAD + 112 + (nameWords.length * nameLineH) / 2;
     ctx.save();
-    // Large glow behind icon
     const ig = ctx.createRadialGradient(iconX, iconY, 0, iconX, iconY, iconSize);
     ig.addColorStop(0, 'rgba(157,147,232,0.28)');
     ig.addColorStop(0.5, 'rgba(120,100,240,0.10)');
     ig.addColorStop(1, 'rgba(157,147,232,0)');
     ctx.fillStyle = ig;
     ctx.beginPath(); ctx.arc(iconX, iconY, iconSize*1.2, 0, Math.PI*2); ctx.fill();
-    // Circle frame
     ctx.strokeStyle = 'rgba(157,147,232,0.25)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(iconX, iconY, iconSize*0.72, 0, Math.PI*2); ctx.stroke();
     icon.draw(ctx, iconX, iconY, iconSize, 'rgba(210,200,255,0.9)');
     ctx.restore();
   }
 
-  // Variant label — sits at bottom of header block with clear separation from name
-  ctx.font = '500 22px "IBM Plex Mono",monospace';
-  ctx.fillStyle = 'rgba(180,160,220,0.75)'; ctx.textAlign = 'left';
-  // Thin separator line above variant
+  // Variant label — always below the last name word with a guaranteed gap
+  const variantY = Math.max(nameEndY + 28, PAD + B1H - 80);
   ctx.strokeStyle='rgba(157,147,232,0.2)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+36, PAD+B1H-62); ctx.lineTo(PAD+420, PAD+B1H-62); ctx.stroke();
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, PAD+B1H-38);
+  ctx.beginPath(); ctx.moveTo(PAD+36, variantY - 16); ctx.lineTo(PAD+500, variantY - 16); ctx.stroke();
+  ctx.font = '500 24px "IBM Plex Mono",monospace';
+  ctx.fillStyle = 'rgba(180,160,220,0.80)'; ctx.textAlign = 'left';
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY);
 
   const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
   const rPct = (rarityMap[cardData.archetypeName]||'RARE')+' RAREST';
   ctx.font = '700 20px "IBM Plex Mono",monospace';
   const pillW = ctx.measureText('◆ '+rPct).width + 28;
-  roundRect(W-PAD-36-pillW, PAD+B1H-56, pillW, 36, 18, 'rgba(110,90,240,0.25)', 'rgba(157,147,232,0.5)', 1);
+  roundRect(W-PAD-36-pillW, variantY - 18, pillW, 36, 18, 'rgba(110,90,240,0.25)', 'rgba(157,147,232,0.5)', 1);
   ctx.fillStyle = PURPLE2; ctx.textAlign = 'right';
-  ctx.fillText('◆ '+rPct, W-PAD-36-14, PAD+B1H-33);
+  ctx.fillText('◆ '+rPct, W-PAD-36-14, variantY + 6);
 
   y = PAD + B1H + 24;
 
   // ══════════════════════════════════════════
   // ROW A — DESCRIPTION + QUICK STATS (2 blocks side by side)
   // ══════════════════════════════════════════
-  const ROWAH = 310;
+  const ROWAH = 460;
   const COLA = (W-PAD*2-16)*0.62;
   const COLB = (W-PAD*2-16)*0.38;
 
-  // A1 — Description block
+  // A1 — WHO YOU ARE block — full archetype description
   roundRect(PAD, y, COLA, ROWAH, 16, BLOCK1, BORDER, 3);
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('WHO YOU ARE', PAD+28, y+38);
   ctx.strokeStyle='rgba(201,169,110,0.2)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(PAD+COLA-24,y+46); ctx.stroke();
-  // Use cardTagline (punchy AI-generated lines) — cardDescription is the full paragraph and overflows
-  const rawDesc = strip(cardData.cardTagline || cardData.cardDescription || '');
-  ctx.font = 'italic 27px "Playfair Display",serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  wrapText(rawDesc, PAD+24, y+84, COLA-48, 38, 4);
+
+  // Use cardDescription (full archetype paragraph) — this is the substantive content
+  // Fall back to cardTagline only if no description
+  const rawDesc = strip(cardData.cardDescription || cardData.cardTagline || '');
+  ctx.font = '400 22px "IBM Plex Sans",sans-serif';
+  ctx.fillStyle = 'rgba(240,237,230,0.92)';
+  wrapText(rawDesc, PAD+24, y+80, COLA-52, 34, 12);
 
   // A2 — Quick stats block
   const bx2 = PAD + COLA + 16;
@@ -5883,33 +5878,52 @@ function renderCardToCanvas(container) {
   ctx.strokeStyle='rgba(201,169,110,0.2)';
   ctx.beginPath(); ctx.moveTo(bx2+24,y+46); ctx.lineTo(bx2+COLB-24,y+46); ctx.stroke();
 
-  // Stat items — meaningful values
+  // Stat items — genuinely useful numbers
   const fp0 = (cardData.fingerprint||[])[0];
   const fp1 = (cardData.fingerprint||[])[1];
-  // Conviction score across all axes in AXIS_META
+
+  // Conviction score: how far overall from centre across all axes
   const axKeys2 = Object.keys(AXIS_META);
   const totalDev = axKeys2.reduce((sum,k) => {
     const sc = cardData.axisScores?.[k] || 4;
     return sum + Math.abs(sc - 4);
   }, 0);
   const convictionPct = Math.round((totalDev / (axKeys2.length * 3)) * 100);
-  const dominantScore = fp0 ? (cardData.axisScores?.[fp0.axis]||fp0.score||4).toFixed(1) : '—';
-  const dominantLabel = fp0 ? (AXIS_META[fp0.axis]?.label||fp0.axis) : '—';
-  const dominantShort = dominantLabel.length > 11 ? dominantLabel.slice(0,10)+'.' : dominantLabel;
+
+  // Rarity %
+  const rarityPct = rarityMap[cardData.archetypeName] || 'RARE';
+
+  // Contradictions count — count axes where score is in strong disagreement zone (< 2.5 or > 5.5) across both poles
+  const extremeAxes = axKeys2.filter(k => {
+    const sc = cardData.axisScores?.[k] || 4;
+    return sc <= 2.0 || sc >= 6.0;
+  }).length;
+
+  // Top pole label — what they're most extreme on
+  const topPoleLabel = fp0 ? (fp0.direction === 'right'
+    ? (AXIS_META[fp0.axis]?.poleR || fp0.axis)
+    : (AXIS_META[fp0.axis]?.poleL || fp0.axis)) : '—';
+  const topPoleShort = topPoleLabel.length > 13 ? topPoleLabel.slice(0,12)+'.' : topPoleLabel;
+
+  // Second top pole
+  const secondPoleLabel = fp1 ? (fp1.direction === 'right'
+    ? (AXIS_META[fp1.axis]?.poleR || fp1.axis)
+    : (AXIS_META[fp1.axis]?.poleL || fp1.axis)) : '—';
+  const secondPoleShort = secondPoleLabel.length > 13 ? secondPoleLabel.slice(0,12)+'.' : secondPoleLabel;
 
   const stats = [
-    {val: convictionPct+'%', label:'Conviction score'},
-    {val: dominantScore+'/7', label: dominantShort},
-    {val: Object.keys(AXIS_META).length+'', label:'Axes mapped'},
+    {val: rarityPct, label: 'of all worldviews'},
+    {val: convictionPct+'%', label: 'conviction strength'},
+    {val: extremeAxes+'', label: 'extreme positions held'},
   ];
   stats.forEach((s,i) => {
-    const sy = y+84+i*70;
-    ctx.font = 'bold 36px "Playfair Display",serif';
+    const sy = y + 100 + i * 118;
+    ctx.font = 'bold 42px "Playfair Display",serif';
     ctx.fillStyle = GOLD2; ctx.textAlign = 'left';
     ctx.fillText(s.val, bx2+24, sy);
     ctx.font = '400 18px "IBM Plex Mono",monospace';
     ctx.fillStyle = MUTED;
-    ctx.fillText(s.label, bx2+24, sy+22);
+    ctx.fillText(s.label, bx2+24, sy+26);
   });
 
   y += ROWAH + 24;
