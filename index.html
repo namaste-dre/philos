@@ -5659,6 +5659,7 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     archetypeVariant: report.archetypeVariant || arch.variant,
     cardTagline: report.cardTagline || report.tagline || arch.description.split('.')[0] + '.',
     cardDescription: arch.description,
+    identity: report.identity || '',
     famousTypes: (typeof FAMOUS_BY_FAMILY !== 'undefined' ? FAMOUS_BY_FAMILY[arch.family] : null) || [],
     thinkers: arch.thinkers,
     fingerprint: fp,
@@ -5765,31 +5766,27 @@ function renderCardToCanvas(container) {
   // No URL line. Variant sits tight under the last name word.
   // ══════════════════════════════════════════
 
-  // Measure name to determine block height dynamically
   const nameWords = cardData.archetypeName.replace('The ','').split(' ');
-  const nameMaxW = W - PAD - 36 - 220 - 40 - (PAD + 36);
-  ctx.font = 'bold 96px "Playfair Display",serif';
+  const iconZoneW = 200;
+  const nameMaxW = W - PAD*2 - 72 - iconZoneW;
+
+  // Scale font — max 80px, scale down if longest word overflows
+  ctx.font = 'bold 80px "Playfair Display",serif';
   const longestWord = nameWords.reduce((a,b) => ctx.measureText(a).width > ctx.measureText(b).width ? a : b);
   const longestW = ctx.measureText(longestWord).width;
-  const nameFontSize = longestW > nameMaxW ? Math.floor(96 * nameMaxW / longestW) : 96;
-  const nameLineH = Math.round(nameFontSize * 1.15);
+  const nameFontSize = longestW > nameMaxW ? Math.floor(80 * nameMaxW / longestW) : 80;
+  const nameLineH = Math.round(nameFontSize * 1.10);
 
-  // Layout constants inside header
-  const HDR_TOP_PAD = 36;      // space above PHIL/OS
-  const HDR_LOGO_H  = 44;     // PHIL/OS line height
-  const HDR_THE_GAP = 20;     // gap between logo divider and THE
-  const HDR_THE_H   = 28;     // THE label height
-  const HDR_NAME_GAP= 8;      // gap between THE and first name word
-  const nameStartY_local = HDR_TOP_PAD + HDR_LOGO_H + HDR_THE_GAP + HDR_THE_H + HDR_NAME_GAP;
-  const nameEndY_local   = nameStartY_local + nameWords.length * nameLineH;
-  const HDR_VARIANT_GAP  = 20;
-  const HDR_VARIANT_H    = 32;
-  const HDR_BOT_PAD      = 28;
-  const B1H = nameEndY_local + HDR_VARIANT_GAP + HDR_VARIANT_H + HDR_BOT_PAD;
+  // Tight fixed offsets — no divider, THE sits right above name
+  const LOGO_Y   = PAD + 44;
+  const THE_Y    = LOGO_Y + 30;
+  const NAME_Y   = THE_Y + nameFontSize + 4;
+  const variantY = NAME_Y + (nameWords.length - 1) * nameLineH + 22;
+  const B1H      = variantY + 28 - PAD;
 
   roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 3);
 
-  // Top accent line
+  // Accent line at top
   const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
   hGrad.addColorStop(0,'rgba(157,147,232,0)');
   hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)');
@@ -5797,61 +5794,49 @@ function renderCardToCanvas(container) {
   ctx.strokeStyle=hGrad; ctx.lineWidth=2.5;
   ctx.beginPath(); ctx.moveTo(PAD+20,PAD+1); ctx.lineTo(W-PAD-20,PAD+1); ctx.stroke();
 
-  // PHIL/OS wordmark — no URL, centred vertically in logo area
-  const logoY = PAD + HDR_TOP_PAD + 32;
-  ctx.font = '700 32px "IBM Plex Mono",monospace';
+  // PHIL/OS wordmark
+  ctx.font = '700 26px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('PHIL/OS', PAD+36, logoY);
+  ctx.fillText('PHIL/OS', PAD+36, LOGO_Y);
 
-  // Thin divider under logo
-  ctx.strokeStyle = 'rgba(201,169,110,0.22)'; ctx.lineWidth=1;
-  ctx.beginPath();
-  ctx.moveTo(PAD+36, PAD + HDR_TOP_PAD + HDR_LOGO_H);
-  ctx.lineTo(W-PAD-36, PAD + HDR_TOP_PAD + HDR_LOGO_H);
-  ctx.stroke();
+  // THE — tight above name
+  ctx.font = '600 18px "IBM Plex Mono",monospace';
+  ctx.fillStyle = 'rgba(201,169,110,0.72)'; ctx.textAlign = 'left';
+  ctx.fillText('THE', PAD+36, THE_Y);
 
-  // THE label
-  const theY = PAD + nameStartY_local - HDR_NAME_GAP - 2;
-  ctx.font = '600 22px "IBM Plex Mono",monospace';
-  ctx.fillStyle = 'rgba(201,169,110,0.75)'; ctx.textAlign = 'left';
-  ctx.fillText('THE', PAD+36, theY);
-
-  // Archetype name words stacked
+  // Archetype name
   ctx.font = `bold ${nameFontSize}px "Playfair Display",serif`;
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
-  const nameStartY = PAD + nameStartY_local;
   nameWords.forEach((w, i) => {
-    ctx.fillText(w, PAD+36, nameStartY + i * nameLineH);
+    ctx.fillText(w, PAD+36, NAME_Y + i * nameLineH);
   });
-  const nameEndY = nameStartY + nameWords.length * nameLineH;
 
-  // Icon — right side, vertically centred in name zone
+  // Icon — right side, centred on name zone
   const icon = getArchetypeIcon(cardData.archetypeName);
   if (icon && icon.draw) {
-    const iconSize = 190;
+    const iconSize = 160;
     const iconX = W - PAD - 36 - iconSize/2;
-    const iconY = nameStartY - nameLineH*0.3 + (nameWords.length * nameLineH) / 2;
+    const iconCentreY = THE_Y + (NAME_Y - THE_Y + nameWords.length * nameLineH) / 2;
     ctx.save();
-    const ig = ctx.createRadialGradient(iconX, iconY, 0, iconX, iconY, iconSize);
+    const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, iconSize);
     ig.addColorStop(0,'rgba(157,147,232,0.26)');
     ig.addColorStop(0.5,'rgba(120,100,240,0.09)');
     ig.addColorStop(1,'rgba(157,147,232,0)');
-    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconY,iconSize*1.2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*1.2,0,Math.PI*2); ctx.fill();
     ctx.strokeStyle='rgba(157,147,232,0.22)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(iconX,iconY,iconSize*0.72,0,Math.PI*2); ctx.stroke();
-    icon.draw(ctx, iconX, iconY, iconSize, 'rgba(210,200,255,0.9)');
+    ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*0.72,0,Math.PI*2); ctx.stroke();
+    icon.draw(ctx, iconX, iconCentreY, iconSize, 'rgba(210,200,255,0.9)');
     ctx.restore();
   }
 
-  // Variant label — anchored directly under last name word
-  const variantY = nameEndY + HDR_VARIANT_GAP;
+  // Variant — tight under last name word
   ctx.strokeStyle='rgba(157,147,232,0.18)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+36, variantY-10); ctx.lineTo(PAD+480, variantY-10); ctx.stroke();
-  ctx.font = '500 22px "IBM Plex Mono",monospace';
+  ctx.beginPath(); ctx.moveTo(PAD+36, variantY-8); ctx.lineTo(PAD+420, variantY-8); ctx.stroke();
+  ctx.font = '500 20px "IBM Plex Mono",monospace';
   ctx.fillStyle = 'rgba(180,160,220,0.82)'; ctx.textAlign = 'left';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY + 20);
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY + 16);
 
-  y = PAD + B1H + 20;
+  y = PAD + B1H + 16;
 
   // ══════════════════════════════════════════
   // BLOCK 2 — WHO YOU ARE (full width)
@@ -5864,7 +5849,9 @@ function renderCardToCanvas(container) {
   ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(W-PAD-24,y+46); ctx.stroke();
 
-  const rawDesc = strip(cardData.cardDescription || cardData.cardTagline || '');
+  // Use AI identity (first paragraph only) — much richer than the static archetype description
+  const identityText = cardData.identity ? strip(cardData.identity.split('\n\n')[0]) : '';
+  const rawDesc = identityText || strip(cardData.cardDescription || cardData.cardTagline || '');
   ctx.font = '400 22px "IBM Plex Sans",sans-serif';
   ctx.fillStyle = 'rgba(240,237,230,0.94)';
   wrapText(rawDesc, PAD+28, y+74, W-PAD*2-56, 33, 7);
@@ -6054,34 +6041,39 @@ function renderCardToCanvas(container) {
   // FOOTER BAR
   // ══════════════════════════════════════════
   // CTA BLOCK
+  // ══════════════════════════════════════════
+  // CTA + FOOTER — pinned to bottom of canvas
+  // ══════════════════════════════════════════
   const ctaH = 140;
-  const ctaGrad = ctx.createLinearGradient(PAD, y, W-PAD, y+ctaH);
+  const footerH = 58;
+  const ctaY = H - footerH - ctaH - 12;
+  const footerY = H - footerH;
+
+  const ctaGrad = ctx.createLinearGradient(PAD, ctaY, W-PAD, ctaY+ctaH);
   ctaGrad.addColorStop(0, 'rgba(100,80,240,0.45)');
   ctaGrad.addColorStop(0.5, 'rgba(157,147,232,0.30)');
   ctaGrad.addColorStop(1, 'rgba(180,120,60,0.35)');
-  roundRect(PAD, y, W-PAD*2, ctaH, 16, null, null); ctx.fillStyle=ctaGrad; ctx.fill();
+  roundRect(PAD, ctaY, W-PAD*2, ctaH, 16, null, null); ctx.fillStyle=ctaGrad; ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.40)'; ctx.lineWidth=2.5;
-  roundRect(PAD, y, W-PAD*2, ctaH, 16, null, null); ctx.stroke();
+  roundRect(PAD, ctaY, W-PAD*2, ctaH, 16, null, null); ctx.stroke();
   ctx.font = 'bold italic 32px "Playfair Display",serif';
   ctx.fillStyle='#ffffff'; ctx.textAlign='center'; ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=8;
-  ctx.fillText('What does your worldview say about you?', W/2, y+44); ctx.shadowBlur=0;
+  ctx.fillText('What does your worldview say about you?', W/2, ctaY+44); ctx.shadowBlur=0;
   ctx.font = '500 21px "IBM Plex Mono",monospace';
   ctx.fillStyle='rgba(220,200,255,0.90)';
-  ctx.fillText('156 questions · 34 belief axes · your archetype', W/2, y+76);
+  ctx.fillText('156 questions · 34 belief axes · your archetype', W/2, ctaY+76);
   const urlText = 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app';
   ctx.font = '600 22px "IBM Plex Mono",monospace';
   const urlW = ctx.measureText(urlText).width + 40;
-  roundRect(W/2-urlW/2, y+90, urlW, 38, 19, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
+  roundRect(W/2-urlW/2, ctaY+90, urlW, 38, 19, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
   ctx.strokeStyle='rgba(201,169,110,0.6)'; ctx.lineWidth=1.5;
-  roundRect(W/2-urlW/2, y+90, urlW, 38, 19, null, null); ctx.stroke();
-  ctx.fillStyle=GOLD2; ctx.fillText(urlText, W/2, y+115);
-  y += ctaH + 12;
+  roundRect(W/2-urlW/2, ctaY+90, urlW, 38, 19, null, null); ctx.stroke();
+  ctx.fillStyle=GOLD2; ctx.fillText(urlText, W/2, ctaY+115);
 
-  // BRANDING FOOTER
-  roundRect(PAD, y, W-PAD*2, 58, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
+  roundRect(PAD, footerY, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
   ctx.font = '600 22px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign='center';
-  ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, y+36);
+  ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, footerY+36);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
