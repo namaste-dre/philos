@@ -11,6 +11,9 @@ export default async function handler(req, res) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
+  console.log('SUPABASE_URL:', supabaseUrl);
+  console.log('Full URL:', `${supabaseUrl}/rest/v1/completions`);
+
   if (!supabaseUrl || !supabaseKey) {
     return res.status(200).json({ ok: true, note: 'Supabase not configured' });
   }
