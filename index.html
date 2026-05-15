@@ -722,7 +722,7 @@ body::before {
 /* ══════════════════════════════════════════
    REPORT SCREEN
 ══════════════════════════════════════════ */
-#screen-report { padding: 0; }
+#screen-report { padding: 0; overflow-x: hidden; }
 
 /* REPORT HEADER — dramatic cinematic hero */
 .report-header {
@@ -731,6 +731,8 @@ body::before {
   padding: 80px 28px 64px;
   text-align: center;
   background: var(--bg);
+  width: 100%;
+  box-sizing: border-box;
 }
 .report-header::before {
   content: '';
@@ -910,6 +912,25 @@ body::before {
   max-width: 860px;
   margin: 0 auto;
   padding: 64px 28px 120px;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .report-body { padding: 40px 16px 80px; }
+  .report-section { margin-bottom: 48px; }
+  .report-text-block { padding: 20px 18px; }
+  .report-section-block { padding: 20px 18px; }
+  .alignment-block-body { padding: 16px; }
+  .contradiction-card { padding: 18px 16px; }
+  .growth-item { gap: 14px; padding: 18px 16px; }
+  .career-columns { grid-template-columns: 1fr; }
+  .patterns-grid { grid-template-columns: 1fr; }
+  .famous-grid { grid-template-columns: 1fr 1fr; }
+  .alignment-grid { grid-template-columns: 1fr; }
+  .report-stats { flex-direction: column; max-width: 100%; }
+  .report-stat { border-right: none; border-bottom: 1px solid var(--border3); }
+  .report-stat:last-child { border-bottom: none; }
 }
 .report-section { margin-bottom: 76px; }
 .section-label {
@@ -4412,14 +4433,14 @@ CONTRADICTIONS: ${contradictionSummary}
 OCEAN (inferred): ${oceanSummary}
 
 Return ONLY valid JSON, no markdown fences:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence, names the specific axis combination.","cardTagline":"8 words max per line, 2 lines.","identity":"3 paragraphs, 2 sentences each. Use ${userName} by name. P1: defining axis combo and what makes it specific. P2: how top scores shape how they see the world. P3: moral/meaning framework or key contradiction if one exists.","alignment":[{"label":"Work","text":"1-2 sentences specific to this profile."},{"label":"Relationships","text":"1-2 sentences specific to this profile."},{"label":"Decisions","text":"1-2 sentences specific to this profile."},{"label":"Conflict","text":"1-2 sentences specific to this profile."}],"patterns":[{"type":"positive","label":"Superpower","text":"1-2 sentences."},{"type":"negative","label":"Failure Mode","text":"1-2 sentences."}],"growth":["1 sentence.","1 sentence.","1 sentence."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence that names the specific axis combination that defines this person — not generic, must reference their actual top axes.","cardTagline":"Two punchy lines, 8 words max each. Capture the core tension or defining quality of this exact profile.","identity":"5 paragraphs. Use ${userName} by name throughout. P1 (2-3 sentences): Name the specific combination of top axes that defines this profile — what makes it distinctive from nearby archetypes. P2 (2-3 sentences): How the top 2-3 axis scores shape how ${userName} actually perceives and processes the world day-to-day — concrete, not abstract. P3 (2-3 sentences): The moral and meaning framework — how ${userName} grounds ethical decisions and constructs purpose given their specific positions on moral_ground, meaning, and ethics axes. P4 (2 sentences): The primary internal tension or most significant contradiction detected — name the specific axes in conflict and what it produces in practice. P5 (2 sentences): What ${userName} is built for — the environment, relationships, and challenges where this operating system thrives most.","alignment":[{"label":"Work","text":"2 sentences specific to this exact axis profile — name the type of work environment that fits."},{"label":"Relationships","text":"2 sentences on what ${userName} needs and offers in close relationships given their specific scores."},{"label":"Decisions","text":"2 sentences on how this profile actually makes decisions — what drives and what blocks them."},{"label":"Conflict","text":"2 sentences on this profile's specific conflict pattern — what triggers it and what the default response looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific cognitive or ethical strength that flows directly from the top axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this profile tends to fail, derived from the axis combination not the generic archetype."}],"growth":["1 concrete sentence naming a specific skill or practice to build, tied to the detected weaknesses or contradictions.","1 concrete sentence on a relationship pattern to watch and correct.","1 concrete sentence on an intellectual or philosophical gap this profile tends to have."]}`;
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 1000
+        max_tokens: 1800
       })
     });
 
@@ -4471,7 +4492,7 @@ Return ONLY valid JSON, no markdown fences:
           fingerprint: fingerprint.map(f => ({axis: f.axis, score: f.score})),
           contradictions_count: contradictions.length,
           completed_at: new Date().toISOString(),
-          source: 'philos-thelifepm.netlify.app',
+          source: 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app',
         };
         saveToSupabase(payload);
       }, 400);
@@ -5631,7 +5652,7 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
   const t1Axes = ['naturalism','physicalism','determinism','moral_ground','meaning','realism',
                   'teleology','human_nature','epistemic_method','social_ontology',
                   'temporal_orientation','moral_authority','epistemic_humility'];
-  const fp = fingerprint.filter(f => t1Axes.includes(f.axis)).slice(0, 4);
+  const fp = fingerprint.slice(0, 5);
 
   cardData = {
     archetypeName: report.archetypeName || arch.family,
@@ -5758,7 +5779,7 @@ function renderCardToCanvas(container) {
   ctx.fillText('PHIL/OS', PAD+36, PAD+56);
   ctx.font = '400 24px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign = 'right';
-  ctx.fillText('thelifepm.com', W-PAD-36, PAD+56);
+  ctx.fillText('philos-p446wuyzi-the-life-pm-s-projects.vercel.app', W-PAD-36, PAD+56);
 
   // Divider
   ctx.strokeStyle = 'rgba(201,169,110,0.25)'; ctx.lineWidth=1;
@@ -5877,9 +5898,9 @@ function renderCardToCanvas(container) {
   const dominantShort = dominantLabel.length > 11 ? dominantLabel.slice(0,10)+'.' : dominantLabel;
 
   const stats = [
-    {val: rarityMap[cardData.archetypeName]||'RARE', label:'Worldview rarity'},
     {val: convictionPct+'%', label:'Conviction score'},
     {val: dominantScore+'/7', label: dominantShort},
+    {val: Object.keys(AXIS_META).length+'', label:'Axes mapped'},
   ];
   stats.forEach((s,i) => {
     const sy = y+84+i*70;
@@ -6064,7 +6085,7 @@ function renderCardToCanvas(container) {
   ctx.fillStyle='rgba(220,200,255,0.90)';
   ctx.fillText('156 questions · 34 belief axes · your archetype', W/2, y+88);
   // URL — pill style
-  const urlText = 'philos-thelifepm.netlify.app';
+  const urlText = 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app';
   ctx.font = '700 26px "IBM Plex Mono",monospace';
   const urlW = ctx.measureText(urlText).width + 48;
   roundRect(W/2-urlW/2, y+104, urlW, 46, 23, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
