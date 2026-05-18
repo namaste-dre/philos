@@ -4731,7 +4731,7 @@ WRITING RULES:
 7. Existentialism/nihilism/absurdism: if present in scores, name the experience from the inside — the specific flavour of how it shows up for this person
 
 Return ONLY valid JSON — no markdown fences, no preamble:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person actually experience the world — what do they notice first, what filter does everything pass through, what do they see that most people miss? Start with a specific observation, not a definition. P2 (3 sentences): How do they think and reason — what is their relationship with certainty, evidence, authority, and their own conclusions? What does their inner monologue sound like when processing a hard problem? P3 (3 sentences): Their moral and meaning landscape — not what they believe in abstract, but how it actually shows up: what makes them angry, what they feel responsible for, what they can and cannot bring themselves to do. P4 (2 sentences): The central tension in their operating system — the place where two things they genuinely hold pull in opposite directions. Name what that tension feels like from the inside, not what it is philosophically. P5 (2 sentences): What this person was built for — the conditions, relationships, and challenges where they come most alive — and what quietly exhausts them that they may not have named yet.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — not job titles, but pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing — from their actual score pattern."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight, what trips them up."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail, not the generic archetype failure."}],"growth":["1 concrete sentence: the most important skill or practice to build given the weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. This fills the WHO YOU ARE panel on a shareable card. Write in second person (you). Plain language — no jargon, no axis names, no philosophical labels. Describe who this person actually is: how they think, what drives them, what they notice, how they move through the world. Must read as a complete, flowing paragraph. Must feel like a sharp personal description someone would read and think — this is exactly me. Do not cut short. 75 words minimum, 85 maximum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person actually experience the world — what do they notice first, what filter does everything pass through, what do they see that most people miss? Start with a specific observation, not a definition. P2 (3 sentences): How do they think and reason — what is their relationship with certainty, evidence, authority, and their own conclusions? What does their inner monologue sound like when processing a hard problem? P3 (3 sentences): Their moral and meaning landscape — not what they believe in abstract, but how it actually shows up: what makes them angry, what they feel responsible for, what they can and cannot bring themselves to do. P4 (2 sentences): The central tension in their operating system — the place where two things they genuinely hold pull in opposite directions. Name what that tension feels like from the inside, not what it is philosophically. P5 (2 sentences): What this person was built for — the conditions, relationships, and challenges where they come most alive — and what quietly exhausts them that they may not have named yet.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — not job titles, but pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing — from their actual score pattern."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight, what trips them up."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail, not the generic archetype failure."}],"growth":["1 concrete sentence: the most important skill or practice to build given the weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -6221,6 +6221,7 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     archetypeName: report.archetypeName || arch.family,
     archetypeVariant: report.archetypeVariant || arch.variant,
     cardTagline: report.cardTagline || report.tagline || arch.description.split('.')[0] + '.',
+    cardWhoYouAre: report.cardWhoYouAre || '',
     cardDescription: arch.description,
     identity: report.identity || '',
     famousTypes: (typeof FAMOUS_BY_FAMILY !== 'undefined' ? FAMOUS_BY_FAMILY[arch.family] : null) || [],
@@ -6417,8 +6418,9 @@ function renderCardToCanvas(container) {
 
   // ══════════════════════════════════════════
   // BLOCK 2 — WHO YOU ARE (left 58%) + STATS COLUMN (right 38%) side by side
+  // Box holds exactly 8 lines at 20px font / 30px lineH = 252px text area
   // ══════════════════════════════════════════
-  const B2H = 330;
+  const B2H = 340;  // 340px: header 38px + text 252px + 16px bottom pad + 34px margin = snug
   const whoW = Math.floor((W-PAD*2-16)*0.58);
   const statPanelW = W - PAD*2 - 16 - whoW;
   const whoX = PAD;
@@ -6432,13 +6434,22 @@ function renderCardToCanvas(container) {
   ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(whoX+18,y+38); ctx.lineTo(whoX+whoW-18,y+38); ctx.stroke();
 
-  // Use cardTagline for punchy 2-line hook, fallback to first identity paragraph
-  const whoText = cardData.cardTagline
-    ? strip(cardData.cardTagline)
-    : (cardData.identity ? strip(cardData.identity.split('\n\n')[0]) : strip(cardData.cardDescription||''));
+  // Text: prefer cardWhoYouAre (AI-generated ~80 word fill),
+  // fallback to first identity paragraph, fallback to cardTagline
+  let whoText = '';
+  if (cardData.cardWhoYouAre && cardData.cardWhoYouAre.trim().length > 40) {
+    whoText = strip(cardData.cardWhoYouAre);
+  } else if (cardData.identity && cardData.identity.trim().length > 40) {
+    // Use first paragraph of identity
+    whoText = strip(cardData.identity.split('\n\n')[0] || cardData.identity.split('\\n\\n')[0] || cardData.identity);
+  } else {
+    whoText = strip(cardData.cardTagline || cardData.cardDescription || '');
+  }
+
   ctx.font = '400 20px "IBM Plex Sans",sans-serif';
   ctx.fillStyle = TEXT; ctx.textAlign = 'left';
-  wrapText(whoText, whoX+22, y+62, whoW-44, 30, 9);
+  // maxLines=8 exactly fills the 252px text area (8 × 30px lineH)
+  wrapText(whoText, whoX+22, y+62, whoW-44, 30, 8);
 
   // STATS — 3 stacked vertically, equal height
   const axKeysSt = Object.keys(AXIS_META);
