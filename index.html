@@ -840,30 +840,41 @@ body::before {
   max-width: 560px;
   border: 1px solid var(--border3);
   border-radius: var(--r);
-  overflow: hidden;
   box-shadow: var(--glow-purple);
+  position: relative;
 }
 /* Stat tooltip */
 .report-stat-tooltip { position: relative; cursor: help; }
 .stat-tooltip-text {
   display: none;
   position: absolute;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15,12,35,0.97);
-  border: 1px solid rgba(157,147,232,0.3);
-  color: rgba(220,215,245,0.9);
+  background: rgba(12,9,32,0.98);
+  border: 1px solid rgba(157,147,232,0.35);
+  color: rgba(225,220,248,0.95);
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 13px;
-  line-height: 1.55;
-  padding: 12px 14px;
+  line-height: 1.6;
+  padding: 13px 15px;
   border-radius: 10px;
-  width: 240px;
-  z-index: 100;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  width: 230px;
+  z-index: 9999;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(157,147,232,0.1);
   pointer-events: none;
   text-align: left;
+  white-space: normal;
+}
+/* Arrow pointing down */
+.stat-tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(157,147,232,0.35);
 }
 .report-stat-tooltip:hover .stat-tooltip-text { display: block; }
 .report-stat {
@@ -874,8 +885,9 @@ body::before {
   background: var(--surface);
   transition: background 0.2s;
 }
+.report-stat:first-child { border-radius: var(--r) 0 0 var(--r); }
+.report-stat:last-child { border-radius: 0 var(--r) var(--r) 0; border-right: none; }
 .report-stat:hover { background: var(--surface2); }
-.report-stat:last-child { border-right: none; }
 .report-stat-val {
   font-family: 'Playfair Display', serif;
   font-size: 26px;
@@ -928,6 +940,92 @@ body::before {
   margin: 0 auto 36px;
   border-radius: 1px;
   box-shadow: 0 0 12px rgba(201,169,110,0.3);
+}
+
+/* ── PHILOSOPHICAL PATTERN TAGS ── */
+.phil-patterns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 auto 32px;
+  max-width: 560px;
+  padding: 0 16px;
+}
+.phil-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: help;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.phil-tag .tag-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.phil-tag-purple { background: rgba(157,147,232,0.10); border-color: rgba(157,147,232,0.30); color: rgba(190,182,255,0.9); }
+.phil-tag-purple .tag-dot { background: rgba(157,147,232,0.85); box-shadow: 0 0 6px rgba(157,147,232,0.6); }
+.phil-tag-gold   { background: rgba(201,169,110,0.10); border-color: rgba(201,169,110,0.30); color: rgba(220,190,130,0.9); }
+.phil-tag-gold   .tag-dot { background: rgba(201,169,110,0.9); box-shadow: 0 0 6px rgba(201,169,110,0.5); }
+.phil-tag-teal   { background: rgba(74,158,122,0.10);  border-color: rgba(74,158,122,0.30);  color: rgba(100,195,155,0.9); }
+.phil-tag-teal   .tag-dot { background: rgba(74,158,122,0.9); box-shadow: 0 0 6px rgba(74,158,122,0.5); }
+.phil-tag-red    { background: rgba(200,80,80,0.10);   border-color: rgba(200,80,80,0.28);   color: rgba(230,130,130,0.9); }
+.phil-tag-red    .tag-dot { background: rgba(200,100,100,0.9); box-shadow: 0 0 6px rgba(200,80,80,0.5); }
+.phil-tag-muted  { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: rgba(180,175,200,0.8); }
+.phil-tag-muted  .tag-dot { background: rgba(180,175,200,0.6); }
+
+/* Tag tooltip */
+.phil-tag-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12,9,32,0.98);
+  border: 1px solid rgba(157,147,232,0.28);
+  color: rgba(225,220,248,0.92);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  padding: 12px 14px;
+  border-radius: 10px;
+  width: 260px;
+  z-index: 9999;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+  pointer-events: none;
+  text-align: left;
+  letter-spacing: 0;
+  white-space: normal;
+}
+.phil-tag-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(157,147,232,0.28);
+}
+.phil-tag:hover .phil-tag-tooltip { display: block; }
+.phil-tag:hover { filter: brightness(1.15); }
+
+/* ── AXIS INTERPRETATION LINE ── */
+.axis-interpretation {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-style: italic;
+  color: rgba(201,169,110,0.75);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
 }
 
 /* REPORT BODY */
@@ -1837,6 +1935,7 @@ select.modal-input option { background: #12101e; }
       <div id="report-variant-line"></div>
       <div class="report-header-divider"></div>
       <div class="report-tagline" id="report-tagline">—</div>
+      <div class="phil-patterns" id="phil-patterns" style="display:none"></div>
       <div class="report-rarity" id="report-rarity" style="display:none">
         <span class="report-rarity-dot"></span>
         <span id="report-rarity-text"></span>
@@ -5531,6 +5630,140 @@ const ALIGNMENT_BY_FAMILY = {
 };
 
 
+// ══════════════════════════════════════════
+// PHILOSOPHICAL PATTERN DETECTION
+// Emergent named positions that arise from axis combinations
+// ══════════════════════════════════════════
+function computePhilPatterns(scores) {
+  const s = k => scores[k] || 4;
+  const patterns = [];
+
+  // ── DETERMINISM / FREE WILL ──
+  if (s('determinism') >= 6.0) {
+    patterns.push({
+      label: 'Hard Determinist',
+      color: 'purple',
+      tooltip: 'Your scores show that you hold all behaviour — including your own — to be fully caused by prior conditions. Free will as commonly understood is an illusion. This is the position of Spinoza, Schopenhauer, and Robert Sapolsky. It has radical implications for how you think about praise, blame, and punishment.'
+    });
+  } else if (s('determinism') >= 4.5 && s('determinism') < 6.0 && s('freewill_practice') >= 5) {
+    patterns.push({
+      label: 'Compatibilist',
+      color: 'purple',
+      tooltip: 'You accept that behaviour is largely caused by prior conditions, but still hold people meaningfully responsible — because "free will" for you means acting from your own reasons and values, not being uncaused. This is the mainstream philosophical position: Hume, Frankfurt, Dennett.'
+    });
+  } else if (s('determinism') <= 2.5) {
+    patterns.push({
+      label: 'Libertarian Free Will',
+      color: 'purple',
+      tooltip: 'You hold that humans have genuine, undetermined free will — that choices are not fully explained by prior causes. This requires either agent causation (you are an uncaused cause) or indeterminism. Philosophically demanding but widely held.'
+    });
+  }
+
+  // ── MEANING / EXISTENTIALISM / NIHILISM / ABSURDISM ──
+  if (s('meaning_practice') <= 2.2) {
+    patterns.push({
+      label: 'Nihilist tendency',
+      color: 'red',
+      tooltip: 'Your scores show that in practice, nothing feels ultimately worth doing or caring about. This is lived nihilism — not just a metaphysical position but a felt orientation. Nietzsche saw this as a crisis to be overcome, not a resting point. Worth asking: is this a philosophical position or an emotional state wearing philosophical clothes?'
+    });
+  } else if (s('meaning') <= 3.0 && s('meaning_practice') >= 5.0) {
+    patterns.push({
+      label: 'Absurdist',
+      color: 'gold',
+      tooltip: 'You know that the universe offers no inherent meaning — and you build it anyway. This is Camus\'s position exactly: the absurd is the confrontation between your need for meaning and the world\'s silence. The response is not despair but defiant creation. You revolt, therefore you exist.'
+    });
+  } else if (s('meaning') <= 2.5 && s('self') <= 2.5) {
+    patterns.push({
+      label: 'Existentialist',
+      color: 'teal',
+      tooltip: 'Two core existentialist commitments show strongly in your scores: meaning is not given by the universe, and the self is radically free — you are not born with an essence, you create yourself through choices. This is Sartre\'s "existence precedes essence." The freedom is total, and so is the responsibility.'
+    });
+  }
+
+  // ── NATURALISM / PHYSICALISM ──
+  if (s('naturalism') >= 6.0 && s('physicalism') >= 6.0) {
+    patterns.push({
+      label: 'Strict Naturalist',
+      color: 'teal',
+      tooltip: 'Everything that exists is physical and natural — no souls, no supernatural forces, no non-physical minds. Your scores are among the most strongly naturalist possible. Consciousness, meaning, value: all of these are natural phenomena even if not yet fully understood.'
+    });
+  } else if (s('naturalism') <= 2.0) {
+    patterns.push({
+      label: 'Supernaturalist',
+      color: 'muted',
+      tooltip: 'Your scores indicate you hold that reality includes non-natural elements — forces, entities, or dimensions that cannot be fully explained by physics and natural science. This encompasses theism, spiritual frameworks, and idealist metaphysics.'
+    });
+  }
+
+  // ── MORAL REALISM / ANTI-REALISM ──
+  if (s('moral_ground') >= 6.0) {
+    patterns.push({
+      label: 'Moral Realist',
+      color: 'teal',
+      tooltip: 'You hold that moral facts are real and objective — not just social constructions or personal preferences. Some things are genuinely wrong regardless of what anyone thinks. This is a demanding position that requires explaining what grounds these moral facts if not God or consensus.'
+    });
+  } else if (s('moral_ground') <= 2.0) {
+    patterns.push({
+      label: 'Moral Anti-Realist',
+      color: 'muted',
+      tooltip: 'You hold that moral claims are not objectively true or false — they express preferences, cultural norms, or emotional responses. There are no moral facts independent of minds. This includes expressivism, error theory, and relativism. It raises sharp questions about how to ground moral commitments you care about.'
+    });
+  }
+
+  // ── EPISTEMIC PATTERNS ──
+  if (s('epistemic_method') >= 6.0 && s('science') >= 6.0) {
+    patterns.push({
+      label: 'Empiricist',
+      color: 'teal',
+      tooltip: 'Your primary method for knowing things is empirical evidence and scientific reasoning. Intuition, revelation, and tradition carry little epistemic weight for you. Knowledge is built from observation, testing, and updating — not inherited or received.'
+    });
+  } else if (s('epistemic_method') <= 2.0) {
+    patterns.push({
+      label: 'Revealed knowledge',
+      color: 'muted',
+      tooltip: 'Your primary source of knowledge about important things is revelation, intuition, or tradition rather than empirical evidence. This doesn\'t mean you reject science — but it means you think some truths are accessible through non-empirical means that science cannot reach.'
+    });
+  }
+
+  // ── SELF / IDENTITY ──
+  if (s('identity') >= 6.0 && s('human_nature') <= 2.5) {
+    patterns.push({
+      label: 'Constructivist self',
+      color: 'gold',
+      tooltip: 'You hold that identity is not discovered but built — through choices, relationships, culture, and experience. There is no fixed human nature or essential self waiting to be found. You become who you are; you were not born that way. This has strong implications for how you think about authenticity and change.'
+    });
+  } else if (s('identity') <= 2.0 && s('human_nature') >= 6.0) {
+    patterns.push({
+      label: 'Essentialist',
+      color: 'muted',
+      tooltip: 'You hold that there is a real, fixed human nature and a genuine essential self — something you are rather than something you become. Authenticity means discovering and expressing this nature, not constructing it. This is the Aristotelian position: we have a nature, and flourishing means actualising it.'
+    });
+  }
+
+  // ── STOIC PATTERN ──
+  if (s('determinism') >= 5.0 && s('meaning_practice') >= 5.5 && s('moral_ground') >= 5.5 && s('uncertainty') >= 5.0) {
+    patterns.push({
+      label: 'Stoic tendency',
+      color: 'gold',
+      tooltip: 'A Stoic-like pattern runs through your scores: you accept that much is beyond your control (high determinism), commit to meaning and virtue anyway (high meaning practice), hold that moral facts are real (moral realism), and tolerate uncertainty well. The Stoics — Marcus Aurelius, Epictetus, Seneca — lived at exactly this intersection.'
+    });
+  }
+
+  return patterns;
+}
+
+function renderPhilPatterns(patterns) {
+  const el = document.getElementById('phil-patterns');
+  if (!el) return;
+  if (!patterns || patterns.length === 0) { el.style.display = 'none'; return; }
+  el.innerHTML = patterns.map(p => `
+    <span class="phil-tag phil-tag-${p.color}">
+      <span class="tag-dot"></span>${p.label}
+      <span class="phil-tag-tooltip">${p.tooltip}</span>
+    </span>`).join('');
+  el.style.display = 'flex';
+}
+
 function renderReport(scores, contradictions, archetypeResult, fingerprint, report) {
   // Store contradictions for card access
   state._lastContradictions = contradictions || [];
@@ -5553,10 +5786,10 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   if (!iconEl) {
     iconEl = document.createElement('div');
     iconEl.id = 'report-archetype-icon';
-    iconEl.style.cssText = 'margin: 0 auto 24px; width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; background: rgba(157,147,232,0.09); border: 1px solid rgba(157,147,232,0.22); border-radius: 50%; color: rgba(200,190,255,0.85); box-shadow: 0 0 32px rgba(157,147,232,0.12);';
+    iconEl.style.cssText = 'margin: 0 auto 24px; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; background: rgba(157,147,232,0.09); border: 1px solid rgba(157,147,232,0.22); border-radius: 50%; color: rgba(200,190,255,0.85); box-shadow: 0 0 48px rgba(157,147,232,0.18);';
     document.getElementById('report-archetype').before(iconEl);
   }
-  iconEl.innerHTML = iconData ? iconData.svgPath.replace('<svg ', '<svg width="44" height="44" ') : '';
+  iconEl.innerHTML = iconData ? iconData.svgPath.replace('<svg ', '<svg width="90" height="90" ') : '';
 
   // Variant label — use CSS class
   const variantLine = document.getElementById('report-variant-line');
@@ -5606,6 +5839,9 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     if (rarityTooltipEl) rarityTooltipEl.textContent = rarityTierLabel;
     statsEl.style.display = 'flex';
   }
+
+  // ── PHILOSOPHICAL PATTERN TAGS ──
+  renderPhilPatterns(computePhilPatterns(scores));
 
   // Liminal note — subtle, not a box
   if (archetypeResult.isLiminal && archetypeResult.secondary) {
@@ -5841,6 +6077,99 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   }
 
   // ── FULL BELIEF MAP ──
+  // Axis interpretation map — shown when score hits threshold
+  const AXIS_INTERPRETATIONS = {
+    determinism: s => {
+      if (s >= 6.5) return 'Hard determinist — all behaviour is fully caused';
+      if (s >= 5.5) return 'Strong determinist — free will is largely illusory';
+      if (s <= 1.5) return 'Libertarian free will — genuine undetermined choice';
+      if (s <= 2.5) return 'Strong free will — choices are not fully caused';
+      if (s >= 4.0 && s < 5.5) return 'Compatibilist — caused, but still meaningfully free';
+      return null;
+    },
+    meaning: s => {
+      if (s <= 1.5) return 'Constructivist — meaning is made, not found';
+      if (s <= 2.5) return 'Meaning is constructed, not inherent in reality';
+      if (s >= 6.5) return 'Meaning realist — purpose exists independently of us';
+      if (s >= 5.5) return 'Strong meaning realism — the universe has real purpose';
+      return null;
+    },
+    meaning_practice: s => {
+      if (s <= 1.5) return 'Nihilism — nothing ultimately matters in practice';
+      if (s <= 2.5) return 'Practical nihilism — difficulty sustaining felt meaning';
+      if (s >= 6.0) return 'Active meaning-maker — committed despite absurdity';
+      return null;
+    },
+    self: s => {
+      if (s <= 1.5) return 'Existentialist self — radically free, no fixed essence';
+      if (s >= 6.5) return 'Fully constructed self — product of prior causes';
+      if (s >= 5.5) return 'Causal self — who you are is largely determined';
+      return null;
+    },
+    moral_ground: s => {
+      if (s >= 6.0) return 'Moral realist — ethical facts are objectively real';
+      if (s <= 2.0) return 'Moral anti-realist — no objective moral facts exist';
+      if (s <= 1.5) return 'Strong anti-realist — morality is projection or construction';
+      return null;
+    },
+    naturalism: s => {
+      if (s >= 6.5) return 'Strict naturalist — only physical reality exists';
+      if (s <= 1.5) return 'Supernaturalist — non-natural reality is real';
+      if (s <= 2.5) return 'Non-naturalist — some things transcend the physical';
+      return null;
+    },
+    physicalism: s => {
+      if (s >= 6.5) return 'Physicalist — mind and consciousness are fully physical';
+      if (s <= 1.5) return 'Dualist or idealist — mind is not purely physical';
+      if (s <= 2.5) return 'Non-physicalist — consciousness exceeds physical explanation';
+      return null;
+    },
+    epistemic_method: s => {
+      if (s >= 6.0) return 'Empiricist — evidence and reason are primary';
+      if (s <= 1.5) return 'Revelatory — faith or intuition as primary knowing';
+      if (s <= 2.5) return 'Non-empiricist — revelation or tradition over evidence';
+      return null;
+    },
+    identity: s => {
+      if (s >= 6.5) return 'Fully constructed identity — you are what you become';
+      if (s <= 1.5) return 'Essential identity — you are who you were born to be';
+      if (s <= 2.0) return 'Essentialist — fixed self precedes experience';
+      return null;
+    },
+    human_nature: s => {
+      if (s >= 6.5) return 'Universal human nature — fixed traits across all people';
+      if (s <= 1.5) return 'Blank slate — human nature is entirely contextual';
+      if (s <= 2.0) return 'Constructivist — people are shaped by environment';
+      return null;
+    },
+    religion: s => {
+      if (s >= 6.5) return 'Anti-theist — religious belief is harmful';
+      if (s <= 1.5) return 'Faith-positive — religious life is valuable and good';
+      if (s <= 2.0) return 'Theistic orientation — faith as a source of truth';
+      return null;
+    },
+    teleology: s => {
+      if (s >= 6.0) return 'Teleological — reality has inherent direction or purpose';
+      if (s <= 1.5) return 'No telos — universe has no direction or final cause';
+      return null;
+    },
+    moral_authority: s => {
+      if (s >= 6.5) return 'Autonomous ethics — conscience is the moral authority';
+      if (s <= 1.5) return 'Divine command or tradition as moral authority';
+      return null;
+    },
+    uncertainty: s => {
+      if (s >= 6.5) return 'High uncertainty tolerance — open questions are comfortable';
+      if (s <= 1.5) return 'Low uncertainty tolerance — needs clear answers';
+      return null;
+    },
+    progress: s => {
+      if (s <= 1.5) return 'Pessimist — human progress is illusory or reversing';
+      if (s >= 6.5) return 'Optimist — humanity is genuinely improving';
+      return null;
+    },
+  };
+
   [1,2,3].forEach(tier => {
     const axes = Object.entries(AXIS_META).filter(([,m]) => m.tier === tier);
     const container = document.getElementById('axes-t' + tier);
@@ -5848,6 +6177,11 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     container.innerHTML = axes.map(([axis, meta]) => {
       const score = scores[axis] || 4;
       const pct = Math.round(((score-1)/6)*100);
+      const interpFn = AXIS_INTERPRETATIONS[axis];
+      const interp = interpFn ? interpFn(score) : null;
+      const interpHtml = interp
+        ? `<div class="axis-interpretation">${interp}</div>`
+        : '';
       return `<div class="axis-row">
         <div class="axis-meta">
           <span class="axis-name">${philTerm(meta.label)}</span>
@@ -5857,6 +6191,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
           <div class="axis-fill" style="width:${pct}%;background:${meta.color}"></div>
         </div>
         <div class="axis-poles"><span>${meta.poleL}</span><span>${meta.poleR}</span></div>
+        ${interpHtml}
       </div>`;
     }).join('');
   });
@@ -5922,8 +6257,8 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  // 9:16 social story format — 1080 × 2160
-  const W = 1080, H = 2160, PAD = 40;
+  // 9:16 social story format — 1080 × 1920 (Instagram Story / TikTok / Reels)
+  const W = 1080, H = 1920, PAD = 40;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -6040,21 +6375,24 @@ function renderCardToCanvas(container) {
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
   nameWords.forEach((w, i) => ctx.fillText(w, PAD+36, NAME_Y + i * nameLineH));
 
-  // Archetype icon — bigger, centred vertically on name block, closer
+  // Archetype icon — centred in the right zone, vertically on the name block
   const archIcon = getArchetypeIcon(cardData.archetypeName);
   if (archIcon && archIcon.draw) {
-    const iconX = W - PAD - 36 - iconSize/2;
-    const nameBlockTop = THE_Y - nameFontSize * 0.8;
+    // Right zone: from (nameMaxW + PAD + 48 + 16) to (W - PAD)
+    const rightZoneLeft = PAD + 48 + nameMaxW + 16;
+    const rightZoneRight = W - PAD;
+    const iconX = Math.round((rightZoneLeft + rightZoneRight) / 2);
+    const nameBlockTop = y + (THE_Y - y);
     const nameBlockBot = NAME_Y + (nameWords.length - 1) * nameLineH;
-    const iconCentreY = (nameBlockTop + nameBlockBot) / 2;
+    const iconCentreY = Math.round((nameBlockTop + nameBlockBot) / 2);
     ctx.save();
     const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, iconSize*0.85);
-    ig.addColorStop(0,'rgba(157,147,232,0.30)');
+    ig.addColorStop(0,'rgba(157,147,232,0.32)');
     ig.addColorStop(0.5,'rgba(120,100,240,0.12)');
     ig.addColorStop(1,'rgba(157,147,232,0)');
     ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*1.1,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(157,147,232,0.28)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*0.60,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(157,147,232,0.30)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*0.62,0,Math.PI*2); ctx.stroke();
     archIcon.draw(ctx, iconX, iconCentreY, iconSize, 'rgba(215,205,255,0.95)');
     ctx.restore();
   }
@@ -6292,14 +6630,13 @@ function renderCardToCanvas(container) {
   y += ctaH + 12;
 
   // ══════════════════════════════════════════
-  // FOOTER — pinned to bottom, fallback to flow position
+  // FOOTER — flows naturally after CTA
   // ══════════════════════════════════════════
   const footerH = 58;
-  const footerY = Math.max(y, H - footerH - PAD);
-  roundRect(PAD, footerY, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
+  roundRect(PAD, y, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
   ctx.font = '600 20px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign='center';
-  ctx.fillText('PHIL/OS  \u00b7  thelifepm.com', W/2, footerY+36);
+  ctx.fillText('PHIL/OS  \u00b7  thelifepm.com', W/2, y+36);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
