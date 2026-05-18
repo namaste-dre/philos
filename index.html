@@ -843,6 +843,29 @@ body::before {
   overflow: hidden;
   box-shadow: var(--glow-purple);
 }
+/* Stat tooltip */
+.report-stat-tooltip { position: relative; cursor: help; }
+.stat-tooltip-text {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15,12,35,0.97);
+  border: 1px solid rgba(157,147,232,0.3);
+  color: rgba(220,215,245,0.9);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 12px 14px;
+  border-radius: 10px;
+  width: 240px;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  pointer-events: none;
+  text-align: left;
+}
+.report-stat-tooltip:hover .stat-tooltip-text { display: block; }
 .report-stat {
   flex: 1;
   padding: 20px 16px;
@@ -1027,11 +1050,10 @@ body::before {
   display: flex;
   justify-content: space-between;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  margin-top: 3px;
-  opacity: 0.5;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  color: rgba(200,195,230,0.72);
+  margin-top: 4px;
+  letter-spacing: 0.03em;
 }
 
 /* CONTRADICTION CARDS — upgraded with severity indicator */
@@ -1676,8 +1698,8 @@ select.modal-input option { background: #12101e; }
     </div>
     <button class="btn-primary" onclick="show('screen-intake')">Begin assessment</button>
     <div style="margin-top:16px">
-      <button class="btn-secondary" onclick="testReport()" style="font-size:13px;padding:8px 20px">
-        Dev: Test report generation
+      <button class="btn-secondary" onclick="testReport()" id="dev-btn" style="font-size:13px;padding:8px 20px">
+        Dev: Test report (cycle personas)
       </button>
     </div>
     <div class="tier-preview">
@@ -1790,8 +1812,9 @@ select.modal-input option { background: #12101e; }
 ══════════════════════════════════════════ -->
 <div id="screen-generating" class="screen">
   <div>
-    <div class="gen-title">Mapping your OS…</div>
+    <div class="gen-title">Mapping your OS</div>
     <p class="gen-sub">Analysing 34 axes across 4 causal tiers</p>
+    <p class="gen-sub" style="font-size:12px;opacity:0.55;margin-top:6px;">This can take up to a minute — your report is being written from scratch</p>
     <div class="gen-steps" id="gen-steps">
       <div class="gen-step" data-step="0"><div class="gen-dot"></div>Scoring foundational axes</div>
       <div class="gen-step" data-step="1"><div class="gen-dot"></div>Detecting contradictions</div>
@@ -1819,17 +1842,20 @@ select.modal-input option { background: #12101e; }
         <span id="report-rarity-text"></span>
       </div>
       <div class="report-stats" id="report-stats" style="display:none">
-        <div class="report-stat">
+        <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-archetype-pct">—</span>
           <span class="report-stat-label">Worldview rarity</span>
+          <span class="stat-tooltip-text" id="stat-rarity-tooltip"></span>
         </div>
-        <div class="report-stat">
+        <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-top-axis">—</span>
           <span class="report-stat-label">Conviction score</span>
+          <span class="stat-tooltip-text">How strongly you hold your views — measured as average deviation from neutral across all 34 axes. High conviction means you land clearly on one side of most questions. Low conviction means your worldview is more open, flexible, or genuinely uncertain.</span>
         </div>
-        <div class="report-stat">
+        <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-contradictions">—</span>
-          <span class="report-stat-label">Dominant axis</span>
+          <span class="report-stat-label">Philosophical tensions</span>
+          <span class="stat-tooltip-text">The number of detected logical tensions within your belief system — places where two positions you hold pull against each other. Zero means rare internal consistency. Higher numbers mean a more complex, layered worldview. All tensions are explained in your full report.</span>
         </div>
       </div>
       <div id="report-thinkers-line" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:28px;"></div>
@@ -4231,38 +4257,159 @@ function detectContradictions(scores) {
 // DEV: TEST REPORT WITHOUT FULL QUIZ
 // ══════════════════════════════════════════
 function testReport() {
-  // Pre-fill state with Andre's known profile scores
-  state.userName = 'Andre';
-  state.shuffledQuestions = QUESTIONS;
-  state.answers = {};
-  // Inject scores directly by answering all questions at known positions
-  QUESTIONS.forEach(q => {
-    const axis = q.axis;
-    const hardDeterminist = ['determinism','naturalism','physicalism','self','responsibility','freewill_practice','social_ontology','temporal_orientation'];
-    const antiReligion = ['religion','moral_authority'];
-    const constructivist = ['meaning','identity','human_nature'];
-    const structural = ['politics','economics','justice'];
-    const highScope = ['moral_scope','animal_ethics'];
-    if (q.type === 'likert') {
-      if (hardDeterminist.includes(axis)) state.answers[q.id] = 7;
-      else if (antiReligion.includes(axis)) state.answers[q.id] = 7;
-      else if (constructivist.includes(axis)) state.answers[q.id] = 7;
-      else if (structural.includes(axis)) state.answers[q.id] = 7;
-      else if (highScope.includes(axis)) state.answers[q.id] = 7;
-      else state.answers[q.id] = 5;
-    } else if (q.options) {
-      const opts = q.options;
-      // For axes with known strong positions, pick the option closest to that pole
-      const highScoreAxes = [...hardDeterminist, ...antiReligion, ...constructivist, ...structural, ...highScope];
-      if (highScoreAxes.includes(axis)) {
-        // Pick the option with the highest score (right-pole / anti-theist / determinist)
-        const best = opts.reduce((a, b) => b.score > a.score ? b : a);
-        state.answers[q.id] = best.score;
-      } else {
-        state.answers[q.id] = opts[0].score;
+  // Rotate through distinct philosophical personas on each press
+  // Stored in sessionStorage so each click cycles to the next
+  const personas = [
+    {
+      name: 'Marcus',
+      label: 'Devout Christian — Traditional, free will, divine authority',
+      scores: {
+        naturalism:1, physicalism:1, realism:6, determinism:1, moral_ground:6, meaning:7,
+        teleology:7, human_nature:6, epistemic_method:1, social_ontology:5, temporal_orientation:2,
+        moral_authority:1, epistemic_humility:3, knowledge:1, science:3, freewill_practice:1,
+        justice:2, ethics:2, religion:1, politics:2, self:1, moral_scope:4, meaning_practice:7,
+        society:5, responsibility:2, identity:3, authority:2, economics:2, uncertainty:2,
+        mind_consciousness:1, animal_ethics:2, progress:4
+      }
+    },
+    {
+      name: 'Zia',
+      label: 'Secular Humanist Atheist — Science-first, constructed meaning, collectivist',
+      scores: {
+        naturalism:7, physicalism:6, realism:6, determinism:4, moral_ground:5, meaning:2,
+        teleology:1, human_nature:3, epistemic_method:7, social_ontology:6, temporal_orientation:6,
+        moral_authority:6, epistemic_humility:5, knowledge:7, science:7, freewill_practice:5,
+        justice:7, ethics:6, religion:7, politics:7, self:5, moral_scope:7, meaning_practice:6,
+        society:7, responsibility:6, identity:6, authority:7, economics:7, uncertainty:6,
+        mind_consciousness:6, animal_ethics:7, progress:7
+      }
+    },
+    {
+      name: 'Jordan',
+      label: 'Hard Determinist — Causal universe, moral realist, systems thinker',
+      scores: {
+        naturalism:7, physicalism:7, realism:7, determinism:7, moral_ground:6, meaning:2,
+        teleology:1, human_nature:2, epistemic_method:7, social_ontology:6, temporal_orientation:6,
+        moral_authority:7, epistemic_humility:4, knowledge:7, science:7, freewill_practice:7,
+        justice:7, ethics:5, religion:7, politics:6, self:7, moral_scope:6, meaning_practice:5,
+        society:6, responsibility:7, identity:6, authority:6, economics:6, uncertainty:5,
+        mind_consciousness:7, animal_ethics:6, progress:6
+      }
+    },
+    {
+      name: 'Tyler',
+      label: 'Libertarian Free Will — Personal responsibility, market-oriented, traditionalist',
+      scores: {
+        naturalism:4, physicalism:4, realism:5, determinism:1, moral_ground:5, meaning:5,
+        teleology:4, human_nature:6, epistemic_method:4, social_ontology:1, temporal_orientation:3,
+        moral_authority:3, epistemic_humility:2, knowledge:4, science:5, freewill_practice:1,
+        justice:1, ethics:3, religion:3, politics:1, self:1, moral_scope:2, meaning_practice:6,
+        society:1, responsibility:1, identity:3, authority:2, economics:1, uncertainty:3,
+        mind_consciousness:3, animal_ethics:2, progress:5
+      }
+    },
+    {
+      name: 'Selin',
+      label: 'Existentialist — Radical freedom, constructed self, absurdist meaning',
+      scores: {
+        naturalism:6, physicalism:5, realism:4, determinism:2, moral_ground:3, meaning:1,
+        teleology:1, human_nature:1, epistemic_method:5, social_ontology:3, temporal_orientation:5,
+        moral_authority:6, epistemic_humility:6, knowledge:5, science:6, freewill_practice:2,
+        justice:5, ethics:4, religion:6, politics:4, self:1, moral_scope:5, meaning_practice:4,
+        society:3, responsibility:2, identity:7, authority:6, economics:4, uncertainty:7,
+        mind_consciousness:4, animal_ethics:5, progress:5
+      }
+    },
+    {
+      name: 'Dmitri',
+      label: 'Nihilist — Nothing matters, no moral realism, radical skeptic',
+      scores: {
+        naturalism:7, physicalism:7, realism:3, determinism:6, moral_ground:1, meaning:1,
+        teleology:1, human_nature:2, epistemic_method:5, social_ontology:2, temporal_orientation:4,
+        moral_authority:7, epistemic_humility:6, knowledge:5, science:6, freewill_practice:5,
+        justice:4, ethics:3, religion:7, politics:3, self:5, moral_scope:2, meaning_practice:1,
+        society:2, responsibility:3, identity:5, authority:6, economics:3, uncertainty:6,
+        mind_consciousness:6, animal_ethics:3, progress:2
+      }
+    },
+    {
+      name: 'Priya',
+      label: 'Spiritual Naturalist — Non-dogmatic, emergent purpose, contemplative',
+      scores: {
+        naturalism:4, physicalism:3, realism:5, determinism:3, moral_ground:5, meaning:5,
+        teleology:5, human_nature:5, epistemic_method:4, social_ontology:5, temporal_orientation:5,
+        moral_authority:5, epistemic_humility:7, knowledge:4, science:5, freewill_practice:3,
+        justice:6, ethics:5, religion:3, politics:5, self:4, moral_scope:6, meaning_practice:6,
+        society:5, responsibility:4, identity:4, authority:5, economics:5, uncertainty:7,
+        mind_consciousness:3, animal_ethics:6, progress:5
+      }
+    },
+    {
+      name: 'Cassandra',
+      label: 'Conservative Traditionalist — Divine order, past authority, fixed human nature',
+      scores: {
+        naturalism:2, physicalism:2, realism:6, determinism:2, moral_ground:7, meaning:7,
+        teleology:7, human_nature:7, epistemic_method:2, social_ontology:6, temporal_orientation:1,
+        moral_authority:1, epistemic_humility:2, knowledge:1, science:3, freewill_practice:1,
+        justice:1, ethics:1, religion:1, politics:1, self:2, moral_scope:3, meaning_practice:7,
+        society:6, responsibility:1, identity:1, authority:1, economics:2, uncertainty:1,
+        mind_consciousness:2, animal_ethics:2, progress:2
+      }
+    },
+    {
+      name: 'Milo',
+      label: 'Pragmatic Centrist — Evidence-based, flexible ethics, moderate everything',
+      scores: {
+        naturalism:5, physicalism:5, realism:5, determinism:4, moral_ground:4, meaning:4,
+        teleology:3, human_nature:4, epistemic_method:5, social_ontology:4, temporal_orientation:5,
+        moral_authority:5, epistemic_humility:5, knowledge:5, science:6, freewill_practice:4,
+        justice:4, ethics:4, religion:5, politics:4, self:4, moral_scope:5, meaning_practice:5,
+        society:4, responsibility:4, identity:4, authority:5, economics:4, uncertainty:5,
+        mind_consciousness:5, animal_ethics:5, progress:5
+      }
+    },
+    {
+      name: 'Raven',
+      label: 'Moral Realist + Stoic — Objective ethics, emotional control, virtue focus',
+      scores: {
+        naturalism:6, physicalism:5, realism:7, determinism:5, moral_ground:7, meaning:6,
+        teleology:2, human_nature:5, epistemic_method:6, social_ontology:3, temporal_orientation:4,
+        moral_authority:6, epistemic_humility:4, knowledge:6, science:6, freewill_practice:3,
+        justice:3, ethics:2, religion:6, politics:3, self:3, moral_scope:5, meaning_practice:7,
+        society:3, responsibility:2, identity:4, authority:5, economics:3, uncertainty:4,
+        mind_consciousness:5, animal_ethics:5, progress:5
       }
     }
+  ];
+
+  // Cycle through personas each time the button is pressed
+  const idx = parseInt(sessionStorage.getItem('testPersonaIdx') || '0');
+  const persona = personas[idx % personas.length];
+  sessionStorage.setItem('testPersonaIdx', (idx + 1).toString());
+
+  console.log(`%c[DEV] Persona ${idx + 1}/${personas.length}: ${persona.name} — ${persona.label}`, 'color:#c9a96e;font-weight:bold');
+
+  state.userName = persona.name;
+  state.shuffledQuestions = QUESTIONS;
+  state.answers = {};
+
+  // Map persona scores onto all questions using the axis score targets
+  QUESTIONS.forEach(q => {
+    const axis = q.axis;
+    const target = persona.scores[axis] !== undefined ? persona.scores[axis] : 4;
+    if (q.type === 'likert') {
+      // Add slight noise (±1) so reports feel less robotic
+      const noise = Math.floor(Math.random() * 3) - 1;
+      state.answers[q.id] = Math.max(1, Math.min(7, target + noise));
+    } else if (q.options && q.options.length) {
+      // Pick the option whose score is closest to the persona's target for this axis
+      const best = q.options.reduce((a, b) =>
+        Math.abs(b.score - target) < Math.abs(a.score - target) ? b : a
+      );
+      state.answers[q.id] = best.score;
+    }
   });
+
   showEmailCapture();
 }
 
@@ -4423,24 +4570,76 @@ async function generateReport() {
       return `${meta.label}:${score.toFixed(1)} (${pole})`;
     }).filter(Boolean).join(' | ');
 
-  const prompt = `Profile for ${userName}. Archetype: ${arch.family} — ${arch.variant}.
-${arch.description}
-Strength: ${arch.strength} | Failure mode: ${arch.failureMode}
-${liminalNote}
-ALL 32 AXES: ${axisDump}
-TOP 5: ${fingerprintSummary}
-CONTRADICTIONS: ${contradictionSummary}
-OCEAN (inferred): ${oceanSummary}
+  const prompt = `You are writing the identity section of a philosophical profile for ${userName}. Your job is to make them feel genuinely seen — not flattered, not categorised. Every sentence must feel like it could only have been written for THIS exact combination of scores.
 
-Return ONLY valid JSON, no markdown fences:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sentence that names the specific axis combination that defines this person — not generic, must reference their actual top axes.","cardTagline":"Two punchy lines, 8 words max each. Capture the core tension or defining quality of this exact profile.","identity":"5 paragraphs separated by \\n\\n. Use ${userName}'s name at most TWICE across all 5 paragraphs — after that use 'you', 'they', 'this profile', etc. P1 (2-3 sentences): Name the specific combination of top axes that defines this profile — what makes it distinctive from nearby archetypes. No name in P1. P2 (2-3 sentences): How the top 2-3 axis scores shape how this person actually perceives and processes the world day-to-day — concrete, not abstract. P3 (2-3 sentences): The moral and meaning framework — how they ground ethical decisions and construct purpose given their specific positions on moral_ground, meaning, and ethics axes. P4 (2 sentences): The primary internal tension or most significant contradiction detected — name the specific axes in conflict and what it produces in practice. P5 (2 sentences): What this operating system is built for — the environment, relationships, and challenges where it thrives most.","alignment":[{"label":"Work","text":"2 sentences specific to this exact axis profile — name the type of work environment that fits."},{"label":"Relationships","text":"2 sentences on what this profile needs and offers in close relationships given their specific scores."},{"label":"Decisions","text":"2 sentences on how this profile actually makes decisions — what drives and what blocks them."},{"label":"Conflict","text":"2 sentences on this profile's specific conflict pattern — what triggers it and what the default response looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific cognitive or ethical strength that flows directly from the top axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this profile tends to fail, derived from the axis combination not the generic archetype."}],"growth":["1 concrete sentence naming a specific skill or practice to build, tied to the detected weaknesses or contradictions.","1 concrete sentence on a relationship pattern to watch and correct.","1 concrete sentence on an intellectual or philosophical gap this profile tends to have."]}`;
+COMPLETE AXIS SCORES (1=left pole, 7=right pole):
+${axisDump}
+
+TOP 5 MOST EXTREME AXES: ${fingerprintSummary}
+ARCHETYPE: ${arch.family} — ${arch.variant}
+CONTRADICTIONS DETECTED: ${contradictionSummary}
+OCEAN INFERRED: ${oceanSummary}
+${liminalNote}
+
+AXIS REFERENCE (what each score means in plain human terms):
+- naturalism 1=believes in supernatural forces/God/spirits, 7=everything is natural/physical/explainable
+- physicalism 1=mind/soul exists beyond the brain, 7=consciousness is fully physical
+- realism 1=reality is constructed by minds/perspectives, 7=reality exists independently of us
+- determinism 1=humans have genuine free will, 7=all behaviour is fully caused by prior conditions
+- moral_ground 1=ethics is subjective/cultural, 7=moral facts are real and objective
+- meaning 1=meaning is constructed/made up, 7=meaning is real and discoverable
+- teleology 1=universe has no direction or purpose, 7=reality has inherent direction/purpose
+- human_nature 1=humans are blank slates shaped by context, 7=there is a fixed universal human nature
+- epistemic_method 1=revelation/intuition/faith as primary knowing, 7=empirical evidence as primary knowing
+- social_ontology 1=society is just individuals, 7=structures/systems shape people fundamentally
+- temporal_orientation 1=past tradition is moral authority, 7=future potential drives moral progress
+- moral_authority 1=morality comes from God/tradition/scripture, 7=morality comes from individual conscience/reason
+- epistemic_humility 1=confident in their views, 7=genuinely uncertain, holds views loosely
+- knowledge 1=truth comes through intuition/revelation, 7=truth comes through evidence/reason
+- science 1=skeptical of scientific institutions, 7=trusts scientific consensus
+- freewill_practice 1=holds people personally accountable, 7=attributes behaviour to causes/systems
+- justice 1=punishment/desert-based justice, 7=rehabilitation/structural justice
+- ethics 1=rule-based/deontological thinking, 7=outcome-based/consequentialist thinking
+- religion 1=faith-positive, sees religious life as good, 7=anti-theist, sees religion as harmful
+- politics 1=individual freedom/market solutions, 7=structural/collective solutions
+- self 1=self as free author of choices, 7=self as product of causes, constructed
+- moral_scope 1=humans are the primary moral concern, 7=all sentient life has equal moral weight
+- meaning_practice 1=nihilism in practice (nothing really matters day to day), 7=actively constructs and commits to meaning
+- society 1=individualist (personal freedom first), 7=collectivist (community/solidarity first)
+- responsibility 1=personal responsibility explanations, 7=structural/systemic explanations
+- identity 1=essential fixed identity (born who you are), 7=constructed identity (you become who you are)
+- authority 1=deferential to authority/experts, 7=skeptical of authority/institutions
+- economics 1=free market/low redistribution, 7=redistributive/high social investment
+- uncertainty 1=needs certainty, finds ambiguity distressing, 7=comfortable with uncertainty and open questions
+- mind_consciousness 1=consciousness is non-physical/mysterious, 7=consciousness is physical and explainable
+- animal_ethics 1=humans have far greater moral weight than animals, 7=animal suffering matters equally
+- progress 1=pessimist about human progress, 7=optimist about humanity's direction
+
+IMPORTANT — WHERE EXISTENTIALISM, NIHILISM, ABSURDISM APPEAR:
+- If meaning ≤2 AND meaning_practice ≤3: this person tends toward nihilism in practice — nothing feels ultimately worth doing
+- If meaning ≤3 AND meaning_practice ≥5: this is absurdism — they know meaning isn't given but construct it anyway (Camus)
+- If self ≤2 AND determinism ≥5 AND meaning ≤3: existentialist tension — radical freedom meets a caused world
+- If identity ≥6 AND self ≤2: they feel constructed by forces but act as if they have no fixed essence
+- Name these patterns by what they FEEL LIKE, not by philosophical label: "You live as though actions matter, even though part of you knows they don't have to" rather than "You exhibit absurdist tendencies"
+
+WRITING RULES:
+1. NO jargon, NO axis names, NO scores in the output — translate everything into how it feels and shows up in real behaviour
+2. NO mentions of careers, famous people, films, music, books — those are in separate report sections
+3. DO NOT repeat the archetype name or variant
+4. Write as if describing someone you know extremely well — use "you" throughout, conversational but precise
+5. The "holy shit it knows me" test: every paragraph should name something the person recognises about themselves that most people wouldn't name
+6. Cover HOW THEY THINK (epistemic), HOW THEY FEEL ABOUT THE WORLD (metaphysical), HOW THEY DECIDE (ethical), HOW THEY RELATE (social/identity), and WHAT DRIVES AND DRAINS THEM (meaning/motivation)
+7. Existentialism/nihilism/absurdism: if present in scores, name the experience from the inside — the specific flavour of how it shows up for this person
+
+Return ONLY valid JSON — no markdown fences, no preamble:
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person actually experience the world — what do they notice first, what filter does everything pass through, what do they see that most people miss? Start with a specific observation, not a definition. P2 (3 sentences): How do they think and reason — what is their relationship with certainty, evidence, authority, and their own conclusions? What does their inner monologue sound like when processing a hard problem? P3 (3 sentences): Their moral and meaning landscape — not what they believe in abstract, but how it actually shows up: what makes them angry, what they feel responsible for, what they can and cannot bring themselves to do. P4 (2 sentences): The central tension in their operating system — the place where two things they genuinely hold pull in opposite directions. Name what that tension feels like from the inside, not what it is philosophically. P5 (2 sentences): What this person was built for — the conditions, relationships, and challenges where they come most alive — and what quietly exhausts them that they may not have named yet.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — not job titles, but pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing — from their actual score pattern."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight, what trips them up."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail, not the generic archetype failure."}],"growth":["1 concrete sentence: the most important skill or practice to build given the weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 1800
+        max_tokens: 2800
       })
     });
 
@@ -4467,12 +4666,27 @@ Return ONLY valid JSON, no markdown fences:
     try {
       report = JSON.parse(clean);
     } catch(parseErr) {
-      // Try extracting JSON object from the response if model added preamble
-      const jsonMatch = clean.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        report = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('Report generation produced unexpected output. Please try again.');
+      // Sanitize: replace unescaped literal newlines inside JSON string values
+      // (mobile Claude responses sometimes include real \n characters inside strings)
+      let sanitized = clean;
+      // Replace literal newlines that appear inside quoted strings with \\n
+      sanitized = sanitized.replace(/("(?:[^"\\]|\\.)*")/g, (match) => {
+        return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+      });
+      try {
+        report = JSON.parse(sanitized);
+      } catch(e2) {
+        // Try extracting JSON object from the response if model added preamble
+        const jsonMatch = sanitized.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            report = JSON.parse(jsonMatch[0]);
+          } catch(e3) {
+            throw new Error('Report generation produced unexpected output. Please try again.');
+          }
+        } else {
+          throw new Error('Report generation produced unexpected output. Please try again.');
+        }
       }
     }
 
@@ -5318,6 +5532,9 @@ const ALIGNMENT_BY_FAMILY = {
 
 
 function renderReport(scores, contradictions, archetypeResult, fingerprint, report) {
+  // Store contradictions for card access
+  state._lastContradictions = contradictions || [];
+
   const arch = archetypeResult.primary;
   const family = arch.family;
 
@@ -5375,7 +5592,18 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
 
     document.getElementById('stat-archetype-pct').textContent = rarity.pct;
     document.getElementById('stat-top-axis').textContent = convictionScore + '%';
-    document.getElementById('stat-contradictions').textContent = topAxisLabel;
+    document.getElementById('stat-contradictions').textContent = contradictions.length;
+
+    // Rarity tier label for tooltip
+    const rarityPctNum = parseFloat(rarity.pct);
+    let rarityTierLabel = '';
+    if (rarityPctNum <= 3) rarityTierLabel = 'Ultra Rare — fewer than 1 in 30 people share this worldview.';
+    else if (rarityPctNum <= 6) rarityTierLabel = 'Rare — fewer than 1 in 15 people share this worldview.';
+    else if (rarityPctNum <= 9) rarityTierLabel = 'Uncommon — roughly 1 in 11 people share this worldview.';
+    else if (rarityPctNum <= 13) rarityTierLabel = 'Common — roughly 1 in 8 people share this worldview.';
+    else rarityTierLabel = 'Widespread — one of the most prevalent worldview types.';
+    const rarityTooltipEl = document.getElementById('stat-rarity-tooltip');
+    if (rarityTooltipEl) rarityTooltipEl.textContent = rarityTierLabel;
     statsEl.style.display = 'flex';
   }
 
@@ -5665,6 +5893,7 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     fingerprint: fp,
     axisScores: scores,
     userName: state.userName || null,
+    contradictions: (typeof state !== 'undefined' && state._lastContradictions) ? state._lastContradictions : [],
   };
 
   // Show download button
@@ -5693,8 +5922,8 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
-  // 9:16 social story format
-  const W = 1080, H = 1920, PAD = 40;
+  // 9:16 social story format — 1080 × 2160
+  const W = 1080, H = 2160, PAD = 40;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -5718,36 +5947,32 @@ function renderCardToCanvas(container) {
   function wrapText(text, x, y, maxW, lineH, maxLines) {
     text = strip(text);
     const words = text.split(' ');
-    let line='', curY=y, count=0;
-    for (const word of words) {
-      const test = line ? line+' '+word : word;
+    let line = '', lines = [];
+    for (let w of words) {
+      const test = line ? line + ' ' + w : w;
       if (ctx.measureText(test).width > maxW && line) {
-        ctx.fillText(line, x, curY);
-        line=word; curY+=lineH; count++;
-        if (maxLines && count>=maxLines) {
-          ctx.fillText(line, x, curY);
-          return curY+lineH;
-        }
-      } else { line=test; }
+        lines.push(line); line = w;
+        if (lines.length >= maxLines) break;
+      } else { line = test; }
     }
-    if (line) ctx.fillText(line, x, curY);
-    return curY+lineH;
+    if (line && lines.length < maxLines) lines.push(line);
+    lines.forEach((l,i) => ctx.fillText(l, x, y + i*lineH));
+    return lines.length;
   }
 
-  // ── COLOUR PALETTE ──
-  const DARK    = '#0a0818';
-  const PURPLE  = '#7c6fd4';
-  const PURPLE2 = '#9d93e8';
+  // ── COLOURS ──
+  const DARK    = '#08061a';
   const GOLD    = '#c9a96e';
-  const GOLD2   = '#e8c87a';
-  const TEAL    = '#4a9e7a';
-  const MUTED   = 'rgba(255,255,255,0.45)';
-  const TEXT    = '#f0ede6';
-  const BLOCK1  = '#16123a';
-  const BLOCK2  = '#221508';
-  const BLOCK3  = '#0a2018';
-  const BLOCK4  = '#241408';
+  const GOLD2   = 'rgba(201,169,110,0.92)';
+  const PURPLE2 = 'rgba(157,147,232,0.9)';
+  const TEAL    = 'rgba(74,158,122,0.9)';
+  const TEXT    = 'rgba(240,237,230,0.95)';
+  const MUTED   = 'rgba(180,170,200,0.6)';
   const BORDER  = 'rgba(255,255,255,0.55)';
+  const BLOCK1  = 'rgba(255,255,255,0.04)';
+  const BLOCK2  = 'rgba(201,169,110,0.06)';
+  const BLOCK3  = 'rgba(74,158,122,0.06)';
+  const BLOCK4  = 'rgba(157,147,232,0.05)';
 
   // ── BACKGROUND ──
   ctx.fillStyle = DARK; ctx.fillRect(0,0,W,H);
@@ -5758,215 +5983,224 @@ function renderCardToCanvas(container) {
   g2.addColorStop(0,'rgba(220,160,50,0.35)'); g2.addColorStop(1,'rgba(220,160,50,0)');
   ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
 
-  let y = 0;
+  let y = PAD;
+
+  // Rarity map
+  const rarityMapH = {
+    'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%',
+    'The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%',
+    'The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%',
+    'The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%',
+    'The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%',
+    'The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'
+  };
 
   // ══════════════════════════════════════════
   // BLOCK 1 — HEADER
-  // Compact: PHIL/OS wordmark, THE, archetype name, icon, variant
-  // No URL line. Variant sits tight under the last name word.
+  // PHIL/OS wordmark | THE + archetype name (large Playfair) | bigger icon tight to name | variant + rarity pill
   // ══════════════════════════════════════════
-
   const nameWords = cardData.archetypeName.replace('The ','').split(' ');
-  const iconZoneW = 200;
-  const nameMaxW = W - PAD*2 - 72 - iconZoneW;
+  const iconSize = 210;
+  const iconZoneW = iconSize + 24;
+  const nameMaxW = W - PAD*2 - 48 - iconZoneW - 16;
 
-  // Scale font — max 80px, scale down if longest word overflows
-  ctx.font = 'bold 80px "Playfair Display",serif';
+  ctx.font = 'bold 86px "Playfair Display",serif';
   const longestWord = nameWords.reduce((a,b) => ctx.measureText(a).width > ctx.measureText(b).width ? a : b);
   const longestW = ctx.measureText(longestWord).width;
-  const nameFontSize = longestW > nameMaxW ? Math.floor(80 * nameMaxW / longestW) : 80;
-  const nameLineH = Math.round(nameFontSize * 1.10);
+  const nameFontSize = longestW > nameMaxW ? Math.floor(86 * nameMaxW / longestW) : 86;
+  const nameLineH = Math.round(nameFontSize * 1.08);
 
-  // Tight fixed offsets — no divider, THE sits right above name
-  const LOGO_Y   = PAD + 44;
-  const THE_Y    = LOGO_Y + 30;
-  const NAME_Y   = THE_Y + nameFontSize + 4;
-  const variantY = NAME_Y + (nameWords.length - 1) * nameLineH + 22;
-  const B1H      = variantY + 28 - PAD;
+  const LOGO_Y  = y + 44;
+  const THE_Y   = LOGO_Y + 30;
+  const NAME_Y  = THE_Y + nameFontSize + 4;
+  const variantY= NAME_Y + (nameWords.length - 1) * nameLineH + 28;
+  const B1H     = variantY + 34 - y;
 
-  roundRect(PAD, PAD, W-PAD*2, B1H, 20, BLOCK1, BORDER, 3);
+  roundRect(PAD, y, W-PAD*2, B1H, 20, BLOCK1, BORDER, 3);
 
-  // Accent line at top
-  const hGrad = ctx.createLinearGradient(PAD, PAD, W-PAD, PAD);
+  const hGrad = ctx.createLinearGradient(PAD, y, W-PAD, y);
   hGrad.addColorStop(0,'rgba(157,147,232,0)');
   hGrad.addColorStop(0.5,'rgba(157,147,232,0.6)');
   hGrad.addColorStop(1,'rgba(201,169,110,0.4)');
   ctx.strokeStyle=hGrad; ctx.lineWidth=2.5;
-  ctx.beginPath(); ctx.moveTo(PAD+20,PAD+1); ctx.lineTo(W-PAD-20,PAD+1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD+20,y+1); ctx.lineTo(W-PAD-20,y+1); ctx.stroke();
 
   // PHIL/OS wordmark
   ctx.font = '700 26px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('PHIL/OS', PAD+36, LOGO_Y);
 
-  // THE — tight above name
+  // THE label
   ctx.font = '600 18px "IBM Plex Mono",monospace';
   ctx.fillStyle = 'rgba(201,169,110,0.72)'; ctx.textAlign = 'left';
   ctx.fillText('THE', PAD+36, THE_Y);
 
-  // Archetype name
+  // Archetype name (large Playfair)
   ctx.font = `bold ${nameFontSize}px "Playfair Display",serif`;
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
-  nameWords.forEach((w, i) => {
-    ctx.fillText(w, PAD+36, NAME_Y + i * nameLineH);
-  });
+  nameWords.forEach((w, i) => ctx.fillText(w, PAD+36, NAME_Y + i * nameLineH));
 
-  // Icon — right side, centred on name zone
-  const icon = getArchetypeIcon(cardData.archetypeName);
-  if (icon && icon.draw) {
-    const iconSize = 160;
+  // Archetype icon — bigger, centred vertically on name block, closer
+  const archIcon = getArchetypeIcon(cardData.archetypeName);
+  if (archIcon && archIcon.draw) {
     const iconX = W - PAD - 36 - iconSize/2;
-    const iconCentreY = THE_Y + (NAME_Y - THE_Y + nameWords.length * nameLineH) / 2;
+    const nameBlockTop = THE_Y - nameFontSize * 0.8;
+    const nameBlockBot = NAME_Y + (nameWords.length - 1) * nameLineH;
+    const iconCentreY = (nameBlockTop + nameBlockBot) / 2;
     ctx.save();
-    const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, iconSize);
-    ig.addColorStop(0,'rgba(157,147,232,0.26)');
-    ig.addColorStop(0.5,'rgba(120,100,240,0.09)');
+    const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, iconSize*0.85);
+    ig.addColorStop(0,'rgba(157,147,232,0.30)');
+    ig.addColorStop(0.5,'rgba(120,100,240,0.12)');
     ig.addColorStop(1,'rgba(157,147,232,0)');
-    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*1.2,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(157,147,232,0.22)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*0.72,0,Math.PI*2); ctx.stroke();
-    icon.draw(ctx, iconX, iconCentreY, iconSize, 'rgba(210,200,255,0.9)');
+    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*1.1,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='rgba(157,147,232,0.28)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*0.60,0,Math.PI*2); ctx.stroke();
+    archIcon.draw(ctx, iconX, iconCentreY, iconSize, 'rgba(215,205,255,0.95)');
     ctx.restore();
   }
 
-  // Variant — tight under last name word
+  // Variant label + rarity pill on same baseline
   ctx.strokeStyle='rgba(157,147,232,0.18)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+36, variantY-8); ctx.lineTo(PAD+420, variantY-8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD+36, variantY-8); ctx.lineTo(PAD+500, variantY-8); ctx.stroke();
   ctx.font = '500 20px "IBM Plex Mono",monospace';
   ctx.fillStyle = 'rgba(180,160,220,0.82)'; ctx.textAlign = 'left';
-  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY + 16);
+  ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY+16);
 
-  y = PAD + B1H + 16;
+  const rarityStr = rarityMapH[cardData.archetypeName] || '';
+  if (rarityStr) {
+    ctx.font = '600 16px "IBM Plex Mono",monospace';
+    const rpW = ctx.measureText(rarityStr).width + 24;
+    roundRect(W-PAD-36-rpW, variantY+1, rpW, 26, 13, 'rgba(201,169,110,0.14)', 'rgba(201,169,110,0.5)', 1.5);
+    ctx.fillStyle = GOLD2; ctx.textAlign='center';
+    ctx.fillText(rarityStr, W-PAD-36-rpW/2, variantY+18);
+  }
+
+  y += B1H + 14;
 
   // ══════════════════════════════════════════
-  // BLOCK 2 — WHO YOU ARE (full width)
+  // BLOCK 2 — WHO YOU ARE (left 58%) + STATS COLUMN (right 38%) side by side
   // ══════════════════════════════════════════
-  const WHOH = 310;
-  roundRect(PAD, y, W-PAD*2, WHOH, 16, BLOCK1, BORDER, 3);
-  ctx.font = '600 17px "IBM Plex Mono",monospace';
+  const B2H = 330;
+  const whoW = Math.floor((W-PAD*2-16)*0.58);
+  const statPanelW = W - PAD*2 - 16 - whoW;
+  const whoX = PAD;
+  const statPanelX = PAD + whoW + 16;
+
+  // WHO YOU ARE panel
+  roundRect(whoX, y, whoW, B2H, 16, BLOCK1, BORDER, 3);
+  ctx.font = '600 14px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
-  ctx.fillText('WHO YOU ARE', PAD+28, y+36);
+  ctx.fillText('WHO YOU ARE', whoX+22, y+30);
   ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(W-PAD-24,y+46); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(whoX+18,y+38); ctx.lineTo(whoX+whoW-18,y+38); ctx.stroke();
 
-  // Use AI identity (first paragraph only) — much richer than the static archetype description
-  const identityText = cardData.identity ? strip(cardData.identity.split('\n\n')[0]) : '';
-  const rawDesc = identityText || strip(cardData.cardDescription || cardData.cardTagline || '');
-  ctx.font = '400 22px "IBM Plex Sans",sans-serif';
-  ctx.fillStyle = 'rgba(240,237,230,0.94)';
-  wrapText(rawDesc, PAD+28, y+74, W-PAD*2-56, 33, 7);
+  // Use cardTagline for punchy 2-line hook, fallback to first identity paragraph
+  const whoText = cardData.cardTagline
+    ? strip(cardData.cardTagline)
+    : (cardData.identity ? strip(cardData.identity.split('\n\n')[0]) : strip(cardData.cardDescription||''));
+  ctx.font = '400 20px "IBM Plex Sans",sans-serif';
+  ctx.fillStyle = TEXT; ctx.textAlign = 'left';
+  wrapText(whoText, whoX+22, y+62, whoW-44, 30, 9);
 
-  y += WHOH + 16;
+  // STATS — 3 stacked vertically, equal height
+  const axKeysSt = Object.keys(AXIS_META);
+  const totalDevSt = axKeysSt.reduce((sum,k)=>{const sc=cardData.axisScores?.[k]||4;return sum+Math.abs(sc-4);},0);
+  const convPctSt = Math.round((totalDevSt/(axKeysSt.length*3))*100);
+  const tensionsSt = (cardData.contradictions||[]).length;
+  const rarityValSt = rarityMapH[cardData.archetypeName]||'RARE';
 
-  // ══════════════════════════════════════════
-  // STATS STRIP — 3 equal columns, compact
-  // ══════════════════════════════════════════
-  const rarityMap={'The Determined Humanist':'TOP 4%','The Structural Reformer':'TOP 9%','The Rational Empiricist':'TOP 11%','The Existential Architect':'TOP 8%','The Moral Realist':'TOP 14%','The Compassionate Collectivist':'TOP 12%','The Principled Libertarian':'TOP 7%','The Stoic Naturalist':'TOP 6%','The Spiritual Naturalist':'TOP 13%','The Conservative Traditionalist':'TOP 18%','The Pragmatic Centrist':'TOP 16%','The Nihilist Reductionist':'TOP 2%'};
-
-  const axKeys2 = Object.keys(AXIS_META);
-  const totalDev = axKeys2.reduce((sum,k)=>{const sc=cardData.axisScores?.[k]||4;return sum+Math.abs(sc-4);},0);
-  const convictionPct = Math.round((totalDev/(axKeys2.length*3))*100);
-  const extremeAxes = axKeys2.filter(k=>{const sc=cardData.axisScores?.[k]||4;return sc<=2.0||sc>=6.0;}).length;
-  const rarityPct = rarityMap[cardData.archetypeName]||'RARE';
-
-  const STATH = 120;
-  const statColW = Math.floor((W-PAD*2-32)/3);
-  const statBgs = [BLOCK2, BLOCK1, BLOCK3];
-  const statAccents = [GOLD2, PURPLE2, 'rgba(74,158,122,0.9)'];
-  const stats = [
-    {val: rarityPct,         label: 'worldview rarity'},
-    {val: convictionPct+'%', label: 'conviction strength'},
-    {val: extremeAxes+'',    label: 'extreme positions'},
+  const stItems = [
+    {val: rarityValSt,      label: 'WORLDVIEW RARITY', accent: GOLD2,    bg: BLOCK2},
+    {val: convPctSt+'%',    label: 'CONVICTION SCORE', accent: PURPLE2,  bg: BLOCK4},
+    {val: tensionsSt+'',    label: 'TENSIONS FOUND',   accent: TEAL,     bg: BLOCK3},
   ];
-  stats.forEach((s,i) => {
-    const sx = PAD + i*(statColW+16);
-    roundRect(sx, y, statColW, STATH, 16, statBgs[i], BORDER, 3);
-    ctx.font = 'bold 40px "Playfair Display",serif';
-    ctx.fillStyle = statAccents[i]; ctx.textAlign = 'left';
-    ctx.fillText(s.val, sx+20, y+62);
-    ctx.font = '400 16px "IBM Plex Mono",monospace';
+  const stH = Math.floor((B2H - 8) / 3) - 4;
+  stItems.forEach((s,i) => {
+    const sy = y + i*(stH+6);
+    roundRect(statPanelX, sy, statPanelW, stH, 14, s.bg, BORDER, 2);
+    ctx.font = `bold 36px "Playfair Display",serif`;
+    ctx.fillStyle = s.accent; ctx.textAlign = 'left';
+    ctx.fillText(s.val, statPanelX+16, sy+stH*0.56);
+    ctx.font = '500 12px "IBM Plex Mono",monospace';
     ctx.fillStyle = MUTED;
-    ctx.fillText(s.label, sx+20, y+88);
-  });
-
-  y += STATH + 16;
-
-  // ══════════════════════════════════════════
-  // BLOCK 2 — BELIEF FINGERPRINT (full width)
-  // ══════════════════════════════════════════
-  const fpCount = (cardData.fingerprint||[]).length;
-  const B2H = 60 + fpCount*62 + 24;
-  roundRect(PAD, y, W-PAD*2, B2H, 16, BLOCK3, BORDER, 3);
-
-  ctx.font = '600 18px "IBM Plex Mono",monospace';
-  ctx.fillStyle = TEAL; ctx.textAlign = 'left';
-  ctx.fillText('BELIEF FINGERPRINT', PAD+28, y+38);
-  ctx.strokeStyle='rgba(74,158,122,0.25)';
-  ctx.beginPath(); ctx.moveTo(PAD+24,y+46); ctx.lineTo(W-PAD-24,y+46); ctx.stroke();
-
-  const lblW = 240, trackW = W-PAD*2-48-lblW-80, bH = 20, bGap = 62;
-  (cardData.fingerprint||[]).forEach((fp,i) => {
-    const meta = AXIS_META[fp.axis]; if(!meta) return;
-    const fy = y+60+i*bGap;
-    const raw = cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
-    const pct = Math.max(0,Math.min(1,(raw-1)/6));
-    const fw = Math.max(bH,Math.round(pct*trackW));
-    const tx = PAD+24+lblW;
-
-    ctx.font = '500 24px "IBM Plex Sans",sans-serif';
-    ctx.fillStyle = TEXT; ctx.textAlign = 'left';
-    const lbl = meta.label.length>14?meta.label.slice(0,13)+'.':meta.label;
-    ctx.fillText(lbl, PAD+24, fy+16);
-
-    roundRect(tx,fy,trackW,bH,bH/2,'rgba(255,255,255,0.06)',null);
-    if(fw>bH) {
-      const gr = ctx.createLinearGradient(tx,0,tx+fw,0);
-      gr.addColorStop(0,'rgba(74,158,122,0.7)'); gr.addColorStop(1,'#4a9e7a');
-      roundRect(tx,fy,fw,bH,bH/2,null); ctx.fillStyle=gr; ctx.fill();
-      ctx.shadowColor='rgba(74,158,122,0.4)'; ctx.shadowBlur=8;
-      ctx.fill(); ctx.shadowBlur=0;
-    }
-    ctx.font = '700 22px "IBM Plex Mono",monospace';
-    ctx.fillStyle = TEAL; ctx.textAlign = 'right';
-    ctx.fillText(raw.toFixed(1), W-PAD-24, fy+16); ctx.textAlign='left';
+    ctx.fillText(s.label, statPanelX+16, sy+stH*0.82);
   });
 
   y += B2H + 14;
 
   // ══════════════════════════════════════════
-  // ROW B — YOUR WORLD (media, 3 equal blocks)
+  // BLOCK 3 — BELIEF FINGERPRINT
+  // ══════════════════════════════════════════
+  const fpCount = (cardData.fingerprint||[]).length;
+  const B3H = 50 + fpCount*56 + 20;
+  roundRect(PAD, y, W-PAD*2, B3H, 16, BLOCK3, BORDER, 3);
+
+  ctx.font = '600 15px "IBM Plex Mono",monospace';
+  ctx.fillStyle = TEAL; ctx.textAlign = 'left';
+  ctx.fillText('BELIEF FINGERPRINT', PAD+28, y+32);
+  ctx.strokeStyle='rgba(74,158,122,0.25)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+24,y+40); ctx.lineTo(W-PAD-24,y+40); ctx.stroke();
+
+  const lblWfp=220, trackWfp=W-PAD*2-48-lblWfp-70, bHfp=18, bGapfp=56;
+  (cardData.fingerprint||[]).forEach((fp,i) => {
+    const meta = AXIS_META[fp.axis]; if(!meta) return;
+    const fy = y+50+i*bGapfp;
+    const raw = cardData.axisScores?(cardData.axisScores[fp.axis]||fp.score||4):(fp.score||4);
+    const pct = Math.max(0,Math.min(1,(raw-1)/6));
+    const fw = Math.max(bHfp,Math.round(pct*trackWfp));
+    const tx = PAD+24+lblWfp;
+    ctx.font = '500 21px "IBM Plex Sans",sans-serif';
+    ctx.fillStyle = TEXT; ctx.textAlign = 'left';
+    const lbl = meta.label.length>14?meta.label.slice(0,13)+'.':meta.label;
+    ctx.fillText(lbl, PAD+24, fy+14);
+    roundRect(tx,fy,trackWfp,bHfp,bHfp/2,'rgba(255,255,255,0.06)',null);
+    if(fw>bHfp) {
+      const gr = ctx.createLinearGradient(tx,0,tx+fw,0);
+      gr.addColorStop(0,'rgba(74,158,122,0.7)'); gr.addColorStop(1,'#4a9e7a');
+      roundRect(tx,fy,fw,bHfp,bHfp/2,null); ctx.fillStyle=gr; ctx.fill();
+      ctx.shadowColor='rgba(74,158,122,0.4)'; ctx.shadowBlur=8; ctx.fill(); ctx.shadowBlur=0;
+    }
+    ctx.font = '700 20px "IBM Plex Mono",monospace';
+    ctx.fillStyle = TEAL; ctx.textAlign = 'right';
+    ctx.fillText(raw.toFixed(1), W-PAD-24, fy+14); ctx.textAlign='left';
+  });
+
+  y += B3H + 14;
+
+  // ══════════════════════════════════════════
+  // BLOCK 4 — YOUR WORLD (media, 3 equal cols)
   // ══════════════════════════════════════════
   const mediaMap2 = typeof MEDIA_BY_FAMILY!=='undefined'?MEDIA_BY_FAMILY:{};
   const media = mediaMap2[cardData.archetypeName];
   if(media) {
-    const ROWBH = 250;
+    const ROWBH = 220;
     const colW3 = Math.floor((W-PAD*2-32)/3);
     const cats = [
-      {label:'FILM', icon:'🎬', items:media.films.slice(0,2), bg:BLOCK1, accent:'rgba(157,147,232,0.9)'},
-      {label:'MUSIC', icon:'🎵', items:media.music.slice(0,2), bg:BLOCK2, accent:GOLD},
-      {label:'BOOKS', icon:'📚', items:media.books.slice(0,2), bg:BLOCK3, accent:'rgba(74,158,122,0.9)'},
+      {label:'FILM',  icon:'\uD83C\uDFAC', items:media.films.slice(0,2), bg:BLOCK1, accent:PURPLE2},
+      {label:'MUSIC', icon:'\uD83C\uDFB5', items:media.music.slice(0,2), bg:BLOCK2, accent:GOLD2},
+      {label:'BOOKS', icon:'\uD83D\uDCDA', items:media.books.slice(0,2), bg:BLOCK3, accent:TEAL},
     ];
     cats.forEach((cat,ci) => {
       const cx = PAD + ci*(colW3+16);
       roundRect(cx, y, colW3, ROWBH, 16, cat.bg, BORDER, 3);
-      ctx.font = '600 16px "IBM Plex Mono",monospace';
+      ctx.font = '600 14px "IBM Plex Mono",monospace';
       ctx.fillStyle = cat.accent; ctx.textAlign='left';
-      ctx.fillText(cat.icon+' '+cat.label, cx+18, y+32);
-      ctx.strokeStyle='rgba(255,255,255,0.1)';
-      ctx.beginPath(); ctx.moveTo(cx+18,y+42); ctx.lineTo(cx+colW3-18,y+42); ctx.stroke();
+      ctx.fillText(cat.icon+' '+cat.label, cx+18, y+28);
+      ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(cx+18,y+36); ctx.lineTo(cx+colW3-18,y+36); ctx.stroke();
       cat.items.forEach((item,ii) => {
-        const iy = y+60+ii*88;
-        ctx.font = '600 19px "IBM Plex Sans",sans-serif';
-        ctx.fillStyle = TEXT;
-        let t=item.title; while(ctx.measureText(t).width>colW3-36&&t.length>4) t=t.slice(0,-4)+'...';
+        const iy = y+52+ii*82;
+        ctx.font = '600 16px "IBM Plex Sans",sans-serif';
+        ctx.fillStyle = TEXT; ctx.textAlign='left';
+        let t=item.title; while(ctx.measureText(t).width>colW3-36&&t.length>4) t=t.slice(0,-4)+'\u2026';
         ctx.fillText(t, cx+18, iy);
-        ctx.font = '400 14px "IBM Plex Mono",monospace';
+        ctx.font = '400 12px "IBM Plex Mono",monospace';
         ctx.fillStyle = MUTED;
-        let n=item.note; while(ctx.measureText(n).width>colW3-36&&n.length>4) n=n.slice(0,-4)+'...';
-        ctx.fillText(n, cx+18, iy+20);
+        let n=item.note; while(ctx.measureText(n).width>colW3-36&&n.length>4) n=n.slice(0,-4)+'\u2026';
+        ctx.fillText(n, cx+18, iy+18);
         if(ii<cat.items.length-1) {
           ctx.strokeStyle='rgba(255,255,255,0.06)';
-          ctx.beginPath(); ctx.moveTo(cx+18,iy+36); ctx.lineTo(cx+colW3-18,iy+36); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx+18,iy+32); ctx.lineTo(cx+colW3-18,iy+32); ctx.stroke();
         }
       });
     });
@@ -5974,111 +6208,102 @@ function renderCardToCanvas(container) {
   }
 
   // ══════════════════════════════════════════
-  // BLOCK 3 — MINDS LIKE YOURS (3 equal blocks)
+  // BLOCK 5 — MINDS LIKE YOURS
   // ══════════════════════════════════════════
   const famous = (cardData.famousTypes||[]).slice(0,3);
   if(famous.length>0) {
-    const B3H = 155;
+    const B5H = 150;
     const fColW = Math.floor((W-PAD*2-32)/3);
-    const fColors = [PURPLE2, GOLD, 'rgba(74,158,122,0.9)'];
+    const fColors = [PURPLE2, GOLD2, TEAL];
     const fBgs = [BLOCK1, BLOCK2, BLOCK3];
-
-    ctx.font = '600 16px "IBM Plex Mono",monospace';
+    ctx.font = '600 13px "IBM Plex Mono",monospace';
     ctx.fillStyle = MUTED; ctx.textAlign='left';
-    ctx.fillText('MINDS LIKE YOURS', PAD, y+24);
-    y += 36;
-
+    ctx.fillText('MINDS LIKE YOURS', PAD, y+22);
+    y += 32;
     famous.forEach((f,i) => {
       const fx = PAD + i*(fColW+16);
-      roundRect(fx, y, fColW, B3H, 16, fBgs[i], BORDER, 3);
+      roundRect(fx, y, fColW, B5H, 16, fBgs[i], BORDER, 3);
       roundRect(fx, y, fColW, 4, 0, fColors[i], null);
-      ctx.font = '700 22px "Playfair Display",serif';
+      ctx.font = '700 20px "Playfair Display",serif';
       ctx.fillStyle = TEXT; ctx.textAlign='left';
-      ctx.fillText(f.name, fx+18, y+42);
-      const parts = (f.desc||'').split('·').map(s=>s.trim());
-      ctx.font = '400 14px "IBM Plex Mono",monospace';
+      ctx.fillText(f.name, fx+18, y+38);
+      const parts = (f.desc||'').split('\u00b7').map(s=>s.trim());
+      ctx.font = '400 13px "IBM Plex Mono",monospace';
       ctx.fillStyle = MUTED;
       parts.slice(0,3).forEach((p,pi) => {
-        let d=p; while(ctx.measureText(d).width>fColW-36&&d.length>4) d=d.slice(0,-4)+'...';
-        ctx.fillText(d, fx+18, y+64+pi*20);
+        let d=p; while(ctx.measureText(d).width>fColW-36&&d.length>4) d=d.slice(0,-4)+'\u2026';
+        ctx.fillText(d, fx+18, y+57+pi*18);
       });
     });
-    y += B3H + 14;
+    y += B5H + 14;
   }
 
   // ══════════════════════════════════════════
-  // BLOCK 4 — DNA STRIP (full width)
+  // BLOCK 6 — PHILOSOPHICAL DNA (34 axes bidirectional bar)
   // ══════════════════════════════════════════
-  const B4H = 130;
-  roundRect(PAD, y, W-PAD*2, B4H, 16, BLOCK4, BORDER, 3);
-
-  ctx.font = '600 14px "IBM Plex Mono",monospace';
+  const B6H = 140;
+  roundRect(PAD, y, W-PAD*2, B6H, 16, BLOCK4, BORDER, 3);
+  ctx.font = '600 13px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign='center';
-  ctx.fillText('PHILOSOPHICAL DNA  ·  34 AXES', W/2, y+22);
-
-  const dnaInnerY = y+32, dnaInnerH = B4H-48;
-  const axKeys = Object.keys(AXIS_META);
-  const bW3 = (W-PAD*2-48)/axKeys.length;
+  ctx.fillText('PHILOSOPHICAL DNA  \u00b7  34 AXES', W/2, y+22);
+  const dnaInnerY = y+30, dnaInnerH = B6H-46;
+  const axKeysD = Object.keys(AXIS_META);
+  const bW6 = (W-PAD*2-48)/axKeysD.length;
   const midLine = dnaInnerY + dnaInnerH/2;
-
-  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(PAD+24,midLine); ctx.lineTo(W-PAD-24,midLine); ctx.stroke();
-
-  axKeys.forEach((k,i) => {
+  axKeysD.forEach((k,i) => {
     const sc = cardData.axisScores?(cardData.axisScores[k]||4):4;
     const dev = (sc-4)/3;
-    const bh2 = Math.max(3, Math.abs(dev)*(dnaInnerH/2-4));
-    const bx3 = PAD+24+i*bW3+0.5;
-    const by3 = dev>=0 ? midLine-bh2 : midLine;
-    const alpha = 0.15 + Math.abs(dev)*0.7;
-    ctx.fillStyle = dev>=0 ? `rgba(157,147,232,${alpha})` : `rgba(201,169,110,${alpha})`;
-    ctx.fillRect(bx3, by3, bW3-1, bh2);
+    const bh6 = Math.max(3, Math.abs(dev)*(dnaInnerH/2-4));
+    const bx6 = PAD+24+i*bW6+0.5;
+    const by6 = dev>=0 ? midLine-bh6 : midLine;
+    const alpha6 = 0.2 + Math.abs(dev)*0.7;
+    ctx.fillStyle = dev>=0 ? `rgba(157,147,232,${alpha6})` : `rgba(201,169,110,${alpha6})`;
+    ctx.fillRect(bx6, by6, bW6-1, bh6);
   });
+  y += B6H + 14;
 
-  y += B4H + 14;
-
   // ══════════════════════════════════════════
-  // FOOTER BAR
+  // BLOCK 7 — CTA (flows naturally after DNA — never pinned, never overlapping)
   // ══════════════════════════════════════════
-  // CTA BLOCK
-  // ══════════════════════════════════════════
-  // CTA + FOOTER — pinned to bottom of canvas
-  // ══════════════════════════════════════════
-  const ctaH = 140;
-  const footerH = 58;
-  const ctaY = H - footerH - ctaH - 12;
-  const footerY = H - footerH;
-
-  const ctaGrad = ctx.createLinearGradient(PAD, ctaY, W-PAD, ctaY+ctaH);
+  const ctaH = 150;
+  const ctaGrad = ctx.createLinearGradient(PAD, y, W-PAD, y+ctaH);
   ctaGrad.addColorStop(0, 'rgba(100,80,240,0.45)');
   ctaGrad.addColorStop(0.5, 'rgba(157,147,232,0.30)');
   ctaGrad.addColorStop(1, 'rgba(180,120,60,0.35)');
-  roundRect(PAD, ctaY, W-PAD*2, ctaH, 16, null, null); ctx.fillStyle=ctaGrad; ctx.fill();
+  roundRect(PAD, y, W-PAD*2, ctaH, 16, null, null); ctx.fillStyle=ctaGrad; ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.40)'; ctx.lineWidth=2.5;
-  roundRect(PAD, ctaY, W-PAD*2, ctaH, 16, null, null); ctx.stroke();
-  ctx.font = 'bold italic 32px "Playfair Display",serif';
-  ctx.fillStyle='#ffffff'; ctx.textAlign='center'; ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=8;
-  ctx.fillText('What does your worldview say about you?', W/2, ctaY+44); ctx.shadowBlur=0;
-  ctx.font = '500 21px "IBM Plex Mono",monospace';
-  ctx.fillStyle='rgba(220,200,255,0.90)';
-  ctx.fillText('156 questions · 34 belief axes · your archetype', W/2, ctaY+76);
-  const urlText = 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app';
-  ctx.font = '600 22px "IBM Plex Mono",monospace';
-  const urlW = ctx.measureText(urlText).width + 40;
-  roundRect(W/2-urlW/2, ctaY+90, urlW, 38, 19, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
+  roundRect(PAD, y, W-PAD*2, ctaH, 16, null, null); ctx.stroke();
+  ctx.font = 'bold italic 28px "Playfair Display",serif';
+  ctx.fillStyle='#ffffff'; ctx.textAlign='center';
+  ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=8;
+  ctx.fillText('What does your worldview say about you?', W/2, y+42); ctx.shadowBlur=0;
+  ctx.font = '500 18px "IBM Plex Mono",monospace';
+  ctx.fillStyle='rgba(220,200,255,0.88)';
+  ctx.fillText('156 questions \u00b7 34 belief axes \u00b7 your archetype', W/2, y+74);
+  const urlTxt = 'philos-thelifepm.netlify.app';
+  ctx.font = '600 20px "IBM Plex Mono",monospace';
+  const urlW3 = ctx.measureText(urlTxt).width + 40;
+  roundRect(W/2-urlW3/2, y+88, urlW3, 38, 19, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
   ctx.strokeStyle='rgba(201,169,110,0.6)'; ctx.lineWidth=1.5;
-  roundRect(W/2-urlW/2, ctaY+90, urlW, 38, 19, null, null); ctx.stroke();
-  ctx.fillStyle=GOLD2; ctx.fillText(urlText, W/2, ctaY+115);
+  roundRect(W/2-urlW3/2, y+88, urlW3, 38, 19, null, null); ctx.stroke();
+  ctx.fillStyle=GOLD2; ctx.fillText(urlTxt, W/2, y+113);
+  y += ctaH + 12;
 
+  // ══════════════════════════════════════════
+  // FOOTER — pinned to bottom, fallback to flow position
+  // ══════════════════════════════════════════
+  const footerH = 58;
+  const footerY = Math.max(y, H - footerH - PAD);
   roundRect(PAD, footerY, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
-  ctx.font = '600 22px "IBM Plex Mono",monospace';
+  ctx.font = '600 20px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign='center';
-  ctx.fillText('PHIL/OS  ·  thelifepm.com', W/2, footerY+36);
+  ctx.fillText('PHIL/OS  \u00b7  thelifepm.com', W/2, footerY+36);
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
 }
-
 // Helper: rounded rectangle path
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
