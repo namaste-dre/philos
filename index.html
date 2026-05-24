@@ -1795,9 +1795,16 @@ select.modal-input option { background: #12101e; }
       </div>
     </div>
     <button class="btn-primary" onclick="show('screen-intake')">Begin assessment</button>
-    <div style="margin-top:16px">
-      <button class="btn-secondary" onclick="testReport()" id="dev-btn" style="font-size:13px;padding:8px 20px">
-        Dev: Test report (cycle personas)
+    <div id="dev-panel" style="margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;border:1px solid rgba(201,169,110,0.3);border-radius:8px;background:rgba(201,169,110,0.05);max-width:420px;margin-left:auto;margin-right:auto;">
+      <div style="color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;width:100%;text-align:left;">Dev Panel</div>
+      <select id="dev-family-select" onchange="devFamilyChanged()" style="width:100%;background:#1a1530;color:#e8e6f0;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:10px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;">
+        <option value="">-- Select archetype family --</option>
+      </select>
+      <select id="dev-variant-select" style="width:100%;background:#1a1530;color:#e8e6f0;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:10px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;opacity:0.4;pointer-events:none;">
+        <option value="">-- Select variant --</option>
+      </select>
+      <button onclick="devGenerateReport()" id="dev-generate-btn" style="width:100%;background:#c9a96e;color:#08061a;border:none;border-radius:6px;padding:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;opacity:0.4;pointer-events:none;">
+        Dev Generate
       </button>
     </div>
     <div class="tier-preview">
@@ -4355,154 +4362,156 @@ function detectContradictions(scores) {
 // ══════════════════════════════════════════
 // DEV: TEST REPORT WITHOUT FULL QUIZ
 // ══════════════════════════════════════════
-function testReport() {
-  // Rotate through distinct philosophical personas on each press
-  // Stored in sessionStorage so each click cycles to the next
-  const personas = [
-    {
-      name: 'Marcus',
-      label: 'Devout Christian — Traditional, free will, divine authority',
-      scores: {
-        naturalism:1, physicalism:1, realism:6, determinism:1, moral_ground:6, meaning:7,
-        teleology:7, human_nature:6, epistemic_method:1, social_ontology:5, temporal_orientation:2,
-        moral_authority:1, epistemic_humility:3, knowledge:1, science:3, freewill_practice:1,
-        justice:2, ethics:2, religion:1, politics:2, self:1, moral_scope:4, meaning_practice:7,
-        society:5, responsibility:2, identity:3, authority:2, economics:2, uncertainty:2,
-        mind_consciousness:1, animal_ethics:2, progress:4
-      }
-    },
-    {
-      name: 'Zia',
-      label: 'Secular Humanist Atheist — Science-first, constructed meaning, collectivist',
-      scores: {
-        naturalism:7, physicalism:6, realism:6, determinism:4, moral_ground:5, meaning:2,
-        teleology:1, human_nature:3, epistemic_method:7, social_ontology:6, temporal_orientation:6,
-        moral_authority:6, epistemic_humility:5, knowledge:7, science:7, freewill_practice:5,
-        justice:7, ethics:6, religion:7, politics:7, self:5, moral_scope:7, meaning_practice:6,
-        society:7, responsibility:6, identity:6, authority:7, economics:7, uncertainty:6,
-        mind_consciousness:6, animal_ethics:7, progress:7
-      }
-    },
-    {
-      name: 'Jordan',
-      label: 'Hard Determinist — Causal universe, moral realist, systems thinker',
-      scores: {
-        naturalism:7, physicalism:7, realism:7, determinism:7, moral_ground:6, meaning:2,
-        teleology:1, human_nature:2, epistemic_method:7, social_ontology:6, temporal_orientation:6,
-        moral_authority:7, epistemic_humility:4, knowledge:7, science:7, freewill_practice:7,
-        justice:7, ethics:5, religion:7, politics:6, self:7, moral_scope:6, meaning_practice:5,
-        society:6, responsibility:7, identity:6, authority:6, economics:6, uncertainty:5,
-        mind_consciousness:7, animal_ethics:6, progress:6
-      }
-    },
-    {
-      name: 'Tyler',
-      label: 'Libertarian Free Will — Personal responsibility, market-oriented, traditionalist',
-      scores: {
-        naturalism:4, physicalism:4, realism:5, determinism:1, moral_ground:5, meaning:5,
-        teleology:4, human_nature:6, epistemic_method:4, social_ontology:1, temporal_orientation:3,
-        moral_authority:3, epistemic_humility:2, knowledge:4, science:5, freewill_practice:1,
-        justice:1, ethics:3, religion:3, politics:1, self:1, moral_scope:2, meaning_practice:6,
-        society:1, responsibility:1, identity:3, authority:2, economics:1, uncertainty:3,
-        mind_consciousness:3, animal_ethics:2, progress:5
-      }
-    },
-    {
-      name: 'Selin',
-      label: 'Existentialist — Radical freedom, constructed self, absurdist meaning',
-      scores: {
-        naturalism:6, physicalism:5, realism:4, determinism:2, moral_ground:3, meaning:1,
-        teleology:1, human_nature:1, epistemic_method:5, social_ontology:3, temporal_orientation:5,
-        moral_authority:6, epistemic_humility:6, knowledge:5, science:6, freewill_practice:2,
-        justice:5, ethics:4, religion:6, politics:4, self:1, moral_scope:5, meaning_practice:4,
-        society:3, responsibility:2, identity:7, authority:6, economics:4, uncertainty:7,
-        mind_consciousness:4, animal_ethics:5, progress:5
-      }
-    },
-    {
-      name: 'Dmitri',
-      label: 'Nihilist — Nothing matters, no moral realism, radical skeptic',
-      scores: {
-        naturalism:7, physicalism:7, realism:3, determinism:6, moral_ground:1, meaning:1,
-        teleology:1, human_nature:2, epistemic_method:5, social_ontology:2, temporal_orientation:4,
-        moral_authority:7, epistemic_humility:6, knowledge:5, science:6, freewill_practice:5,
-        justice:4, ethics:3, religion:7, politics:3, self:5, moral_scope:2, meaning_practice:1,
-        society:2, responsibility:3, identity:5, authority:6, economics:3, uncertainty:6,
-        mind_consciousness:6, animal_ethics:3, progress:2
-      }
-    },
-    {
-      name: 'Priya',
-      label: 'Spiritual Naturalist — Non-dogmatic, emergent purpose, contemplative',
-      scores: {
-        naturalism:4, physicalism:3, realism:5, determinism:3, moral_ground:5, meaning:5,
-        teleology:5, human_nature:5, epistemic_method:4, social_ontology:5, temporal_orientation:5,
-        moral_authority:5, epistemic_humility:7, knowledge:4, science:5, freewill_practice:3,
-        justice:6, ethics:5, religion:3, politics:5, self:4, moral_scope:6, meaning_practice:6,
-        society:5, responsibility:4, identity:4, authority:5, economics:5, uncertainty:7,
-        mind_consciousness:3, animal_ethics:6, progress:5
-      }
-    },
-    {
-      name: 'Cassandra',
-      label: 'Conservative Traditionalist — Divine order, past authority, fixed human nature',
-      scores: {
-        naturalism:2, physicalism:2, realism:6, determinism:2, moral_ground:7, meaning:7,
-        teleology:7, human_nature:7, epistemic_method:2, social_ontology:6, temporal_orientation:1,
-        moral_authority:1, epistemic_humility:2, knowledge:1, science:3, freewill_practice:1,
-        justice:1, ethics:1, religion:1, politics:1, self:2, moral_scope:3, meaning_practice:7,
-        society:6, responsibility:1, identity:1, authority:1, economics:2, uncertainty:1,
-        mind_consciousness:2, animal_ethics:2, progress:2
-      }
-    },
-    {
-      name: 'Milo',
-      label: 'Pragmatic Centrist — Evidence-based, flexible ethics, moderate everything',
-      scores: {
-        naturalism:5, physicalism:5, realism:5, determinism:4, moral_ground:4, meaning:4,
-        teleology:3, human_nature:4, epistemic_method:5, social_ontology:4, temporal_orientation:5,
-        moral_authority:5, epistemic_humility:5, knowledge:5, science:6, freewill_practice:4,
-        justice:4, ethics:4, religion:5, politics:4, self:4, moral_scope:5, meaning_practice:5,
-        society:4, responsibility:4, identity:4, authority:5, economics:4, uncertainty:5,
-        mind_consciousness:5, animal_ethics:5, progress:5
-      }
-    },
-    {
-      name: 'Raven',
-      label: 'Moral Realist + Stoic — Objective ethics, emotional control, virtue focus',
-      scores: {
-        naturalism:6, physicalism:5, realism:7, determinism:5, moral_ground:7, meaning:6,
-        teleology:2, human_nature:5, epistemic_method:6, social_ontology:3, temporal_orientation:4,
-        moral_authority:6, epistemic_humility:4, knowledge:6, science:6, freewill_practice:3,
-        justice:3, ethics:2, religion:6, politics:3, self:3, moral_scope:5, meaning_practice:7,
-        society:3, responsibility:2, identity:4, authority:5, economics:3, uncertainty:4,
-        mind_consciousness:5, animal_ethics:5, progress:5
-      }
+// ══════════════════════════════════════════
+// DEV PANEL — Archetype selector
+// ══════════════════════════════════════════
+
+function devInitPanel() {
+  // Build family dropdown from ARCHETYPES data
+  const familySelect = document.getElementById('dev-family-select');
+  if (!familySelect) return;
+  // Get unique families in order
+  const seen = new Set();
+  const families = [];
+  ARCHETYPES.forEach(a => {
+    if (!seen.has(a.family)) {
+      seen.add(a.family);
+      families.push(a.family);
     }
-  ];
+  });
+  families.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    opt.textContent = f;
+    familySelect.appendChild(opt);
+  });
+}
 
-  // Cycle through personas each time the button is pressed
-  const idx = parseInt(sessionStorage.getItem('testPersonaIdx') || '0');
-  const persona = personas[idx % personas.length];
-  sessionStorage.setItem('testPersonaIdx', (idx + 1).toString());
+function devFamilyChanged() {
+  const familySelect = document.getElementById('dev-family-select');
+  const variantSelect = document.getElementById('dev-variant-select');
+  const generateBtn = document.getElementById('dev-generate-btn');
+  const family = familySelect.value;
 
-  console.log(`%c[DEV] Persona ${idx + 1}/${personas.length}: ${persona.name} — ${persona.label}`, 'color:#c9a96e;font-weight:bold');
+  // Reset variant dropdown
+  variantSelect.innerHTML = '<option value="">-- Select variant --</option>';
 
-  state.userName = persona.name;
+  if (!family) {
+    variantSelect.style.opacity = '0.4';
+    variantSelect.style.pointerEvents = 'none';
+    generateBtn.style.opacity = '0.4';
+    generateBtn.style.pointerEvents = 'none';
+    return;
+  }
+
+  // Populate variants for this family
+  ARCHETYPES.filter(a => a.family === family).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = a.variant;
+    variantSelect.appendChild(opt);
+  });
+
+  variantSelect.style.opacity = '1';
+  variantSelect.style.pointerEvents = 'auto';
+  // Auto-select first variant
+  if (variantSelect.options.length > 1) {
+    variantSelect.selectedIndex = 1;
+  }
+  generateBtn.style.opacity = '1';
+  generateBtn.style.pointerEvents = 'auto';
+}
+
+function devGenerateReport() {
+  const familySelect = document.getElementById('dev-family-select');
+  const variantSelect = document.getElementById('dev-variant-select');
+  const family = familySelect.value;
+  const archetypeId = variantSelect.value;
+
+  if (!family || !archetypeId) {
+    alert('Select a family and variant first.');
+    return;
+  }
+
+  const archetype = ARCHETYPES.find(a => a.id === archetypeId);
+  if (!archetype) return;
+
+  // Build target scores from the archetype's sig vector
+  // sig = [naturalism, physicalism, realism, determinism, moral_ground, meaning]
+  const sigScores = {};
+  SIG_AXES.forEach((axis, i) => {
+    if (archetype.sig[i] !== null && archetype.sig[i] !== undefined) {
+      sigScores[axis] = archetype.sig[i];
+    }
+  });
+
+  // For non-sig axes, infer from family character using sensible defaults
+  // These are the Tier 1.5 / Tier 2 / Tier 3 axes not in the sig vector
+  // We derive them from the sig profile so the archetype assignment is reliable
+  const nat = sigScores.naturalism || 4;
+  const phys = sigScores.physicalism || 4;
+  const det = sigScores.determinism || 4;
+  const moral = sigScores.moral_ground || 4;
+  const meaning = sigScores.meaning || 4;
+
+  const inferredScores = {
+    // Tier 1.5
+    teleology: meaning > 5 ? 6 : meaning < 3 ? 2 : 4,
+    human_nature: moral > 5 ? 6 : nat > 5 ? 3 : 5,
+    epistemic_method: nat > 5 ? 7 : nat < 3 ? 2 : 4,
+    social_ontology: moral > 5 ? 5 : nat > 5 ? 6 : 4,
+    temporal_orientation: meaning > 5 ? 2 : nat > 5 ? 6 : 4,
+    moral_authority: moral > 5 ? (nat < 3 ? 1 : 6) : 5,
+    epistemic_humility: nat > 5 ? 5 : nat < 3 ? 3 : 5,
+    // Tier 2
+    knowledge: nat > 5 ? 7 : nat < 3 ? 2 : 5,
+    science: nat > 5 ? 7 : nat < 3 ? 3 : 5,
+    freewill_practice: det > 5 ? 6 : det < 3 ? 2 : 4,
+    // Tier 3
+    justice: moral > 5 ? (nat > 5 ? 6 : 3) : 5,
+    ethics: moral > 5 ? 2 : 5,
+    religion: nat > 5 ? 7 : nat < 3 ? 1 : 4,
+    politics: nat > 5 ? 6 : nat < 3 ? 2 : 4,
+    self: det > 5 ? 6 : 4,
+    moral_scope: moral > 5 ? 5 : nat > 5 ? 6 : 4,
+    meaning_practice: meaning > 5 ? 7 : meaning < 3 ? 2 : 5,
+    society: nat > 5 ? 6 : nat < 3 ? 5 : 4,
+    responsibility: det > 5 ? 6 : det < 3 ? 2 : 4,
+    identity: det < 3 ? 2 : nat > 5 ? 5 : 4,
+    authority: nat > 5 ? 6 : nat < 3 ? 1 : 4,
+    economics: nat > 5 ? 6 : nat < 3 ? 2 : 4,
+    uncertainty: nat > 5 ? 5 : 6,
+    mind_consciousness: phys > 5 ? 7 : phys < 3 ? 2 : 4,
+    animal_ethics: nat > 5 ? 6 : moral > 5 ? (nat < 3 ? 2 : 5) : 4,
+    progress: nat > 5 ? 6 : nat < 3 ? 2 : 5,
+  };
+
+  // Merge: sig scores take priority over inferred
+  const targetScores = { ...inferredScores, ...sigScores };
+
+  console.log(`%c[DEV] Generating: ${archetype.family} — ${archetype.variant} (${archetype.id})`, 'color:#c9a96e;font-weight:bold;font-size:14px');
+  console.log('[DEV] Target scores:', targetScores);
+
+  state.userName = 'Dev';
   state.shuffledQuestions = QUESTIONS;
   state.answers = {};
+  state.shuffledOptions = {};
 
-  // Map persona scores onto all questions using the axis score targets
+  // Shuffle options for non-likert questions (required for answer matching)
   QUESTIONS.forEach(q => {
-    const axis = q.axis;
-    const target = persona.scores[axis] !== undefined ? persona.scores[axis] : 4;
+    if (q.options) state.shuffledOptions[q.id] = shuffle([...q.options]);
+  });
+
+  // Map target scores onto all questions
+  QUESTIONS.forEach(q => {
+    const target = targetScores[q.axis] !== undefined ? targetScores[q.axis] : 4;
     if (q.type === 'likert') {
-      // Add slight noise (±1) so reports feel less robotic
+      // Slight noise so it feels like a real completion
       const noise = Math.floor(Math.random() * 3) - 1;
-      state.answers[q.id] = Math.max(1, Math.min(7, target + noise));
+      state.answers[q.id] = Math.max(1, Math.min(7, Math.round(target) + noise));
     } else if (q.options && q.options.length) {
-      // Pick the option whose score is closest to the persona's target for this axis
-      const best = q.options.reduce((a, b) =>
+      const opts = state.shuffledOptions[q.id] || q.options;
+      const best = opts.reduce((a, b) =>
         Math.abs(b.score - target) < Math.abs(a.score - target) ? b : a
       );
       state.answers[q.id] = best.score;
@@ -6923,6 +6932,7 @@ function downloadCard() {
 
   // Run on load and after report renders (report injects phil-term nodes dynamically)
   document.addEventListener('DOMContentLoaded', attachTooltipBehaviour);
+  document.addEventListener('DOMContentLoaded', devInitPanel);
 
   // Expose so renderReport can call it after injecting dynamic content
   window.attachTooltipBehaviour = attachTooltipBehaviour;
