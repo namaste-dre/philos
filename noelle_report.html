@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Noëlle — Phil OS Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #07061a; --bg2: #0d0b24; --surface: #111028; --surface2: #181535; --surface3: #1e1b40;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.16); --border3: rgba(157,147,232,0.22);
+  --text: #f0ede6; --text2: #ccc8be; --muted: #8c88a0;
+  --accent: #c9a96e; --accent2: #e8c87a;
+  --purple: #9d93e8; --purple2: #b8aef5; --purple3: rgba(157,147,232,0.12);
+  --teal: #5bbf94; --tier1: #9d93e8; --tier2: #5bbf94; --tier3: #e0784a;
+  --danger: #e87070; --r: 12px;
+  --glow-purple: 0 0 40px rgba(157,147,232,0.12);
+  --glow-gold: 0 0 40px rgba(201,169,110,0.12);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; }
+body { min-height: 100vh; background: var(--bg); }
+
+/* REPORT HEADER */
+.report-header {
+  position: relative; overflow: hidden; padding: 80px 28px 64px;
+  text-align: center; background: var(--bg); width: 100%;
+}
+.report-header::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 15% -10%, rgba(120,100,255,0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 60% at 85% 110%, rgba(201,169,110,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(157,147,232,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.report-header::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(157,147,232,0.5) 30%, rgba(201,169,110,0.4) 70%, transparent 100%);
+}
+.report-header-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+.report-eyebrow {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.28em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 24px; opacity: 0.75;
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.report-eyebrow::before, .report-eyebrow::after {
+  content: ''; display: inline-block; width: 32px; height: 1px; background: var(--accent); opacity: 0.45;
+}
+.report-archetype {
+  font-family: 'Playfair Display', serif; font-size: clamp(44px, 8vw, 84px);
+  color: var(--text); margin-bottom: 10px; font-weight: 700; line-height: 1.03; letter-spacing: -0.025em;
+}
+.report-variant-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em;
+  color: var(--purple2); text-transform: uppercase; margin-bottom: 20px; opacity: 0.85;
+}
+.report-tagline {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(18px, 2.5vw, 23px); color: var(--accent);
+  max-width: 620px; margin: 0 auto 28px; font-weight: 400; line-height: 1.6;
+}
+.report-rarity {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(157,147,232,0.10); border: 1px solid rgba(157,147,232,0.28);
+  border-radius: 50px; padding: 7px 18px; font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--purple2); letter-spacing: 0.10em; text-transform: uppercase;
+  margin-bottom: 32px; box-shadow: 0 0 20px rgba(157,147,232,0.10);
+}
+.report-rarity-dot {
+  width: 6px; height: 6px; background: var(--purple2); border-radius: 50%;
+  box-shadow: 0 0 6px var(--purple2);
+  animation: pulse 2.5s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.report-stats {
+  display: flex; gap: 0; justify-content: center; margin: 32px auto 40px;
+  max-width: 560px; border: 1px solid var(--border3); border-radius: var(--r);
+  box-shadow: var(--glow-purple);
+}
+.report-stat {
+  flex: 1; padding: 20px 16px; text-align: center;
+  border-right: 1px solid var(--border3); background: var(--surface);
+}
+.report-stat:first-child { border-radius: var(--r) 0 0 var(--r); }
+.report-stat:last-child { border-radius: 0 var(--r) var(--r) 0; border-right: none; }
+.report-stat-val {
+  font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700;
+  color: var(--accent); display: block; line-height: 1.1; margin-bottom: 5px;
+}
+.report-stat-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.report-header-divider {
+  width: 48px; height: 2px;
+  background: linear-gradient(90deg, var(--purple), var(--accent));
+  margin: 0 auto 36px; border-radius: 1px; box-shadow: 0 0 12px rgba(201,169,110,0.3);
+}
+.archetype-icon-wrap {
+  margin: 0 auto 24px; width: 140px; height: 140px; display: flex;
+  align-items: center; justify-content: center;
+  background: rgba(157,147,232,0.09); border: 1px solid rgba(157,147,232,0.22);
+  border-radius: 50%; color: rgba(200,190,255,0.85);
+  box-shadow: 0 0 48px rgba(157,147,232,0.18);
+}
+.thinkers-line {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  color: var(--muted); margin-bottom: 28px;
+}
+
+/* REPORT BODY */
+.report-body { max-width: 860px; margin: 0 auto; padding: 64px 28px 120px; }
+.report-section { margin-bottom: 76px; }
+.section-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.22em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 28px;
+  padding-bottom: 14px; border-bottom: 1px solid rgba(201,169,110,0.18);
+  display: flex; align-items: center; gap: 14px;
+}
+.section-label::before {
+  content: ''; display: inline-block; width: 3px; height: 12px;
+  background: linear-gradient(180deg, var(--accent), var(--purple));
+  border-radius: 2px; flex-shrink: 0;
+}
+.report-text-block {
+  background: rgba(157,147,232,0.04); border: 1px solid rgba(255,255,255,0.10);
+  border-left: 3px solid var(--purple); border-radius: var(--r); padding: 32px 36px;
+}
+.report-text-block p { margin-bottom: 1.3em; font-size: 19px; line-height: 1.88; color: var(--text); }
+.report-text-block p:last-child { margin-bottom: 0; }
+
+/* WORLD CARDS */
+.world-cards { display: flex; flex-direction: column; gap: 20px; }
+.world-card {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; overflow: hidden;
+}
+.world-card-header {
+  display: flex; align-items: center; gap: 14px; padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.world-card-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+}
+.world-card-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7);
+}
+.world-card-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.world-card-block { display: flex; flex-direction: column; gap: 6px; }
+.world-card-block-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+}
+.world-card-block-text { font-size: 15px; line-height: 1.75; color: var(--text); }
+.world-card-prompt {
+  margin-top: 4px; padding: 14px 16px;
+  background: rgba(201,169,110,0.07); border-left: 3px solid #c9a96e; border-radius: 0 6px 6px 0;
+}
+.world-card-prompt-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase; color: #c9a96e; margin-bottom: 6px;
+}
+.world-card-prompt-text { font-size: 14px; line-height: 1.7; color: #e8c97a; font-style: italic; }
+
+/* FAMOUS */
+.famous-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; }
+.famous-card {
+  background: var(--surface); border: 2px solid rgba(255,255,255,0.22);
+  border-radius: var(--r); padding: 20px; text-align: center;
+}
+.famous-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.famous-desc { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; line-height: 1.5; }
+
+/* PATTERNS */
+.patterns-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 16px; }
+.pattern-card { background: var(--surface); border: 2px solid rgba(255,255,255,0.22); border-radius: var(--r); padding: 22px; }
+.pattern-card.positive { border-left: 3px solid var(--tier2); }
+.pattern-card.negative { border-left: 3px solid var(--tier3); }
+.pattern-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
+.pattern-card.positive .pattern-label { color: var(--tier2); }
+.pattern-card.negative .pattern-label { color: var(--tier3); }
+.pattern-text { font-size: 16px; color: var(--text); line-height: 1.65; }
+
+/* ALIGNMENT */
+.alignment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 14px; }
+.alignment-card {
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.10);
+  border-radius: var(--r); padding: 26px;
+}
+.alignment-card-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; font-weight: 600; }
+.alignment-card-text { font-size: 16px; color: var(--text); line-height: 1.75; }
+
+/* GROWTH */
+.growth-list { display: flex; flex-direction: column; gap: 12px; }
+.growth-item {
+  display: flex; gap: 22px; padding: 24px 26px; background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.09); border-radius: var(--r); align-items: flex-start;
+}
+.growth-num { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--purple2); line-height: 1.1; flex-shrink: 0; font-weight: 700; opacity: 0.75; }
+.growth-text { font-size: 17px; color: var(--text); line-height: 1.78; }
+
+/* CONTRADICTION */
+.contradiction-cards { display: flex; flex-direction: column; gap: 20px; }
+.contradiction-card {
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.10);
+  border-left: 4px solid var(--accent); border-radius: var(--r); padding: 28px 32px;
+}
+.contradiction-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.10em; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; }
+.contradiction-text { font-size: 16px; color: var(--text2); line-height: 1.78; }
+
+/* AXIS BARS */
+.axis-bars { display: flex; flex-direction: column; gap: 22px; }
+.axis-row { display: flex; flex-direction: column; gap: 6px; }
+.axis-meta { display: flex; justify-content: space-between; align-items: baseline; }
+.axis-name { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text2); letter-spacing: 0.04em; font-weight: 500; }
+.axis-score { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 700; }
+.axis-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+.axis-fill { height: 100%; border-radius: 4px; }
+.axis-poles { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(200,195,230,0.72); margin-top: 4px; }
+
+/* FINGERPRINT */
+.fingerprint-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.fp-label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--teal); letter-spacing: 0.06em; }
+.fp-track { height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
+.fp-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--teal), rgba(91,191,148,0.5)); box-shadow: 0 0 12px rgba(91,191,148,0.3); }
+.fp-pole { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+
+/* MEDIA */
+.media-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.media-category { background: var(--surface); border: 1px solid rgba(255,255,255,0.09); border-radius: var(--r); padding: 22px; }
+.media-category-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: var(--purple2); text-transform: uppercase; margin-bottom: 16px; font-weight: 600; }
+.media-item { padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text); line-height: 1.45; }
+.media-item:last-child { border-bottom: none; padding-bottom: 0; }
+.media-item-sub { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+
+/* TIER DIVIDERS */
+.tier-divider { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.tier-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+.tier-divider-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; flex-shrink: 0; }
+.tier-divider-label.t1 { color: var(--tier1); border: 1px solid rgba(157,147,232,0.25); }
+.tier-divider-label.t2 { color: var(--tier2); border: 1px solid rgba(91,191,148,0.25); }
+.tier-divider-label.t3 { color: var(--tier3); border: 1px solid rgba(224,120,74,0.25); }
+
+/* FOOTER */
+.report-footer { text-align: center; padding: 40px 28px 60px; border-top: 1px solid rgba(255,255,255,0.06); }
+.report-footer-wordmark { font-family: 'IBM Plex Mono', monospace; font-size: 14px; letter-spacing: 4px; color: var(--muted); }
+
+@media (max-width:600px) {
+  .report-body { padding: 40px 16px 80px; }
+  .report-section { margin-bottom: 48px; }
+  .report-text-block { padding: 20px 18px; }
+  .patterns-grid { grid-template-columns: 1fr; }
+  .alignment-grid { grid-template-columns: 1fr; }
+  .media-grid { grid-template-columns: 1fr; }
+  .report-stats { flex-direction: column; max-width: 100%; }
+  .report-stat { border-right: none; border-bottom: 1px solid var(--border3); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="report-header">
+  <div class="report-header-inner">
+    <div class="report-eyebrow">Your Philosophical OS</div>
+    <div class="archetype-icon-wrap">
+      <svg width="90" height="90" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Heart / Compassionate Collectivist icon -->
+        <path d="M40 65 C40 65 12 48 12 28 C12 18 20 12 28 14 C33 15 37 19 40 23 C43 19 47 15 52 14 C60 12 68 18 68 28 C68 48 40 65 40 65Z" stroke="currentColor" stroke-width="2" fill="none" opacity="0.8"/>
+        <circle cx="28" cy="32" r="4" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="52" cy="32" r="4" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+        <line x1="28" y1="32" x2="40" y2="40" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+        <line x1="52" y1="32" x2="40" y2="40" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+        <circle cx="40" cy="40" r="3" fill="currentColor" opacity="0.7"/>
+      </svg>
+    </div>
+    <div class="report-archetype">The Compassionate Collectivist</div>
+    <div class="report-variant-label">The Ubuntu Thinker</div>
+    <div class="report-header-divider"></div>
+    <div class="report-tagline">She holds the world loosely and the people in it tightly, and somehow that is not a contradiction.</div>
+    <div class="report-rarity">
+      <div class="report-rarity-dot"></div>
+      Relational · 12% of people
+    </div>
+    <div class="report-stats">
+      <div class="report-stat">
+        <span class="report-stat-val">12%</span>
+        <span class="report-stat-label">Worldview rarity</span>
+      </div>
+      <div class="report-stat">
+        <span class="report-stat-val">71%</span>
+        <span class="report-stat-label">Conviction score</span>
+      </div>
+      <div class="report-stat">
+        <span class="report-stat-val">Uncertainty</span>
+        <span class="report-stat-label">Dominant axis</span>
+      </div>
+    </div>
+    <div class="thinkers-line">Aligned thinkers: Desmond Tutu · Kwame Gyekye · Michael Eze</div>
+  </div>
+</div>
+
+<div class="report-body">
+
+  <!-- WHO YOU ARE -->
+  <div class="report-section">
+    <div class="section-label">Who you are</div>
+    <div class="report-text-block">
+      <p>You notice people before you notice ideas. Not just that someone is in a room with you, but how they are carrying themselves, what they are not saying, what it cost them to walk through the door. Most people scan an environment for threats or opportunities. You scan it for everyone who needs something they have not asked for yet.</p>
+      <p>When you are working through a hard problem, your internal monologue sounds less like a debate and more like a conversation. You hold your own views with real confidence but keep checking them against what you might have missed. You trust evidence. You trust science. And you also trust that you do not have the whole picture yet. Those two things do not feel like a contradiction to you because they are not.</p>
+      <p>Your moral life is not abstract. When something is wrong, you feel it in your body before you can name it in your mind. You are genuinely angry about suffering that most people have learned to ignore. You feel responsible for more than just the people directly in front of you. And there are things you simply cannot bring yourself to do, not because a rule forbids them but because you know what they would cost someone.</p>
+      <p>Here is the tension that lives in you: you are deeply pessimistic about where humanity is heading, and you have not stopped caring anyway. You do not need the world to be fixable to keep showing up for it. That is not resignation and it is not naivety. It is something harder than both of those things.</p>
+      <p>You were built for the kind of relationships and conversations where honesty and warmth are both required at the same time. Shallow certainty exhausts you. So does cruelty dressed up as realism. What quietly drains you most is being in rooms where no one is allowed to not know something.</p>
+    </div>
+  </div>
+
+  <!-- HOW YOU MOVE THROUGH THE WORLD -->
+  <div class="report-section">
+    <div class="section-label">How you move through the world</div>
+    <div style="font-size:15px;color:var(--muted);margin-bottom:28px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">Five lenses. How your worldview shapes what you see, how you act, and what you can do with that.</div>
+    <div class="world-cards">
+
+      <!-- The Self -->
+      <div class="world-card">
+        <div class="world-card-header">
+          <div class="world-card-icon" style="background:rgba(157,147,232,0.15)">🧐</div>
+          <div class="world-card-title">The Self</div>
+        </div>
+        <div class="world-card-body">
+          <div class="world-card-block">
+            <div class="world-card-block-label">Your view</div>
+            <div class="world-card-block-text">You sit almost exactly in the middle of whether you are the author of your life or a product of everything that shaped you, and that is not indecision. You genuinely hold both. You believe you have real choices and you also believe that your past, your body, your circumstances, and the people who raised you have enormous weight in who you turned out to be. Most people collapse one of those truths to make life simpler. You have not done that.</div>
+          </div>
+          <div class="world-card-block">
+            <div class="world-card-block-label">How it shows up</div>
+            <div class="world-card-block-text">This means you tend to forgive others faster than you forgive yourself. You extend the "shaped by circumstances" logic generously to everyone around you but hold yourself to something closer to full accountability. You understand why you are the way you are and you still feel responsible for it. That combination can make self-compassion genuinely hard to access.</div>
+          </div>
+          <div class="world-card-prompt">
+            <div class="world-card-prompt-label">Sit with this</div>
+            <div class="world-card-prompt-text">If you applied the same understanding to yourself that you give to the people you love most, what would you stop blaming yourself for right now?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other People -->
+      <div class="world-card">
+        <div class="world-card-header">
+          <div class="world-card-icon" style="background:rgba(91,191,148,0.15)">👥</div>
+          <div class="world-card-title">Other People</div>
+        </div>
+        <div class="world-card-body">
+          <div class="world-card-block">
+            <div class="world-card-block-label">Your view</div>
+            <div class="world-card-block-text">You see people as shaped by forces larger than their choices. Not so much that they have no agency, but enough that your first instinct when someone behaves badly is to ask what happened to them rather than who they are. Your moral circle is wide. You care about suffering in ways that most people have narrowed out of their daily attention. And you hold your reads on other people loosely, which means you are rarely the person who has already decided what someone is.</div>
+          </div>
+          <div class="world-card-block">
+            <div class="world-card-block-label">How it shows up</div>
+            <div class="world-card-block-text">People feel safe with you quickly because you are genuinely not judging them. What this costs you is that you can end up carrying other people's pain without a way to put it down. You absorb. You stay. You give people more chances than they sometimes deserve, not because you are naive but because you actually believe in what they could become. That is a gift and it is also a weight.</div>
+          </div>
+          <div class="world-card-prompt">
+            <div class="world-card-prompt-label">Sit with this</div>
+            <div class="world-card-prompt-text">Is there someone in your life right now whose circumstances you understand so well that you have stopped letting yourself feel how much they have let you down?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relationships -->
+      <div class="world-card">
+        <div class="world-card-header">
+          <div class="world-card-icon" style="background:rgba(201,169,110,0.15)">🤝</div>
+          <div class="world-card-title">Relationships</div>
+        </div>
+        <div class="world-card-body">
+          <div class="world-card-block">
+            <div class="world-card-block-label">Your view</div>
+            <div class="world-card-block-text">You do not think of yourself as a self-contained unit who then chooses to connect with others. Who you are and who you are with are genuinely intertwined for you. Belonging is not a comfort you reach for. It is closer to the medium you move through. At the same time, your identity is not fixed to any single community or role. You are in relationship with others and you are still figuring out what that means for who you are on your own.</div>
+          </div>
+          <div class="world-card-block">
+            <div class="world-card-block-label">How it shows up</div>
+            <div class="world-card-block-text">In close relationships you are the person who notices first when something is off. You track the emotional temperature of a room without meaning to. What you sometimes do not track as well is your own needs in that same room. You give your full attention and your real presence but you can be slow to ask for the same back, partly because you are not always sure what you need until you have been without it for a while.</div>
+          </div>
+          <div class="world-card-prompt">
+            <div class="world-card-prompt-label">Sit with this</div>
+            <div class="world-card-prompt-text">What is something you have been hoping someone close to you would notice or offer without you having to ask for it?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Society -->
+      <div class="world-card">
+        <div class="world-card-header">
+          <div class="world-card-icon" style="background:rgba(224,120,74,0.15)">🌆</div>
+          <div class="world-card-title">Society</div>
+        </div>
+        <div class="world-card-body">
+          <div class="world-card-block">
+            <div class="world-card-block-label">Your view</div>
+            <div class="world-card-block-text">You are genuinely pessimistic about where humanity is heading. Not in a performative or dramatic way but in the quiet way of someone who has been paying attention. You do not trust institutions much. You watch what is happening and it worries you. And yet you are pulled toward the future as a moral horizon. You believe things could be better even when you are not sure they will be. That is not a comfortable place to live but it is an honest one.</div>
+          </div>
+          <div class="world-card-block">
+            <div class="world-card-block-label">How it shows up</div>
+            <div class="world-card-block-text">You show up for things you have stopped expecting to work. You give time and care to collective efforts while holding a private grief about their limits. What this can look like from the outside is inconsistency but from the inside it is just what it means to keep going. The pessimism and the showing up are both real. You have found a way to hold them at the same time even though they pull against each other.</div>
+          </div>
+          <div class="world-card-prompt">
+            <div class="world-card-prompt-label">Sit with this</div>
+            <div class="world-card-prompt-text">Where are you still showing up for the collective even though part of you has stopped believing it will get better, and what does that cost you to keep doing?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Life and Existence -->
+      <div class="world-card">
+        <div class="world-card-header">
+          <div class="world-card-icon" style="background:rgba(180,130,255,0.15)">🌌</div>
+          <div class="world-card-title">Life and Existence</div>
+        </div>
+        <div class="world-card-body">
+          <div class="world-card-block">
+            <div class="world-card-block-label">Your view</div>
+            <div class="world-card-block-text">You hold the deep questions about meaning and existence with more ease than most people. Whether meaning is discovered or constructed, whether the universe has a direction or not, whether consciousness is physical or something more, you are genuinely comfortable not knowing. That comfort is your highest score across all 34 axes. It is not numbness and it is not avoidance. You have simply made peace with open questions in a way that a lot of people spend their whole lives trying to do.</div>
+          </div>
+          <div class="world-card-block">
+            <div class="world-card-block-label">How it shows up</div>
+            <div class="world-card-block-text">You are most alive in conversations where something real is at stake and no one has to pretend they have the answer. You build meaning actively and consistently even though you know you are building it rather than discovering it. The days that drain you are the ones where you are expected to perform certainty you do not have, or to care about things that do not actually matter to you, or to be smaller than you are because it would make someone else more comfortable.</div>
+          </div>
+          <div class="world-card-prompt">
+            <div class="world-card-prompt-label">Sit with this</div>
+            <div class="world-card-prompt-text">Right now, in this season of your life, what is the one thing you are building your meaning around, and does it actually deserve that weight?</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- YOUR TYPE IN THE WILD -->
+  <div class="report-section">
+    <div class="section-label">Your type in the wild</div>
+    <div class="famous-grid">
+      <div class="famous-card">
+        <div class="famous-name">Desmond Tutu</div>
+        <div class="famous-desc">Archbishop who held grief and joy together without letting either cancel the other out</div>
+      </div>
+      <div class="famous-card">
+        <div class="famous-name">Brené Brown</div>
+        <div class="famous-desc">Researcher who built a life's work on the idea that vulnerability and strength are the same thing</div>
+      </div>
+      <div class="famous-card">
+        <div class="famous-name">bell hooks</div>
+        <div class="famous-desc">Writer who never separated thinking from feeling or justice from love</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW YOU OPERATE -->
+  <div class="report-section">
+    <div class="section-label">How you operate</div>
+    <div class="patterns-grid">
+      <div class="pattern-card positive">
+        <div class="pattern-label">Core Superpower</div>
+        <div class="pattern-text">You can be in genuine uncertainty with another person without needing to resolve it for them or for yourself. That is extraordinarily rare. Most people either rush to answers or collapse under the weight of not knowing. You stay. You think. You hold the complexity. And because you hold it without flinching, other people feel safe enough to do the same.</div>
+      </div>
+      <div class="pattern-card negative">
+        <div class="pattern-label">Primary Failure Mode</div>
+        <div class="pattern-text">You absorb other people's emotional states so fluidly that you can lose track of which feelings are yours. You can spend enormous energy on someone else's inner life while your own goes unattended, not because you do not care about yourself but because noticing everyone else happens automatically and noticing yourself requires a choice you have to make on purpose.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHILOSOPHICAL FINGERPRINT -->
+  <div class="report-section">
+    <div class="section-label">Your philosophical fingerprint</div>
+    <div style="font-size:15px;color:var(--muted);margin-bottom:24px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">The 5 axes where your position deviates furthest from centre.</div>
+    <div class="axis-bars">
+
+      <div class="axis-row">
+        <div class="axis-meta">
+          <span class="axis-name">Uncertainty</span>
+          <span class="axis-score">7.0 / 7</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill" style="width:100%;background:linear-gradient(90deg,var(--teal),rgba(91,191,148,0.5));box-shadow:0 0 12px rgba(91,191,148,0.3)"></div>
+        </div>
+        <div class="axis-poles"><span>Needs certainty</span><span>Fully at ease with open questions</span></div>
+      </div>
+
+      <div class="axis-row">
+        <div class="axis-meta">
+          <span class="axis-name">Temporal Orientation</span>
+          <span class="axis-score">6.6 / 7</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill" style="width:94%;background:linear-gradient(90deg,var(--teal),rgba(91,191,148,0.5));box-shadow:0 0 12px rgba(91,191,148,0.3)"></div>
+        </div>
+        <div class="axis-poles"><span>Past tradition guides morality</span><span>Future potential drives progress</span></div>
+      </div>
+
+      <div class="axis-row">
+        <div class="axis-meta">
+          <span class="axis-name">Science</span>
+          <span class="axis-score">6.5 / 7</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill" style="width:93%;background:linear-gradient(90deg,var(--teal),rgba(91,191,148,0.5));box-shadow:0 0 12px rgba(91,191,148,0.3)"></div>
+        </div>
+        <div class="axis-poles"><span>Skeptical of science</span><span>Trusts scientific consensus</span></div>
+      </div>
+
+      <div class="axis-row">
+        <div class="axis-meta">
+          <span class="axis-name">Authority</span>
+          <span class="axis-score">6.4 / 7</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill" style="width:92%;background:linear-gradient(90deg,var(--teal),rgba(91,191,148,0.5));box-shadow:0 0 12px rgba(91,191,148,0.3)"></div>
+        </div>
+        <div class="axis-poles"><span>Deferential to authority</span><span>Skeptical of institutions</span></div>
+      </div>
+
+      <div class="axis-row">
+        <div class="axis-meta">
+          <span class="axis-name">Knowledge</span>
+          <span class="axis-score">6.4 / 7</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill" style="width:91%;background:linear-gradient(90deg,var(--teal),rgba(91,191,148,0.5));box-shadow:0 0 12px rgba(91,191,148,0.3)"></div>
+        </div>
+        <div class="axis-poles"><span>Intuition and revelation</span><span>Evidence and reason</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIFE ALIGNMENT -->
+  <div class="report-section">
+    <div class="section-label">Life alignment</div>
+    <div class="alignment-grid">
+      <div class="alignment-card">
+        <div class="alignment-card-label">Work</div>
+        <div class="alignment-card-text">You do your best work in environments where the pace is thoughtful and the stakes are human. Bureaucracy that exists to protect itself rather than anyone it claims to serve will grind you down faster than almost anything else. You need room to think and you need the thinking to actually matter to someone.</div>
+      </div>
+      <div class="alignment-card">
+        <div class="alignment-card-label">Relationships</div>
+        <div class="alignment-card-text">You need people who can stay in a hard conversation without either shutting down or performing certainty they do not have. What you can forget to offer is the simple statement of your own needs, because reading others' needs is so automatic that voicing your own can feel like an imposition.</div>
+      </div>
+      <div class="alignment-card">
+        <div class="alignment-card-label">Decisions</div>
+        <div class="alignment-card-text">You optimise for what is true and what is kind at the same time, which is harder than most people make it look. What you systematically underweight is your own bandwidth. You can keep saying yes to things that matter without accounting for what that costs you until the account is empty.</div>
+      </div>
+      <div class="alignment-card">
+        <div class="alignment-card-label">Conflict</div>
+        <div class="alignment-card-text">You are triggered by dismissiveness more than by aggression. The thing that really gets you is someone deciding they already know the end of a conversation before it has started. Your instinct in conflict is not to fight or flee but to try to make the person understand something, which only works if they are actually willing to.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOUR CULTURAL ECOSYSTEM -->
+  <div class="report-section">
+    <div class="section-label">Your cultural ecosystem</div>
+    <div style="font-size:15px;color:var(--muted);margin-bottom:24px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">Films, music, and books that resonate with how you see the world.</div>
+    <div class="media-grid">
+      <div class="media-category">
+        <div class="media-category-label">Film</div>
+        <div class="media-item">
+          Beasts of the Southern Wild
+          <div class="media-item-sub">2012</div>
+        </div>
+        <div class="media-item">
+          The Secret Life of Bees
+          <div class="media-item-sub">2008</div>
+        </div>
+        <div class="media-item">
+          Moonlight
+          <div class="media-item-sub">2016</div>
+        </div>
+      </div>
+      <div class="media-category">
+        <div class="media-category-label">Music</div>
+        <div class="media-item">
+          Lianne La Havas
+          <div class="media-item-sub">Intimate and searching</div>
+        </div>
+        <div class="media-item">
+          Bon Iver
+          <div class="media-item-sub">Grief made into something beautiful</div>
+        </div>
+        <div class="media-item">
+          Erykah Badu
+          <div class="media-item-sub">Spiritual, communal, uncompromising</div>
+        </div>
+      </div>
+      <div class="media-category">
+        <div class="media-category-label">Books</div>
+        <div class="media-item">
+          All About Love — bell hooks
+          <div class="media-item-sub">Love as practice, not feeling</div>
+        </div>
+        <div class="media-item">
+          Braiding Sweetgrass — Robin Wall Kimmerer
+          <div class="media-item-sub">Reciprocity as a way of seeing</div>
+        </div>
+        <div class="media-item">
+          The Body Keeps the Score — Bessel van der Kolk
+          <div class="media-item-sub">Why we are the way we are</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROWTH EDGES -->
+  <div class="report-section">
+    <div class="section-label">Growth edges</div>
+    <div class="growth-list">
+      <div class="growth-item">
+        <div class="growth-num">1</div>
+        <div class="growth-text">Build a practice of naming what you need before you need it urgently, because by the time the signal is loud enough for you to act on it, you have usually been running on empty for a while.</div>
+      </div>
+      <div class="growth-item">
+        <div class="growth-num">2</div>
+        <div class="growth-text">Interrupt the pattern of staying in relationships long past the point where your presence is helping, because understanding why someone behaves the way they do does not mean you are obligated to keep absorbing it.</div>
+      </div>
+      <div class="growth-item">
+        <div class="growth-num">3</div>
+        <div class="growth-text">Your blind spot is your own progress. You track everyone else's growth and setbacks with real attention but tend to miss the ways you yourself have changed, which means you sometimes hold yourself to who you were rather than who you are now.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BELIEF TENSIONS -->
+  <div class="report-section">
+    <div class="section-label">Belief tensions</div>
+    <div class="contradiction-cards">
+      <div class="contradiction-card">
+        <div class="contradiction-title">Future Hope vs Present Pessimism</div>
+        <div class="contradiction-text">You are strongly oriented toward the future as the direction of moral progress and yet you are genuinely pessimistic about where humanity is actually headed. These two positions pull against each other in real ways. The tension between them is not a logical error. It is closer to grief held alongside hope, which is one of the most honest places a person can stand. The question worth sitting with is whether the pessimism is informing your choices in useful ways or quietly shrinking what you allow yourself to reach for.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL BELIEF MAP -->
+  <div class="report-section">
+    <div class="section-label">Full belief map</div>
+
+    <div class="tier-divider">
+      <div class="tier-divider-line"></div>
+      <span class="tier-divider-label t1">Foundations and Structural</span>
+      <div class="tier-divider-line"></div>
+    </div>
+    <div class="axis-bars" style="margin-bottom:32px">
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Naturalism</span><span class="axis-score">4.2</span></div><div class="axis-track"><div class="axis-fill" style="width:60%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Supernatural</span><span>Fully natural</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Physicalism</span><span class="axis-score">4.2</span></div><div class="axis-track"><div class="axis-fill" style="width:60%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Mind beyond brain</span><span>Fully physical</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Realism</span><span class="axis-score">5.0</span></div><div class="axis-track"><div class="axis-fill" style="width:71%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Reality is constructed</span><span>Reality is mind-independent</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Determinism</span><span class="axis-score">4.5</span></div><div class="axis-track"><div class="axis-fill" style="width:64%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Genuine free will</span><span>All behaviour is caused</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Moral Ground</span><span class="axis-score">4.8</span></div><div class="axis-track"><div class="axis-fill" style="width:69%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Ethics is subjective</span><span>Moral facts are real</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Meaning</span><span class="axis-score">3.8</span></div><div class="axis-track"><div class="axis-fill" style="width:54%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Meaning is constructed</span><span>Meaning is discoverable</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Teleology</span><span class="axis-score">5.4</span></div><div class="axis-track"><div class="axis-fill" style="width:77%;background:var(--tier1)"></div></div><div class="axis-poles"><span>No cosmic direction</span><span>Reality has direction</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Human Nature</span><span class="axis-score">5.4</span></div><div class="axis-track"><div class="axis-fill" style="width:77%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Blank slate</span><span>Fixed universal nature</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Epistemic Method</span><span class="axis-score">5.4</span></div><div class="axis-track"><div class="axis-fill" style="width:77%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Revelation and faith</span><span>Empirical evidence</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Social Ontology</span><span class="axis-score">4.0</span></div><div class="axis-track"><div class="axis-fill" style="width:57%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Society is just individuals</span><span>Structures shape people</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Temporal Orientation</span><span class="axis-score">6.6</span></div><div class="axis-track"><div class="axis-fill" style="width:94%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Past tradition</span><span>Future progress</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Moral Authority</span><span class="axis-score">6.2</span></div><div class="axis-track"><div class="axis-fill" style="width:89%;background:var(--tier1)"></div></div><div class="axis-poles"><span>God and scripture</span><span>Individual conscience</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Epistemic Humility</span><span class="axis-score">6.4</span></div><div class="axis-track"><div class="axis-fill" style="width:91%;background:var(--tier1)"></div></div><div class="axis-poles"><span>Confident in views</span><span>Holds views loosely</span></div></div>
+    </div>
+
+    <div class="tier-divider">
+      <div class="tier-divider-line"></div>
+      <span class="tier-divider-label t2">Epistemic and Meaning</span>
+      <div class="tier-divider-line"></div>
+    </div>
+    <div class="axis-bars" style="margin-bottom:32px">
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Knowledge</span><span class="axis-score">6.4</span></div><div class="axis-track"><div class="axis-fill" style="width:91%;background:var(--tier2)"></div></div><div class="axis-poles"><span>Intuition and revelation</span><span>Evidence and reason</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Science</span><span class="axis-score">6.5</span></div><div class="axis-track"><div class="axis-fill" style="width:93%;background:var(--tier2)"></div></div><div class="axis-poles"><span>Skeptical of science</span><span>Trusts consensus</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Free Will in Practice</span><span class="axis-score">5.8</span></div><div class="axis-track"><div class="axis-fill" style="width:83%;background:var(--tier2)"></div></div><div class="axis-poles"><span>Personal accountability</span><span>Behaviour has causes</span></div></div>
+    </div>
+
+    <div class="tier-divider">
+      <div class="tier-divider-line"></div>
+      <span class="tier-divider-label t3">Applied</span>
+      <div class="tier-divider-line"></div>
+    </div>
+    <div class="axis-bars">
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Justice</span><span class="axis-score">4.8</span></div><div class="axis-track"><div class="axis-fill" style="width:69%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Punishment-based</span><span>Rehabilitation-based</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Ethics</span><span class="axis-score">4.4</span></div><div class="axis-track"><div class="axis-fill" style="width:63%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Rule-based</span><span>Outcome-based</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Religion</span><span class="axis-score">5.2</span></div><div class="axis-track"><div class="axis-fill" style="width:74%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Faith-positive</span><span>Religion is harmful</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Politics</span><span class="axis-score">5.4</span></div><div class="axis-track"><div class="axis-fill" style="width:77%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Individual freedom</span><span>Collective solutions</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Self</span><span class="axis-score">4.6</span></div><div class="axis-track"><div class="axis-fill" style="width:66%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Author of choices</span><span>Product of causes</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Moral Scope</span><span class="axis-score">6.25</span></div><div class="axis-track"><div class="axis-fill" style="width:89%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Humans only</span><span>All sentient life</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Meaning in Practice</span><span class="axis-score">6.2</span></div><div class="axis-track"><div class="axis-fill" style="width:89%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Nothing matters</span><span>Actively builds meaning</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Society</span><span class="axis-score">5.0</span></div><div class="axis-track"><div class="axis-fill" style="width:71%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Individualist</span><span>Collectivist</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Responsibility</span><span class="axis-score">4.75</span></div><div class="axis-track"><div class="axis-fill" style="width:68%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Personal responsibility</span><span>Structural explanations</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Identity</span><span class="axis-score">4.5</span></div><div class="axis-track"><div class="axis-fill" style="width:64%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Fixed essential self</span><span>Constructed self</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Authority</span><span class="axis-score">6.4</span></div><div class="axis-track"><div class="axis-fill" style="width:91%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Deferential</span><span>Skeptical of institutions</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Economics</span><span class="axis-score">5.75</span></div><div class="axis-track"><div class="axis-fill" style="width:82%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Free market</span><span>Redistributive</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Uncertainty</span><span class="axis-score">7.0</span></div><div class="axis-track"><div class="axis-fill" style="width:100%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Needs certainty</span><span>Fully at ease</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Mind and Consciousness</span><span class="axis-score">4.75</span></div><div class="axis-track"><div class="axis-fill" style="width:68%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Non-physical consciousness</span><span>Fully physical</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Animal Ethics</span><span class="axis-score">5.75</span></div><div class="axis-track"><div class="axis-fill" style="width:82%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Humans matter more</span><span>Animal suffering matters equally</span></div></div>
+      <div class="axis-row"><div class="axis-meta"><span class="axis-name">Progress</span><span class="axis-score">2.25</span></div><div class="axis-track"><div class="axis-fill" style="width:32%;background:var(--tier3)"></div></div><div class="axis-poles"><span>Pessimist about humanity</span><span>Optimist about direction</span></div></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="report-footer">
+  <div class="report-footer-wordmark">PHIL/OS · thelifepm.com</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;">156 questions · 34 belief axes · your archetype</div>
+</div>
+
+</body>
+</html>
