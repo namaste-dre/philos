@@ -1724,6 +1724,254 @@ select.modal-input option { background: #12101e; }
 .tier-divider-label.t1 { color: var(--tier1); background: rgba(124,111,212,0.1); }
 .tier-divider-label.t2 { color: var(--tier2); background: rgba(74,158,122,0.1); }
 .tier-divider-label.t3 { color: var(--tier3); background: rgba(201,95,58,0.1); }
+
+/* ══════════════════════════════════════════
+   QA/QC MODE STYLES
+══════════════════════════════════════════ */
+.qa-flag-panel {
+  margin-top: 28px;
+  border: 1px solid rgba(201,169,110,0.25);
+  border-radius: 8px;
+  background: rgba(201,169,110,0.04);
+  overflow: hidden;
+}
+.qa-flag-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.qa-flag-toggle:hover { color: #c9a96e; }
+.qa-flag-toggle.flagged { color: #c9a96e; }
+.qa-flag-icon {
+  width: 18px; height: 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+.qa-flag-toggle.flagged .qa-flag-icon { background: #c9a96e; color: #08061a; border-color: #c9a96e; }
+.qa-flag-body {
+  display: none;
+  padding: 0 16px 16px;
+}
+.qa-flag-body.open { display: block; }
+.qa-flag-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.qa-flag-textarea {
+  width: 100%;
+  min-height: 80px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: #e8e6f0;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.qa-flag-textarea:focus {
+  outline: none;
+  border-color: rgba(201,169,110,0.5);
+}
+.qa-flag-textarea::placeholder { color: rgba(255,255,255,0.25); }
+.progress-flag-dot {
+  position: absolute;
+  top: -4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #c9a96e;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.qa-mode-badge {
+  position: fixed;
+  top: 12px; right: 12px;
+  background: rgba(201,169,110,0.15);
+  border: 1px solid rgba(201,169,110,0.4);
+  color: #c9a96e;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 4px;
+  z-index: 9999;
+  pointer-events: none;
+}
+/* QA Report panel */
+.qa-report-panel {
+  max-width: 800px;
+  margin: 40px auto 0;
+  padding: 0 20px 60px;
+}
+.qa-report-header {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c9a96e;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(201,169,110,0.3);
+}
+.qa-report-stat {
+  display: inline-block;
+  background: rgba(201,169,110,0.08);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #c9a96e;
+  margin: 0 8px 8px 0;
+}
+.qa-flag-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-left: 3px solid #c9a96e;
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.qa-flag-item-axis {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #9d93e8;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.qa-flag-item-qtext {
+  color: #e8e6f0;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.qa-flag-item-answer {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 10px;
+}
+.qa-flag-item-note {
+  background: rgba(201,169,110,0.06);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #c9a96e;
+  line-height: 1.6;
+}
+.qa-axis-group-header {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin: 28px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ══════════════════════════════════════════
+   HOW YOU MOVE THROUGH THE WORLD — CARDS
+══════════════════════════════════════════ */
+.world-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.world-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.world-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.world-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.world-card-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+}
+.world-card-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.world-card-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.world-card-block-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.world-card-block-text {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text);
+}
+.world-card-prompt {
+  margin-top: 4px;
+  padding: 14px 16px;
+  background: rgba(201,169,110,0.07);
+  border-left: 3px solid #c9a96e;
+  border-radius: 0 6px 6px 0;
+}
+.world-card-prompt-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c9a96e;
+  margin-bottom: 6px;
+}
+.world-card-prompt-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #e8c97a;
+  font-style: italic;
+}
 </style>
 </head>
 <body>
@@ -1795,6 +2043,11 @@ select.modal-input option { background: #12101e; }
       </div>
     </div>
     <button class="btn-primary" onclick="show('screen-intake')">Begin assessment</button>
+    <div style="margin-top:12px;">
+      <button class="btn-secondary" onclick="startQAMode()" style="font-size:13px;padding:8px 20px;border:1px solid rgba(201,169,110,0.5);color:#c9a96e;background:transparent;">
+        QA/QC Mode
+      </button>
+    </div>
     <div id="dev-panel" style="margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;border:1px solid rgba(201,169,110,0.3);border-radius:8px;background:rgba(201,169,110,0.05);max-width:420px;margin-left:auto;margin-right:auto;">
       <div style="color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;width:100%;text-align:left;">Dev Panel</div>
       <select id="dev-family-select" onchange="devFamilyChanged()" style="width:100%;background:#1a1530;color:#e8e6f0;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:10px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;">
@@ -1826,7 +2079,7 @@ select.modal-input option { background: #12101e; }
     <p class="intake-hint">Your name personalises the questions and report throughout the assessment.</p>
     <input id="intake-name" class="intake-input" type="text" placeholder="Your first name" maxlength="40" autocomplete="given-name" autofocus
       onkeydown="if(event.key==='Enter')startQuiz()"/>
-    <button class="btn-primary" onclick="startQuiz()">Start the assessment</button>
+    <button class="btn-primary" onclick="state.qaMode ? startQAQuiz() : startQuiz()">Start the assessment</button>
   </div>
 </div>
 
@@ -1835,6 +2088,7 @@ select.modal-input option { background: #12101e; }
 ══════════════════════════════════════════ -->
 <div id="screen-quiz" class="screen">
   <div class="quiz-glow-layer" id="quiz-glow-layer"></div>
+  <div id="qa-mode-badge" class="qa-mode-badge" style="display:none;">QA/QC Mode</div>
   <div class="quiz-header" style="position:sticky;top:0;z-index:100;">
     <div class="quiz-logo">PHIL/OS</div>
     <div class="progress-bar-wrap">
@@ -1977,6 +2231,12 @@ select.modal-input option { background: #12101e; }
     <div class="report-section">
       <div class="section-label">Who you are</div>
       <div class="report-text" id="report-identity">—</div>
+    </div>
+
+    <div class="report-section" id="section-world" style="display:none">
+      <div class="section-label">How you move through the world</div>
+      <div style="font-size:15px;color:var(--muted);margin-bottom:28px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">Five lenses. How your worldview shapes what you see, how you act, and what you can do with that.</div>
+      <div class="world-cards" id="report-world"></div>
     </div>
 
     <div class="report-section" id="section-famous">
@@ -3136,6 +3396,9 @@ let state = {
   userName: '',
   shuffledQuestions: [],
   shuffledOptions: {},
+  qaMode: false,
+  qaFlags: {},      // { [question_id]: { flagged: bool, note: string } }
+  displayTextCache: {},
 };
 
 // ══════════════════════════════════════════
@@ -3190,7 +3453,114 @@ function startQuiz() {
     userName: name,
     shuffledQuestions: shuffled,
     shuffledOptions: opts,
+    qaMode: false,
+    qaFlags: {},
+    displayTextCache: {},
   };
+  document.getElementById('qa-mode-badge').style.display = 'none';
+  initGlowSequences();
+  tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
+  currentGlowMood = null;
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function startQAMode() {
+  // QA mode goes through intake first — name is required
+  state.qaMode = true;
+  show('screen-intake');
+}
+
+function startQAQuiz() {
+  // Called from intake when in QA mode
+  const nameInput = document.getElementById('intake-name');
+  const name = nameInput ? nameInput.value.trim() : 'QA';
+  const shuffled = buildShuffledOrder();
+  const opts = {};
+  shuffled.forEach(q => {
+    if (q.options) opts[q.id] = shuffle(q.options);
+  });
+
+  const isQA = state.qaMode;
+  const prevFamily = document.getElementById('dev-family-select')?.value || '';
+  const prevVariant = document.getElementById('dev-variant-select')?.value || '';
+
+  state = {
+    currentQ: 0,
+    answers: {},
+    axisScores: {},
+    userName: name,
+    shuffledQuestions: shuffled,
+    shuffledOptions: opts,
+    qaMode: true,
+    qaFlags: {},
+    displayTextCache: {},
+  };
+
+  // Pre-fill if archetype was selected in dev panel
+  if (prevVariant) {
+    const archetype = ARCHETYPES.find(a => a.id === prevVariant);
+    if (archetype) {
+      const sigScores = {};
+      SIG_AXES.forEach((axis, i) => {
+        if (archetype.sig[i] !== null && archetype.sig[i] !== undefined) {
+          sigScores[axis] = archetype.sig[i];
+        }
+      });
+      const nat = sigScores.naturalism || 4;
+      const phys = sigScores.physicalism || 4;
+      const det = sigScores.determinism || 4;
+      const moral = sigScores.moral_ground || 4;
+      const meaning = sigScores.meaning || 4;
+      const inferredScores = {
+        teleology: meaning > 5 ? 6 : meaning < 3 ? 2 : 4,
+        human_nature: moral > 5 ? 6 : nat > 5 ? 3 : 5,
+        epistemic_method: nat > 5 ? 7 : nat < 3 ? 2 : 4,
+        social_ontology: moral > 5 ? 5 : nat > 5 ? 6 : 4,
+        temporal_orientation: meaning > 5 ? 2 : nat > 5 ? 6 : 4,
+        moral_authority: moral > 5 ? (nat < 3 ? 1 : 6) : 5,
+        epistemic_humility: nat > 5 ? 5 : nat < 3 ? 3 : 5,
+        knowledge: nat > 5 ? 7 : nat < 3 ? 2 : 5,
+        science: nat > 5 ? 7 : nat < 3 ? 3 : 5,
+        freewill_practice: det > 5 ? 6 : det < 3 ? 2 : 4,
+        justice: moral > 5 ? (nat > 5 ? 6 : 3) : 5,
+        ethics: moral > 5 ? 2 : 5,
+        religion: nat > 5 ? 7 : nat < 3 ? 1 : 4,
+        politics: nat > 5 ? 6 : nat < 3 ? 2 : 4,
+        self: det > 5 ? 6 : 4,
+        moral_scope: moral > 5 ? 5 : nat > 5 ? 6 : 4,
+        meaning_practice: meaning > 5 ? 7 : meaning < 3 ? 2 : 5,
+        society: nat > 5 ? 6 : nat < 3 ? 5 : 4,
+        responsibility: det > 5 ? 6 : det < 3 ? 2 : 4,
+        identity: det < 3 ? 2 : nat > 5 ? 5 : 4,
+        authority: nat > 5 ? 6 : nat < 3 ? 1 : 4,
+        economics: nat > 5 ? 6 : nat < 3 ? 2 : 4,
+        uncertainty: nat > 5 ? 5 : 6,
+        mind_consciousness: phys > 5 ? 7 : phys < 3 ? 2 : 4,
+        animal_ethics: nat > 5 ? 6 : moral > 5 ? (nat < 3 ? 2 : 5) : 4,
+        progress: nat > 5 ? 6 : nat < 3 ? 2 : 5,
+      };
+      const targetScores = { ...inferredScores, ...sigScores };
+      shuffled.forEach(q => {
+        const target = targetScores[q.axis] !== undefined ? targetScores[q.axis] : 4;
+        if (q.type === 'likert') {
+          // NO noise in QA mode — exact scores for reliable archetype assignment
+          state.answers[q.id] = Math.max(1, Math.min(7, Math.round(target)));
+        } else if (q.options && q.options.length) {
+          const best = (opts[q.id] || q.options).reduce((a, b) =>
+            Math.abs(b.score - target) < Math.abs(a.score - target) ? b : a
+          );
+          state.answers[q.id] = best.score;
+        }
+      });
+      console.log('%c[QA] Pre-filled: ' + archetype.family + ' — ' + archetype.variant, 'color:#c9a96e;font-weight:bold');
+    }
+  }
+
+  document.getElementById('qa-mode-badge').style.display = 'block';
+  initGlowSequences();
+  tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
+  currentGlowMood = null;
   show('screen-quiz');
   renderQuestion();
 }
@@ -3289,8 +3659,82 @@ function renderQuestion() {
     </button>
   </div>`;
 
+  // QA flag panel — only in QA mode
+  if (state.qaMode) {
+    const flagData = state.qaFlags[q.id] || { flagged: false, note: '' };
+    html += `<div class="qa-flag-panel">
+      <div class="qa-flag-toggle${flagData.flagged ? ' flagged' : ''}" onclick="qaToggleFlag('${q.id}')">
+        <div class="qa-flag-icon">${flagData.flagged ? '✓' : ''}</div>
+        <span>${flagData.flagged ? 'Flagged for review' : 'Flag this question'}</span>
+      </div>
+      <div class="qa-flag-body${flagData.flagged ? ' open' : ''}" id="qa-flag-body-${q.id}">
+        <div class="qa-flag-label">Notes</div>
+        <textarea
+          class="qa-flag-textarea"
+          id="qa-note-${q.id}"
+          placeholder="What is wrong with this question or its answer options? Be specific."
+          oninput="qaSaveNote('${q.id}', this.value)"
+        >${flagData.note || ''}</textarea>
+      </div>
+    </div>`;
+  }
+
   document.getElementById('quiz-body').innerHTML = html;
+
+  // Update progress bar flag dots
+  if (state.qaMode) qaUpdateProgressDots();
+
   window.scrollTo(0, 0);
+}
+
+function qaToggleFlag(qid) {
+  if (!state.qaFlags[qid]) state.qaFlags[qid] = { flagged: false, note: '' };
+  state.qaFlags[qid].flagged = !state.qaFlags[qid].flagged;
+  // Re-render just the flag panel
+  const flagData = state.qaFlags[qid];
+  const toggle = document.querySelector('.qa-flag-toggle');
+  const body = document.getElementById('qa-flag-body-' + qid);
+  if (toggle) {
+    toggle.classList.toggle('flagged', flagData.flagged);
+    toggle.innerHTML = '<div class="qa-flag-icon">' + (flagData.flagged ? '✓' : '') + '</div><span>' + (flagData.flagged ? 'Flagged for review' : 'Flag this question') + '</span>';
+  }
+  if (body) body.classList.toggle('open', flagData.flagged);
+  qaUpdateProgressDots();
+}
+
+function qaSaveNote(qid, value) {
+  if (!state.qaFlags[qid]) state.qaFlags[qid] = { flagged: false, note: '' };
+  state.qaFlags[qid].note = value;
+  // Auto-flag if note is typed
+  if (value.trim() && !state.qaFlags[qid].flagged) {
+    state.qaFlags[qid].flagged = true;
+    const toggle = document.querySelector('.qa-flag-toggle');
+    if (toggle) {
+      toggle.classList.add('flagged');
+      toggle.innerHTML = '<div class="qa-flag-icon">✓</div><span>Flagged for review</span>';
+    }
+    const body = document.getElementById('qa-flag-body-' + qid);
+    if (body) body.classList.add('open');
+    qaUpdateProgressDots();
+  }
+}
+
+function qaUpdateProgressDots() {
+  // Remove existing dots
+  document.querySelectorAll('.progress-flag-dot').forEach(d => d.remove());
+  const bar = document.querySelector('.progress-bar-wrap');
+  if (!bar) return;
+  const totalQ = state.shuffledQuestions.length;
+  state.shuffledQuestions.forEach((q, idx) => {
+    if (state.qaFlags[q.id] && state.qaFlags[q.id].flagged) {
+      const pct = (idx / totalQ) * 100;
+      const dot = document.createElement('div');
+      dot.className = 'progress-flag-dot';
+      dot.style.left = pct + '%';
+      bar.style.position = 'relative';
+      bar.appendChild(dot);
+    }
+  });
 }
 
 function selectLikert(qid, val) {
@@ -3336,22 +3780,108 @@ function prevQ() {
 // ══════════════════════════════════════════
 // QUIZ FLOATING GLOW SYSTEM
 // ══════════════════════════════════════════
-const TIER_GLOW_PALETTES = {
-  1: [
+// ── GLOW PALETTES ─────────────────────────
+// 3 named moods — purple, teal, gold
+// Each has 4 orb variants for internal variety
+const GLOW_MOODS = {
+  purple: [
     {color:'rgba(120,100,255,0.55)', size:520, x:'15%', y:'20%', dur:18, dx1:'120px',dy1:'-80px',dx2:'60px',dy2:'140px',dx3:'-80px',dy3:'60px'},
     {color:'rgba(180,130,255,0.35)', size:380, x:'70%', y:'60%', dur:22, dx1:'-90px',dy1:'70px',dx2:'120px',dy2:'-50px',dx3:'50px',dy3:'-100px'},
     {color:'rgba(100,80,220,0.40)', size:300, x:'50%', y:'10%', dur:15, dx1:'80px',dy1:'100px',dx2:'-60px',dy2:'60px',dx3:'40px',dy3:'-80px'},
   ],
-  2: [
+  teal: [
     {color:'rgba(60,180,130,0.50)', size:500, x:'10%', y:'40%', dur:20, dx1:'100px',dy1:'-90px',dx2:'60px',dy2:'120px',dx3:'-70px',dy3:'40px'},
-    {color:'rgba(100,200,160,0.35)', size:360, x:'75%', y:'20%', dur:25, dx1:'-80px',dy1:'80px',dx2:'110px',dy2:'-40px',dx3:'30px',dy3:'-90px'},
-    {color:'rgba(201,169,110,0.40)', size:290, x:'60%', y:'75%', dur:17, dx1:'70px',dy1:'-70px',dx2:'-90px',dy2:'50px',dx3:'50px',dy3:'80px'},
+    {color:'rgba(80,200,155,0.38)', size:420, x:'60%', y:'15%', dur:17, dx1:'-80px',dy1:'90px',dx2:'70px',dy2:'-60px',dx3:'40px',dy3:'80px'},
+    {color:'rgba(40,160,120,0.45)', size:340, x:'80%', y:'65%', dur:23, dx1:'60px',dy1:'-100px',dx2:'-90px',dy2:'50px',dx3:'70px',dy3:'70px'},
   ],
-  3: [
+  gold: [
+    {color:'rgba(220,170,80,0.52)', size:510, x:'20%', y:'55%', dur:21, dx1:'-100px',dy1:'-60px',dx2:'80px',dy2:'100px',dx3:'50px',dy3:'-80px'},
+    {color:'rgba(201,169,110,0.40)', size:370, x:'70%', y:'25%', dur:16, dx1:'90px',dy1:'70px',dx2:'-70px',dy2:'-90px',dx3:'-40px',dy3:'60px'},
+    {color:'rgba(240,190,90,0.35)', size:290, x:'45%', y:'80%', dur:24, dx1:'-70px',dy1:'-80px',dx2:'100px',dy2:'40px',dx3:'-30px',dy3:'-70px'},
+  ],
+  amber: [
     {color:'rgba(220,130,60,0.50)', size:480, x:'20%', y:'60%', dur:19, dx1:'-100px',dy1:'-70px',dx2:'80px',dy2:'90px',dx3:'60px',dy3:'-40px'},
-    {color:'rgba(200,100,80,0.35)', size:350, x:'65%', y:'30%', dur:23, dx1:'90px',dy1:'60px',dx2:'-70px',dy2:'-80px',dx3:'-40px',dy3:'100px'},
-    {color:'rgba(160,80,200,0.40)', size:280, x:'40%', y:'80%', dur:16, dx1:'-60px',dy1:'-90px',dx2:'100px',dy2:'40px',dx3:'-30px',dy3:'-60px'},
+    {color:'rgba(200,100,80,0.38)', size:350, x:'65%', y:'30%', dur:23, dx1:'90px',dy1:'60px',dx2:'-70px',dy2:'-80px',dx3:'-40px',dy3:'100px'},
+    {color:'rgba(230,140,50,0.42)', size:300, x:'35%', y:'75%', dur:17, dx1:'-60px',dy1:'-90px',dx2:'100px',dy2:'40px',dx3:'-30px',dy3:'-60px'},
   ],
+  violet: [
+    {color:'rgba(160,80,200,0.48)', size:490, x:'25%', y:'35%', dur:20, dx1:'110px',dy1:'-90px',dx2:'-80px',dy2:'110px',dx3:'60px',dy3:'-50px'},
+    {color:'rgba(140,60,220,0.35)', size:360, x:'72%', y:'65%', dur:25, dx1:'-70px',dy1:'80px',dx2:'90px',dy2:'-60px',dx3:'-50px',dy3:'90px'},
+    {color:'rgba(180,100,240,0.30)', size:280, x:'50%', y:'5%',  dur:18, dx1:'60px',dy1:'110px',dx2:'-80px',dy2:'50px',dx3:'40px',dy3:'-70px'},
+  ],
+  rose: [
+    {color:'rgba(210,100,140,0.48)', size:500, x:'10%', y:'50%', dur:22, dx1:'100px',dy1:'-80px',dx2:'-90px',dy2:'90px',dx3:'70px',dy3:'-60px'},
+    {color:'rgba(240,120,160,0.32)', size:360, x:'68%', y:'20%', dur:19, dx1:'-80px',dy1:'70px',dx2:'100px',dy2:'-50px',dx3:'-40px',dy3:'80px'},
+    {color:'rgba(180,80,120,0.38)', size:300, x:'40%', y:'78%', dur:26, dx1:'70px',dy1:'-100px',dx2:'-60px',dy2:'60px',dx3:'50px',dy3:'70px'},
+  ],
+};
+
+// Tier → allowed moods (still thematically appropriate but not locked)
+// Tier 1 = cooler/deeper, Tier 2 = natural/balanced, Tier 3 = warm/vivid
+const TIER_MOOD_POOLS = {
+  1: ['purple', 'violet', 'teal'],
+  2: ['teal', 'gold', 'purple', 'violet'],
+  3: ['gold', 'amber', 'rose', 'teal'],
+};
+
+// Keep a rolling sequence so we never repeat more than 2 in a row
+// and every mood in the pool gets used before any repeats
+let glowSequence = [];
+let glowSeqIdx = 0;
+let lastMood = null;
+let lastMoodCount = 0;
+let currentGlowMood = null;
+
+function buildGlowSequence(pool) {
+  // Weighted shuffle: each mood appears 2-3 times, fully shuffled
+  // then repeated to cover 156 questions
+  const base = [...pool, ...pool, ...pool]; // 9-12 entries
+  // Fisher-Yates
+  for (let i = base.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [base[i], base[j]] = [base[j], base[i]];
+  }
+  // Enforce no 3-in-a-row
+  for (let i = 2; i < base.length; i++) {
+    if (base[i] === base[i-1] && base[i] === base[i-2]) {
+      // Swap with next different element
+      for (let j = i + 1; j < base.length; j++) {
+        if (base[j] !== base[i]) { [base[i], base[j]] = [base[j], base[i]]; break; }
+      }
+    }
+  }
+  return base;
+}
+
+// Pre-build sequences for each tier pool at quiz start
+let tierGlowSequences = {};
+function initGlowSequences() {
+  tierGlowSequences = {};
+  Object.keys(TIER_MOOD_POOLS).forEach(tier => {
+    const pool = TIER_MOOD_POOLS[tier];
+    // Build enough for 156 questions
+    let seq = [];
+    while (seq.length < 60) seq = seq.concat(buildGlowSequence(pool));
+    tierGlowSequences[tier] = seq;
+  });
+}
+
+// Per-tier counters so each tier advances its own sequence independently
+let tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
+
+function nextGlowMood(tier) {
+  const seq = tierGlowSequences[tier] || tierGlowSequences[1];
+  const idx = tierGlowCounters[tier] || 0;
+  const mood = seq[idx % seq.length];
+  tierGlowCounters[tier] = idx + 1;
+  return mood;
+}
+
+// Legacy TIER_GLOW_PALETTES kept for any direct references
+const TIER_GLOW_PALETTES = {
+  1: GLOW_MOODS.purple,
+  2: GLOW_MOODS.teal,
+  3: GLOW_MOODS.amber,
 };
 
 let currentGlowTier = null;
@@ -3393,13 +3923,14 @@ const AXIS_SKETCH_IMAGES = {
 };
 
 function updateQuizBackground(axis, tier) {
-  if (tier === currentGlowTier) {
-    // Still update the sketch even if tier hasn't changed
-  } else {
+  // Always advance the mood sequencer on every question (not just tier changes)
+  const mood = nextGlowMood(tier);
+  if (mood !== currentGlowMood) {
+    currentGlowMood = mood;
     currentGlowTier = tier;
     const layer = document.getElementById('quiz-glow-layer');
     if (layer) {
-      const palette = TIER_GLOW_PALETTES[tier] || TIER_GLOW_PALETTES[1];
+      const palette = GLOW_MOODS[mood] || GLOW_MOODS.purple;
       const isDesktop = window.innerWidth >= 768;
       const glowScale = isDesktop ? 1.9 : 1;
       layer.innerHTML = palette.map(g => {
@@ -4506,9 +5037,8 @@ function devGenerateReport() {
   QUESTIONS.forEach(q => {
     const target = targetScores[q.axis] !== undefined ? targetScores[q.axis] : 4;
     if (q.type === 'likert') {
-      // Slight noise so it feels like a real completion
-      const noise = Math.floor(Math.random() * 3) - 1;
-      state.answers[q.id] = Math.max(1, Math.min(7, Math.round(target) + noise));
+      // NO noise in dev/QA mode — exact scores for reliable archetype assignment
+      state.answers[q.id] = Math.max(1, Math.min(7, Math.round(target)));
     } else if (q.options && q.options.length) {
       const opts = state.shuffledOptions[q.id] || q.options;
       const best = opts.reduce((a, b) =>
@@ -4518,11 +5048,136 @@ function devGenerateReport() {
     }
   });
 
+  initGlowSequences();
+  tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
+  currentGlowMood = null;
   showEmailCapture();
 }
 
 // No keys needed in the frontend
 // ══════════════════════════════════════════
+
+// ════════════════════════════════════════════
+// QA/QC REPORT PANEL
+// ════════════════════════════════════════════
+function renderQAReport(scores, archetypeResult) {
+  const flags = state.qaFlags || {};
+  const flaggedIds = Object.keys(flags).filter(id => flags[id].flagged);
+  const totalQ = state.shuffledQuestions.length;
+  const arch = archetypeResult.primary;
+
+  // Remove any existing QA panel
+  const existing = document.getElementById('qa-report-panel');
+  if (existing) existing.remove();
+
+  // Group flagged questions by axis
+  const byAxis = {};
+  state.shuffledQuestions.forEach(q => {
+    if (!flags[q.id] || !flags[q.id].flagged) return;
+    if (!byAxis[q.axis]) byAxis[q.axis] = [];
+    byAxis[q.axis].push(q);
+  });
+
+  const axisMeta = AXIS_META || {};
+
+  let html = '<div id="qa-report-panel" class="qa-report-panel">';
+  html += '<div class="qa-report-header">QA/QC Session Report</div>';
+
+  // Stats strip
+  const flagCount = flaggedIds.length;
+  const sessionTime = new Date().toLocaleString();
+  html += '<div style="margin-bottom:24px;">';
+  html += '<span class="qa-report-stat">' + flagCount + ' flag' + (flagCount !== 1 ? 's' : '') + '</span>';
+  html += '<span class="qa-report-stat">' + totalQ + ' questions reviewed</span>';
+  html += '<span class="qa-report-stat">Archetype: ' + arch.family + '</span>';
+  html += '<span class="qa-report-stat">Variant: ' + arch.variant + '</span>';
+  html += '<span class="qa-report-stat">' + sessionTime + '</span>';
+  html += '</div>';
+
+  if (flagCount === 0) {
+    html += '<div style="color:rgba(255,255,255,0.4);font-family:IBM Plex Mono,monospace;font-size:13px;padding:20px 0;">No questions flagged this session.</div>';
+  } else {
+    // Render by axis
+    Object.keys(byAxis).sort().forEach(axis => {
+      const axLabel = axisMeta[axis] ? axisMeta[axis].label : axis;
+      html += '<div class="qa-axis-group-header">' + axLabel + ' · ' + axis + '</div>';
+      byAxis[axis].forEach(q => {
+        const flagData = flags[q.id];
+        const answer = state.answers[q.id];
+        const opts = state.shuffledOptions[q.id] || q.options || [];
+        let answerDisplay = '';
+        if (q.type === 'likert') {
+          answerDisplay = 'Likert: ' + answer + '/7';
+          if (q.poleLeft && q.poleRight) {
+            answerDisplay += ' (' + q.poleLeft + ' → ' + q.poleRight + ')';
+          }
+        } else {
+          const chosen = opts.find(o => o.score === answer);
+          answerDisplay = chosen ? chosen.text : String(answer);
+        }
+        const qText = (state.displayTextCache && state.displayTextCache[q.id]) || q.text || q.id;
+        html += '<div class="qa-flag-item">';
+        html += '<div class="qa-flag-item-axis">Q' + (state.shuffledQuestions.indexOf(q) + 1) + ' · ' + axLabel + ' · Tier ' + q.tier + ' · ' + q.type + '</div>';
+        html += '<div class="qa-flag-item-qtext">' + qText + '</div>';
+        html += '<div class="qa-flag-item-answer">Answer: ' + answerDisplay + '</div>';
+        if (flagData.note) {
+          html += '<div class="qa-flag-item-note">' + flagData.note.replace(/\n/g, '<br>') + '</div>';
+        }
+        html += '</div>';
+      });
+    });
+  }
+
+  // Export button
+  html += '<div style="margin-top:28px;">';
+  html += '<button onclick="qaExportNotes()" style="background:transparent;border:1px solid rgba(201,169,110,0.4);color:#c9a96e;font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:6px;cursor:pointer;">Export QA Notes ↓</button>';
+  html += '</div>';
+
+  html += '</div>';
+
+  // Append to report screen
+  const reportScreen = document.getElementById('screen-report');
+  if (reportScreen) reportScreen.insertAdjacentHTML('beforeend', html);
+}
+
+function qaExportNotes() {
+  const flags = state.qaFlags || {};
+  const arch = document.getElementById('qa-report-panel');
+  const lines = [];
+  lines.push('PHIL/OS QA/QC NOTES');
+  lines.push('Session: ' + new Date().toLocaleString());
+  lines.push('');
+
+  state.shuffledQuestions.forEach((q, idx) => {
+    if (!flags[q.id] || !flags[q.id].flagged) return;
+    const answer = state.answers[q.id];
+    const opts = state.shuffledOptions[q.id] || q.options || [];
+    let answerDisplay = '';
+    if (q.type === 'likert') {
+      answerDisplay = 'Likert ' + answer + '/7';
+    } else {
+      const chosen = opts.find(o => o.score === answer);
+      answerDisplay = chosen ? chosen.text : String(answer);
+    }
+    const qText = (state.displayTextCache && state.displayTextCache[q.id]) || q.text || q.id;
+    lines.push('Q' + (idx + 1) + ' [' + q.axis + ' / ' + q.type + ']');
+    lines.push(qText);
+    lines.push('Answer: ' + answerDisplay);
+    if (flags[q.id].note) {
+      lines.push('Note: ' + flags[q.id].note);
+    }
+    lines.push('---');
+  });
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'philos-qa-' + new Date().toISOString().slice(0,10) + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 async function saveToSupabase(payload) {
   try {
     await fetch('/api/capture', {
@@ -4766,16 +5421,19 @@ WRITING RULES:
 5. The "holy shit it knows me" test: every paragraph should name something the person recognises about themselves that most people wouldn't name
 6. Cover HOW THEY THINK (epistemic), HOW THEY FEEL ABOUT THE WORLD (metaphysical), HOW THEY DECIDE (ethical), HOW THEY RELATE (social/identity), and WHAT DRIVES AND DRAINS THEM (meaning/motivation)
 7. Existentialism/nihilism/absurdism: if present in scores, name the experience from the inside — the specific flavour of how it shows up for this person
+8. NO em dashes anywhere in any output. Use conjunctions like "but", "and", "so", "because" instead. Write like a human talking to a human.
+9. No hyphens unless grammatically required (compound adjectives before nouns are fine). No bullet points, no colons introducing lists in the narrative text.
+10. The world array especially must sound like a real person wrote it. Warm, direct, no clinical distance.
 
 Return ONLY valid JSON — no markdown fences, no preamble:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. This fills the WHO YOU ARE panel on a shareable card. Write in second person (you). Plain language — no jargon, no axis names, no philosophical labels. Describe who this person actually is: how they think, what drives them, what they notice, how they move through the world. Must read as a complete, flowing paragraph. Must feel like a sharp personal description someone would read and think — this is exactly me. Do not cut short. 75 words minimum, 85 maximum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person actually experience the world — what do they notice first, what filter does everything pass through, what do they see that most people miss? Start with a specific observation, not a definition. P2 (3 sentences): How do they think and reason — what is their relationship with certainty, evidence, authority, and their own conclusions? What does their inner monologue sound like when processing a hard problem? P3 (3 sentences): Their moral and meaning landscape — not what they believe in abstract, but how it actually shows up: what makes them angry, what they feel responsible for, what they can and cannot bring themselves to do. P4 (2 sentences): The central tension in their operating system — the place where two things they genuinely hold pull in opposite directions. Name what that tension feels like from the inside, not what it is philosophically. P5 (2 sentences): What this person was built for — the conditions, relationships, and challenges where they come most alive — and what quietly exhausts them that they may not have named yet.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — not job titles, but pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing — from their actual score pattern."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight, what trips them up."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail, not the generic archetype failure."}],"growth":["1 concrete sentence: the most important skill or practice to build given the weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. This fills the WHO YOU ARE panel on a shareable card. Write in second person (you). Plain language — no jargon, no axis names, no philosophical labels. Describe who this person actually is: how they think, what drives them, what they notice, how they move through the world. Must read as a complete, flowing paragraph. Must feel like a sharp personal description someone would read and think — this is exactly me. Do not cut short. 75 words minimum, 85 maximum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person actually experience the world — what do they notice first, what filter does everything pass through, what do they see that most people miss? Start with a specific observation, not a definition. P2 (3 sentences): How do they think and reason — what is their relationship with certainty, evidence, authority, and their own conclusions? What does their inner monologue sound like when processing a hard problem? P3 (3 sentences): Their moral and meaning landscape — not what they believe in abstract, but how it actually shows up: what makes them angry, what they feel responsible for, what they can and cannot bring themselves to do. P4 (2 sentences): The central tension in their operating system — the place where two things they genuinely hold pull in opposite directions. Name what that tension feels like from the inside, not what it is philosophically. P5 (2 sentences): What this person was built for — the conditions, relationships, and challenges where they come most alive — and what quietly exhausts them that they may not have named yet.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — not job titles, but pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing — from their actual score pattern."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight, what trips them up."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail, not the generic archetype failure."}],"growth":["1 concrete sentence: the most important skill or practice to build given the weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."],"world":[{"lens":"The Self","icon":"mirror","view":"2 to 3 sentences on how this person sees their own identity, agency, and inner life. Draw directly from their self, identity, determinism, and responsibility scores. No jargon, no axis names. What does it actually feel like to be them on the inside? Written like a thoughtful friend describing how they know themselves.","shows_up":"2 to 3 sentences on how this self-view shows up in their actual behaviour. What patterns does it create? What do they do or avoid because of how they see themselves? Be specific and human.","prompt":"One reflective question they can actually sit with this week. Not abstract. Something that opens a real door. No em dashes. No hyphens unless grammatically required. Written like a human asking another human."},{"lens":"Other People","icon":"people","view":"2 to 3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, and social_ontology scores. Do they see people as fundamentally good or shaped by circumstance? Do they hold others to account or extend structural empathy?","shows_up":"2 to 3 sentences on how this view of others plays out. What does it make them good at in relationships? What does it make hard? What do people feel when they are with this person?","prompt":"One reflective question about a specific relationship or interaction. Concrete and honest. No em dashes."},{"lens":"Relationships","icon":"connect","view":"2 to 3 sentences on how this person approaches connection, intimacy, and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, and society scores. What do they need from other people and what do they bring?","shows_up":"2 to 3 sentences on what this looks like in practice. What patterns repeat in their close relationships? What do they reach for and what do they pull back from?","prompt":"One reflective question about what they might be asking from others that they have not said out loud yet. No em dashes."},{"lens":"Society","icon":"city","view":"2 to 3 sentences on how this person sees society, systems, and their place in the collective. Draw from society, politics, justice, authority, economics, and responsibility scores. Do they feel part of something or apart from it?","shows_up":"2 to 3 sentences on how this shapes their day to day. What do they notice in the news, in institutions, in crowds? What do they feel pulled toward doing or saying in public life?","prompt":"One reflective question about their actual relationship to the collective right now. Not what they believe about politics. What they feel when they think about their role in society. No em dashes."},{"lens":"Life and Existence","icon":"horizon","view":"2 to 3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, and progress scores. Is life a project to build, a gift to receive, a problem to solve, or something else entirely?","shows_up":"2 to 3 sentences on how this shows up in the texture of their actual days. What does it look like when they are living well and what does it look like when they are not?","prompt":"One reflective question about where they are right now in their relationship with their own existence. Something honest and usable today. No em dashes."}]}`;
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         messages: [{role:'user', content: prompt}],
-        max_tokens: 2800
+        max_tokens: 4200
       })
     });
 
@@ -4845,6 +5503,7 @@ Return ONLY valid JSON — no markdown fences, no preamble:
             const chosen = opts.find(o => o.score === answer);
             answerText = chosen ? (chosen.text || String(answer)) : String(answer);
           }
+          const flagData = state.qaFlags && state.qaFlags[q.id];
           return {
             question_id: q.id,
             question_text: (state.displayTextCache && state.displayTextCache[q.id]) || q.text || '',
@@ -4852,7 +5511,9 @@ Return ONLY valid JSON — no markdown fences, no preamble:
             tier: q.tier,
             question_type: q.type,
             answer_value: answer,
-            answer_text: answerText
+            answer_text: answerText,
+            dev_flag: flagData ? !!flagData.flagged : false,
+            dev_note: flagData ? (flagData.note || null) : null,
           };
         }).filter(Boolean);
         const payload = {
@@ -4865,11 +5526,16 @@ Return ONLY valid JSON — no markdown fences, no preamble:
           contradictions_count: contradictions.length,
           completed_at: new Date().toISOString(),
           source: 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app',
+          qa_mode: state.qaMode || false,
           responses: responsesPayload,
         };
         saveToSupabase(payload);
         // Send report email — fire and forget
         sendReportEmail(report, fingerprint, archetypeResult, contradictions);
+        // QA report panel — only in QA mode
+        if (state.qaMode) {
+          setTimeout(() => renderQAReport(scores, archetypeResult), 500);
+        }
       }, 400);
     }, delays[delays.length-1] + 600);
 
@@ -5921,7 +6587,42 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     ).join('') +
     '</div>';
 
-  // ── FAMOUS TYPES ──
+  // HOW YOU MOVE THROUGH THE WORLD
+  const worldSection = document.getElementById('section-world');
+  const worldEl = document.getElementById('report-world');
+  if (worldEl && report.world && Array.isArray(report.world) && report.world.length) {
+    const iconMap = { mirror: '🧐', people: '👥', connect: '🤝', city: '🌆', horizon: '🌌' };
+    const colorMap = { mirror: 'rgba(157,147,232,0.15)', people: 'rgba(91,191,148,0.15)', connect: 'rgba(201,169,110,0.15)', city: 'rgba(224,120,74,0.15)', horizon: 'rgba(180,130,255,0.15)' };
+    worldEl.innerHTML = report.world.map(card => {
+      const icon = iconMap[card.icon] || '○';
+      const bg = colorMap[card.icon] || 'rgba(255,255,255,0.06)';
+      return '<div class="world-card">'
+        + '<div class="world-card-header">'
+        + '<div class="world-card-icon" style="background:' + bg + '">' + icon + '</div>'
+        + '<div class="world-card-title">' + (card.lens || '') + '</div>'
+        + '</div>'
+        + '<div class="world-card-body">'
+        + '<div class="world-card-block">'
+        + '<div class="world-card-block-label">Your view</div>'
+        + '<div class="world-card-block-text">' + (card.view || '') + '</div>'
+        + '</div>'
+        + '<div class="world-card-block">'
+        + '<div class="world-card-block-label">How it shows up</div>'
+        + '<div class="world-card-block-text">' + (card.shows_up || '') + '</div>'
+        + '</div>'
+        + '<div class="world-card-prompt">'
+        + '<div class="world-card-prompt-label">Sit with this</div>'
+        + '<div class="world-card-prompt-text">' + (card.prompt || '') + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+    if (worldSection) worldSection.style.display = '';
+  } else if (worldSection) {
+    worldSection.style.display = 'none';
+  }
+
+  // FAMOUS TYPES
   const famousData = FAMOUS_BY_FAMILY[family] || [];
   const famousEl = document.getElementById('report-famous');
   if (famousEl && famousData.length) {
