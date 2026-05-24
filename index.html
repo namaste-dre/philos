@@ -4527,6 +4527,34 @@ async function saveToSupabase(payload) {
   }
 }
 
+async function sendReportEmail(report, fingerprint, archetypeResult, contradictions) {
+  try {
+    await fetch('/api/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: state.userName,
+        email: state.captureData?.email,
+        archetype: archetypeResult.primary.family,
+        variant: archetypeResult.primary.variant,
+        tagline: report.tagline,
+        identity: Array.isArray(report.identity) ? report.identity.join('\n\n') : (report.identity || ''),
+        fingerprint: fingerprint.slice(0, 5).map(f => ({
+          label: AXIS_META[f.axis] ? AXIS_META[f.axis].label : f.axis,
+          pole: f.direction === 'right' ? AXIS_META[f.axis]?.poleR : AXIS_META[f.axis]?.poleL,
+          score: f.score,
+          deviation: f.score
+        })),
+        growth: report.growth || [],
+        contradictions_count: contradictions.length
+      }),
+    });
+  } catch(e) {
+    // Silent fail — never block the user experience
+    console.warn('Email send failed silently:', e.message);
+  }
+}
+
 // ══════════════════════════════════════════
 // EMAIL CAPTURE MODAL
 // ══════════════════════════════════════════
@@ -4796,6 +4824,28 @@ Return ONLY valid JSON — no markdown fences, no preamble:
         renderReport(scores, contradictions, archetypeResult, fingerprint, report);
         // Save to Supabase after render
         const arch = archetypeResult.primary;
+        // Build per-question responses array for audit/psychometrics
+        const responsesPayload = (state.shuffledQuestions || []).map(q => {
+          const answer = state.answers[q.id];
+          if (answer === undefined || answer === null) return null;
+          const opts = state.shuffledOptions?.[q.id] || q.options || [];
+          let answerText;
+          if (q.type === 'likert') {
+            answerText = String(answer);
+          } else {
+            const chosen = opts.find(o => o.score === answer);
+            answerText = chosen ? (chosen.text || String(answer)) : String(answer);
+          }
+          return {
+            question_id: q.id,
+            question_text: (state.displayTextCache && state.displayTextCache[q.id]) || q.text || '',
+            axis: q.axis,
+            tier: q.tier,
+            question_type: q.type,
+            answer_value: answer,
+            answer_text: answerText
+          };
+        }).filter(Boolean);
         const payload = {
           ...(state.captureData || {}),
           first_name: state.captureData?.first_name || state.userName || null,
@@ -4806,8 +4856,11 @@ Return ONLY valid JSON — no markdown fences, no preamble:
           contradictions_count: contradictions.length,
           completed_at: new Date().toISOString(),
           source: 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app',
+          responses: responsesPayload,
         };
         saveToSupabase(payload);
+        // Send report email — fire and forget
+        sendReportEmail(report, fingerprint, archetypeResult, contradictions);
       }, 400);
     }, delays[delays.length-1] + 600);
 
