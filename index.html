@@ -5178,20 +5178,44 @@ function qaExportNotes() {
   URL.revokeObjectURL(url);
 }
 
+
+// Show shareable URL in report after save completes
+function renderShareUrl(url) {
+  // Find or create share URL block in report
+  let existing = document.getElementById('report-share-url');
+  if (existing) { existing.querySelector('a').href = url; existing.querySelector('a').textContent = url; return; }
+
+  const shareBlock = document.createElement('div');
+  shareBlock.id = 'report-share-url';
+  shareBlock.style.cssText = 'max-width:860px;margin:0 auto 40px;padding:0 28px;';
+  shareBlock.innerHTML = '<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.25);border-radius:10px;flex-wrap:wrap;">'
+    + '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;flex-shrink:0;">Your shareable link</div>'
+    + '<a href="' + url + '" target="_blank" style="font-family:IBM Plex Mono,monospace;font-size:12px;color:#e8c97a;word-break:break-all;flex:1;text-decoration:none;">' + url + '</a>'
+    + '<button onclick="navigator.clipboard.writeText(encodeURI(this.dataset.url)).then(()=>{this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',2000)})" data-url="' + url + '" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.35);color:#c9a96e;font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:1px;padding:7px 16px;border-radius:6px;cursor:pointer;flex-shrink:0;">Copy</button>'
+    + '</div>';
+
+  // Insert at top of report body
+  const reportBody = document.querySelector('.report-body');
+  if (reportBody) reportBody.insertBefore(shareBlock, reportBody.firstChild);
+}
+
 async function saveToSupabase(payload) {
   try {
-    await fetch('/api/capture', {
+    const res = await fetch('/api/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    const data = await res.json();
+    return data;
   } catch(e) {
     // Silent fail — never block the user experience
     console.warn('Data capture failed silently:', e.message);
+    return null;
   }
 }
 
-async function sendReportEmail(report, fingerprint, archetypeResult, contradictions) {
+async function sendReportEmail(report, fingerprint, archetypeResult, contradictions, shareUrl) {
   try {
     await fetch('/api/email', {
       method: 'POST',
@@ -5210,7 +5234,8 @@ async function sendReportEmail(report, fingerprint, archetypeResult, contradicti
           deviation: f.score
         })),
         growth: report.growth || [],
-        contradictions_count: contradictions.length
+        contradictions_count: contradictions.length,
+        shareUrl: shareUrl || null,
       }),
     });
   } catch(e) {
@@ -5528,10 +5553,18 @@ Return ONLY valid JSON — no markdown fences, no preamble:
           source: 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app',
           qa_mode: state.qaMode || false,
           responses: responsesPayload,
+          report_json: report,
         };
-        saveToSupabase(payload);
-        // Send report email — fire and forget
-        sendReportEmail(report, fingerprint, archetypeResult, contradictions);
+        saveToSupabase(payload).then(result => {
+          const completionId = result && result.completion_id;
+          const shareUrl = completionId
+            ? (window.location.origin + '/report?id=' + completionId)
+            : null;
+          // Send report email with share URL
+          sendReportEmail(report, fingerprint, archetypeResult, contradictions, shareUrl);
+          // Show share URL in report if we have it
+          if (shareUrl) renderShareUrl(shareUrl);
+        });
         // QA report panel — only in QA mode
         if (state.qaMode) {
           setTimeout(() => renderQAReport(scores, archetypeResult), 500);

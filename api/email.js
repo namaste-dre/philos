@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const body = req.body;
   if (!body || typeof body !== 'object') return res.status(400).json({ error: 'Invalid JSON' });
 
-  const { name, email, archetype, variant, tagline, identity, fingerprint, growth, contradictions_count } = body;
+  const { name, email, archetype, variant, tagline, identity, fingerprint, growth, contradictions_count, shareUrl } = body;
 
   const fingerprintHTML = (fingerprint || []).map(f => `
     <tr>
@@ -93,9 +93,18 @@ export default async function handler(req, res) {
   </div>
   ` : ''}
 
+  ${shareUrl ? `
+  <!-- Share URL -->
+  <div style="margin-bottom:24px;padding:16px 20px;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.25);border-radius:8px;">
+    <div style="font-family:monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;margin-bottom:8px;">Your shareable report link</div>
+    <a href="${shareUrl}" style="font-family:monospace;font-size:12px;color:#e8c97a;word-break:break-all;text-decoration:none;">${shareUrl}</a>
+    <p style="color:#a09cb8;font-size:12px;margin-top:8px;margin-bottom:0;">Share this link with anyone. Your full report stays available at this URL.</p>
+  </div>
+  ` : ''}
+
   <!-- CTA -->
   <div style="text-align:center;margin-bottom:40px;">
-    <a href="https://philos-jade.vercel.app" style="display:inline-block;background:#c9a96e;color:#08061a;font-family:monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 32px;border-radius:4px;text-decoration:none;">VIEW YOUR FULL REPORT</a>
+    <a href="${shareUrl || 'https://philos-jade.vercel.app'}" style="display:inline-block;background:#c9a96e;color:#08061a;font-family:monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 32px;border-radius:4px;text-decoration:none;">VIEW YOUR FULL REPORT</a>
     <p style="color:#555;font-size:12px;margin-top:16px;">philos-jade.vercel.app</p>
   </div>
 
