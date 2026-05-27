@@ -2030,7 +2030,7 @@ select.modal-input option { background: #12101e; }
     <p class="intro-sub">A rigorous belief assessment that maps your complete worldview and tells you what to do with it.</p>
     <div class="intro-meta">
       <div class="intro-meta-item">
-        <span class="num">172</span>
+        <span class="num">182</span>
         <span class="label">questions</span>
       </div>
       <div class="intro-meta-item">
@@ -2330,6 +2330,10 @@ const QUESTIONS = [
 {id:'t1n04',tier:1,axis:'naturalism',type:'likert',
  text:'When something cannot currently be explained by natural means, a supernatural explanation is a genuine possibility, not merely a temporary gap in our knowledge.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5, reversed:true},
+{id:'t1n04b',tier:1,axis:'naturalism',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'There is something about human consciousness — a soul, a spirit, or an inner life — that exists beyond what any physical brain process could produce.',
+ options:[]},
 
 {id:'t1n05',tier:1,axis:'naturalism',type:'tradeoff',
  text:'Which statement feels most true to you?',
@@ -2371,6 +2375,10 @@ const QUESTIONS = [
 {id:'t1d04',tier:1,axis:'determinism',type:'likert',
  text:'When I make a bad decision, the most accurate explanation is found in the history and conditions that shaped me, not in a free choice made independently of those influences.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5, reversed:true},
+{id:'t1d04b',tier:1,axis:'determinism',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'When I reflect on my own past, I genuinely believe I could have chosen differently at key moments — not just that things might have gone differently, but that I had real options I did not take.',
+ options:[]},
 
 {id:'t1d05',tier:1,axis:'determinism',type:'scenario',
  text:'Two identical twins are separated at birth. One becomes a loving parent; the other becomes abusive. How do you explain the difference?',
@@ -2527,6 +2535,10 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Moral statements like \"that was wrong\" express how we feel about something, not claims about facts that could be true or false independently of us.',
  options:[]},
+{id:'t2m06b',tier:2,axis:'moral_ground',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'There is no universal moral truth — different cultures have different moral systems and none is objectively more correct than the others.',
+ options:[]},
 
 // ── MEANING SOURCE (5 questions) ──
 {id:'t2me01',tier:2,axis:'meaning',type:'likert',
@@ -2563,6 +2575,10 @@ const QUESTIONS = [
 {id:'t2me06',tier:2,axis:'meaning',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Meaning is not something the universe contains — it is something human beings create through the commitments they choose to make.',
+ options:[]},
+{id:'t2me06b',tier:2,axis:'meaning',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'The things I find most meaningful in my life feel genuinely and objectively valuable — not merely valuable because I have chosen to care about them.',
  options:[]},
 
 // ── SCIENCE TRUST (4 questions) ──
@@ -2660,9 +2676,9 @@ const QUESTIONS = [
 {id:'t3e03',tier:3,axis:'ethics',type:'scenario',
  text:'A doctor can save 5 patients by taking organs from 1 healthy person who came in for a routine checkup. The math is simple: 5 lives for 1.',
  options:[
-   {text:'Still clearly wrong, some principles hold even when the numbers do not',score:2},
-   {text:'The numbers pull at me even though I cannot endorse it, ethics is genuinely hard',score:4},
-   {text:'This is exactly where pure outcome-thinking breaks down, something is missing from that calculation',score:3}
+   {text:'Still clearly wrong. People may not be used merely as instruments, whatever the numbers say.',score:1},
+   {text:'Five lives for one. The numbers settle it — outcomes are what matter morally.',score:7},
+   {text:'The numbers pull at me, but I cannot endorse it. Something in the calculation is missing.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3e04',tier:3,axis:'ethics',type:'likert',
@@ -2838,10 +2854,10 @@ const QUESTIONS = [
 {id:'t3mp02',tier:3,axis:'meaning_practice',type:'scenario',
  text:'A close friend is in crisis, nothing feels worth doing. What is the most honest and useful thing you can tell them?',
  options:[
-   {text:'Meaning is not waiting to be found, you have to build it, even knowing it is constructed',score:7},
-   {text:'Sit with the void rather than rushing to fill it, the discomfort is real and worth facing',score:5},
-   {text:'There are things worth caring about regardless of what the cosmos ultimately is — focus there',score:6},
-   {text:'Find something larger than yourself to serve or connect to',score:4}
+   {text:'Meaning is not waiting to be found, you have to build it, even knowing it is constructed.',score:7},
+   {text:'There are things worth caring about regardless of what the cosmos ultimately is — focus there.',score:6},
+   {text:'Sit with the void rather than rushing to fill it, the discomfort is real and worth facing.',score:5},
+   {text:'Maybe nothing does feel worth it right now — that is an honest response to an honest situation.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3mp03',tier:3,axis:'meaning_practice',type:'likert',
@@ -3178,6 +3194,10 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The universe has no destination, no built-in direction, and no purpose — it simply runs according to physical laws with nothing it is heading toward.',
  options:[]},
+{id:'t1tel06b',tier:1,axis:'teleology',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'The emergence of life, consciousness, and intelligence in the universe seems like something that was always going to happen — as if reality was oriented toward complexity from the start.',
+ options:[]},
 
 // ── HUMAN NATURE (5 questions) ──
 {id:'t15hn01',tier:1,axis:'human_nature',type:'likert',
@@ -3245,6 +3265,10 @@ const QUESTIONS = [
    {text:'No. Reason without data just produces internally consistent fictions.',score:7},
    {text:'Sometimes. It depends on what kind of question we are asking.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+{id:'t15em04b',tier:1,axis:'epistemic_method',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'Deep intuitions and personal spiritual experience can give us genuine access to truths that scientific testing and logical argument simply cannot reach.',
+ options:[]},
 
 {id:'t15em05',tier:1,axis:'epistemic_method',type:'likert',
  text:'Spiritual or contemplative practices can have genuine personal value, but the claims they produce about reality still need to be assessed by the same standards as any other knowledge claim.',
@@ -3282,6 +3306,10 @@ const QUESTIONS = [
    {text:'Individuals are largely products of their social systems. Fix the system and people change.',score:7},
    {text:'The relationship runs in both directions. You cannot fully separate them.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+{id:'t15so05b',tier:1,axis:'social_ontology',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'Society is simply the sum of its individual members — there is no such thing as a social force or structure that exists independently of the people who make it up.',
+ options:[]},
 
 // ── TEMPORAL ORIENTATION (5 questions) ──
 {id:'t15to01',tier:1,axis:'temporal_orientation',type:'tradeoff',
@@ -3311,6 +3339,10 @@ const QUESTIONS = [
    {text:'How far we have expanded the circle of who counts, who has rights, who matters.',score:7},
    {text:'How honestly we live in the present, without distorting it through either past or future.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+{id:'t15to04b',tier:1,axis:'temporal_orientation',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'The accumulated wisdom of our ancestors and the traditions they built carry more practical authority than any newly formed idea, however well-argued.',
+ options:[]},
 
 {id:'t15to05',tier:1,axis:'temporal_orientation',type:'likert',
  text:'The future, and what we can make possible, is more morally weighty than the past or present. What matters most is where we are going.',
@@ -3347,6 +3379,10 @@ const QUESTIONS = [
    {text:'The affected people themselves, working through what they can all accept.',score:6},
    {text:'The facts of human nature. What beings like us genuinely need to flourish.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+{id:'t15ma04b',tier:1,axis:'moral_authority',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'If a sacred text or authoritative religious tradition clearly commands something, that command carries more moral weight than any individual\'s personal conscience.',
+ options:[]},
 
 {id:'t15lma05',tier:1,axis:'moral_authority',type:'likert',
  text:'Reason and evidence are more reliable guides to moral truth than religious authority, tradition, or consensus.',
@@ -3384,6 +3420,10 @@ const QUESTIONS = [
    {text:'These questions are genuinely hard enough that anyone claiming confident answers has probably not engaged with them deeply enough.',score:7},
    {text:'Some have answers we can approach; others may be permanently beyond our reach.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+{id:'t15eh05b',tier:1,axis:'epistemic_humility',type:'likert',weight:1.5,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'On the big questions — whether God exists, whether we have free will, what makes life meaningful — careful thinking can lead to genuinely confident conclusions.',
+ options:[]},
 
 // ── FREE WILL IN PRACTICE (5 questions) ──
 {id:'t2fwip01',tier:2,axis:'freewill_practice',type:'tradeoff',
@@ -3926,7 +3966,7 @@ let currentGlowMood = null;
 
 function buildGlowSequence(pool) {
   // Weighted shuffle: each mood appears 2-3 times, fully shuffled
-  // then repeated to cover 172 questions
+  // then repeated to cover 182 questions
   const base = [...pool, ...pool, ...pool]; // 9-12 entries
   // Fisher-Yates
   for (let i = base.length - 1; i > 0; i--) {
@@ -3951,7 +3991,7 @@ function initGlowSequences() {
   tierGlowSequences = {};
   Object.keys(TIER_MOOD_POOLS).forEach(tier => {
     const pool = TIER_MOOD_POOLS[tier];
-    // Build enough for 172 questions
+    // Build enough for 182 questions
     let seq = [];
     while (seq.length < 60) seq = seq.concat(buildGlowSequence(pool));
     tierGlowSequences[tier] = seq;
@@ -4347,14 +4387,14 @@ const ARCHETYPES = [
 
   // ── FAMILY 7: THE PRINCIPLED LIBERTARIAN ──
   {id:'7A', family:'The Principled Libertarian', variant:'The Classical Liberal',
-   sig:[6,5,6,4,5,5,5,1,3,7,1,4,2],
+   sig:[6,5,6,4,5,5,5,1,2,7,1,4,2],
    description:'You hold that individual rights are the foundation of any legitimate social order — that persons have claims against collective interference that cannot be overridden by aggregate benefit. Your liberalism is classical: limited government, rule of law, free markets, and strong civil liberties.',
    thinkers:'John Stuart Mill · Friedrich Hayek · Isaiah Berlin',
    strength:'Institutional vigilance — you see the danger of concentrated power before others do.',
    failureMode:'Structural blindness. Classical liberalism can mistake structural advantages for individual merit.'},
 
   {id:'7B', family:'The Principled Libertarian', variant:'The Moral Individualist',
-   sig:[6,5,5,4,5,5,5,1,3,7,1,4,2],
+   sig:[6,5,5,4,6,5,5,1,3,7,1,6,2],
    description:'Your individualism is rooted in a strong essentialist account of human nature — persons have a genuine nature that includes the capacity for rational self-direction which constitutes their dignity. Collectivism violates this dignity not merely as a matter of preference but as a matter of what persons fundamentally are.',
    thinkers:'Ayn Rand · Robert Nozick · John Locke',
    strength:'Clear moral foundations — you know exactly why individual rights matter and can articulate it precisely.',
@@ -4618,15 +4658,15 @@ function computeFingerprint(scores) {
   // Axes with more items are measured more precisely — weight deviation accordingly
   // Formula: adjustedDeviation = deviation * sqrt(itemCount / maxItemCount)
   const AXIS_ITEM_COUNTS = {
-    naturalism:6, physicalism:5, realism:5, determinism:6,
-    moral_ground:5, meaning:5, teleology:5, human_nature:5,
-    epistemic_method:5, social_ontology:5, temporal_orientation:5,
-    moral_authority:6, epistemic_humility:5, knowledge:5, science:5,
-    freewill_practice:5, justice:6, ethics:6, religion:6,
-    politics:5, self:5, moral_scope:5, meaning_practice:5,
-    society:5, responsibility:5, identity:4, authority:6,
-    economics:5, uncertainty:5, mind_consciousness:4,
-    animal_ethics:4, progress:5
+    naturalism:7, physicalism:5, realism:5, determinism:7,
+    moral_ground:7, meaning:7, teleology:7, human_nature:6,
+    epistemic_method:6, social_ontology:6, temporal_orientation:6,
+    moral_authority:6, epistemic_humility:6, knowledge:5, science:5,
+    freewill_practice:6, justice:6, ethics:6, religion:6,
+    politics:5, self:6, moral_scope:5, meaning_practice:5,
+    society:5, responsibility:5, identity:5, authority:6,
+    economics:5, uncertainty:5, mind_consciousness:5,
+    animal_ethics:5, progress:5
   };
   const maxItems = Math.max(...Object.values(AXIS_ITEM_COUNTS));
   const deviations = Object.entries(scores).map(([axis, score]) => {
@@ -4978,7 +5018,23 @@ const CONTRADICTIONS = [
      'What specific things do you believe carry objective meaning — and what makes them objectively meaningful rather than merely valued by you?',
      'What grounds the objectivity of meaning in a world without divine purpose — natural facts, rational necessity, or something else?',
      'Have you encountered a secular account of objective meaning that you find compelling, or is this a position you hold without having fully worked out its foundations?',
-   ]},
+   ]},,
+  {
+    id:'C41', tier:'B',
+    a:'physicalism', b:'meaning',
+    check:(p,mn) => p >= 5.5 && mn >= 5.5,
+    title:'Hard Physicalism + Meaning Realism',
+    text:'You hold that the mind is entirely physical — yet also hold that meaning is genuinely real, independent of what minds construct. The challenge: in a fully physical universe, where do mind-independent meaning facts reside? Cornell naturalism offers a path (meaning facts are natural facts about flourishing), but this requires explicit philosophical work to maintain both positions coherently.',
+    questions:['How do objective meaning facts fit into a fully physical description of the universe?','Is the reality of meaning grounded in something beyond what brains produce?']
+  },
+  {
+    id:'C42', tier:'B',
+    a:'epistemic_humility', b:'determinism',
+    check:(eh,d) => eh >= 6.0 && d >= 6.0,
+    title:'High Epistemic Humility + Strong Determinist Commitment',
+    text:'You hold that genuine uncertainty is the most honest position on deep philosophical questions — yet you also hold hard determinism with significant confidence. High epistemic humility applied consistently would suggest holding determinism more tentatively, since the free will debate remains genuinely contested across philosophy of mind, neuroscience, and metaphysics.',
+    questions:['Does your epistemic humility apply to your determinism as much as to other philosophical positions?','What would it take to update your confidence in determinism?']
+  }
 ];
 
 function computeScores() {
@@ -7618,7 +7674,7 @@ function renderCardToCanvas(container) {
   ctx.fillText('What does your worldview say about you?', W/2, y+42); ctx.shadowBlur=0;
   ctx.font = '500 18px "IBM Plex Mono",monospace';
   ctx.fillStyle='rgba(220,200,255,0.88)';
-  ctx.fillText('172 questions \u00b7 34 belief axes \u00b7 your archetype', W/2, y+74);
+  ctx.fillText('182 questions \u00b7 34 belief axes \u00b7 your archetype', W/2, y+74);
   const urlTxt = 'philos-thelifepm.netlify.app';
   ctx.font = '600 20px "IBM Plex Mono",monospace';
   const urlW3 = ctx.measureText(urlTxt).width + 40;
