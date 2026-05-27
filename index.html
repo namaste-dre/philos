@@ -2209,8 +2209,8 @@ select.modal-input option { background: #12101e; }
         </div>
         <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-top-axis">—</span>
-          <span class="report-stat-label">Conviction score</span>
-          <span class="stat-tooltip-text">How strongly you hold your views — measured as average deviation from neutral across all 34 axes. High conviction means you land clearly on one side of most questions. Low conviction means your worldview is more open, flexible, or genuinely uncertain.</span>
+          <span class="report-stat-label">Worldview Strength</span>
+          <span class="stat-tooltip-text">Worldview Strength measures how clearly defined your philosophical positions are — calculated as average deviation from neutral across all 34 axes. High strength means you land clearly on one side of most questions. Lower strength means your worldview is more open, flexible, or genuinely undecided.</span>
         </div>
         <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-contradictions">—</span>
@@ -2329,7 +2329,7 @@ const QUESTIONS = [
 
 {id:'t1n04',tier:1,axis:'naturalism',type:'likert',
  text:'When something cannot currently be explained by natural means, a supernatural explanation is a genuine possibility, not merely a temporary gap in our knowledge.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5, reversed:true},
 
 {id:'t1n05',tier:1,axis:'naturalism',type:'tradeoff',
  text:'Which statement feels most true to you?',
@@ -2370,7 +2370,7 @@ const QUESTIONS = [
 
 {id:'t1d04',tier:1,axis:'determinism',type:'likert',
  text:'When I make a bad decision, the most accurate explanation is found in the history and conditions that shaped me, not in a free choice made independently of those influences.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5, reversed:true},
 
 {id:'t1d05',tier:1,axis:'determinism',type:'scenario',
  text:'Two identical twins are separated at birth. One becomes a loving parent; the other becomes abusive. How do you explain the difference?',
@@ -2419,7 +2419,7 @@ const QUESTIONS = [
    {text:'Our best attempts to describe a real world that exists independently of us',score:7},
    {text:'Useful tools for prediction that may or may not correspond to anything real',score:3},
    {text:'Human constructions that work within our conceptual framework, not mirrors of nature',score:2}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 // ── PHYSICALISM (5 questions) ──
 {id:'t1p01',tier:1,axis:'physicalism',type:'likert',
@@ -2432,7 +2432,7 @@ const QUESTIONS = [
    {text:'This is my brain doing extraordinarily complex physical work',score:7},
    {text:'There is something about this experience that cannot be fully captured by brain activity alone.',score:2},
    {text:'Both are true in different ways, the physical explanation does not cancel the experience',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 {id:'t1p03',tier:1,axis:'physicalism',type:'scenario',
  text:'Scientists announce they have mapped every neural correlate of human consciousness and can fully explain subjective experience in physical terms. Your response:',
@@ -2489,7 +2489,7 @@ const QUESTIONS = [
    {text:'Withholding belief until there is good evidence, even on questions that matter deeply',score:7},
    {text:'Some questions are too important to wait for evidence, we have to commit and act',score:3},
    {text:'The standard of evidence should scale with the stakes of the belief',score:5}
- ],poleLeft:'',poleRight:'',weight:1.0},
+ ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 
 // ── MORAL GROUND (5 questions) ──
 {id:'t2m01',tier:2,axis:'moral_ground',type:'likert',
@@ -2581,6 +2581,10 @@ const QUESTIONS = [
 {id:'t2s04',tier:2,axis:'science',type:'likert',
  text:'Even accounting for institutional failures and human bias, the scientific method produces more reliable knowledge about the world than any alternative we have.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+{id:'t2s05',tier:2,axis:'science',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'Science has serious blind spots — particularly for questions about meaning, consciousness, and lived human experience — and we should not rely on it as our primary guide to understanding.',
+ options:[]},
 
 // ══════════════════════════════════════════
 // TIER 3 — APPLIED POSITIONS (weight 1.0)
@@ -2622,6 +2626,10 @@ const QUESTIONS = [
    {text:'Restorative, justice means repairing harm and rebuilding relationships where possible',score:6},
    {text:'Transformative, justice means changing the systems that produce harm in the first place',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3j06',tier:3,axis:'justice',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'People who cause serious harm deserve consequences proportionate to what they chose to do, regardless of what shaped their behaviour.',
+ options:[]},
 
 // ── ETHICS ENGINE (5 questions) ──
 {id:'t3e01',tier:3,axis:'ethics',type:'tradeoff',
@@ -2660,6 +2668,10 @@ const QUESTIONS = [
    {text:'Yes, reluctantly, honesty matters but not more than protecting someone from serious harm',score:5},
    {text:'No, honesty is a principle I hold even when breaking it would produce better outcomes',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3e06',tier:3,axis:'ethics',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'Some actions are simply wrong regardless of their consequences — there are moral duties that must not be violated even to prevent greater harm.',
+ options:[]},
 
 // ── RELIGION (5 questions) ──
 {id:'t3r01',tier:3,axis:'religion',type:'likert',
@@ -2693,6 +2705,10 @@ const QUESTIONS = [
    {text:'A net positive regardless of whether it is true, human wellbeing matters',score:3},
    {text:'Their choice, I do not make that judgment for others',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3r06',tier:3,axis:'religion',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'Religious faith, even when its specific claims cannot be verified, provides something genuinely valuable that secular life struggles to replace.',
+ options:[]},
 
 // ── POLITICS (5 questions) ──
 {id:'t3p01',tier:3,axis:'politics',type:'tradeoff',
@@ -2729,7 +2745,7 @@ const QUESTIONS = [
    {text:'Support it — improving outcomes for the poorest is a legitimate and important use of collective resources.',score:7},
    {text:'Support it cautiously, I want to understand the economic effects on growth and incentives',score:4},
    {text:'Oppose it — using taxation to redistribute wealth, even for good outcomes, raises serious concerns about individual rights.',score:2}
- ],poleLeft:'',poleRight:'',weight:1.0},
+ ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 
 // ── SELF (5 questions) ──
 {id:'t3se01',tier:3,axis:'self',type:'likert',
@@ -2763,6 +2779,10 @@ const QUESTIONS = [
    {text:'Transformation, you are shaped by circumstances more than it feels like from the inside',score:6},
    {text:'Both, some changes are driven by us, others happen to us, and it is hard to tell which is which',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3se06',tier:3,axis:'self',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'I am the genuine author of my own choices and who I become — my life reflects who I truly am, not just what happened to me.',
+ options:[]},
 
 // ── MORAL SCOPE (4 questions) ──
 {id:'t3ms01',tier:3,axis:'moral_scope',type:'tradeoff',
@@ -2830,7 +2850,7 @@ const QUESTIONS = [
    {text:'Refuse, meaning that is not earned or real is not meaning at all',score:7},
    {text:'Consider it, if meaning is constructed anyway, what is the difference?',score:5},
    {text:'Take it, feeling meaningful matters more than the metaphysical question',score:3}
- ],poleLeft:'',poleRight:'',weight:1.0},
+ ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 
 // ── SOCIETY (4 questions) ──
 {id:'t3so01',tier:3,axis:'society',type:'tradeoff',
@@ -2860,6 +2880,10 @@ const QUESTIONS = [
    {text:'Tradition, communities have the right to maintain their character and norms',score:7},
    {text:'It depends on the tradition, the right, and what is actually at stake',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3so05',tier:3,axis:'society',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'People are ultimately responsible for their own welfare. Society\'s job is to protect individual freedom, not to guarantee outcomes.',
+ options:[]},
 
 // ── RESPONSIBILITY (4 questions) ──
 {id:'t3resp01',tier:3,axis:'responsibility',type:'scenario',
@@ -2890,6 +2914,10 @@ const QUESTIONS = [
    {text:'They bear some responsibility, seeking treatment and managing a condition is part of adult life',score:4},
    {text:'Difficult, but ultimately responsible, many people manage serious conditions without losing jobs',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3resp05',tier:3,axis:'responsibility',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'People are primarily responsible for the outcomes of their own lives — success and failure reflect personal choices more than circumstances.',
+ options:[]},
 
 // ── IDENTITY (4 questions) ──
 {id:'t3id01',tier:3,axis:'identity',type:'tradeoff',
@@ -2973,6 +3001,10 @@ const QUESTIONS = [
    {text:'A useful social arrangement, property rights are tools society creates and can reform',score:6},
    {text:'A source of structural power imbalance that should be significantly curtailed',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3ec05',tier:3,axis:'economics',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'The best indicator of economic justice is whether people are free to keep what they earn, not whether wealth is distributed equally.',
+ options:[]},
 
 // ── UNCERTAINTY (4 questions) ──
 {id:'t3unc01',tier:3,axis:'uncertainty',type:'likert',
@@ -2997,7 +3029,7 @@ const QUESTIONS = [
 
 {id:'t3unc04',tier:3,axis:'uncertainty',type:'likert',
  text:'People who are comfortable saying "I do not know" are generally more trustworthy than people who always have an answer.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0, reversed:true},
 
 // ── MIND / CONSCIOUSNESS (4 questions) ──
 {id:'t3mind01',tier:3,axis:'mind_consciousness',type:'tradeoff',
@@ -3077,6 +3109,10 @@ const QUESTIONS = [
 {id:'t3prog04',tier:3,axis:'progress',type:'likert',
  text:'Technology and scientific knowledge will, over time, solve most of the serious problems humanity currently faces.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
+{id:'t3prog05',tier:3,axis:'progress',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'The narrative that things are generally getting better is misleading — it masks real deterioration in what matters most.',
+ options:[]},
 
 // ══════════════════════════════════════════
 // NEW AXES — T1.5 STRUCTURAL POSITIONS
@@ -3176,7 +3212,7 @@ const QUESTIONS = [
    {text:'Yes. Mathematics and logic reveal truths that observation alone cannot reach.',score:5},
    {text:'No. Reason without data just produces internally consistent fictions.',score:7},
    {text:'Sometimes. It depends on what kind of question we are asking.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 {id:'t15em05',tier:1,axis:'epistemic_method',type:'likert',
  text:'Spiritual or contemplative practices can have genuine personal value, but the claims they produce about reality still need to be assessed by the same standards as any other knowledge claim.',
@@ -3213,7 +3249,7 @@ const QUESTIONS = [
    {text:'Societies change when individuals change. Lasting progress comes from changes in how people think and act.',score:2},
    {text:'Individuals are largely products of their social systems. Fix the system and people change.',score:7},
    {text:'The relationship runs in both directions. You cannot fully separate them.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 // ── TEMPORAL ORIENTATION (5 questions) ──
 {id:'t15to01',tier:1,axis:'temporal_orientation',type:'tradeoff',
@@ -3242,7 +3278,7 @@ const QUESTIONS = [
    {text:'How well we preserve and transmit what earlier generations discovered about how to live.',score:2},
    {text:'How far we have expanded the circle of who counts, who has rights, who matters.',score:7},
    {text:'How honestly we live in the present, without distorting it through either past or future.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 {id:'t15to05',tier:1,axis:'temporal_orientation',type:'likert',
  text:'The future, and what we can make possible, is more morally weighty than the past or present. What matters most is where we are going.',
@@ -3278,7 +3314,7 @@ const QUESTIONS = [
    {text:'Reason. Principles that can be justified to anyone, regardless of their beliefs.',score:5},
    {text:'The affected people themselves, working through what they can all accept.',score:6},
    {text:'The facts of human nature. What beings like us genuinely need to flourish.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 {id:'t15lma05',tier:1,axis:'moral_authority',type:'likert',
  text:'Reason and evidence are more reliable guides to moral truth than religious authority, tradition, or consensus.',
@@ -3315,7 +3351,7 @@ const QUESTIONS = [
    {text:'These questions have answers and careful thinking can get us close to them.',score:2},
    {text:'These questions are genuinely hard enough that anyone claiming confident answers has probably not engaged with them deeply enough.',score:7},
    {text:'Some have answers we can approach; others may be permanently beyond our reach.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5},
+ ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
 
 // ── FREE WILL IN PRACTICE (5 questions) ──
 {id:'t2fwip01',tier:2,axis:'freewill_practice',type:'tradeoff',
@@ -3382,6 +3418,10 @@ const QUESTIONS = [
    {text:'People who challenged the authority of their time and refused to accept what they were told.',score:7},
    {text:'A combination of insiders pushing reform and outsiders pushing harder.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3auth11',tier:3,axis:'authority',type:'likert',weight:1.0,reversed:true,
+ poleLeft:'Disagree',poleRight:'Agree',
+ text:'Established institutions — governments, courts, universities — have generally earned their authority and deserve the benefit of the doubt.',
+ options:[]},
 
 ];
 
@@ -4505,7 +4545,7 @@ function computeArchetype(scores) {
     }
   });
 
-  const isLiminal = secondBest && (secondDist - bestDist) < 0.4;
+  const isLiminal = secondBest && (secondDist - bestDist) < 1.0;
 
   return {
     primary: bestMatch,
@@ -4516,14 +4556,33 @@ function computeArchetype(scores) {
 }
 
 function computeFingerprint(scores) {
-  // Top 5 philosophical axes by deviation from centre (4.0)
-  const deviations = Object.entries(scores).map(([axis, score]) => ({
-    axis,
-    score,
-    deviation: Math.abs(score - 4.0),
-    direction: score >= 4 ? 'right' : 'left',
-  }));
-  deviations.sort((a, b) => b.deviation - a.deviation);
+  // Top 5 philosophical axes by reliability-weighted deviation from centre (4.0)
+  // Axes with more items are measured more precisely — weight deviation accordingly
+  // Formula: adjustedDeviation = deviation * sqrt(itemCount / maxItemCount)
+  const AXIS_ITEM_COUNTS = {
+    naturalism:6, physicalism:5, realism:5, determinism:6,
+    moral_ground:5, meaning:5, teleology:5, human_nature:5,
+    epistemic_method:5, social_ontology:5, temporal_orientation:5,
+    moral_authority:5, epistemic_humility:5, knowledge:5, science:5,
+    freewill_practice:5, justice:6, ethics:6, religion:6,
+    politics:5, self:5, moral_scope:5, meaning_practice:5,
+    society:5, responsibility:5, identity:4, authority:6,
+    economics:5, uncertainty:4, mind_consciousness:4,
+    animal_ethics:4, progress:5
+  };
+  const maxItems = 6; // authority, justice, ethics, religion, naturalism, determinism
+  const deviations = Object.entries(scores).map(([axis, score]) => {
+    const raw = Math.abs(score - 4.0);
+    const n = AXIS_ITEM_COUNTS[axis] || 4;
+    return {
+      axis,
+      score,
+      deviation: raw,
+      adjustedDeviation: raw * Math.sqrt(n / maxItems),
+      direction: score >= 4 ? 'right' : 'left',
+    };
+  });
+  deviations.sort((a, b) => b.adjustedDeviation - a.adjustedDeviation);
   return deviations.slice(0, 5);
 }
 
@@ -4867,8 +4926,9 @@ const CONTRADICTIONS = [
 function computeScores() {
   const axisAccum = {};
   QUESTIONS.forEach(q => {
-    const ans = state.answers[q.id];
-    if (ans === undefined) return;
+    const rawAns = state.answers[q.id];
+    if (rawAns === undefined) return;
+    const ans = q.reversed ? (8 - rawAns) : rawAns;
     if (!axisAccum[q.axis]) axisAccum[q.axis] = {sum:0, wsum:0, count:0};
     axisAccum[q.axis].sum += ans;
     axisAccum[q.axis].wsum += ans * q.weight;
@@ -6568,7 +6628,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   const rarityEl = document.getElementById('report-rarity');
   const rarityText = document.getElementById('report-rarity-text');
   if (rarityEl && rarityText) {
-    rarityText.textContent = `${rarity.label} · ${rarity.pct} of people`;
+    rarityText.innerHTML = `${rarity.label} · ${rarity.pct} of people <span style="font-size:11px;opacity:0.55;font-family:'IBM Plex Mono',monospace;" title="Estimated prevalence based on published philosophical surveys. Updated as completions accumulate.">ⓘ</span>`;
     rarityEl.style.display = 'inline-flex';
   }
 
@@ -6577,7 +6637,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   if (statsEl) {
     const topFP = fingerprint[0];
     const topAxisLabel = topFP ? (AXIS_META[topFP.axis]?.label || topFP.axis) : '—';
-    // Conviction score = average deviation from centre across all axes
+    // Worldview Strength = average deviation from centre across all axes (positional extremity, not certainty)
     const axScoreKeys = Object.keys(scores).filter(k => AXIS_META[k]);
     const totalDeviation = axScoreKeys.reduce((sum,k) => sum + Math.abs((scores[k]||4) - 4), 0);
     const convictionScore = Math.round((totalDeviation / (axScoreKeys.length * 3)) * 100);
@@ -7256,7 +7316,7 @@ function renderCardToCanvas(container) {
 
   const stItems = [
     {val: rarityValSt,      label: 'WORLDVIEW RARITY', accent: GOLD2,    bg: BLOCK2},
-    {val: convPctSt+'%',    label: 'CONVICTION SCORE', accent: PURPLE2,  bg: BLOCK4},
+    {val: convPctSt+'%',    label: 'WORLDVIEW STRENGTH', accent: PURPLE2,  bg: BLOCK4},
     {val: tensionsSt+'',    label: 'TENSIONS FOUND',   accent: TEAL,     bg: BLOCK3},
   ];
   const stH = Math.floor((B2H - 8) / 3) - 4;
