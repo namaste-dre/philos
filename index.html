@@ -2172,7 +2172,7 @@ select.modal-input option { background: #12101e; }
 <div id="screen-generating" class="screen">
   <div>
     <div class="gen-title">Mapping your OS</div>
-    <p class="gen-sub">Analysing 34 axes across 4 causal tiers</p>
+    <p class="gen-sub">Analysing 32 axes across 4 causal tiers</p>
     <p class="gen-sub" style="font-size:12px;opacity:0.55;margin-top:6px;">This can take up to a minute — your report is being written from scratch</p>
     <div class="gen-steps" id="gen-steps">
       <div class="gen-step" data-step="0"><div class="gen-dot"></div>Scoring foundational axes</div>
@@ -2210,7 +2210,7 @@ select.modal-input option { background: #12101e; }
         <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-top-axis">—</span>
           <span class="report-stat-label">Worldview Strength</span>
-          <span class="stat-tooltip-text">Worldview Strength measures how far your scores deviate from the neutral midpoint across all 34 axes — higher means your positions are more clearly defined on one side of each question. Lower means your worldview is more open, flexible, or genuinely undecided.</span>
+          <span class="stat-tooltip-text">Worldview Strength measures how far your scores deviate from the neutral midpoint across all 32 axes — higher means your positions are more clearly defined on one side of each question. Lower means your worldview is more open, flexible, or genuinely undecided.</span>
         </div>
         <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-contradictions">—</span>
@@ -4024,7 +4024,7 @@ function updateQuizBackground(axis, tier) {
 // Score 1-7. null = not defining for this type (skipped in distance calc)
 // ══════════════════════════════════════════
 // ══════════════════════════════════════════
-// AXIS METADATA — 34 axes
+// AXIS METADATA — 32 axes
 // ══════════════════════════════════════════
 const AXIS_META = {
   naturalism:          {label:'Naturalism',            poleL:'Supernatural',        poleR:'Naturalist',             tier:1, color:'var(--tier1)'},
@@ -5522,130 +5522,133 @@ async function generateReport() {
       return `${meta.label}:${score.toFixed(1)} (${pole})`;
     }).filter(Boolean).join(' | ');
 
-  const prompt = `You are writing the identity section of a philosophical profile for ${userName}. Your job is to make them feel genuinely seen — not flattered, not categorised. Every sentence must feel like it could only have been written for THIS exact combination of scores.
+  try {
+  // ── AXIS REFERENCE (shared between both calls) ──
+  const axisRef = `- naturalism 1=supernatural, 7=naturalist
+- physicalism 1=non-physical mind, 7=physical mind
+- realism 1=reality constructed by minds, 7=reality mind-independent
+- determinism 1=genuine free will, 7=hard determinism
+- moral_ground 1=ethics subjective/cultural, 7=moral facts objective
+- meaning 1=meaning constructed, 7=meaning discovered/real
+- teleology 1=no cosmic direction, 7=universe has inherent purpose
+- human_nature 1=blank slate/context-shaped, 7=fixed universal human nature
+- epistemic_method 1=revelation/faith primary, 7=empirical evidence primary
+- social_ontology 1=society = individuals, 7=structures shape people fundamentally
+- temporal_orientation 1=past tradition is authority, 7=future potential drives progress
+- moral_authority 1=God/scripture is source, 7=individual conscience is source
+- epistemic_humility 1=confident in views, 7=genuinely uncertain
+- knowledge 1=truth via intuition/revelation, 7=truth via evidence/reason
+- science 1=skeptical of consensus, 7=trusts scientific consensus
+- freewill_practice 1=holds people accountable, 7=attributes behaviour to causes
+- justice 1=desert/punishment-based, 7=rehabilitation/structural
+- ethics 1=rule-based/deontological, 7=outcome-based/consequentialist
+- religion 1=faith-positive, 7=anti-theist
+- politics 1=individual/market solutions, 7=structural/collective solutions
+- self 1=free author of choices, 7=product of causes
+- moral_scope 1=human-centric, 7=all sentient life equal
+- meaning_practice 1=nihilism in practice, 7=actively constructs meaning
+- society 1=individualist, 7=collectivist
+- responsibility 1=personal responsibility, 7=structural explanations
+- identity 1=fixed essential identity, 7=constructed identity
+- authority 1=deferential to institutions, 7=skeptical of authority
+- economics 1=free market, 7=redistributive
+- uncertainty 1=needs certainty, 7=comfortable with ambiguity
+- mind_consciousness 1=consciousness non-physical/mysterious, 7=consciousness physical/explainable
+- animal_ethics 1=human interests far outweigh animal, 7=animal suffering matters equally
+- progress 1=pessimist about human progress, 7=optimist`;
+
+  // ── CALL 1: Core identity, tagline, alignment, patterns, growth ──
+  const prompt1 = `You are writing a philosophical profile for ${userName}. Make them feel genuinely seen.
 
 COMPLETE AXIS SCORES (1=left pole, 7=right pole):
 ${axisDump}
 
-TOP 5 MOST EXTREME AXES: ${fingerprintSummary}
+TOP 5 AXES: ${fingerprintSummary}
 ARCHETYPE: ${arch.family} — ${arch.variant}
-CONTRADICTIONS DETECTED: ${contradictionSummary}
+CONTRADICTIONS: ${contradictionSummary}
 OCEAN INFERRED: ${oceanSummary}
 ${liminalNote}
 
-AXIS REFERENCE (what each score means in plain human terms):
-- naturalism 1=believes in supernatural forces/God/spirits, 7=everything is natural/physical/explainable
-- physicalism 1=mind/soul exists beyond the brain, 7=consciousness is fully physical
-- realism 1=reality is constructed by minds/perspectives, 7=reality exists independently of us
-- determinism 1=humans have genuine free will, 7=all behaviour is fully caused by prior conditions
-- moral_ground 1=ethics is subjective/cultural, 7=moral facts are real and objective
-- meaning 1=meaning is constructed/made up, 7=meaning is real and discoverable
-- teleology 1=universe has no direction or purpose, 7=reality has inherent direction/purpose
-- human_nature 1=humans are blank slates shaped by context, 7=there is a fixed universal human nature
-- epistemic_method 1=revelation/intuition/faith as primary knowing, 7=empirical evidence as primary knowing
-- social_ontology 1=society is just individuals, 7=structures/systems shape people fundamentally
-- temporal_orientation 1=past tradition is moral authority, 7=future potential drives moral progress
-- moral_authority 1=morality comes from God/tradition/scripture, 7=morality comes from individual conscience/reason
-- epistemic_humility 1=confident in their views, 7=genuinely uncertain, holds views loosely
-- knowledge 1=truth comes through intuition/revelation, 7=truth comes through evidence/reason
-- science 1=skeptical of scientific institutions, 7=trusts scientific consensus
-- freewill_practice 1=holds people personally accountable, 7=attributes behaviour to causes/systems
-- justice 1=punishment/desert-based justice, 7=rehabilitation/structural justice
-- ethics 1=rule-based/deontological thinking, 7=outcome-based/consequentialist thinking
-- religion 1=faith-positive, sees religious life as good, 7=anti-theist, sees religion as harmful
-- politics 1=individual freedom/market solutions, 7=structural/collective solutions
-- self 1=self as free author of choices, 7=self as product of causes, constructed
-- moral_scope 1=humans are the primary moral concern, 7=all sentient life has equal moral weight
-- meaning_practice 1=nihilism in practice (nothing really matters day to day), 7=actively constructs and commits to meaning
-- society 1=individualist (personal freedom first), 7=collectivist (community/solidarity first)
-- responsibility 1=personal responsibility explanations, 7=structural/systemic explanations
-- identity 1=essential fixed identity (born who you are), 7=constructed identity (you become who you are)
-- authority 1=deferential to authority/experts, 7=skeptical of authority/institutions
-- economics 1=free market/low redistribution, 7=redistributive/high social investment
-- uncertainty 1=needs certainty, finds ambiguity distressing, 7=comfortable with uncertainty and open questions
-- mind_consciousness 1=consciousness is non-physical/mysterious, 7=consciousness is physical and explainable
-- animal_ethics 1=humans have far greater moral weight than animals, 7=animal suffering matters equally
-- progress 1=pessimist about human progress, 7=optimist about humanity's direction
+AXIS REFERENCE:
+${axisRef}
 
-IMPORTANT — WHERE EXISTENTIALISM, NIHILISM, ABSURDISM APPEAR:
-- If meaning ≤2 AND meaning_practice ≤3: this person tends toward nihilism in practice — nothing feels ultimately worth doing
-- If meaning ≤3 AND meaning_practice ≥5: this is absurdism — they know meaning isn't given but construct it anyway (Camus)
-- If self ≤2 AND determinism ≥5 AND meaning ≤3: existentialist tension — radical freedom meets a caused world
-- If identity ≥6 AND self ≤2: they feel constructed by forces but act as if they have no fixed essence
-- Name these patterns by what they FEEL LIKE, not by philosophical label: "You live as though actions matter, even though part of you knows they don't have to" rather than "You exhibit absurdist tendencies"
+PATTERN NOTES:
+- meaning ≤2 AND meaning_practice ≤3: nihilism in practice
+- meaning ≤3 AND meaning_practice ≥5: absurdism (Camus — meaning constructed but committed)
+- self ≤2 AND determinism ≥5 AND meaning ≤3: existentialist tension
+- Name these as how they FEEL, not philosophical labels
 
 WRITING RULES:
-1. NO jargon, NO axis names, NO scores in the output — translate everything into how it feels and shows up in real behaviour
-2. NO mentions of careers, famous people, films, music, books — those are in separate report sections
-3. DO NOT repeat the archetype name or variant
-4. Write as if describing someone you know extremely well — use "you" throughout, conversational but precise
-5. The "holy shit it knows me" test: every paragraph should name something the person recognises about themselves that most people wouldn't name
-6. Cover HOW THEY THINK (epistemic), HOW THEY FEEL ABOUT THE WORLD (metaphysical), HOW THEY DECIDE (ethical), HOW THEY RELATE (social/identity), and WHAT DRIVES AND DRAINS THEM (meaning/motivation)
-7. Existentialism/nihilism/absurdism: if present in scores, name the experience from the inside — the specific flavour of how it shows up for this person
-8. NO em dashes anywhere in any output. Use conjunctions like "but", "and", "so", "because" instead. Write like a human talking to a human.
-9. No hyphens unless grammatically required (compound adjectives before nouns are fine). No bullet points, no colons introducing lists in the narrative text.
-10. The world array especially must sound like a real person wrote it. Warm, direct, no clinical distance.
+1. No jargon, no axis names, no scores in output
+2. No careers, famous people, films, music, books
+3. Do not repeat archetype name or variant
+4. Write as if describing someone you know extremely well — use "you" throughout
+5. "Holy shit it knows me" test — every paragraph names something the person recognises that most wouldn't
+6. Cover HOW THEY THINK, HOW THEY FEEL ABOUT THE WORLD, HOW THEY DECIDE, HOW THEY RELATE, WHAT DRIVES AND DRAINS THEM
+7. No em dashes anywhere. Use but, and, so, because instead.
+8. No colons introducing lists in narrative text. No bullet points.
 
 Return ONLY valid JSON — no markdown fences, no preamble:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. This fills the WHO YOU ARE panel on a shareable card. Write in second person (you). Plain language — no jargon, no axis names, no philosophical labels. Describe who this person actually is: how they think, what drives them, what they notice, how they move through the world. Must read as a complete, flowing paragraph. Must feel like a sharp personal description someone would read and think — this is exactly me. Do not cut short. 75 words minimum, 85 maximum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person actually experience the world — what do they notice first, what filter does everything pass through, what do they see that most people miss? Start with a specific observation, not a definition. P2 (3 sentences): How do they think and reason — what is their relationship with certainty, evidence, authority, and their own conclusions? What does their inner monologue sound like when processing a hard problem? P3 (3 sentences): Their moral and meaning landscape — not what they believe in abstract, but how it actually shows up: what makes them angry, what they feel responsible for, what they can and cannot bring themselves to do. P4 (2 sentences): The central tension in their operating system — the place where two things they genuinely hold pull in opposite directions. Name what that tension feels like from the inside, not what it is philosophically. P5 (2 sentences): What this person was built for — the conditions, relationships, and challenges where they come most alive — and what quietly exhausts them that they may not have named yet.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — not job titles, but pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing — from their actual score pattern."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight, what trips them up."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail, not the generic archetype failure."}],"growth":["1 concrete sentence: the most important skill or practice to build given the weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."],"world":[{"lens":"The Self","icon":"mirror","view":"2 to 3 sentences on how this person sees their own identity, agency, and inner life. Draw directly from their self, identity, determinism, and responsibility scores. No jargon, no axis names. What does it actually feel like to be them on the inside? Written like a thoughtful friend describing how they know themselves.","shows_up":"2 to 3 sentences on how this self-view shows up in their actual behaviour. What patterns does it create? What do they do or avoid because of how they see themselves? Be specific and human.","prompt":"One reflective question they can actually sit with this week. Not abstract. Something that opens a real door. No em dashes. No hyphens unless grammatically required. Written like a human asking another human."},{"lens":"Other People","icon":"people","view":"2 to 3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, and social_ontology scores. Do they see people as fundamentally good or shaped by circumstance? Do they hold others to account or extend structural empathy?","shows_up":"2 to 3 sentences on how this view of others plays out. What does it make them good at in relationships? What does it make hard? What do people feel when they are with this person?","prompt":"One reflective question about a specific relationship or interaction. Concrete and honest. No em dashes."},{"lens":"Relationships","icon":"connect","view":"2 to 3 sentences on how this person approaches connection, intimacy, and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, and society scores. What do they need from other people and what do they bring?","shows_up":"2 to 3 sentences on what this looks like in practice. What patterns repeat in their close relationships? What do they reach for and what do they pull back from?","prompt":"One reflective question about what they might be asking from others that they have not said out loud yet. No em dashes."},{"lens":"Society","icon":"city","view":"2 to 3 sentences on how this person sees society, systems, and their place in the collective. Draw from society, politics, justice, authority, economics, and responsibility scores. Do they feel part of something or apart from it?","shows_up":"2 to 3 sentences on how this shapes their day to day. What do they notice in the news, in institutions, in crowds? What do they feel pulled toward doing or saying in public life?","prompt":"One reflective question about their actual relationship to the collective right now. Not what they believe about politics. What they feel when they think about their role in society. No em dashes."},{"lens":"Life and Existence","icon":"horizon","view":"2 to 3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, and progress scores. Is life a project to build, a gift to receive, a problem to solve, or something else entirely?","shows_up":"2 to 3 sentences on how this shows up in the texture of their actual days. What does it look like when they are living well and what does it look like when they are not?","prompt":"One reflective question about where they are right now in their relationship with their own existence. Something honest and usable today. No em dashes."}]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph. Must feel like a sharp personal description. 75 words minimum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
+
+  let report1;
   try {
-    const response = await fetch('/api/generate', {
+    const res1 = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        messages: [{role:'user', content: prompt}],
-        max_tokens: 4200
-      })
+      body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200 })
     });
+    if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
+    const text1 = await res1.text();
+    if (text1.trim().startsWith('<!')) throw new Error('Call 1 returned HTML (timeout/server error)');
+    const data1 = JSON.parse(text1);
+    const raw1 = data1.content?.[0]?.text || '';
+    const clean1 = raw1.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
+    report1 = JSON.parse(clean1);
+  } catch(e) {
+    document.getElementById('gen-error').textContent = 'Report generation timed out (part 1). Please try again.';
+    show('screen-generating');
+    return;
+  }
 
-    // Netlify returns HTML on 504/5xx — detect before trying JSON.parse
-    const contentType = response.headers.get('content-type') || '';
-    if (!response.ok || !contentType.includes('application/json')) {
-      const statusText = response.status === 504
-        ? 'The report is taking too long to generate. Please try again.'
-        : response.status === 503
-        ? 'Service temporarily unavailable. Please try again in a moment.'
-        : `Server error (${response.status}). Please try again.`;
-      throw new Error(statusText);
-    }
+  // ── CALL 2: World lenses ──
+  const prompt2 = `You are writing the "world lenses" section of a philosophical profile for ${userName}.
 
-    const data = await response.json();
-    if (!data || !data.content) {
-      throw new Error('Invalid API response: ' + JSON.stringify(data).slice(0, 200));
-    }
-    const raw = data.content.map(b => b.text || '').join('');
-    const clean = raw.replace(/```json|```/g,'').trim();
+AXIS SCORES: ${axisDump}
+ARCHETYPE: ${arch.family} — ${arch.variant}
 
-    // Safely parse JSON — catch malformed output
-    let report;
-    try {
-      report = JSON.parse(clean);
-    } catch(parseErr) {
-      // Sanitize: replace unescaped literal newlines inside JSON string values
-      // (mobile Claude responses sometimes include real \n characters inside strings)
-      let sanitized = clean;
-      // Replace literal newlines that appear inside quoted strings with \\n
-      sanitized = sanitized.replace(/("(?:[^"\\]|\\.)*")/g, (match) => {
-        return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-      });
-      try {
-        report = JSON.parse(sanitized);
-      } catch(e2) {
-        // Try extracting JSON object from the response if model added preamble
-        const jsonMatch = sanitized.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          try {
-            report = JSON.parse(jsonMatch[0]);
-          } catch(e3) {
-            throw new Error('Report generation produced unexpected output. Please try again.');
-          }
-        } else {
-          throw new Error('Report generation produced unexpected output. Please try again.');
-        }
-      }
-    }
+AXIS REFERENCE:
+${axisRef}
 
-    // Final step done
+Write 5 lenses showing how this person sees different dimensions of existence.
+No jargon. No axis names in output. No em dashes. Write like a thoughtful friend.
+
+Return ONLY valid JSON — no markdown fences:
+{"world":[{"lens":"The Self","icon":"mirror","view":"2-3 sentences on how this person sees their own identity, agency, and inner life. Draw from self, identity, determinism, responsibility scores. What does it feel like to be them on the inside?","shows_up":"2-3 sentences on how this self-view shows up in actual behaviour and patterns.","prompt":"One reflective question they can sit with this week. Concrete, not abstract. No em dashes."},{"lens":"Other People","icon":"people","view":"2-3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, social_ontology.","shows_up":"2-3 sentences on how this plays out. What are they good at in relationships? What is hard?","prompt":"One reflective question about a specific relationship or interaction. Honest and concrete."},{"lens":"Relationships","icon":"connect","view":"2-3 sentences on how this person approaches connection and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, society.","shows_up":"2-3 sentences on what this looks like in practice. What patterns repeat?","prompt":"One reflective question about what they might be asking from others that they have not said out loud."},{"lens":"Society","icon":"city","view":"2-3 sentences on how this person sees society and their place in the collective. Draw from society, politics, justice, authority, economics, responsibility.","shows_up":"2-3 sentences on how this shapes their day to day. What do they notice, feel pulled toward?","prompt":"One reflective question about their actual relationship to the collective right now."},{"lens":"Life and Existence","icon":"horizon","view":"2-3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, progress.","shows_up":"2-3 sentences on how this shows up in the texture of their actual days.","prompt":"One honest question about where they are right now in their relationship with their own existence. No em dashes."}]}`;
+
+  let report2;
+  try {
+    const res2 = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ messages: [{role:'user', content: prompt2}], max_tokens: 1800 })
+    });
+    if (!res2.ok) throw new Error(`Call 2 HTTP ${res2.status}`);
+    const text2 = await res2.text();
+    if (text2.trim().startsWith('<!')) throw new Error('Call 2 returned HTML (timeout/server error)');
+    const data2 = JSON.parse(text2);
+    const raw2 = data2.content?.[0]?.text || '';
+    const clean2 = raw2.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
+    report2 = JSON.parse(clean2);
+  } catch(e) {
+    // Call 2 failure is non-fatal — render with world section empty
+    report2 = { world: [] };
+  }
+
+  // Merge both responses
+  const report = { ...report1, world: report2.world || [] };
+
+  // Final step done
     setTimeout(() => {
       steps[steps.length-1].classList.add('done');
       setTimeout(() => {
@@ -7528,13 +7531,13 @@ function renderCardToCanvas(container) {
   }
 
   // ══════════════════════════════════════════
-  // BLOCK 6 — PHILOSOPHICAL DNA (34 axes bidirectional bar)
+  // BLOCK 6 — PHILOSOPHICAL DNA (32 axes bidirectional bar)
   // ══════════════════════════════════════════
   const B6H = 140;
   roundRect(PAD, y, W-PAD*2, B6H, 16, BLOCK4, BORDER, 3);
   ctx.font = '600 13px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign='center';
-  ctx.fillText('PHILOSOPHICAL DNA  \u00b7  34 AXES', W/2, y+22);
+  ctx.fillText('PHILOSOPHICAL DNA  \u00b7  32 AXES', W/2, y+22);
   const dnaInnerY = y+30, dnaInnerH = B6H-46;
   const axKeysD = Object.keys(AXIS_META);
   const bW6 = (W-PAD*2-48)/axKeysD.length;
