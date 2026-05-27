@@ -3472,10 +3472,36 @@ function buildShuffledOrder() {
   const s3 = shuffle(t3);
   const half2 = Math.ceil(s2.length / 2);
   const half3 = Math.ceil(s3.length / 2);
-  const block1 = shuffle([...s1, ...s2.slice(0, half2)]);
-  const block2 = shuffle([...s2.slice(half2), ...s3.slice(0, half3)]);
-  const block3 = shuffle(s3.slice(half3));
-  return [...block1, ...block2, ...block3];
+  // Build tier-weighted blocks then interleave types within each block
+  const block1 = interleaveTypes(shuffle([...s1, ...s2.slice(0, half2)]));
+  const block2 = interleaveTypes(shuffle([...s2.slice(half2), ...s3.slice(0, half3)]));
+  const block3 = interleaveTypes(shuffle(s3.slice(half3)));
+  // Final pass to catch block-boundary clustering
+  return interleaveTypes([...block1, ...block2, ...block3]);
+}
+
+// Ensures no more than 2 consecutive questions of the same type.
+// Greedy placement: at each position, prefer a question whose type
+// differs from the previous two, falling back only if no alternative exists.
+function interleaveTypes(arr) {
+  if (arr.length <= 2) return arr;
+  const pool = [...arr];
+  const result = [];
+  while (pool.length > 0) {
+    const lastType  = result.length > 0 ? result[result.length - 1].type : null;
+    const last2Type = result.length > 1 ? result[result.length - 2].type : null;
+    const needsDiff = lastType !== null && lastType === last2Type;
+    let idx = -1;
+    if (needsDiff) {
+      idx = pool.findIndex(q => q.type !== lastType);
+      if (idx === -1) idx = 0; // fallback: no choice left
+    } else {
+      const diffIdx = pool.findIndex(q => q.type !== lastType);
+      idx = diffIdx !== -1 ? diffIdx : 0;
+    }
+    result.push(pool.splice(idx, 1)[0]);
+  }
+  return result;
 }
 
 function startQuiz() {
@@ -4570,7 +4596,7 @@ function computeFingerprint(scores) {
     economics:5, uncertainty:4, mind_consciousness:4,
     animal_ethics:4, progress:5
   };
-  const maxItems = 6; // authority, justice, ethics, religion, naturalism, determinism
+  const maxItems = Math.max(...Object.values(AXIS_ITEM_COUNTS));
   const deviations = Object.entries(scores).map(([axis, score]) => {
     const raw = Math.abs(score - 4.0);
     const n = AXIS_ITEM_COUNTS[axis] || 4;
