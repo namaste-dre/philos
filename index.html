@@ -523,11 +523,11 @@ body::before {
 }
 .q-number {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--accent);
   letter-spacing: 0.14em;
   margin-bottom: 8px;
-  opacity: 0.5;
+  opacity: 0.85;
 }
 .q-tier-badge {
   font-family: 'IBM Plex Mono', monospace;
@@ -544,30 +544,28 @@ body::before {
 .q-tier-badge.t3 { background: rgba(224,120,74,0.10); color: var(--tier3); border: 1px solid rgba(224,120,74,0.22); }
 .q-axis {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
+  font-size: 11px;
+  color: var(--text2);
   margin-bottom: 16px;
   letter-spacing: 0.10em;
-  opacity: 0.6;
   text-transform: uppercase;
 }
 .q-text {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(22px, 4vw, 32px);
+  font-size: clamp(24px, 4vw, 34px);
   font-weight: 700;
-  line-height: 1.38;
-  color: var(--text);
+  line-height: 1.4;
+  color: #ffffff;
   margin-bottom: 48px;
   text-align: center;
 }
 .q-type-label {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
+  font-size: 11px;
+  color: var(--text2);
   letter-spacing: 0.12em;
   margin-bottom: 20px;
   text-transform: uppercase;
-  opacity: 0.6;
 }
 
 /* ── LIKERT ── */
@@ -583,12 +581,12 @@ body::before {
   width: 52px; height: 52px;
   min-width: 0; flex-shrink: 1;
   border-radius: 50%;
-  border: 1.5px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.2);
   background: var(--surface);
-  color: var(--muted);
+  color: var(--text2);
   font-family: 'IBM Plex Mono', monospace;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
   display: flex;
@@ -605,10 +603,9 @@ body::before {
   display: flex;
   justify-content: space-between;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
+  font-size: 11px;
+  color: var(--text2);
   padding: 0 6px;
-  opacity: 0.6;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -642,14 +639,13 @@ body::before {
 .tradeoff-opt.selected::before { transform: scaleY(1); }
 .tradeoff-letter {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--accent);
   margin-bottom: 7px;
   letter-spacing: 0.14em;
-  opacity: 0.7;
   text-transform: uppercase;
 }
-.tradeoff-text { font-size: 18px; color: var(--text); line-height: 1.55; font-weight: 500; }
+.tradeoff-text { font-size: 18px; color: #ffffff; line-height: 1.6; font-weight: 500; }
 
 /* ── SCENARIO ── */
 .scenario-wrap { width: 100%; }
@@ -660,23 +656,23 @@ body::before {
   border-radius: var(--r);
   padding: 22px 26px;
   margin-bottom: 28px;
-  font-size: 17px;
-  color: var(--text2);
-  line-height: 1.72;
+  font-size: 18px;
+  color: #f0ede6;
+  line-height: 1.75;
 }
 .scenario-options { display: flex; flex-direction: column; gap: 10px; }
 .scenario-opt {
   padding: 18px 22px;
-  border: 1.5px solid var(--border2);
+  border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--r);
   background: var(--surface);
   cursor: pointer;
   transition: all 0.18s;
   font-size: 17px;
   font-weight: 500;
-  color: var(--text);
+  color: #f0ede6;
   text-align: left;
-  line-height: 1.5;
+  line-height: 1.55;
   position: relative;
   overflow: hidden;
 }
@@ -2391,15 +2387,16 @@ select.modal-input option { background: #12101e; }
   transition: color 0.2s, background 0.2s;
 }
 .nav-link-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-/* Nav offset for authed screens */
-body.authed #screen-landing,
-body.authed #screen-intro,
-body.authed #screen-intake,
-body.authed #screen-quiz,
-body.authed #screen-profile,
-body.authed #screen-resources,
-body.authed #screen-generating,
-body.authed #screen-report { padding-top: 56px; }
+/* Nav space — always reserved so no layout shift on auth */
+#screen-landing,
+#screen-intro,
+#screen-intake,
+#screen-quiz,
+#screen-profile,
+#screen-resources,
+#screen-generating,
+#screen-report { padding-top: 56px; }
+/* Auth screen has its own centering — no padding-top needed */
 /* Progress save indicator */
 #save-indicator {
   position: fixed;
@@ -2472,7 +2469,12 @@ body.authed #screen-report { padding-top: 56px; }
      SCREEN 0: LANDING
 ══════════════════════════════════════════ -->
 <nav id="app-nav">
-  <div class="nav-wordmark" onclick="show('screen-landing')" style="cursor:pointer;">PHIL / OS</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button onclick="show('screen-landing')" title="Home" style="background:transparent;border:none;padding:6px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;border-radius:6px;transition:color 0.2s,background 0.2s;" onmouseover="this.style.color='var(--accent)';this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.color='var(--text2)';this.style.background='transparent'">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 7L8 2L14 7V14H10V10H6V14H2V7Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="nav-wordmark" style="cursor:pointer;" onclick="show('screen-landing')">PHIL / OS</div>
+  </div>
   <!-- Nav links — hidden during quiz/report, shown on landing -->
   <div id="nav-links" style="display:none;align-items:center;gap:4px;margin-left:20px;">
     <button class="nav-link-btn" onclick="navGoReport()">My Report</button>
@@ -2483,7 +2485,7 @@ body.authed #screen-report { padding-top: 56px; }
     <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
       <div id="nav-progress-fill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--purple) 0%,var(--accent) 60%,var(--accent2) 100%);border-radius:2px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 8px rgba(201,169,110,0.4);"></div>
     </div>
-    <div id="nav-progress-label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.04em;text-align:center;"></div>
+    <div id="nav-progress-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;text-align:center;"></div>
   </div>
   <div class="nav-right">
     <span class="nav-user" id="nav-user-email"></span>
@@ -2902,34 +2904,104 @@ body.authed #screen-report { padding-top: 56px; }
     </svg>
   </div>
 
-  <div class="intro-inner">
-    <div class="intro-eyebrow">Phil OS · Internal</div>
-    <h1 class="intro-title" style="font-size:clamp(32px,5vw,52px);">Dev &amp; QA<br/><em>Panel</em></h1>
-    <p class="intro-sub">Internal tools only. Not visible to users.</p>
-    <div style="margin-top:20px;">
-      <button class="btn-secondary" onclick="startQAMode()" style="font-size:13px;padding:8px 20px;border:1px solid rgba(201,169,110,0.5);color:#c9a96e;background:transparent;">
-        QA/QC Mode
-      </button>
-    </div>
-    <div id="dev-panel" style="margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;border:1px solid rgba(201,169,110,0.3);border-radius:8px;background:rgba(201,169,110,0.05);max-width:420px;margin-left:auto;margin-right:auto;">
-      <div style="color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;width:100%;text-align:left;">Dev Panel</div>
-      <select id="dev-family-select" onchange="devFamilyChanged()" style="width:100%;background:#1a1530;color:#e8e6f0;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:10px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;">
-        <option value="">-- Select archetype family --</option>
-      </select>
-      <select id="dev-variant-select" style="width:100%;background:#1a1530;color:#e8e6f0;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:10px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;opacity:0.4;pointer-events:none;">
-        <option value="">-- Select variant --</option>
-      </select>
-      <button onclick="devGenerateReport()" id="dev-generate-btn" style="width:100%;background:#c9a96e;color:#08061a;border:none;border-radius:6px;padding:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;opacity:0.4;pointer-events:none;">
-        Dev Generate
-      </button>
-    </div>
-    <div class="tier-preview">
-      <span class="tier-pill t1">Tier 1 · Foundations</span>
-      <span class="tier-pill t2">Tier 2 · Epistemic + Meaning</span>
-      <span class="tier-pill t3">Tier 3 · Applied positions</span>
-      <span class="tier-pill t4">Tier 4 · Behavioral</span>
+  <div class="intro-inner" style="width:100%;max-width:780px;margin:0 auto;text-align:left;padding-bottom:80px;">
+    <div class="intro-eyebrow" style="justify-content:flex-start;">Phil OS · Internal</div>
+    <h1 class="intro-title" style="font-size:clamp(28px,4vw,44px);margin-bottom:6px;">Dev &amp; QA Panel</h1>
+    <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:32px;">Settings → Dev / QA Panel · Not visible to users</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;">
+
+      <!-- ── 1. REPORT GENERATOR ── -->
+      <div style="background:var(--surface);border:1px solid rgba(201,169,110,0.25);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Report Generator</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Generate a full report for any archetype without completing the assessment. Verifies API call, scoring, contradiction engine, and report render.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <select id="dev-family-select" onchange="devFamilyChanged()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;">
+            <option value="">Select family</option>
+          </select>
+          <select id="dev-variant-select" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;opacity:0.4;pointer-events:none;">
+            <option value="">Select variant</option>
+          </select>
+          <button onclick="devGenerateReport()" id="dev-generate-btn" style="background:var(--accent);color:#08061a;border:none;border-radius:6px;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;opacity:0.4;pointer-events:none;">Generate Report</button>
+        </div>
+      </div>
+
+      <!-- ── 2. QA MODE ── -->
+      <div style="background:var(--surface);border:1px solid rgba(157,147,232,0.25);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--purple2);margin-bottom:14px;">QA / QC Assessment</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Run all 160 questions with QA flags showing axis, tier, type, and reversed status on each item. Use to verify question wording, axis assignment, and scoring direction.</p>
+        <button onclick="startQAMode()" style="background:transparent;border:1px solid rgba(157,147,232,0.4);border-radius:6px;padding:9px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--purple2);cursor:pointer;">Start QA Assessment</button>
+      </div>
+
+      <!-- ── 3. ITEM ANALYSIS ── -->
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Item Analysis</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Inspect any axis: question count, reversed item count, type breakdown, and all question texts. Use to verify measurement invariance (5 items, 2 reversed per axis).</p>
+        <select id="dev-axis-select" onchange="devAxisInspect()" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;margin-bottom:10px;">
+          <option value="">Select axis to inspect</option>
+        </select>
+        <div id="dev-axis-result" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);line-height:1.8;display:none;"></div>
+      </div>
+
+      <!-- ── 4. CONTRADICTION TESTER ── -->
+      <div style="background:var(--surface);border:1px solid rgba(232,112,112,0.2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:14px;">Contradiction Tester</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Enter two axis scores manually and see which contradiction rules fire. Use to verify all 42 rules are triggering correctly.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <select id="dev-contra-axis1" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">
+            <option value="">Axis 1</option>
+          </select>
+          <input id="dev-contra-val1" type="number" min="1" max="7" value="7" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;width:100%;box-sizing:border-box;" placeholder="Score 1-7"/>
+          <select id="dev-contra-axis2" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">
+            <option value="">Axis 2</option>
+          </select>
+          <input id="dev-contra-val2" type="number" min="1" max="7" value="1" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;width:100%;box-sizing:border-box;" placeholder="Score 1-7"/>
+        </div>
+        <button onclick="devTestContradictions()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);cursor:pointer;margin-bottom:10px;">Run All 42 Rules</button>
+        <div id="dev-contra-result" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.7;display:none;max-height:180px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- ── 5. ARCHETYPE DISTANCE CHECKER ── -->
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;">Archetype Distance Checker</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Select an archetype and see its Euclidean distance to all 60 profiles. Validates that the correct archetype wins and shows how cleanly it separates from its nearest neighbours.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <select id="dev-dist-family" onchange="devDistFamilyChanged()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">
+            <option value="">Family</option>
+          </select>
+          <select id="dev-dist-variant" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;opacity:0.4;pointer-events:none;">
+            <option value="">Variant</option>
+          </select>
+        </div>
+        <button onclick="devCheckDistance()" id="dev-dist-btn" style="background:transparent;border:1px solid rgba(224,120,74,0.4);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);cursor:pointer;opacity:0.4;pointer-events:none;margin-bottom:10px;">Check Distances</button>
+        <div id="dev-dist-result" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);line-height:1.8;display:none;max-height:200px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- ── 6. SYSTEM STATUS ── -->
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">System Status</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="dev-system-stats">
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Questions</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-q-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Unique question IDs</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;" id="dev-unique-ids">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Axes</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-axes-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Archetypes</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-archetype-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Reversed items</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;" id="dev-reversed-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Contradiction rules</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-contradiction-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">DB progress rows</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-progress-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">DB completions</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-completions-count">—</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Instrument</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);">v3</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">User</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);" id="dev-user-email">—</span></div>
+        </div>
+        <div id="dev-integrity-result" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;line-height:1.7;display:none;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="devRefreshStats()" style="background:transparent;border:1px solid var(--border2);border-radius:6px;padding:7px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Refresh</button>
+          <button onclick="devRunIntegrityCheck()" style="background:transparent;border:1px solid rgba(91,191,148,0.4);border-radius:6px;padding:7px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--teal);cursor:pointer;">Integrity Check</button>
+        </div>
+      </div>
+
     </div>
   </div>
+
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -4333,6 +4405,7 @@ function show(screenId) {
     document.body.scrollTop = 0;
   }
   if (typeof updateNavLinks === 'function') updateNavLinks(screenId);
+  if (screenId === 'screen-intro' && typeof devRefreshStats === 'function') devRefreshStats();
   // Show nav progress only during quiz
   if (typeof showNavProgress === 'function') showNavProgress(screenId === 'screen-quiz');
 }
@@ -4419,9 +4492,16 @@ function startQuiz() {
 }
 
 function startQAMode() {
-  // QA mode goes through intake first — name is required
+  // Skip intake — use auth name or default
   state.qaMode = true;
-  show('screen-intake');
+  const meta = (currentUser && currentUser.user_metadata) || {};
+  const authName = meta.full_name || meta.name || meta.given_name ||
+    (currentUser && currentUser.email ? currentUser.email.split('@')[0] : 'QA');
+  const firstName = authName.split(' ')[0] || 'QA';
+  // startQAQuiz reads name from intake-name input — set it so it still works
+  const nameInput = document.getElementById('intake-name');
+  if (nameInput) nameInput.value = firstName;
+  startQAQuiz();
 }
 
 function startQAQuiz() {
@@ -8762,6 +8842,231 @@ function downloadCard() {
   document.addEventListener('DOMContentLoaded', attachTooltipBehaviour);
   document.addEventListener('DOMContentLoaded', devInitPanel);
 
+async function devRefreshStats() {
+  if (typeof QUESTIONS === 'undefined') return;
+  // Question counts
+  document.getElementById('dev-q-count').textContent = QUESTIONS.length;
+  // Unique IDs check
+  const ids = QUESTIONS.map(q => q.id);
+  const uniqueIds = new Set(ids).size;
+  const idEl = document.getElementById('dev-unique-ids');
+  idEl.textContent = uniqueIds === ids.length ? uniqueIds + ' ✓' : uniqueIds + ' ⚠ ' + (ids.length - uniqueIds) + ' dupes';
+  idEl.style.color = uniqueIds === ids.length ? 'var(--teal)' : 'var(--danger)';
+  // Reversed
+  const reversed = QUESTIONS.filter(q => q.reversed).length;
+  const revEl = document.getElementById('dev-reversed-count');
+  const revPct = Math.round(reversed / QUESTIONS.length * 100);
+  revEl.textContent = reversed + ' (' + revPct + '%)';
+  revEl.style.color = revPct >= 30 && revPct <= 50 ? 'var(--teal)' : 'var(--danger)';
+  // Axes
+  document.getElementById('dev-axes-count').textContent = Object.keys(AXIS_META).length;
+  // Archetypes
+  document.getElementById('dev-archetype-count').textContent = typeof ARCHETYPES !== 'undefined' ? ARCHETYPES.length : '—';
+  // Contradiction rules
+  document.getElementById('dev-contradiction-count').textContent = typeof CONTRADICTIONS !== 'undefined' ? CONTRADICTIONS.length : '42';
+  // User
+  document.getElementById('dev-user-email').textContent = currentUser ? currentUser.email : '—';
+  // DB
+  if (typeof supa !== 'undefined' && currentUser) {
+    try {
+      const { count: pc } = await supa.from('assessment_progress').select('*', { count: 'exact', head: true });
+      document.getElementById('dev-progress-count').textContent = pc ?? '—';
+    } catch(e) { document.getElementById('dev-progress-count').textContent = 'RLS/error'; }
+    try {
+      const { count: cc } = await supa.from('account_completions').select('*', { count: 'exact', head: true });
+      document.getElementById('dev-completions-count').textContent = cc ?? '—';
+    } catch(e) { document.getElementById('dev-completions-count').textContent = 'RLS/error'; }
+  }
+  // Populate axis dropdowns for other tools
+  devPopulateAxisDropdowns();
+}
+
+function devPopulateAxisDropdowns() {
+  const axes = Object.keys(AXIS_META);
+  ['dev-axis-select','dev-contra-axis1','dev-contra-axis2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.options.length > 1) return;
+    axes.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a;
+      opt.textContent = AXIS_META[a].label + ' (' + a + ')';
+      el.appendChild(opt);
+    });
+  });
+  // Distance checker family dropdowns
+  const distFam = document.getElementById('dev-dist-family');
+  if (distFam && distFam.options.length <= 1 && typeof ARCHETYPES !== 'undefined') {
+    const seen = new Set();
+    ARCHETYPES.forEach(a => {
+      if (!seen.has(a.family)) {
+        seen.add(a.family);
+        const opt = document.createElement('option');
+        opt.value = a.family;
+        opt.textContent = a.family;
+        distFam.appendChild(opt);
+      }
+    });
+  }
+}
+
+// Item Analysis — inspect all questions for a given axis
+function devAxisInspect() {
+  const axis = document.getElementById('dev-axis-select').value;
+  const el = document.getElementById('dev-axis-result');
+  if (!axis) { el.style.display = 'none'; return; }
+  const qs = QUESTIONS.filter(q => q.axis === axis);
+  const reversed = qs.filter(q => q.reversed);
+  const meta = AXIS_META[axis] || {};
+  const byType = {};
+  qs.forEach(q => { byType[q.type] = (byType[q.type] || 0) + 1; });
+  const typeStr = Object.entries(byType).map(([t,n]) => n + ' ' + t).join(', ');
+  // Standard: 5 items, 2 reversed
+  const countOk = qs.length === 5;
+  const revOk = reversed.length === 2;
+  let html = '<div style="margin-bottom:10px;">';
+  html += '<span style="color:' + (countOk ? 'var(--teal)' : 'var(--danger)') + ';">' + qs.length + ' items ' + (countOk ? '✓' : '⚠ expected 5') + '</span> &nbsp; ';
+  html += '<span style="color:' + (revOk ? 'var(--teal)' : 'var(--danger)') + ';">' + reversed.length + ' reversed ' + (revOk ? '✓' : '⚠ expected 2') + '</span> &nbsp; ';
+  html += '<span style="color:var(--muted);">' + typeStr + '</span>';
+  html += '</div>';
+  html += '<div style="color:var(--muted);margin-bottom:6px;">Poles: ' + (meta.poleL || '?') + ' ← → ' + (meta.poleR || '?') + '</div>';
+  qs.forEach((q, i) => {
+    const rev = q.reversed ? ' <span style="color:var(--orange);">[R]</span>' : '';
+    const typeTag = '<span style="color:var(--muted);font-size:10px;">[' + q.type + ']</span>';
+    html += '<div style="margin-bottom:6px;padding:8px 10px;background:var(--surface2);border-radius:4px;">';
+    html += '<span style="color:var(--accent);">Q' + (i+1) + '</span> ' + typeTag + rev + ' ';
+    html += '<span style="color:var(--text2);">' + q.text.substring(0, 120) + (q.text.length > 120 ? '...' : '') + '</span>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// Contradiction Tester — run all 42 rules against a custom score set
+function devTestContradictions() {
+  const axis1 = document.getElementById('dev-contra-axis1').value;
+  const val1  = parseFloat(document.getElementById('dev-contra-val1').value) || 4;
+  const axis2 = document.getElementById('dev-contra-axis2').value;
+  const val2  = parseFloat(document.getElementById('dev-contra-val2').value) || 4;
+  const el = document.getElementById('dev-contra-result');
+  // Build a full neutral score set, override the two selected axes
+  const scores = {};
+  Object.keys(AXIS_META).forEach(k => scores[k] = 4);
+  if (axis1) scores[axis1] = val1;
+  if (axis2) scores[axis2] = val2;
+  const fired = detectContradictions(scores);
+  let html = '';
+  if (fired.length === 0) {
+    html = '<span style="color:var(--teal);">No contradictions detected with these scores.</span>';
+  } else {
+    fired.forEach(c => {
+      const tierColors = { A: 'var(--danger)', B: 'var(--accent)', C: 'var(--purple2)' };
+      html += '<div style="padding:8px 10px;background:var(--surface2);border-radius:4px;border-left:2px solid ' + (tierColors[c.tier] || 'var(--border2)') + ';margin-bottom:6px;">';
+      html += '<span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:' + (tierColors[c.tier]) + ';">Tier ' + c.tier + '</span> ';
+      html += '<strong style="color:var(--text);">' + c.title + '</strong>';
+      html += '</div>';
+    });
+  }
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// Distance Checker — show top 10 nearest archetypes to selected profile
+function devDistFamilyChanged() {
+  const fam = document.getElementById('dev-dist-family').value;
+  const varSel = document.getElementById('dev-dist-variant');
+  const btn = document.getElementById('dev-dist-btn');
+  varSel.innerHTML = '<option value="">Variant</option>';
+  if (!fam) { varSel.style.opacity='0.4'; varSel.style.pointerEvents='none'; btn.style.opacity='0.4'; btn.style.pointerEvents='none'; return; }
+  ARCHETYPES.filter(a => a.family === fam).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id; opt.textContent = a.variant;
+    varSel.appendChild(opt);
+  });
+  varSel.style.opacity='1'; varSel.style.pointerEvents='auto';
+  if (varSel.options.length > 1) varSel.selectedIndex = 1;
+  btn.style.opacity='1'; btn.style.pointerEvents='auto';
+}
+
+function devCheckDistance() {
+  const variantId = document.getElementById('dev-dist-variant').value;
+  const el = document.getElementById('dev-dist-result');
+  if (!variantId) return;
+  const target = ARCHETYPES.find(a => a.id === variantId);
+  if (!target) return;
+  // Compute Euclidean distance from target sig to every archetype
+  const distances = ARCHETYPES.map(a => {
+    let sum = 0, count = 0;
+    SIG_AXES.forEach((axis, i) => {
+      const tv = target.sig[i];
+      const av = a.sig[i];
+      if (tv == null || av == null) return;
+      sum += Math.pow(tv - av, 2);
+      count++;
+    });
+    return { id: a.id, family: a.family, variant: a.variant, dist: count ? Math.sqrt(sum / count) : 999 };
+  });
+  distances.sort((a, b) => a.dist - b.dist);
+  let html = '<div style="color:var(--muted);margin-bottom:8px;font-size:10px;">Top 10 nearest archetypes (lower = closer):</div>';
+  distances.slice(0, 10).forEach((d, i) => {
+    const isTarget = d.id === variantId;
+    const bar = Math.round((1 - Math.min(d.dist / 5, 1)) * 80);
+    html += '<div style="margin-bottom:4px;display:flex;align-items:center;gap:8px;">';
+    html += '<span style="min-width:16px;color:var(--muted);">' + (i+1) + '</span>';
+    html += '<div style="flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;"><div style="width:' + bar + '%;height:100%;background:' + (isTarget ? 'var(--teal)' : 'var(--border2)') + ';"></div></div>';
+    html += '<span style="min-width:36px;color:' + (isTarget ? 'var(--teal)' : 'var(--text2)') + ';">' + d.dist.toFixed(2) + '</span>';
+    html += '<span style="color:' + (isTarget ? 'var(--teal)' : 'var(--muted)') + ';font-size:10px;">' + (isTarget ? '★ ' : '') + d.family.replace('The ','') + ' · ' + d.variant + '</span>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// Integrity Check — validates instrument structure
+function devRunIntegrityCheck() {
+  const el = document.getElementById('dev-integrity-result');
+  const issues = [];
+  const warnings = [];
+  // Check question count
+  if (QUESTIONS.length !== 160) issues.push('Expected 160 questions, got ' + QUESTIONS.length);
+  // Check unique IDs
+  const ids = QUESTIONS.map(q => q.id);
+  const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
+  if (dupes.length > 0) issues.push('Duplicate question IDs: ' + [...new Set(dupes)].join(', '));
+  // Check each axis has 5 items, 2 reversed
+  const axisGroups = {};
+  QUESTIONS.forEach(q => { if (!axisGroups[q.axis]) axisGroups[q.axis] = []; axisGroups[q.axis].push(q); });
+  Object.entries(axisGroups).forEach(([axis, qs]) => {
+    if (qs.length !== 5) issues.push(axis + ': ' + qs.length + ' items (expected 5)');
+    const rev = qs.filter(q => q.reversed).length;
+    if (rev !== 2) warnings.push(axis + ': ' + rev + ' reversed (expected 2)');
+  });
+  // Check all axes covered
+  const axisKeys = Object.keys(AXIS_META);
+  axisKeys.forEach(a => { if (!axisGroups[a]) issues.push('Axis ' + a + ' has no questions'); });
+  // Check archetype count
+  if (ARCHETYPES.length !== 60) warnings.push('Expected 60 archetypes, got ' + ARCHETYPES.length);
+  // Check sig vector length on each archetype
+  ARCHETYPES.forEach(a => {
+    if (!a.sig || a.sig.length !== SIG_AXES.length) warnings.push(a.id + ' sig vector length mismatch');
+  });
+  // Report
+  let html = '';
+  if (issues.length === 0 && warnings.length === 0) {
+    html = '<div style="color:var(--teal);font-weight:600;">✓ All integrity checks passed. Instrument v3 is valid.</div>';
+  } else {
+    if (issues.length > 0) {
+      html += '<div style="color:var(--danger);font-weight:600;margin-bottom:6px;">Errors (' + issues.length + '):</div>';
+      issues.forEach(i => html += '<div style="color:var(--danger);margin-bottom:3px;">✗ ' + i + '</div>');
+    }
+    if (warnings.length > 0) {
+      html += '<div style="color:var(--accent);font-weight:600;margin:8px 0 6px;">Warnings (' + warnings.length + '):</div>';
+      warnings.forEach(w => html += '<div style="color:var(--accent);margin-bottom:3px;">⚠ ' + w + '</div>');
+    }
+  }
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
   // Expose so renderReport can call it after injecting dynamic content
   window.attachTooltipBehaviour = attachTooltipBehaviour;
 })();
@@ -9435,4 +9740,60 @@ document.addEventListener('DOMContentLoaded', authBoot);
 
 </script>
 </body>
-</html><
+</html>    <!-- ── VALUE DEPTH ── -->
+    <div style="margin-bottom:96px;">
+      <div style="text-align:center;margin-bottom:56px;">
+        <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Why it matters</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Your philosophy shapes<br/>everything you do.</h2>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:560px;margin:0 auto;line-height:1.75;">Most people never examine the beliefs that are running their lives. Phil OS makes them visible. All of them.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:24px;margin-bottom:48px;">
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🪞</div>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you see yourself</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Where you place yourself in the causal chain of your own life. Whether you hold yourself responsible or see yourself as shaped by forces larger than individual will. This belief sits underneath every success you celebrate and every failure you agonise over.</p>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">👥</div>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you see others</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Whether you extend the same understanding to other people that you give yourself — or less. Your beliefs about human nature, moral responsibility, and what people deserve shape every relationship you have, every conflict you have, every judgement you make.</p>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🌍</div>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you see the world</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Whether reality is fundamentally ordered or chaotic. Whether meaning is discovered or constructed. Whether the arc of history bends toward anything at all. These are not abstract questions. They determine what you work toward, what you grieve, and what you are able to hope for.</p>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">⚖️</div>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you make decisions</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Whether you lead with principle or consequence. Whether authority comes from tradition, reason, or individual conscience. Whether you trust your gut or distrust it. These patterns run through every hard call you have ever made, often without you noticing.</p>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🔥</div>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">Where your conflicts come from</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Most relationship friction is not about the surface issue. It is about incompatible operating systems running underneath it. Two people with fundamentally different beliefs about fairness, authority, or human nature will keep having the same fight in different clothes until they understand what is actually happening.</p>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🧭</div>
+          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">What actually drives you</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Your beliefs about meaning and purpose sit underneath every career choice, every sacrifice, and every moment of fulfilment or emptiness you have ever experienced. Phil OS does not tell you what to do with your life. It tells you what you already believe life is for — which turns out to be a lot more useful.</p>
+        </div>
+
+      </div>
+
+      <!-- Pull quote -->
+      <div style="background:linear-gradient(135deg,rgba(157,147,232,0.06) 0%,rgba(201,169,110,0.04) 100%);border:1px solid rgba(157,147,232,0.2);border-radius:16px;padding:clamp(28px,4vw,48px);text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:400px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(157,147,232,0.08) 0%,transparent 70%);pointer-events:none;"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,32px);font-style:italic;color:var(--text);line-height:1.5;margin-bottom:20px;position:relative;">"Most people spend their entire lives acting on beliefs they have never examined, in service of values they have never questioned, toward goals they have never chosen."</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;">Phil OS exists to change that</div>
+      </div>
+    </div>
+
+<
