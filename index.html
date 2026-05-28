@@ -8267,24 +8267,30 @@ let currentUser = null;
 
 // ── Boot: check session on load ──
 async function authBoot() {
-  const { data: { session } } = await supa.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await onAuthReady();
-  } else {
-    show('screen-landing');
-  }
+  let authHandled = false;
 
-  // Listen for auth state changes (OAuth callback, sign out)
+  // Listen for auth state changes FIRST (catches OAuth redirect callbacks)
   supa.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
+    if (event === 'SIGNED_IN' && session && !authHandled) {
+      authHandled = true;
       currentUser = session.user;
       await onAuthReady();
     } else if (event === 'SIGNED_OUT') {
+      authHandled = false;
       currentUser = null;
       onSignedOut();
     }
   });
+
+  // Then check for existing session (handles page refresh while logged in)
+  const { data: { session } } = await supa.auth.getSession();
+  if (session && !authHandled) {
+    authHandled = true;
+    currentUser = session.user;
+    await onAuthReady();
+  } else if (!session && !authHandled) {
+    show('screen-landing');
+  }
 }
 
 // ── After successful auth: route user ──
