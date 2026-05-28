@@ -2334,7 +2334,7 @@ body.authed .screen { padding-top: 72px; }
       <div class="landing-stat"><span class="num">42</span><span class="lbl">contradiction rules</span></div>
     </div>
     <div class="landing-actions">
-      <button class="btn-primary" style="width:100%;max-width:360px;" onclick="showAuth('signup')">Begin Assessment</button>
+      <button class="btn-primary" style="width:100%;max-width:360px;" onclick="landingBegin()">Begin Assessment</button>
       <div class="landing-divider">already have an account</div>
       <button class="btn-secondary" style="width:100%;max-width:360px;border:1px solid rgba(255,255,255,0.18);color:var(--text2);background:transparent;" onclick="showAuth('login')">Sign In</button>
     </div>
@@ -8295,25 +8295,40 @@ async function authBoot() {
 
 // ── After successful auth: route user ──
 async function onAuthReady() {
+  // Clear OAuth hash from URL without reload
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    history.replaceState(null, '', window.location.pathname);
+  }
+
   showNav();
-  // Check for existing completion
-  const completion = await fetchLatestCompletion();
-  if (completion) {
-    // Has a completed report — restore and show it
-    await restoreCompletion(completion);
-  } else {
+
+  try {
+    // Check for existing completion
+    const completion = await fetchLatestCompletion();
+    if (completion && completion.report_json) {
+      await restoreCompletion(completion);
+      return;
+    }
+  } catch(e) {
+    console.warn('Could not fetch completion (table may not exist yet):', e.message);
+  }
+
+  try {
     // Check for in-progress session
     const progress = await fetchProgress();
-    if (progress && Object.keys(progress.answers || {}).length > 10) {
+    if (progress && progress.answers && Object.keys(progress.answers).length > 10) {
       const resume = confirm('You have an assessment in progress. Resume where you left off?');
       if (resume) {
         await restoreProgress(progress);
         return;
       }
     }
-    // Start fresh
-    show('screen-intro');
+  } catch(e) {
+    console.warn('Could not fetch progress (table may not exist yet):', e.message);
   }
+
+  // Default: go to assessment intro
+  show('screen-intro');
 }
 
 // ── Show nav bar ──
@@ -8335,6 +8350,15 @@ function onSignedOut() {
 }
 
 // ── Show auth panel (login or signup) ──
+function landingBegin() {
+  // If already logged in, go straight to assessment
+  if (currentUser) {
+    show('screen-intro');
+  } else {
+    showAuth('signup');
+  }
+}
+
 function showAuth(mode) {
   show('screen-auth');
   const loginPanel  = document.getElementById('auth-login-panel');
