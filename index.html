@@ -3657,7 +3657,7 @@ function renderQuestion() {
     opts.forEach((opt, i) => {
       const letters = ['A', 'B', 'C', 'D'];
       const sel = cur === opt.score ? 'selected' : '';
-      html += `<div class="tradeoff-opt ${sel}" data-score="${opt.score}" onclick="selectOption('${q.id}',${opt.score})">
+      html += `<div class="tradeoff-opt ${sel}" data-score="${opt.score}" data-qid="${q.id}" onclick="selectOption('${q.id}',${opt.score})">
         <div class="tradeoff-letter">${letters[i]}</div>
         <div class="tradeoff-text">${opt.text}</div>
       </div>`;
@@ -3673,7 +3673,7 @@ function renderQuestion() {
       <div class="scenario-options">`;
     opts.forEach(opt => {
       const sel = cur === opt.score ? 'selected' : '';
-      html += `<div class="scenario-opt ${sel}" data-score="${opt.score}" onclick="selectOption('${q.id}',${opt.score})">${opt.text}</div>`;
+      html += `<div class="scenario-opt ${sel}" data-score="${opt.score}" data-qid="${q.id}" onclick="selectOption('${q.id}',${opt.score})">${opt.text}</div>`;
     });
     html += '</div></div>';
   }
@@ -3767,8 +3767,8 @@ function qaUpdateProgressDots() {
 
 function selectLikert(qid, val) {
   state.answers[qid] = val;
-  // Only update the likert buttons — don't rebuild the whole question
-  document.querySelectorAll('.likert-btn').forEach((btn, i) => {
+  const container = document.getElementById('question-container') || document.getElementById('quiz-question') || document.body;
+  container.querySelectorAll('.likert-btn').forEach((btn, i) => {
     btn.classList.toggle('selected', i + 1 === val);
   });
   const nextBtn = document.getElementById('btn-next') || document.querySelector('.btn-next');
@@ -3778,7 +3778,8 @@ function selectLikert(qid, val) {
 function selectOption(qid, score) {
   state.answers[qid] = score;
   // Read score from data-score attribute — avoids false matches when two options share a score value
-  const allOpts = document.querySelectorAll('.tradeoff-opt, .scenario-opt');
+  const container = document.getElementById('question-container') || document.getElementById('quiz-question') || document.body;
+  const allOpts = container.querySelectorAll('.tradeoff-opt, .scenario-opt');
   allOpts.forEach(opt => {
     const optScore = parseFloat(opt.getAttribute('data-score'));
     opt.classList.toggle('selected', optScore === score);
@@ -5676,6 +5677,10 @@ Return ONLY valid JSON — no markdown fences:
             question_type: q.type,
             answer_value: answer,
             answer_text: answerText,
+            reversed: q.reversed || false,
+            scored_value: q.reversed ? (8 - answer) : answer,
+            weight: q.weight || 1.0,
+            instrument_version: 'v3',
             dev_flag: flagData ? !!flagData.flagged : false,
             dev_note: flagData ? (flagData.note || null) : null,
           };
@@ -5691,6 +5696,9 @@ Return ONLY valid JSON — no markdown fences:
           completed_at: new Date().toISOString(),
           source: 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app',
           qa_mode: state.qaMode || false,
+          instrument_version: 'v3',
+          axis_count: 32,
+          question_count: 160,
           responses: responsesPayload,
           report_json: report,
         };
