@@ -82,6 +82,11 @@ body::before {
 }
 .screen.active {
   display: flex;
+  z-index: 10;
+}
+/* Auth screen always on top when active */
+#screen-auth.active {
+  z-index: 20;
 }
 
 
@@ -8335,9 +8340,8 @@ async function onAuthReady() {
     console.warn('Could not fetch progress (table may not exist yet):', e.message);
   }
 
-  // Default: go to assessment intro
-  show('screen-intro');
-  // Force scroll after OAuth redirect may have set a hash position
+  // Default: go to landing (logged-in state) — user clicks Begin Assessment from there
+  show('screen-landing');
 }
 
 // ── Show nav bar ──
@@ -8361,7 +8365,7 @@ function onSignedOut() {
 // ── Show auth panel (login or signup) ──
 function landingBegin() {
   if (currentUser) {
-    show('screen-intake');
+    show('screen-intro');
   } else {
     showAuth('signup');
   }
