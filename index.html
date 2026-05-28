@@ -67,8 +67,8 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 8;
-  opacity: 0.55;
+  z-index: 0;
+  opacity: 0.7;
 }
 @media (min-width: 768px) {
   #constellation-bg { opacity: 0.9; }
@@ -76,19 +76,13 @@ body::before {
 
 /* ── SCREENS ── */
 .screen {
-  display: none !important;
+  display: none;
 }
 .screen.active {
-  display: flex !important;
-  flex-direction: column;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  display: block;
   width: 100%;
-  height: 100%;
-  background: var(--bg);
-  z-index: 3;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
 }
 
 
@@ -2022,11 +2016,17 @@ select.modal-input option { background: #12101e; }
    AUTH SCREENS
 ══════════════════════════════════════════ */
 #screen-landing, #screen-auth, #screen-profile {
+  display: none;
+}
+#screen-landing.active, #screen-auth.active, #screen-profile.active {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
   padding: 40px 20px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  box-sizing: border-box;
+  position: relative;
 }
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before {
@@ -2328,7 +2328,7 @@ select.modal-input option { background: #12101e; }
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  z-index: 2100;
+  z-index: 100;
 }
 #app-nav.visible { display: flex; }
 .nav-wordmark {
@@ -2809,7 +2809,7 @@ body.authed #screen-report { padding-top: 56px; }
       <circle cx="27.5" cy="27.5" r="3" fill="currentColor"/>
     </svg>
   </div>
-  <div class="auth-card" style="position:relative;z-index:6;">
+  <div class="auth-card">
     <div class="intro-eyebrow" style="justify-content:center;margin-bottom:20px;">Philosophical OS · Beta</div>
     <div id="auth-message" class="auth-message"></div>
     <!-- Login mode -->
@@ -2861,7 +2861,6 @@ body.authed #screen-report { padding-top: 56px; }
     <div style="text-align:center;margin-top:20px;">
       <a onclick="show('screen-landing')" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-decoration:none;">← Back</a>
     </div>
-  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
