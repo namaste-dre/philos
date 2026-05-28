@@ -91,12 +91,17 @@ body::before {
    INTRO SCREEN
 ══════════════════════════════════════════ */
 #screen-intro {
+  position: relative;
+  overflow: hidden;
+}
+#screen-intro.active {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
-  position: relative;
-  overflow: hidden;
+  min-height: 100vh;
 }
 /* Primary deep-purple glow — top left */
 #screen-intro::before {
@@ -353,14 +358,21 @@ body::before {
    QUIZ SCREEN
 ══════════════════════════════════════════ */
 #screen-quiz { padding: 0; }
+#screen-quiz.active { display: block; }
 
 /* ── INTAKE SCREEN ── */
 #screen-intake {
+  overflow: hidden;
+}
+#screen-intake.active {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
-  overflow: hidden;
+  min-height: 100vh;
+  position: relative;
 }
 #screen-intake::before {
   content: '';
@@ -724,10 +736,17 @@ body::before {
 
 /* ── GENERATING SCREEN ── */
 #screen-generating {
+  overflow: hidden;
+}
+#screen-generating.active {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
+  min-height: 100vh;
+  position: relative;
 }
 .gen-title { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 16px; }
 .gen-sub { color: var(--muted); margin-bottom: 48px; font-size: 19px; }
@@ -759,7 +778,8 @@ body::before {
 /* ══════════════════════════════════════════
    REPORT SCREEN
 ══════════════════════════════════════════ */
-#screen-report { padding: 0; overflow-x: hidden; z-index: 1; }
+#screen-report { padding: 0; overflow-x: hidden; }
+#screen-report.active { display: block; }
 
 /* REPORT HEADER — dramatic cinematic hero */
 .report-header {
@@ -2860,6 +2880,7 @@ body.authed #screen-report { padding-top: 56px; }
     <div style="text-align:center;margin-top:20px;">
       <a onclick="show('screen-landing')" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-decoration:none;">← Back</a>
     </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -9414,4 +9435,4 @@ document.addEventListener('DOMContentLoaded', authBoot);
 
 </script>
 </body>
-</html>
+</html><
