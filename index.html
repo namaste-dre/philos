@@ -71,9 +71,18 @@ body::before {
 }
 
 /* ── SCREENS ── */
-.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
-.screen.active { display: flex; flex-direction: column; }
-#screen-landing.active { background: var(--bg); min-height: 100vh; }
+.screen {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow-y: auto;
+  background: var(--bg);
+  z-index: 1;
+  flex-direction: column;
+}
+.screen.active {
+  display: flex;
+}
 
 
 /* ── INTRO SCREEN ── */
@@ -1989,14 +1998,7 @@ select.modal-input option { background: #12101e; }
   overflow: hidden;
   background: var(--bg);
 }
-/* Auth screen must fully cover everything beneath it */
-#screen-auth.active {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  overflow-y: auto;
-  z-index: 500;
-  background: var(--bg);
-}
+
 #screen-landing {
   text-align: center;
 }
@@ -2250,7 +2252,7 @@ select.modal-input option { background: #12101e; }
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  z-index: 1000;
+  z-index: 2000;
 }
 #app-nav.visible { display: flex; }
 .nav-wordmark {
@@ -2284,8 +2286,11 @@ select.modal-input option { background: #12101e; }
   transition: border-color 0.2s, color 0.2s;
 }
 .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
-/* Push content below nav when visible */
-body.authed .screen { padding-top: 72px; }
+/* Nav offset for authed screens */
+body.authed #screen-intake,
+body.authed #screen-quiz,
+body.authed #screen-generating,
+body.authed #screen-report { padding-top: 56px; }
 /* Progress save indicator */
 #save-indicator {
   position: fixed;
@@ -3829,8 +3834,11 @@ let state = {
 // ══════════════════════════════════════════
 function show(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
-  window.scrollTo(0, 0);
+  const el = document.getElementById(screenId);
+  if (el) {
+    el.classList.add('active');
+    el.scrollTop = 0;
+  }
 }
 
 function resetQuiz() { show('screen-intro'); }
@@ -8330,7 +8338,6 @@ async function onAuthReady() {
   // Default: go to assessment intro
   show('screen-intro');
   // Force scroll after OAuth redirect may have set a hash position
-  setTimeout(() => window.scrollTo(0, 0), 50);
 }
 
 // ── Show nav bar ──
@@ -8354,9 +8361,7 @@ function onSignedOut() {
 // ── Show auth panel (login or signup) ──
 function landingBegin() {
   if (currentUser) {
-    // Logged in — skip intro, go straight to intake
     show('screen-intake');
-    setTimeout(() => window.scrollTo(0, 0), 30);
   } else {
     showAuth('signup');
   }
