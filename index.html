@@ -2031,15 +2031,26 @@ select.modal-input option { background: #12101e; }
 /* ══════════════════════════════════════════
    AUTH SCREENS
 ══════════════════════════════════════════ */
-#screen-landing.active, #screen-auth.active, #screen-profile.active {
+/* Auth and profile: flex-centered short screens */
+#screen-auth.active, #screen-profile.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 100vh;
   padding: 40px 20px;
   box-sizing: border-box;
   position: relative;
+  overflow-y: auto;
+}
+/* Landing: long-form scrolling page — block layout, no flex centering */
+#screen-landing.active {
+  display: block;
+  min-height: 100vh;
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before {
@@ -2460,6 +2471,95 @@ select.modal-input option { background: #12101e; }
   transition: background 0.2s, transform 0.2s;
 }
 .review-dot.active { background: var(--accent); transform: scale(1.3); }
+
+/* ══════════════════════════════════════════
+   SETTINGS SCREEN
+══════════════════════════════════════════ */
+.settings-section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.settings-desc {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.settings-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+.settings-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.settings-opt {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.settings-opt:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: var(--text);
+}
+.settings-opt.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(201,169,110,0.08);
+}
+/* High contrast mode */
+body.hc-mode {
+  --text: #ffffff;
+  --text2: #e8e8e8;
+  --muted: #b0afc0;
+  --border: rgba(255,255,255,0.25);
+  --border2: rgba(255,255,255,0.35);
+  --surface: rgba(255,255,255,0.07);
+}
+/* Motion reduced */
+body.motion-reduced * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+body.motion-none * {
+  animation: none !important;
+  transition: none !important;
+}
+/* Font sizes */
+body.font-sm { --base-size: 15px; }
+body.font-md { --base-size: 18px; }
+body.font-lg { --base-size: 21px; }
+body.font-xl { --base-size: 24px; }
+body.font-lg .q-text, body.font-xl .q-text { font-size: clamp(26px, 5vw, 40px); }
+body.font-lg .tradeoff-text, body.font-xl .tradeoff-text { font-size: 21px; }
+body.font-lg .scenario-box, body.font-xl .scenario-box { font-size: 21px; }
+/* OpenDyslexic font */
+@import url('https://fonts.cdnfonts.com/css/opendyslexic');
+body.font-dyslexic .q-text,
+body.font-dyslexic .tradeoff-text,
+body.font-dyslexic .scenario-box,
+body.font-dyslexic .report-body p,
+body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !important; }
 </style>
 </head>
 <body>
@@ -2494,9 +2594,10 @@ select.modal-input option { background: #12101e; }
       <button class="nav-btn" onclick="toggleSettingsMenu()" id="settings-btn">Settings ▾</button>
       <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:160px;overflow:hidden;z-index:3000;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
         <div style="padding:4px;">
+          <button onclick="openSettings();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Settings</button>
           <button onclick="show('screen-intro');toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
           <div style="height:1px;background:var(--border);margin:4px 8px;"></div>
-          <button onclick="handleSignOut()" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(232,112,112,0.08)'" onmouseout="this.style.background='transparent'">Sign Out</button>
+          <button onclick="handleSignOut();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(232,112,112,0.08)'" onmouseout="this.style.background='transparent'">Sign Out</button>
         </div>
       </div>
     </div>
@@ -2761,6 +2862,101 @@ select.modal-input option { background: #12101e; }
 
   </div>
 
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN: SETTINGS
+══════════════════════════════════════════ -->
+<div id="screen-settings" class="screen">
+  <div style="max-width:620px;margin:0 auto;padding:60px 24px 80px;width:100%;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:40px;">
+      <button onclick="show('screen-landing')" style="background:transparent;border:none;color:var(--muted);cursor:pointer;padding:4px;display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <h1 style="font-family:'Playfair Display',serif;font-size:clamp(24px,4vw,36px);font-weight:700;color:var(--text);margin:0;">Settings</h1>
+    </div>
+
+    <!-- Language -->
+    <div class="settings-section">
+      <div class="settings-label">Language</div>
+      <div class="settings-desc">Interface language for menus, labels, and navigation. Assessment questions remain in English for psychometric validity.</div>
+      <div class="settings-options" id="settings-lang">
+        <button class="settings-opt active" data-val="en" onclick="applySetting('lang',this)">English</button>
+        <button class="settings-opt" data-val="nl" onclick="applySetting('lang',this)">Nederlands</button>
+        <button class="settings-opt" data-val="de" onclick="applySetting('lang',this)">Deutsch</button>
+        <button class="settings-opt" data-val="fr" onclick="applySetting('lang',this)">Français</button>
+        <button class="settings-opt" data-val="es" onclick="applySetting('lang',this)">Español</button>
+      </div>
+      <div class="settings-note">More languages coming. Questions always in English.</div>
+    </div>
+
+    <!-- Font size -->
+    <div class="settings-section">
+      <div class="settings-label">Text Size</div>
+      <div class="settings-desc">Applies to question text and report body. Larger sizes improve readability for low-vision users.</div>
+      <div class="settings-options" id="settings-fontsize">
+        <button class="settings-opt" data-val="sm" onclick="applySetting('fontsize',this)">Small</button>
+        <button class="settings-opt active" data-val="md" onclick="applySetting('fontsize',this)">Default</button>
+        <button class="settings-opt" data-val="lg" onclick="applySetting('fontsize',this)">Large</button>
+        <button class="settings-opt" data-val="xl" onclick="applySetting('fontsize',this)">Extra Large</button>
+      </div>
+    </div>
+
+    <!-- Font style -->
+    <div class="settings-section">
+      <div class="settings-label">Report Font</div>
+      <div class="settings-desc">The typeface used in your report. OpenDyslexic is specifically designed to improve readability for dyslexic readers.</div>
+      <div class="settings-options" id="settings-font">
+        <button class="settings-opt active" data-val="playfair" onclick="applySetting('font',this)" style="font-family:'Playfair Display',serif;">Playfair</button>
+        <button class="settings-opt" data-val="ibm" onclick="applySetting('font',this)" style="font-family:'IBM Plex Sans',sans-serif;">IBM Plex</button>
+        <button class="settings-opt" data-val="dyslexic" onclick="applySetting('font',this)">OpenDyslexic</button>
+      </div>
+    </div>
+
+    <!-- Contrast -->
+    <div class="settings-section">
+      <div class="settings-label">Contrast</div>
+      <div class="settings-desc">High contrast mode increases text brightness and border visibility throughout the app.</div>
+      <div class="settings-options" id="settings-contrast">
+        <button class="settings-opt active" data-val="normal" onclick="applySetting('contrast',this)">Normal</button>
+        <button class="settings-opt" data-val="high" onclick="applySetting('contrast',this)">High Contrast</button>
+      </div>
+    </div>
+
+    <!-- Motion -->
+    <div class="settings-section">
+      <div class="settings-label">Motion</div>
+      <div class="settings-desc">Reduces or disables animations. Recommended for users with vestibular disorders or motion sensitivity.</div>
+      <div class="settings-options" id="settings-motion">
+        <button class="settings-opt active" data-val="full" onclick="applySetting('motion',this)">Full animations</button>
+        <button class="settings-opt" data-val="reduced" onclick="applySetting('motion',this)">Reduced</button>
+        <button class="settings-opt" data-val="none" onclick="applySetting('motion',this)">No animations</button>
+      </div>
+    </div>
+
+    <!-- Question progress display -->
+    <div class="settings-section">
+      <div class="settings-label">Progress Display</div>
+      <div class="settings-desc">How your progress through the assessment is shown.</div>
+      <div class="settings-options" id="settings-progress">
+        <button class="settings-opt active" data-val="bar" onclick="applySetting('progress',this)">Progress bar</button>
+        <button class="settings-opt" data-val="count" onclick="applySetting('progress',this)">Question count</button>
+        <button class="settings-opt" data-val="none" onclick="applySetting('progress',this)">Hidden</button>
+      </div>
+    </div>
+
+    <!-- Account -->
+    <div class="settings-section" style="border-bottom:none;">
+      <div class="settings-label">Account</div>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-bottom:16px;" id="settings-account-email">—</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button onclick="handleSignOut()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:8px;padding:9px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);cursor:pointer;">Sign Out</button>
+        <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:9px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Retake Assessment</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -9734,6 +9930,100 @@ function updateNavLinks(screenId) {
   const showOn = ['screen-landing', 'screen-profile', 'screen-resources'];
   links.style.display = (currentUser && showOn.includes(screenId)) ? 'flex' : 'none';
 }
+
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+const SETTINGS_DEFAULTS = {
+  lang: 'en', fontsize: 'md', font: 'playfair',
+  contrast: 'normal', motion: 'full', progress: 'bar'
+};
+let userSettings = { ...SETTINGS_DEFAULTS };
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem('philos_settings');
+    if (saved) userSettings = { ...SETTINGS_DEFAULTS, ...JSON.parse(saved) };
+  } catch(e) {}
+  applyAllSettings();
+}
+
+function saveSettings() {
+  try { localStorage.setItem('philos_settings', JSON.stringify(userSettings)); } catch(e) {}
+}
+
+function applySetting(key, btn) {
+  const val = btn.dataset.val;
+  userSettings[key] = val;
+  // Update active button in group
+  btn.closest('.settings-options').querySelectorAll('.settings-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applySettingValue(key, val);
+  saveSettings();
+}
+
+function applySettingValue(key, val) {
+  const body = document.body;
+  switch(key) {
+    case 'contrast':
+      body.classList.toggle('hc-mode', val === 'high');
+      break;
+    case 'motion':
+      body.classList.remove('motion-reduced', 'motion-none');
+      if (val === 'reduced') body.classList.add('motion-reduced');
+      if (val === 'none') body.classList.add('motion-none');
+      break;
+    case 'fontsize':
+      body.classList.remove('font-sm','font-md','font-lg','font-xl');
+      body.classList.add('font-' + val);
+      break;
+    case 'font':
+      body.classList.remove('font-playfair','font-ibm','font-dyslexic');
+      body.classList.add('font-' + val);
+      break;
+    case 'progress':
+      userSettings.progress = val;
+      // Will be picked up by next renderQuestion call
+      break;
+    case 'lang':
+      userSettings.lang = val;
+      // UI lang switching — future implementation
+      break;
+  }
+}
+
+function applyAllSettings() {
+  Object.entries(userSettings).forEach(([k, v]) => applySettingValue(k, v));
+  // Sync active states on settings screen if visible
+  syncSettingsUI();
+}
+
+function syncSettingsUI() {
+  Object.entries(userSettings).forEach(([key, val]) => {
+    const group = document.getElementById('settings-' + key);
+    if (!group) return;
+    group.querySelectorAll('.settings-opt').forEach(b => {
+      b.classList.toggle('active', b.dataset.val === val);
+    });
+  });
+  const emailEl = document.getElementById('settings-account-email');
+  if (emailEl && currentUser) emailEl.textContent = currentUser.email || '—';
+}
+
+function openSettings() {
+  syncSettingsUI();
+  show('screen-settings');
+}
+
+// Respect system prefers-reduced-motion on first load
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (userSettings.motion === 'full') {
+    userSettings.motion = 'reduced';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadSettings);
 
 // Boot on DOM ready
 document.addEventListener('DOMContentLoaded', authBoot);
