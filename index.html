@@ -2919,7 +2919,7 @@ body.authed #screen-report { padding-top: 56px; }
         <span class="label">minutes</span>
       </div>
     </div>
-    <button class="btn-primary" onclick="show('screen-intake')">Begin assessment</button>
+    <button class="btn-primary" onclick="landingBegin()">Begin assessment</button>
     <div style="margin-top:12px;">
       <button class="btn-secondary" onclick="startQAMode()" style="font-size:13px;padding:8px 20px;border:1px solid rgba(201,169,110,0.5);color:#c9a96e;background:transparent;">
         QA/QC Mode
@@ -8889,13 +8889,28 @@ function onSignedOut() {
 // ── Show auth panel (login or signup) ──
 function landingBegin() {
   if (currentUser) {
-    // Reset progress state for fresh start
+    // Get name from auth — Google SSO has full_name, email auth uses email prefix
+    const meta = currentUser.user_metadata || {};
+    const authName = meta.full_name || meta.name || meta.given_name ||
+      (currentUser.email ? currentUser.email.split('@')[0] : '');
+    const firstName = authName.split(' ')[0] || authName || 'there';
+    // Full quiz init — skip intake and intro
+    const shuffled = buildShuffledOrder();
+    const opts = {};
+    shuffled.forEach(q => { if (q.options) opts[q.id] = shuffle(q.options); });
     state = {
-      currentQ: 0, answers: {}, axisScores: {}, userName: '',
-      shuffledQuestions: [], shuffledOptions: {}, qaMode: false,
-      qaFlags: {}, displayTextCache: {}, captureData: null
+      currentQ: 0, answers: {}, axisScores: {},
+      userName: firstName,
+      shuffledQuestions: shuffled, shuffledOptions: opts,
+      qaMode: false, qaFlags: {}, displayTextCache: {}, captureData: null,
     };
-    show('screen-intro');
+    document.getElementById('qa-mode-badge').style.display = 'none';
+    initGlowSequences();
+    tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
+    currentGlowMood = null;
+    showNavProgress(true);
+    show('screen-quiz');
+    renderQuestion();
   } else {
     showAuth('signup');
   }
