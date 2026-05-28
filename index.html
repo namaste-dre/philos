@@ -8329,6 +8329,8 @@ async function onAuthReady() {
 
   // Default: go to assessment intro
   show('screen-intro');
+  // Force scroll after OAuth redirect may have set a hash position
+  setTimeout(() => window.scrollTo(0, 0), 50);
 }
 
 // ── Show nav bar ──
