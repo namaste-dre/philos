@@ -1984,36 +1984,83 @@ select.modal-input option { background: #12101e; }
 /* ══════════════════════════════════════════
    AUTH SCREENS
 ══════════════════════════════════════════ */
-#screen-landing, #screen-auth {
+#screen-landing, #screen-auth, #screen-profile {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
   overflow: hidden;
+  position: relative;
+}
+/* Purple deep glow — top left (matches intro) */
+#screen-landing::before, #screen-auth::before {
+  content: '';
+  position: absolute;
+  width: 900px; height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100,80,255,0.55) 0%, rgba(80,60,200,0.18) 40%, transparent 70%);
+  top: -380px; left: -260px;
+  animation: driftA 16s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(60px);
+  z-index: 0;
+}
+/* Gold glow — bottom right (matches intro) */
+#screen-landing::after, #screen-auth::after {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,160,50,0.45) 0%, rgba(201,169,110,0.12) 40%, transparent 70%);
+  bottom: -220px; right: -180px;
+  animation: driftB 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(70px);
+  z-index: 0;
+}
+@media (min-width: 768px) {
+  #screen-landing::before, #screen-auth::before {
+    width: 1200px; height: 1200px;
+    background: radial-gradient(circle, rgba(100,80,255,0.75) 0%, rgba(80,60,200,0.30) 40%, transparent 70%);
+    filter: blur(80px);
+  }
+  #screen-landing::after, #screen-auth::after {
+    width: 1000px; height: 1000px;
+    background: radial-gradient(circle, rgba(220,160,50,0.65) 0%, rgba(201,169,110,0.22) 40%, transparent 70%);
+    filter: blur(90px);
+  }
+}
+/* Pink/violet third glow */
+.landing-glow-3 {
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,100,220,0.30) 0%, transparent 70%);
+  top: 40%; left: -100px;
+  animation: driftC 24s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(80px);
+  z-index: 0;
+}
+/* Teal centre glow */
+.landing-glow-4 {
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(80,180,140,0.20) 0%, transparent 70%);
+  top: 30%; left: 35%;
+  filter: blur(60px);
+  animation: driftA 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (min-width: 768px) {
+  .landing-glow-3 { width: 800px; height: 800px; background: radial-gradient(circle, rgba(180,100,220,0.50) 0%, transparent 70%); filter: blur(100px); }
 }
 
 #screen-landing {
   text-align: center;
 }
-.landing-glow-1 {
-  position: absolute;
-  width: 700px; height: 700px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(157,147,232,0.18) 0%, transparent 70%);
-  top: -200px; left: -200px;
-  filter: blur(80px);
-  pointer-events: none;
-  animation: driftA 22s ease-in-out infinite alternate;
-}
-.landing-glow-2 {
-  position: absolute;
-  width: 600px; height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
-  bottom: -150px; right: -150px;
-  filter: blur(80px);
-  pointer-events: none;
-  animation: driftB 28s ease-in-out infinite alternate;
-}
+
 .landing-wordmark {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 13px;
@@ -2319,16 +2366,49 @@ body.authed #screen-report { padding-top: 56px; }
 </nav>
 <div id="save-indicator">Progress saved</div>
 <div id="screen-landing" class="screen">
-  <div class="landing-glow-1"></div>
-  <div class="landing-glow-2"></div>
+  <!-- Floating symbols — same as intro screen -->
+  <div class="intro-symbols" aria-hidden="true">
+    <div class="landing-glow-3"></div>
+    <div class="landing-glow-4"></div>
+    <svg class="intro-symbol" style="left:8%;top:15%;animation-delay:0s;animation-duration:22s;" width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6" transform="rotate(60 40 40)"/>
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6" transform="rotate(120 40 40)"/>
+      <circle cx="40" cy="40" r="5" fill="currentColor" opacity="0.8"/>
+    </svg>
+    <svg class="intro-symbol" style="right:10%;top:20%;animation-delay:4s;animation-duration:18s;" width="70" height="70" viewBox="0 0 70 70" fill="none">
+      <path d="M5 35 Q35 5 65 35 Q35 65 5 35Z" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="35" cy="35" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="35" cy="35" r="4" fill="currentColor" opacity="0.7"/>
+    </svg>
+    <svg class="intro-symbol" style="left:15%;bottom:20%;animation-delay:8s;animation-duration:25s;" width="60" height="60" viewBox="0 0 60 60" fill="none" color="rgba(201,169,110,0.15)">
+      <line x1="30" y1="5" x2="30" y2="55" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="10" y1="15" x2="50" y2="15" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M6 28 Q10 36 18 28" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M42 28 Q46 36 54 28" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    </svg>
+    <svg class="intro-symbol" style="right:8%;bottom:25%;animation-delay:2s;animation-duration:20s;" width="75" height="75" viewBox="0 0 75 75" fill="none" color="rgba(165,133,188,0.12)">
+      <path d="M10 37.5 C10 25 22 15 32 23 C38 27 32 52 38 52 C48 52 62 42 62 37.5 C62 25 50 15 40 23 C34 27 40 52 32 52 C22 52 10 42 10 37.5Z" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <svg class="intro-symbol" style="left:45%;top:8%;animation-delay:12s;animation-duration:28s;" width="55" height="55" viewBox="0 0 55 55" fill="none" color="rgba(201,169,110,0.1)">
+      <circle cx="27.5" cy="27.5" r="24" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="27.5,6 30,24 27.5,28 25,24" fill="currentColor" opacity="0.7"/>
+      <polygon points="27.5,49 25,31 27.5,27 30,31" fill="currentColor" opacity="0.3"/>
+      <circle cx="27.5" cy="27.5" r="3" fill="currentColor"/>
+    </svg>
+    <svg class="intro-symbol" style="right:20%;top:60%;animation-delay:6s;animation-duration:24s;" width="65" height="65" viewBox="0 0 65 65" fill="none" color="rgba(91,191,148,0.1)">
+      <path d="M32 8 L58 54 H6 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M24 38 L32 22 L40 38" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+    </svg>
+  </div>
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;">
-    <div class="landing-wordmark">PHIL / OS</div>
-    <h1 class="landing-title">Your<br/><em>Philosophical</em><br/>Operating System</h1>
-    <p class="landing-sub">A rigorous 160-question assessment that maps your complete worldview across 32 belief axes, detects internal contradictions, and tells you exactly what to do with all of it.</p>
-    <div class="landing-stats">
-      <div class="landing-stat"><span class="num">160</span><span class="lbl">questions</span></div>
-      <div class="landing-stat"><span class="num">32</span><span class="lbl">belief axes</span></div>
-      <div class="landing-stat"><span class="num">~45</span><span class="lbl">minutes</span></div>
+    <div class="intro-eyebrow" style="margin-bottom:24px;">Philosophical OS · Beta</div>
+    <h1 class="intro-title" style="margin-bottom:16px;">Your<br/><em>Philosophical</em><br/>OS</h1>
+    <p class="intro-sub" style="max-width:520px;margin:0 auto 32px;">A rigorous 160-question assessment that maps your complete worldview across 32 belief axes, detects internal contradictions, and tells you exactly what to do with all of it.</p>
+    <div class="intro-meta" style="margin-bottom:36px;">
+      <div class="intro-meta-item"><span class="num">160</span><span class="lbl">questions</span></div>
+      <div class="intro-meta-item"><span class="num">32</span><span class="lbl">belief axes</span></div>
+      <div class="intro-meta-item"><span class="num">~45</span><span class="lbl">minutes</span></div>
     </div>
     <div class="landing-actions" id="landing-actions-guest">
       <button class="btn-primary" style="width:100%;max-width:360px;" onclick="showAuth('signup')">Begin Assessment</button>
@@ -2347,10 +2427,28 @@ body.authed #screen-report { padding-top: 56px; }
      SCREEN 0B: AUTH (login / signup)
 ══════════════════════════════════════════ -->
 <div id="screen-auth" class="screen active">
-  <div class="landing-glow-1"></div>
-  <div class="landing-glow-2"></div>
+  <!-- Floating symbols -->
+  <div class="intro-symbols" aria-hidden="true">
+    <div class="landing-glow-3"></div>
+    <div class="landing-glow-4"></div>
+    <svg class="intro-symbol" style="left:5%;top:10%;animation-delay:1s;animation-duration:24s;" width="70" height="70" viewBox="0 0 80 80" fill="none">
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.5" transform="rotate(60 40 40)"/>
+      <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.5" transform="rotate(120 40 40)"/>
+      <circle cx="40" cy="40" r="5" fill="currentColor" opacity="0.7"/>
+    </svg>
+    <svg class="intro-symbol" style="right:6%;bottom:20%;animation-delay:5s;animation-duration:19s;" width="60" height="60" viewBox="0 0 75 75" fill="none" color="rgba(165,133,188,0.12)">
+      <path d="M10 37.5 C10 25 22 15 32 23 C38 27 32 52 38 52 C48 52 62 42 62 37.5 C62 25 50 15 40 23 C34 27 40 52 32 52 C22 52 10 42 10 37.5Z" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <svg class="intro-symbol" style="right:12%;top:15%;animation-delay:9s;animation-duration:26s;" width="50" height="50" viewBox="0 0 55 55" fill="none" color="rgba(201,169,110,0.1)">
+      <circle cx="27.5" cy="27.5" r="24" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="27.5,6 30,24 27.5,28 25,24" fill="currentColor" opacity="0.7"/>
+      <polygon points="27.5,49 25,31 27.5,27 30,31" fill="currentColor" opacity="0.3"/>
+      <circle cx="27.5" cy="27.5" r="3" fill="currentColor"/>
+    </svg>
+  </div>
   <div class="auth-card">
-    <div class="auth-logo">PHIL / OS</div>
+    <div class="intro-eyebrow" style="justify-content:center;margin-bottom:20px;">Philosophical OS · Beta</div>
     <div id="auth-message" class="auth-message"></div>
     <!-- Login mode -->
     <div id="auth-login-panel">
@@ -5832,18 +5930,20 @@ function renderShareUrl(url) {
 }
 
 async function saveToSupabase(payload) {
+  // Save to anonymous completions table (existing)
   try {
     const res = await fetch('/api/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    const data = await res.json();
-    return data;
+    await res.json();
   } catch(e) {
-    // Silent fail — never block the user experience
     console.warn('Data capture failed silently:', e.message);
-    return null;
+  }
+  // Also save to account_completions if user is logged in
+  if (typeof currentUser !== 'undefined' && currentUser && payload) {
+    await saveCompletionToAccount(payload);
   }
 }
 
@@ -8689,16 +8789,7 @@ async function restoreCompletion(completion) {
 // Wrap the existing nextQ to also trigger saves
 const _originalNextQ = typeof nextQ === 'function' ? nextQ : null;
 
-// We patch saveToSupabase to also save to account_completions after completion
-const _originalSaveToSupabase = saveToSupabase;
-async function saveToSupabase(payload) {
-  const result = await _originalSaveToSupabase(payload);
-  // Also persist to account_completions if user is logged in
-  if (currentUser && payload) {
-    await saveCompletionToAccount(payload);
-  }
-  return result;
-}
+// saveToSupabase now handles account_completions directly (see original function above)
 
 
 // ══════════════════════════════════════════
