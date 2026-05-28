@@ -2330,10 +2330,15 @@ body.authed #screen-report { padding-top: 56px; }
       <div class="landing-stat"><span class="num">32</span><span class="lbl">belief axes</span></div>
       <div class="landing-stat"><span class="num">~45</span><span class="lbl">minutes</span></div>
     </div>
-    <div class="landing-actions">
-      <button class="btn-primary" style="width:100%;max-width:360px;" onclick="landingBegin()">Begin Assessment</button>
+    <div class="landing-actions" id="landing-actions-guest">
+      <button class="btn-primary" style="width:100%;max-width:360px;" onclick="showAuth('signup')">Begin Assessment</button>
       <div class="landing-divider">already have an account</div>
       <button class="btn-secondary" style="width:100%;max-width:360px;border:1px solid rgba(255,255,255,0.18);color:var(--text2);background:transparent;" onclick="showAuth('login')">Sign In</button>
+    </div>
+    <!-- Logged-in CTA — updated by updateLandingCTA() -->
+    <div class="landing-actions" id="landing-actions-authed" style="display:none;">
+      <div id="landing-cta-primary"></div>
+      <div id="landing-cta-secondary"></div>
     </div>
   </div>
 </div>
@@ -2591,6 +2596,65 @@ body.authed #screen-report { padding-top: 56px; }
 <!-- ══════════════════════════════════════════
      SCREEN 3: GENERATING
 ══════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     SCREEN: PROFILE / SAVED REPORT
+══════════════════════════════════════════ -->
+<div id="screen-profile" class="screen">
+  <div style="max-width:860px;margin:0 auto;padding:80px 24px 60px;width:100%;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Your Profile</div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,42px);font-weight:700;color:var(--text);margin:0;" id="profile-archetype-title">Your Archetype</h1>
+        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--muted);margin-top:6px;" id="profile-archetype-variant"></div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button onclick="show('screen-report')" style="background:var(--accent);border:none;border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#08061a;cursor:pointer;">View Full Report</button>
+        <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;">Retake Assessment</button>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px;">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Rarity</div>
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent);" id="profile-stat-rarity">—</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Conviction</div>
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--purple2);" id="profile-stat-conviction">—</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Dominant Axis</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--teal);" id="profile-stat-axis">—</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Completed</div>
+        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;color:var(--text2);" id="profile-stat-date">—</div>
+      </div>
+    </div>
+
+    <!-- Tagline -->
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px 32px;margin-bottom:24px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Your Tagline</div>
+      <div style="font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,24px);font-style:italic;color:var(--text);line-height:1.5;" id="profile-tagline">—</div>
+    </div>
+
+    <!-- Fingerprint axes -->
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px 32px;margin-bottom:24px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">Philosophical Fingerprint</div>
+      <div id="profile-fingerprint" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+
+    <!-- Contradictions summary -->
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px 32px;" id="profile-contradictions-block">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Contradictions Detected</div>
+      <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--danger);" id="profile-contradiction-count">—</div>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-top:4px;">tensions in your belief system</div>
+      <button onclick="show('screen-report');setTimeout(()=>{const el=document.getElementById('section-contradictions');if(el)el.scrollIntoView({behavior:'smooth'});},100);" style="margin-top:16px;background:transparent;border:1px solid rgba(232,112,112,0.3);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--danger);cursor:pointer;">View contradictions →</button>
+    </div>
+  </div>
+</div>
+
 <div id="screen-generating" class="screen">
   <div>
     <div class="gen-title">Mapping your OS</div>
@@ -8306,32 +8370,42 @@ async function onAuthReady() {
 
   showNav();
 
+  let completion = null;
+  let progress   = null;
+
   try {
-    // Check for existing completion
-    const completion = await fetchLatestCompletion();
-    if (completion && completion.report_json) {
-      await restoreCompletion(completion);
-      return;
-    }
+    completion = await fetchLatestCompletion();
   } catch(e) {
-    console.warn('Could not fetch completion (table may not exist yet):', e.message);
+    console.warn('Could not fetch completion:', e.message);
   }
 
   try {
-    // Check for in-progress session
-    const progress = await fetchProgress();
-    if (progress && progress.answers && Object.keys(progress.answers).length > 10) {
-      const resume = confirm('You have an assessment in progress. Resume where you left off?');
-      if (resume) {
-        await restoreProgress(progress);
-        return;
-      }
-    }
+    progress = await fetchProgress();
   } catch(e) {
-    console.warn('Could not fetch progress (table may not exist yet):', e.message);
+    console.warn('Could not fetch progress:', e.message);
   }
 
-  // Default: go to landing (logged-in state) — user clicks Begin Assessment from there
+  const hasCompletion = completion && completion.report_json;
+  const hasProgress   = progress && progress.answers && Object.keys(progress.answers).length > 5;
+
+  // Pre-render report in background if completion exists
+  if (hasCompletion) {
+    try {
+      const scores         = completion.scores || {};
+      const fp             = completion.fingerprint || [];
+      const archetypeResult = computeArchetype(scores);
+      const contradictions  = detectContradictions(scores);
+      renderReport(scores, contradictions, archetypeResult, fp, completion.report_json);
+    } catch(e) {
+      console.warn('Could not pre-render report:', e.message);
+    }
+  }
+
+  // Update landing CTA based on state
+  const userState = hasCompletion ? 'completed' : hasProgress ? 'progress' : 'none';
+  updateLandingCTA(userState, completion);
+
+  // Always go to landing — user chooses what to do from there
   show('screen-landing');
 }
 
@@ -8356,6 +8430,12 @@ function onSignedOut() {
 // ── Show auth panel (login or signup) ──
 function landingBegin() {
   if (currentUser) {
+    // Reset progress state for fresh start
+    state = {
+      currentQ: 0, answers: {}, axisScores: {}, userName: '',
+      shuffledQuestions: [], shuffledOptions: {}, qaMode: false,
+      qaFlags: {}, displayTextCache: {}, captureData: null
+    };
     show('screen-intro');
   } else {
     showAuth('signup');
@@ -8570,6 +8650,9 @@ async function saveCompletionToAccount(payload) {
 
     // Clear progress row — assessment is done
     await supa.from('assessment_progress').delete().eq('user_id', currentUser.id);
+    // Update landing CTA to show completed state next time user visits landing
+    const savedCompletion = await fetchLatestCompletion();
+    updateLandingCTA('completed', savedCompletion);
   } catch(e) {
     console.warn('Account completion save failed:', e.message);
   }
@@ -8615,6 +8698,156 @@ async function saveToSupabase(payload) {
     await saveCompletionToAccount(payload);
   }
   return result;
+}
+
+
+// ══════════════════════════════════════════
+// PROFILE + DYNAMIC LANDING CTA
+// ══════════════════════════════════════════
+
+// Called after onAuthReady determines user state
+// state: 'none' | 'progress' | 'completed'
+function updateLandingCTA(userState, completion) {
+  const guestActions  = document.getElementById('landing-actions-guest');
+  const authedActions = document.getElementById('landing-actions-authed');
+  const primary       = document.getElementById('landing-cta-primary');
+  const secondary     = document.getElementById('landing-cta-secondary');
+
+  if (!currentUser) {
+    guestActions.style.display  = 'flex';
+    authedActions.style.display = 'none';
+    return;
+  }
+
+  guestActions.style.display  = 'none';
+  authedActions.style.display = 'flex';
+  authedActions.style.flexDirection = 'column';
+  authedActions.style.alignItems = 'center';
+  authedActions.style.gap = '12px';
+  authedActions.style.width = '100%';
+
+  if (userState === 'completed' && completion) {
+    const family = completion.archetype_family || 'Your Archetype';
+    const variant = completion.archetype_variant || '';
+    primary.innerHTML = `
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;text-align:center;">Assessment Complete</div>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;text-align:center;">${family}</div>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-bottom:20px;text-align:center;">${variant}</div>
+      <button class="btn-primary" style="width:100%;max-width:360px;" onclick="showProfile()">View My Report</button>`;
+    secondary.innerHTML = `<button style="width:100%;max-width:360px;background:transparent;border:1px solid var(--border2);border-radius:8px;padding:11px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;" onclick="confirmRetake()">Retake Assessment</button>`;
+  } else if (userState === 'progress') {
+    primary.innerHTML = `
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;text-align:center;">Assessment In Progress</div>
+      <button class="btn-primary" style="width:100%;max-width:360px;background:var(--teal);color:#08061a;" onclick="resumeAssessment()">Continue Assessment</button>`;
+    secondary.innerHTML = `<button style="width:100%;max-width:360px;background:transparent;border:1px solid var(--border2);border-radius:8px;padding:11px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;" onclick="landingBegin()">Start Over</button>`;
+  } else {
+    primary.innerHTML = `<button class="btn-primary" style="width:100%;max-width:360px;" onclick="landingBegin()">Begin Assessment</button>`;
+    secondary.innerHTML = '';
+  }
+}
+
+// Show profile screen populated with saved completion data
+async function showProfile() {
+  const completion = await fetchLatestCompletion();
+  if (!completion) {
+    // No saved completion — go to report screen if it's rendered, else landing
+    if (document.getElementById('screen-report').innerHTML.trim().length > 100) {
+      show('screen-report');
+    } else {
+      show('screen-landing');
+    }
+    return;
+  }
+
+  // Populate profile screen
+  const family  = completion.archetype_family  || '—';
+  const variant = completion.archetype_variant || '—';
+  const scores  = completion.scores || {};
+  const fp      = completion.fingerprint || [];
+  const report  = completion.report_json || {};
+  const contradictions_count = completion.contradictions_count || 0;
+  const completedAt = completion.completed_at
+    ? new Date(completion.completed_at).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})
+    : '—';
+
+  document.getElementById('profile-archetype-title').textContent  = family;
+  document.getElementById('profile-archetype-variant').textContent = variant;
+  document.getElementById('profile-tagline').textContent = report.tagline || '—';
+  document.getElementById('profile-stat-date').textContent = completedAt;
+  document.getElementById('profile-contradiction-count').textContent = contradictions_count;
+
+  // Rarity
+  const rarityData = RARITY_BY_FAMILY[family];
+  document.getElementById('profile-stat-rarity').textContent = rarityData ? rarityData.pct : '—';
+
+  // Conviction score
+  const axisKeys = Object.keys(scores);
+  const convictionScore = axisKeys.length
+    ? Math.round((axisKeys.reduce((s, k) => s + Math.abs((scores[k] || 4) - 4), 0) / axisKeys.length) * (100/3))
+    : 0;
+  document.getElementById('profile-stat-conviction').textContent = convictionScore + '%';
+
+  // Dominant axis
+  const topAxis = fp && fp.length ? fp[0] : null;
+  if (topAxis) {
+    const axisMeta = AXIS_META[topAxis.axis] || {};
+    document.getElementById('profile-stat-axis').textContent = axisMeta.label || topAxis.axis;
+  }
+
+  // Fingerprint bars
+  const fpEl = document.getElementById('profile-fingerprint');
+  if (fpEl && fp && fp.length) {
+    fpEl.innerHTML = fp.slice(0, 5).map(f => {
+      const meta = AXIS_META[f.axis] || {};
+      const pct  = Math.round(((f.score - 1) / 6) * 100);
+      const tier = meta.tier || 3;
+      const color = tier === 1 ? 'var(--tier1)' : tier === 2 ? 'var(--tier2)' : 'var(--tier3)';
+      return `<div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);">${meta.label || f.axis}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">${f.score.toFixed(1)}</span>
+        </div>
+        <div style="height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.6s ease;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);">${meta.poleL || ''}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);">${meta.poleR || ''}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Also make sure screen-report is rendered with saved data
+  if (report && Object.keys(report).length > 0) {
+    const archetypeResult = computeArchetype(scores);
+    const contradictions  = detectContradictions(scores);
+    renderReport(scores, contradictions, archetypeResult, fp, report);
+  }
+
+  show('screen-profile');
+}
+
+// Resume an in-progress assessment
+async function resumeAssessment() {
+  const progress = await fetchProgress();
+  if (progress && progress.answers && Object.keys(progress.answers).length > 0) {
+    await restoreProgress(progress);
+  } else {
+    landingBegin();
+  }
+}
+
+// Confirm before wiping saved progress
+function confirmRetake() {
+  const confirmed = confirm('This will clear your saved progress and start a fresh assessment. Are you sure?');
+  if (!confirmed) return;
+  // Clear progress and completion from Supabase
+  if (currentUser) {
+    supa.from('assessment_progress').delete().eq('user_id', currentUser.id).then(() => {});
+    supa.from('account_completions').delete().eq('user_id', currentUser.id).then(() => {});
+  }
+  landingBegin();
 }
 
 // Boot on DOM ready
