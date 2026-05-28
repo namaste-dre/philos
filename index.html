@@ -8517,7 +8517,7 @@ async function fetchProgress() {
       .from('assessment_progress')
       .select('*')
       .eq('user_id', currentUser.id)
-      .single();
+      .maybeSingle();
     return data;
   } catch(e) { return null; }
 }
@@ -8579,7 +8579,7 @@ async function fetchLatestCompletion() {
       .from('account_completions')
       .select('*')
       .eq('user_id', currentUser.id)
-      .single();
+      .maybeSingle();
     return data;
   } catch(e) { return null; }
 }
