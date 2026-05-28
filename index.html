@@ -9157,7 +9157,7 @@ function devTestContradictions() {
     fired.forEach(c => {
       const tierColors = { A: 'var(--danger)', B: 'var(--accent)', C: 'var(--purple2)' };
       html += '<div style="padding:8px 10px;background:var(--surface2);border-radius:4px;border-left:2px solid ' + (tierColors[c.tier] || 'var(--border2)') + ';margin-bottom:6px;">';
-      html += '<span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:' + (tierColors[c.tier]) + ';">Tier ' + c.tier + '</span> ';
+      html += "<span style='font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:" + (tierColors[c.tier]) + ";'>" + "Tier " + c.tier + "</span> ";
       html += '<strong style="color:var(--text);">' + c.title + '</strong>';
       html += '</div>';
     });
