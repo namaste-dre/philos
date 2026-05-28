@@ -73,6 +73,7 @@ body::before {
 /* ── SCREENS ── */
 .screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
 .screen.active { display: flex; flex-direction: column; }
+#screen-landing.active { background: var(--bg); min-height: 100vh; }
 
 
 /* ── INTRO SCREEN ── */
@@ -1986,6 +1987,15 @@ select.modal-input option { background: #12101e; }
   padding: 40px 20px;
   position: relative;
   overflow: hidden;
+  background: var(--bg);
+}
+/* Auth screen must fully cover everything beneath it */
+#screen-auth.active {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 500;
+  background: var(--bg);
 }
 #screen-landing {
   text-align: center;
