@@ -2404,7 +2404,7 @@ const QUESTIONS = [
    {text:'Useful tools for prediction that may or may not correspond to anything real',score:3},
    {text:'Human constructions that work within our conceptual framework, not mirrors of nature',score:2}
  ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
-{id:'t1r04',tier:1,axis:'realism',type:'likert',weight:1.5,reversed:true,
+{id:'t1r04b',tier:1,axis:'realism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'What counts as true or false depends on the perspective, framework, or culture of the person making the claim — there is no view from nowhere.',
  options:[]},
@@ -2427,7 +2427,7 @@ const QUESTIONS = [
    {text:'Impressive, but something about conscious experience that a physical description cannot fully capture',score:2},
    {text:'A major discovery, but why physical processes feel like something remains open',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
-{id:'t1p02',tier:1,axis:'physicalism',type:'likert',weight:1.5,reversed:true,
+{id:'t1p02b',tier:1,axis:'physicalism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'When you feel something deeply — love, grief, or awe — something about that experience seems to go beyond what any purely physical account of brain activity could fully capture.',
  options:[]},
@@ -2783,7 +2783,7 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'When there is a genuine conflict between human interests and animal interests, human interests should take priority — we have special obligations to our own kind.',
  options:[]},
-{id:'t3ms03',tier:3,axis:'moral_scope',type:'likert',weight:1.0,reversed:true,
+{id:'t3ms03b',tier:3,axis:'moral_scope',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The capacity to suffer is the only morally relevant threshold — a being that can feel pain has genuine moral claims on us regardless of species, intelligence, or social bonds.',
  options:[]},
@@ -2811,7 +2811,7 @@ const QUESTIONS = [
    {text:'Dishonest, dressing up futility as meaning does not change what it is',score:2},
    {text:'Poetic but incomplete, the stoic version (endurance without pretending) feels more honest',score:5}
  ],poleLeft:'',poleRight:'',weight:1.0},
-{id:'t3mp03',tier:3,axis:'meaning_practice',type:'likert',weight:1.0,reversed:true,
+{id:'t3mp03b',tier:3,axis:'meaning_practice',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Sitting with the absence of meaning honestly — without rushing to fill it with constructed purpose — is more intellectually courageous than building meaning for comfort\'s sake.',
  options:[]},
@@ -2911,7 +2911,7 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Identity is not something you find — it is something you build. Who you are is constructed through your choices, relationships, and the stories you tell.',
  options:[]},
-{id:'t3id05',tier:3,axis:'identity',type:'likert',weight:1.0,reversed:true,
+{id:'t3id05b',tier:3,axis:'identity',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Beneath all the changes a person goes through in life, there is a stable core — a genuine self that remains recognisably the same person.',
  options:[]},
@@ -2959,7 +2959,7 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'A just economy is one where no one is left without the basic conditions for a decent life — market outcomes alone cannot guarantee this.',
  options:[]},
-{id:'t3ec05',tier:3,axis:'economics',type:'likert',weight:1.0,reversed:true,
+{id:'t3ec05b',tier:3,axis:'economics',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The best indicator of economic justice is whether people are free to keep what they earn, not whether wealth is distributed equally.',
  options:[]},
@@ -2990,7 +2990,7 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'I need to reach a clear answer before I can move forward — sitting with unresolved questions makes it hard to act.',
  options:[]},
-{id:'t3unc04',tier:3,axis:'uncertainty',type:'likert',weight:1.0,reversed:true,
+{id:'t3unc04b',tier:3,axis:'uncertainty',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Sitting with genuine, unresolved uncertainty on important questions is intellectually uncomfortable — I prefer to reach a clear position and commit to it.',
  options:[]},
@@ -3017,7 +3017,7 @@ const QUESTIONS = [
    {text:'Implausible, consciousness clearly emerges from complex systems, it is not fundamental',score:7},
    {text:'Actually more plausible than pure physicalism once you sit with the hard problem',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
-{id:'t3mind03',tier:3,axis:'mind_consciousness',type:'likert',weight:1.0,reversed:true,
+{id:'t3mind03b',tier:3,axis:'mind_consciousness',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The hard problem of consciousness — why physical processes feel like anything from the inside — is a genuine philosophical problem that neuroscience alone will never fully resolve.',
  options:[]},
@@ -5177,11 +5177,12 @@ function devGenerateReport() {
       // NO noise in dev/QA mode — exact scores for reliable archetype assignment
       state.answers[q.id] = Math.max(1, Math.min(7, Math.round(target)));
     } else if (q.options && q.options.length) {
-      const opts = state.shuffledOptions[q.id] || q.options;
-      const best = opts.reduce((a, b) =>
+      const opts = (state.shuffledOptions[q.id] && state.shuffledOptions[q.id].length) ? state.shuffledOptions[q.id] : q.options;
+      if (!opts || !opts.length) { state.answers[q.id] = Math.round(target); }
+      else { const best = opts.reduce((a, b) =>
         Math.abs(b.score - target) < Math.abs(a.score - target) ? b : a
       );
-      state.answers[q.id] = best.score;
+      state.answers[q.id] = best.score; }
     }
   });
 
