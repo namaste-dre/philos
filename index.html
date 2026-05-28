@@ -5599,12 +5599,13 @@ function devGenerateReport() {
     if (q.options) state.shuffledOptions[q.id] = shuffle([...q.options]);
   });
 
-  // Map target scores onto all questions
+  // Map target scores onto all questions — handle reversed items correctly
   QUESTIONS.forEach(q => {
     const target = targetScores[q.axis] !== undefined ? targetScores[q.axis] : 4;
     if (q.type === 'likert') {
-      // NO noise in dev/QA mode — exact scores for reliable archetype assignment
-      state.answers[q.id] = Math.max(1, Math.min(7, Math.round(target)));
+      // For reversed items: raw answer = 8 - target so that scoring (8 - raw) = target
+      const rawAnswer = q.reversed ? (8 - target) : target;
+      state.answers[q.id] = Math.max(1, Math.min(7, Math.round(rawAnswer)));
     } else if (q.options && q.options.length) {
       const opts = (state.shuffledOptions[q.id] && state.shuffledOptions[q.id].length) ? state.shuffledOptions[q.id] : q.options;
       if (!opts || !opts.length) { state.answers[q.id] = Math.round(target); }
