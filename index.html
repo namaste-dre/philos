@@ -48,7 +48,7 @@ body {
   font-size: 18px;
   line-height: 1.65;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
   font-weight: 400;
 }
 
@@ -67,8 +67,8 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.7;
+  z-index: 2;
+  opacity: 0.6;
 }
 @media (min-width: 768px) {
   #constellation-bg { opacity: 0.9; }
@@ -76,13 +76,21 @@ body::before {
 
 /* ── SCREENS ── */
 .screen {
-  display: none;
+  display: none !important;
 }
 .screen.active {
-  display: block;
+  display: flex !important;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   width: 100%;
-  min-height: 100vh;
-  position: relative;
+  height: 100%;
+  background: rgba(7,6,26,0.97);
+  z-index: 3;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 
@@ -2031,26 +2039,11 @@ select.modal-input option { background: #12101e; }
 /* ══════════════════════════════════════════
    AUTH SCREENS
 ══════════════════════════════════════════ */
-/* Auth and profile: flex-centered short screens */
+/* Auth/profile: center content vertically */
 #screen-auth.active, #screen-profile.active {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 100vh;
-  padding: 40px 20px;
-  box-sizing: border-box;
-  position: relative;
-  overflow-y: auto;
-}
-/* Landing: long-form scrolling page — block layout, no flex centering */
-#screen-landing.active {
-  display: block;
-  min-height: 100vh;
-  position: relative;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+  padding-top: 40px;
 }
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before {
@@ -2352,7 +2345,7 @@ select.modal-input option { background: #12101e; }
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  z-index: 100;
+  z-index: 2000;
 }
 #app-nav.visible { display: flex; }
 .nav-wordmark {
@@ -2398,16 +2391,16 @@ select.modal-input option { background: #12101e; }
   transition: color 0.2s, background 0.2s;
 }
 .nav-link-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-/* Nav space — always reserved so no layout shift on auth */
+/* Nav space reserved on all screens */
 #screen-landing,
 #screen-intro,
 #screen-intake,
 #screen-quiz,
+#screen-settings,
 #screen-profile,
 #screen-resources,
 #screen-generating,
 #screen-report { padding-top: 56px; }
-/* Auth screen has its own centering — no padding-top needed */
 /* Progress save indicator */
 #save-indicator {
   position: fixed;
