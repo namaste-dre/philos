@@ -2329,9 +2329,9 @@ body.authed .screen { padding-top: 72px; }
     <h1 class="landing-title">Your<br/><em>Philosophical</em><br/>Operating System</h1>
     <p class="landing-sub">A rigorous 160-question assessment that maps your complete worldview across 32 belief axes, detects internal contradictions, and tells you exactly what to do with all of it.</p>
     <div class="landing-stats">
+      <div class="landing-stat"><span class="num">160</span><span class="lbl">questions</span></div>
       <div class="landing-stat"><span class="num">32</span><span class="lbl">belief axes</span></div>
-      <div class="landing-stat"><span class="num">60</span><span class="lbl">archetypes</span></div>
-      <div class="landing-stat"><span class="num">42</span><span class="lbl">contradiction rules</span></div>
+      <div class="landing-stat"><span class="num">~45</span><span class="lbl">minutes</span></div>
     </div>
     <div class="landing-actions">
       <button class="btn-primary" style="width:100%;max-width:360px;" onclick="landingBegin()">Begin Assessment</button>
@@ -8353,9 +8353,10 @@ function onSignedOut() {
 
 // ── Show auth panel (login or signup) ──
 function landingBegin() {
-  // If already logged in, go straight to assessment
   if (currentUser) {
-    show('screen-intro');
+    // Logged in — skip intro, go straight to intake
+    show('screen-intake');
+    setTimeout(() => window.scrollTo(0, 0), 30);
   } else {
     showAuth('signup');
   }
