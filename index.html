@@ -72,21 +72,13 @@ body::before {
 
 /* ── SCREENS ── */
 .screen {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  overflow-y: auto;
-  background: var(--bg);
-  z-index: 1;
-  flex-direction: column;
+  display: none !important;
 }
 .screen.active {
-  display: flex;
-  z-index: 10;
-}
-/* Auth screen always on top when active */
-#screen-auth.active {
-  z-index: 20;
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
 }
 
 
@@ -1993,15 +1985,10 @@ select.modal-input option { background: #12101e; }
    AUTH SCREENS
 ══════════════════════════════════════════ */
 #screen-landing, #screen-auth {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  position: relative;
   overflow: hidden;
-  background: var(--bg);
 }
 
 #screen-landing {
@@ -2331,7 +2318,7 @@ body.authed #screen-report { padding-top: 56px; }
   </div>
 </nav>
 <div id="save-indicator">Progress saved</div>
-<div id="screen-landing" class="screen active">
+<div id="screen-landing" class="screen">
   <div class="landing-glow-1"></div>
   <div class="landing-glow-2"></div>
   <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;">
@@ -2354,7 +2341,7 @@ body.authed #screen-report { padding-top: 56px; }
 <!-- ══════════════════════════════════════════
      SCREEN 0B: AUTH (login / signup)
 ══════════════════════════════════════════ -->
-<div id="screen-auth" class="screen">
+<div id="screen-auth" class="screen active">
   <div class="landing-glow-1"></div>
   <div class="landing-glow-2"></div>
   <div class="auth-card">
@@ -3842,7 +3829,9 @@ function show(screenId) {
   const el = document.getElementById(screenId);
   if (el) {
     el.classList.add('active');
-    el.scrollTop = 0;
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }
 }
 
@@ -8302,7 +8291,8 @@ async function authBoot() {
     currentUser = session.user;
     await onAuthReady();
   } else if (!session && !authHandled) {
-    show('screen-landing');
+    show('screen-auth');
+    showAuth('login');
   }
 }
 
