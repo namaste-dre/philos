@@ -37,6 +37,9 @@
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; overflow-x: hidden; }
+html {
+  background: var(--bg);
+}
 body {
   background: var(--bg);
   color: var(--text);
@@ -63,7 +66,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 5;
   opacity: 0.55;
 }
 @media (min-width: 768px) {
@@ -78,8 +81,9 @@ body::before {
   display: flex !important;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--bg);
+  background: transparent;
   position: relative;
+  z-index: 1;
 }
 
 
@@ -166,7 +170,7 @@ body::before {
   0%   { transform: translate(0,0) scale(1); }
   100% { transform: translate(40px,-60px) scale(1.1); }
 }
-.intro-inner { position: relative; z-index: 1; }
+.intro-inner { position: relative; z-index: 6; }
 
 /* Eyebrow */
 .intro-eyebrow {
@@ -196,7 +200,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 0;
+  z-index: 2;
 }
 .intro-symbol {
   position: absolute;
@@ -383,7 +387,7 @@ body::before {
   filter: blur(70px);
   z-index: 0;
 }
-.intake-wrap { max-width: 520px; width: 100%; position: relative; z-index: 1; }
+.intake-wrap { max-width: 520px; width: 100%; position: relative; z-index: 6; }
 .intake-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -433,7 +437,7 @@ body::before {
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(157,147,232,0.12);
   padding: 14px 28px;
-  z-index: 100;
+  z-index: 110;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -495,7 +499,7 @@ body::before {
 /* ── QUIZ BODY ── */
 .quiz-body {
   position: relative;
-  z-index: 1;
+  z-index: 6;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -756,7 +760,7 @@ body::before {
 /* ══════════════════════════════════════════
    REPORT SCREEN
 ══════════════════════════════════════════ */
-#screen-report { padding: 0; overflow-x: hidden; }
+#screen-report { padding: 0; overflow-x: hidden; z-index: 1; }
 
 /* REPORT HEADER — dramatic cinematic hero */
 .report-header {
@@ -1069,6 +1073,8 @@ body::before {
   padding: 64px 28px 120px;
   overflow-x: hidden;
   width: 100%;
+  position: relative;
+  z-index: 6;
   box-sizing: border-box;
 }
 @media (max-width: 600px) {
@@ -2317,7 +2323,7 @@ select.modal-input option { background: #12101e; }
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  z-index: 2000;
+  z-index: 2100;
 }
 #app-nav.visible { display: flex; }
 .nav-wordmark {
@@ -2442,7 +2448,7 @@ body.authed #screen-report { padding-top: 56px; }
       <path d="M24 38 L32 22 L40 38" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
     </svg>
   </div>
-  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;">
+  <div style="position:relative;z-index:6;display:flex;flex-direction:column;align-items:center;width:100%;">
     <div class="intro-eyebrow" style="margin-bottom:24px;">Philosophical OS · Beta</div>
     <h1 class="intro-title" style="margin-bottom:16px;">Your<br/><em>Philosophical</em><br/>OS</h1>
     <p class="intro-sub" style="max-width:520px;margin:0 auto 32px;">A rigorous 160-question assessment that maps your complete worldview across 32 belief axes, detects internal contradictions, and tells you exactly what to do with all of it.</p>
@@ -2488,7 +2494,7 @@ body.authed #screen-report { padding-top: 56px; }
       <circle cx="27.5" cy="27.5" r="3" fill="currentColor"/>
     </svg>
   </div>
-  <div class="auth-card">
+  <div class="auth-card" style="position:relative;z-index:6;">
     <div class="intro-eyebrow" style="justify-content:center;margin-bottom:20px;">Philosophical OS · Beta</div>
     <div id="auth-message" class="auth-message"></div>
     <!-- Login mode -->
@@ -2739,7 +2745,7 @@ body.authed #screen-report { padding-top: 56px; }
      SCREEN: PROFILE / SAVED REPORT
 ══════════════════════════════════════════ -->
 <div id="screen-profile" class="screen">
-  <div style="max-width:860px;margin:0 auto;padding:80px 24px 60px;width:100%;">
+  <div style="max-width:860px;margin:0 auto;padding:80px 24px 60px;width:100%;position:relative;z-index:6;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
       <div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Your Profile</div>
@@ -2795,7 +2801,7 @@ body.authed #screen-report { padding-top: 56px; }
 </div>
 
 <div id="screen-generating" class="screen">
-  <div>
+  <div style="position:relative;z-index:6;">
     <div class="gen-title">Mapping your OS</div>
     <p class="gen-sub">Analysing 32 axes across 4 causal tiers</p>
     <p class="gen-sub" style="font-size:12px;opacity:0.55;margin-top:6px;">This can take up to a minute — your report is being written from scratch</p>
