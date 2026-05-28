@@ -67,7 +67,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 5;
+  z-index: 2;
   opacity: 0.55;
 }
 @media (min-width: 768px) {
@@ -82,9 +82,12 @@ body::before {
   display: flex !important;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
   background: transparent;
   position: relative;
-  z-index: 1;
+  z-index: 6;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 
@@ -2021,8 +2024,8 @@ select.modal-input option { background: #12101e; }
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  overflow: hidden;
-  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before {
@@ -2764,6 +2767,22 @@ body.authed #screen-report { padding-top: 56px; }
     </div>
 
   </div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN: RESOURCES
+══════════════════════════════════════════ -->
+<div id="screen-resources" class="screen">
+  <div class="intro-symbols" aria-hidden="true">
+    <div class="landing-glow-3"></div>
+    <div class="landing-glow-4"></div>
+  </div>
+  <div style="position:relative;z-index:1;width:100%;max-width:860px;margin:0 auto;padding:80px 24px 60px;text-align:center;">
+    <div class="intro-eyebrow" style="justify-content:center;margin-bottom:20px;">Coming Soon</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);font-weight:700;color:var(--text);margin-bottom:16px;">Resources</h1>
+    <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:500px;margin:0 auto 40px;line-height:1.7;">Deep-dive articles, philosophical worldview guides, and explainers built around your archetype and the ideas behind it.</p>
+    <button onclick="show('screen-landing')" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:12px 24px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;">Back to Home</button>
+  </div>
+</div>
 <!-- ══════════════════════════════════════════
      SCREEN 0B: AUTH (login / signup)
 ══════════════════════════════════════════ -->
