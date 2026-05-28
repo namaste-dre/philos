@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Philosophical OS — Know Your Operating System</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -1972,15 +1973,429 @@ select.modal-input option { background: #12101e; }
   color: #e8c97a;
   font-style: italic;
 }
+
+/* ══════════════════════════════════════════
+   AUTH SCREENS
+══════════════════════════════════════════ */
+#screen-landing, #screen-auth {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+#screen-landing {
+  text-align: center;
+}
+.landing-glow-1 {
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(157,147,232,0.18) 0%, transparent 70%);
+  top: -200px; left: -200px;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: driftA 22s ease-in-out infinite alternate;
+}
+.landing-glow-2 {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
+  bottom: -150px; right: -150px;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: driftB 28s ease-in-out infinite alternate;
+}
+.landing-wordmark {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.8;
+  margin-bottom: 32px;
+}
+.landing-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 8vw, 88px);
+  font-weight: 700;
+  line-height: 1.0;
+  color: var(--text);
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+}
+.landing-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+.landing-sub {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--text2);
+  max-width: 520px;
+  line-height: 1.65;
+  margin: 0 auto 40px;
+}
+.landing-stats {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+.landing-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.landing-stat .num {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.landing-stat .lbl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.landing-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.landing-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+.landing-divider::before, .landing-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+/* Auth card */
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+}
+.auth-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 28px;
+  opacity: 0.8;
+}
+.auth-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.auth-subtitle {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 32px;
+}
+.auth-field {
+  margin-bottom: 16px;
+}
+.auth-field label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.auth-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.auth-input:focus {
+  border-color: var(--purple);
+}
+.auth-error {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--danger);
+  margin-top: 8px;
+  display: none;
+}
+.auth-btn-google {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 4px;
+}
+.auth-btn-google:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.3);
+}
+.auth-btn-primary {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 13px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #08061a;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+.auth-btn-primary:hover { opacity: 0.88; }
+.auth-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.auth-toggle {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 20px;
+}
+.auth-toggle a {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+.auth-toggle a:hover { text-decoration: underline; }
+.auth-message {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  color: var(--teal);
+  text-align: center;
+  padding: 12px;
+  background: rgba(91,191,148,0.08);
+  border: 1px solid rgba(91,191,148,0.2);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: none;
+}
+/* Nav bar */
+#app-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(7,6,26,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+}
+#app-nav.visible { display: flex; }
+.nav-wordmark {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.nav-user {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+}
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text2);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+/* Push content below nav when visible */
+body.authed .screen { padding-top: 72px; }
+/* Progress save indicator */
+#save-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(91,191,148,0.12);
+  border: 1px solid rgba(91,191,148,0.25);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--teal);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  z-index: 999;
+}
+#save-indicator.visible { opacity: 1; }
 </style>
 </head>
 <body>
 <canvas id="constellation-bg"></canvas>
 
 <!-- ══════════════════════════════════════════
+     SCREEN 0: LANDING
+══════════════════════════════════════════ -->
+<nav id="app-nav">
+  <div class="nav-wordmark">PHIL / OS</div>
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user-email"></span>
+    <button class="nav-btn" onclick="handleSignOut()">Sign Out</button>
+  </div>
+</nav>
+<div id="save-indicator">Progress saved</div>
+<div id="screen-landing" class="screen active">
+  <div class="landing-glow-1"></div>
+  <div class="landing-glow-2"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;">
+    <div class="landing-wordmark">PHIL / OS</div>
+    <h1 class="landing-title">Your<br/><em>Philosophical</em><br/>Operating System</h1>
+    <p class="landing-sub">A rigorous 160-question assessment that maps your complete worldview across 32 belief axes, detects internal contradictions, and tells you exactly what to do with all of it.</p>
+    <div class="landing-stats">
+      <div class="landing-stat"><span class="num">32</span><span class="lbl">belief axes</span></div>
+      <div class="landing-stat"><span class="num">60</span><span class="lbl">archetypes</span></div>
+      <div class="landing-stat"><span class="num">42</span><span class="lbl">contradiction rules</span></div>
+    </div>
+    <div class="landing-actions">
+      <button class="btn-primary" style="width:100%;max-width:360px;" onclick="showAuth('signup')">Begin Assessment</button>
+      <div class="landing-divider">already have an account</div>
+      <button class="btn-secondary" style="width:100%;max-width:360px;border:1px solid rgba(255,255,255,0.18);color:var(--text2);background:transparent;" onclick="showAuth('login')">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 0B: AUTH (login / signup)
+══════════════════════════════════════════ -->
+<div id="screen-auth" class="screen">
+  <div class="landing-glow-1"></div>
+  <div class="landing-glow-2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">PHIL / OS</div>
+    <div id="auth-message" class="auth-message"></div>
+    <!-- Login mode -->
+    <div id="auth-login-panel">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-subtitle">Sign in to continue your assessment</div>
+      <button class="auth-btn-google" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+      <div class="landing-divider" style="margin:16px 0;">or</div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input id="login-email" class="auth-input" type="email" placeholder="you@example.com" autocomplete="email"/>
+        <div id="login-email-error" class="auth-error">Enter a valid email address.</div>
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input id="login-password" class="auth-input" type="password" placeholder="••••••••" autocomplete="current-password"/>
+        <div id="login-password-error" class="auth-error">Incorrect email or password.</div>
+      </div>
+      <button class="auth-btn-primary" id="login-submit-btn" onclick="handleLogin()">Sign In</button>
+      <div class="auth-toggle">No account? <a onclick="showAuth('signup')">Create one — it's free</a></div>
+      <div class="auth-toggle" style="margin-top:8px;"><a onclick="handleForgotPassword()">Forgot password?</a></div>
+    </div>
+    <!-- Signup mode -->
+    <div id="auth-signup-panel" style="display:none;">
+      <div class="auth-title">Create account</div>
+      <div class="auth-subtitle">Your results are saved forever</div>
+      <button class="auth-btn-google" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+      <div class="landing-divider" style="margin:16px 0;">or</div>
+      <div class="auth-field">
+        <label>Email</label>
+        <input id="signup-email" class="auth-input" type="email" placeholder="you@example.com" autocomplete="email"/>
+        <div id="signup-email-error" class="auth-error">Enter a valid email address.</div>
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input id="signup-password" class="auth-input" type="password" placeholder="Min 8 characters" autocomplete="new-password"/>
+        <div id="signup-password-error" class="auth-error">Password must be at least 8 characters.</div>
+      </div>
+      <button class="auth-btn-primary" id="signup-submit-btn" onclick="handleSignup()">Create Account</button>
+      <div class="auth-toggle">Already have an account? <a onclick="showAuth('login')">Sign in</a></div>
+    </div>
+    <!-- Back link -->
+    <div style="text-align:center;margin-top:20px;">
+      <a onclick="show('screen-landing')" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-decoration:none;">← Back</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
      SCREEN 1: INTRO
 ══════════════════════════════════════════ -->
-<div id="screen-intro" class="screen active">
+<div id="screen-intro" class="screen">
   <div class="intro-glow3"></div>
   <!-- Floating philosophical symbols -->
   <div class="intro-symbols" aria-hidden="true">
@@ -3767,6 +4182,7 @@ function qaUpdateProgressDots() {
 
 function selectLikert(qid, val) {
   state.answers[qid] = val;
+  triggerProgressSave();
   const container = document.getElementById('question-container') || document.getElementById('quiz-question') || document.body;
   container.querySelectorAll('.likert-btn').forEach((btn, i) => {
     btn.classList.toggle('selected', i + 1 === val);
@@ -3777,6 +4193,7 @@ function selectLikert(qid, val) {
 
 function selectOption(qid, score) {
   state.answers[qid] = score;
+  triggerProgressSave();
   // Read score from data-score attribute — avoids false matches when two options share a score value
   const container = document.getElementById('question-container') || document.getElementById('quiz-question') || document.body;
   const allOpts = container.querySelectorAll('.tradeoff-opt, .scenario-opt');
@@ -7827,6 +8244,339 @@ function downloadCard() {
   // Expose so renderReport can call it after injecting dynamic content
   window.attachTooltipBehaviour = attachTooltipBehaviour;
 })();
+
+
+// ══════════════════════════════════════════
+// SUPABASE AUTH
+// ══════════════════════════════════════════
+const SUPA_URL  = 'https://qzazpihvayeqjfgtbakr.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6YXpwaWh2YXllcWpmZ3RiYWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTkzMzUsImV4cCI6MjA5Mzk3NTMzNX0.DAbMq977WoV3cbDE31dX42HQL7ZZiMYfsFVlqBS5GZo';
+const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+let currentUser = null;
+
+// ── Boot: check session on load ──
+async function authBoot() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await onAuthReady();
+  } else {
+    show('screen-landing');
+  }
+
+  // Listen for auth state changes (OAuth callback, sign out)
+  supa.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      await onAuthReady();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      onSignedOut();
+    }
+  });
+}
+
+// ── After successful auth: route user ──
+async function onAuthReady() {
+  showNav();
+  // Check for existing completion
+  const completion = await fetchLatestCompletion();
+  if (completion) {
+    // Has a completed report — restore and show it
+    await restoreCompletion(completion);
+  } else {
+    // Check for in-progress session
+    const progress = await fetchProgress();
+    if (progress && Object.keys(progress.answers || {}).length > 10) {
+      const resume = confirm('You have an assessment in progress. Resume where you left off?');
+      if (resume) {
+        await restoreProgress(progress);
+        return;
+      }
+    }
+    // Start fresh
+    show('screen-intro');
+  }
+}
+
+// ── Show nav bar ──
+function showNav() {
+  const nav = document.getElementById('app-nav');
+  nav.classList.add('visible');
+  document.body.classList.add('authed');
+  const emailEl = document.getElementById('nav-user-email');
+  if (emailEl && currentUser) {
+    emailEl.textContent = currentUser.email || '';
+  }
+}
+
+// ── Sign out ──
+function onSignedOut() {
+  document.getElementById('app-nav').classList.remove('visible');
+  document.body.classList.remove('authed');
+  show('screen-landing');
+}
+
+// ── Show auth panel (login or signup) ──
+function showAuth(mode) {
+  show('screen-auth');
+  const loginPanel  = document.getElementById('auth-login-panel');
+  const signupPanel = document.getElementById('auth-signup-panel');
+  if (mode === 'signup') {
+    loginPanel.style.display  = 'none';
+    signupPanel.style.display = 'block';
+  } else {
+    loginPanel.style.display  = 'block';
+    signupPanel.style.display = 'none';
+  }
+  clearAuthErrors();
+  clearAuthMessage();
+}
+
+function clearAuthErrors() {
+  ['login-email-error','login-password-error','signup-email-error','signup-password-error']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+}
+
+function clearAuthMessage() {
+  const el = document.getElementById('auth-message');
+  if (el) { el.style.display = 'none'; el.textContent = ''; }
+}
+
+function showAuthMessage(msg) {
+  const el = document.getElementById('auth-message');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// ── Google SSO ──
+async function signInWithGoogle() {
+  const { error } = await supa.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://phil-os.thelifepm.com' }
+  });
+  if (error) showAuthMessage('Google sign-in failed. Try again.');
+}
+
+// ── Email login ──
+async function handleLogin() {
+  clearAuthErrors();
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn      = document.getElementById('login-submit-btn');
+
+  if (!validateEmail(email)) {
+    document.getElementById('login-email-error').style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  const { error } = await supa.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+
+  if (error) {
+    document.getElementById('login-password-error').style.display = 'block';
+    document.getElementById('login-password-error').textContent = error.message || 'Incorrect email or password.';
+  }
+}
+
+// ── Email signup ──
+async function handleSignup() {
+  clearAuthErrors();
+  const email    = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const btn      = document.getElementById('signup-submit-btn');
+
+  let valid = true;
+  if (!validateEmail(email)) {
+    document.getElementById('signup-email-error').style.display = 'block';
+    valid = false;
+  }
+  if (password.length < 8) {
+    document.getElementById('signup-password-error').style.display = 'block';
+    valid = false;
+  }
+  if (!valid) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Creating account…';
+
+  const { error } = await supa.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: 'https://phil-os.thelifepm.com' }
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Create Account';
+
+  if (error) {
+    document.getElementById('signup-email-error').style.display = 'block';
+    document.getElementById('signup-email-error').textContent = error.message || 'Could not create account.';
+  } else {
+    showAuthMessage('Check your email to confirm your account, then sign in.');
+    showAuth('login');
+  }
+}
+
+// ── Forgot password ──
+async function handleForgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!validateEmail(email)) {
+    showAuthMessage('Enter your email address above first.');
+    return;
+  }
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://phil-os.thelifepm.com'
+  });
+  if (error) {
+    showAuthMessage('Could not send reset email. Try again.');
+  } else {
+    showAuthMessage('Password reset email sent. Check your inbox.');
+  }
+}
+
+// ── Sign out ──
+async function handleSignOut() {
+  await supa.auth.signOut();
+}
+
+// ══════════════════════════════════════════
+// PROGRESS AUTO-SAVE
+// ══════════════════════════════════════════
+let saveDebounceTimer = null;
+
+function triggerProgressSave() {
+  if (!currentUser) return;
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(saveProgress, 2000);
+}
+
+async function saveProgress() {
+  if (!currentUser) return;
+  try {
+    await supa.from('assessment_progress').upsert({
+      user_id:    currentUser.id,
+      answers:    state.answers,
+      current_q:  state.currentQ,
+      user_name:  state.userName || null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+    showSaveIndicator();
+  } catch(e) {
+    console.warn('Progress save failed:', e.message);
+  }
+}
+
+async function fetchProgress() {
+  if (!currentUser) return null;
+  try {
+    const { data } = await supa
+      .from('assessment_progress')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .single();
+    return data;
+  } catch(e) { return null; }
+}
+
+async function restoreProgress(progress) {
+  if (!progress) return;
+  state.answers      = progress.answers || {};
+  state.currentQ     = progress.current_q || 0;
+  state.userName     = progress.user_name || '';
+  state.shuffledQuestions = QUESTIONS;
+  state.shuffledOptions   = {};
+  QUESTIONS.forEach(q => {
+    if (q.options && q.options.length) {
+      state.shuffledOptions[q.id] = [...q.options];
+    }
+  });
+  showNav();
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 2000);
+}
+
+// ══════════════════════════════════════════
+// COMPLETION PERSISTENCE
+// ══════════════════════════════════════════
+async function saveCompletionToAccount(payload) {
+  if (!currentUser) return;
+  try {
+    await supa.from('account_completions').upsert({
+      user_id:           currentUser.id,
+      email:             currentUser.email,
+      archetype_family:  payload.archetype_family,
+      archetype_variant: payload.archetype_variant,
+      scores:            payload.scores,
+      fingerprint:       payload.fingerprint,
+      contradictions_count: payload.contradictions_count,
+      report_json:       payload.report_json,
+      instrument_version: payload.instrument_version || 'v3',
+      completed_at:      new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+
+    // Clear progress row — assessment is done
+    await supa.from('assessment_progress').delete().eq('user_id', currentUser.id);
+  } catch(e) {
+    console.warn('Account completion save failed:', e.message);
+  }
+}
+
+async function fetchLatestCompletion() {
+  if (!currentUser) return null;
+  try {
+    const { data } = await supa
+      .from('account_completions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .single();
+    return data;
+  } catch(e) { return null; }
+}
+
+async function restoreCompletion(completion) {
+  if (!completion || !completion.report_json) return;
+  // Rehydrate state
+  const scores         = completion.scores || {};
+  const fingerprint    = completion.fingerprint || [];
+  const archetypeResult = computeArchetype(scores);
+  const contradictions  = detectContradictions(scores);
+  const report          = completion.report_json;
+  showNav();
+  renderReport(scores, contradictions, archetypeResult, fingerprint, report);
+  show('screen-report');
+}
+
+// ══════════════════════════════════════════
+// HOOK PROGRESS SAVE INTO nextQ
+// ══════════════════════════════════════════
+// Wrap the existing nextQ to also trigger saves
+const _originalNextQ = typeof nextQ === 'function' ? nextQ : null;
+
+// We patch saveToSupabase to also save to account_completions after completion
+const _originalSaveToSupabase = saveToSupabase;
+async function saveToSupabase(payload) {
+  const result = await _originalSaveToSupabase(payload);
+  // Also persist to account_completions if user is logged in
+  if (currentUser && payload) {
+    await saveCompletionToAccount(payload);
+  }
+  return result;
+}
+
+// Boot on DOM ready
+document.addEventListener('DOMContentLoaded', authBoot);
+
 </script>
 </body>
 </html>
