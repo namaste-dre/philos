@@ -2392,8 +2392,12 @@ select.modal-input option { background: #12101e; }
 }
 .nav-link-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
 /* Nav offset for authed screens */
+body.authed #screen-landing,
+body.authed #screen-intro,
 body.authed #screen-intake,
 body.authed #screen-quiz,
+body.authed #screen-profile,
+body.authed #screen-resources,
 body.authed #screen-generating,
 body.authed #screen-report { padding-top: 56px; }
 /* Progress save indicator */
@@ -9066,16 +9070,29 @@ async function fetchProgress() {
 
 async function restoreProgress(progress) {
   if (!progress) return;
-  state.answers      = progress.answers || {};
-  state.currentQ     = progress.current_q || 0;
-  state.userName     = progress.user_name || '';
-  state.shuffledQuestions = QUESTIONS;
-  state.shuffledOptions   = {};
-  QUESTIONS.forEach(q => {
-    if (q.options && q.options.length) {
-      state.shuffledOptions[q.id] = [...q.options];
-    }
+  // Rebuild full state — same as startQuiz but with saved answers + position
+  const shuffled = buildShuffledOrder();
+  const opts = {};
+  shuffled.forEach(q => {
+    if (q.options && q.options.length) opts[q.id] = shuffle([...q.options]);
   });
+  state = {
+    currentQ:          progress.current_q || 0,
+    answers:           progress.answers || {},
+    axisScores:        {},
+    userName:          progress.user_name || '',
+    shuffledQuestions: shuffled,
+    shuffledOptions:   opts,
+    qaMode:            false,
+    qaFlags:           {},
+    displayTextCache:  {},
+    captureData:       null,
+  };
+  initGlowSequences();
+  tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
+  currentGlowMood = null;
+  document.getElementById('qa-mode-badge').style.display = 'none';
+  showNavProgress(true);
   showNav();
   show('screen-quiz');
   renderQuestion();
