@@ -79,6 +79,7 @@ body::before {
   flex-direction: column;
   min-height: 100vh;
   background: var(--bg);
+  position: relative;
 }
 
 
@@ -356,8 +357,33 @@ body::before {
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
+  overflow: hidden;
 }
-.intake-wrap { max-width: 520px; width: 100%; }
+#screen-intake::before {
+  content: '';
+  position: absolute;
+  width: 900px; height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100,80,255,0.55) 0%, rgba(80,60,200,0.18) 40%, transparent 70%);
+  top: -380px; left: -260px;
+  animation: driftA 16s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(60px);
+  z-index: 0;
+}
+#screen-intake::after {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,160,50,0.45) 0%, rgba(201,169,110,0.12) 40%, transparent 70%);
+  bottom: -220px; right: -180px;
+  animation: driftB 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(70px);
+  z-index: 0;
+}
+.intake-wrap { max-width: 520px; width: 100%; position: relative; z-index: 1; }
 .intake-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -2359,9 +2385,24 @@ body.authed #screen-report { padding-top: 56px; }
 ══════════════════════════════════════════ -->
 <nav id="app-nav">
   <div class="nav-wordmark">PHIL / OS</div>
+  <!-- Progress bar — only visible during quiz -->
+  <div id="nav-progress-wrap" style="flex:1;margin:0 20px;display:none;flex-direction:column;gap:4px;">
+    <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+      <div id="nav-progress-fill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--purple) 0%,var(--accent) 60%,var(--accent2) 100%);border-radius:2px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 8px rgba(201,169,110,0.4);"></div>
+    </div>
+    <div id="nav-progress-label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.04em;text-align:center;"></div>
+  </div>
   <div class="nav-right">
     <span class="nav-user" id="nav-user-email"></span>
-    <button class="nav-btn" onclick="handleSignOut()">Sign Out</button>
+    <!-- Settings dropdown -->
+    <div style="position:relative;" id="settings-menu-wrap">
+      <button class="nav-btn" onclick="toggleSettingsMenu()" id="settings-btn">Settings ▾</button>
+      <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:160px;overflow:hidden;z-index:3000;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div style="padding:4px;">
+          <button onclick="handleSignOut()" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(232,112,112,0.08)'" onmouseout="this.style.background='transparent'">Sign Out</button>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 <div id="save-indicator">Progress saved</div>
@@ -2614,8 +2655,8 @@ body.authed #screen-report { padding-top: 56px; }
 <div id="screen-quiz" class="screen">
   <div class="quiz-glow-layer" id="quiz-glow-layer"></div>
   <div id="qa-mode-badge" class="qa-mode-badge" style="display:none;">QA/QC Mode</div>
-  <div class="quiz-header" style="position:sticky;top:0;z-index:100;">
-    <div class="quiz-logo">PHIL/OS</div>
+  <!-- Quiz header hidden — progress shown in nav bar -->
+  <div class="quiz-header" style="display:none;">
     <div class="progress-bar-wrap">
       <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
     </div>
@@ -4178,6 +4219,7 @@ function startQAQuiz() {
   initGlowSequences();
   tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
   currentGlowMood = null;
+  showNavProgress(true);
   show('screen-quiz');
   renderQuestion();
 }
@@ -4216,6 +4258,8 @@ function renderQuestion() {
   const qInSec = (state.currentQ % secSize) + 1;
   const secTotal = Math.min(secSize, totalQ - sectionIdx * secSize);
   document.getElementById('progress-label').textContent = `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`;
+  // Sync nav progress bar
+  updateNavProgress(pct, `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`);
 
   // Cache display text per question so it never changes on re-render
   if (!state.displayTextCache) state.displayTextCache = {};
@@ -7742,6 +7786,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     }).join('');
   });
 
+  showNavProgress(false);
   show('screen-report');
 
   // Re-attach tooltips to dynamically injected phil-term nodes
@@ -8939,6 +8984,37 @@ function confirmRetake() {
     supa.from('account_completions').delete().eq('user_id', currentUser.id).then(() => {});
   }
   landingBegin();
+}
+
+
+// ── Settings menu toggle ──
+function toggleSettingsMenu() {
+  const dd = document.getElementById('settings-dropdown');
+  if (!dd) return;
+  const isOpen = dd.style.display !== 'none';
+  dd.style.display = isOpen ? 'none' : 'block';
+}
+// Close settings menu on outside click
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('settings-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const dd = document.getElementById('settings-dropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+// ── Show/hide nav progress bar ──
+function showNavProgress(show) {
+  const wrap = document.getElementById('nav-progress-wrap');
+  if (wrap) wrap.style.display = show ? 'flex' : 'none';
+}
+
+// ── Sync nav progress with quiz progress ──
+function updateNavProgress(pct, label) {
+  const fill  = document.getElementById('nav-progress-fill');
+  const lbl   = document.getElementById('nav-progress-label');
+  if (fill) fill.style.width = pct + '%';
+  if (lbl)  lbl.textContent  = label || '';
 }
 
 // Boot on DOM ready
