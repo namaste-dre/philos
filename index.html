@@ -67,7 +67,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 8;
   opacity: 0.55;
 }
 @media (min-width: 768px) {
@@ -81,11 +81,12 @@ body::before {
 .screen.active {
   display: flex !important;
   flex-direction: column;
-  min-height: 100vh;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
   width: 100%;
-  background: transparent;
-  position: relative;
-  z-index: 6;
+  height: 100%;
+  background: var(--bg);
+  z-index: 3;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -2383,6 +2384,7 @@ body.authed #screen-report { padding-top: 56px; }
   position: fixed;
   bottom: 20px;
   right: 20px;
+  z-index: 2200;
   background: rgba(91,191,148,0.12);
   border: 1px solid rgba(91,191,148,0.25);
   border-radius: 20px;
