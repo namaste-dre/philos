@@ -886,6 +886,7 @@ body::after {
   display: flex;
   min-height: 100%;
   align-items: flex-start;
+  background: rgba(8,6,26,0.78);
 }
 .report-nav {
   width: 200px;
@@ -970,7 +971,7 @@ body::after {
   min-width: 0;
 }
 /* Each section panel */
-.rs { display: none; padding: 44px 52px 100px; }
+.rs { display: none; padding: 44px 52px 100px; background: rgba(8,6,26,0.82); }
 .rs.active { display: block; }
 .rs-header {
   margin-bottom: 36px;
@@ -1045,7 +1046,7 @@ body::after {
   overflow: hidden;
   padding: 80px 28px 64px;
   text-align: center;
-  background: var(--bg);
+  background: rgba(8,6,26,0.88);
   width: 100%;
   box-sizing: border-box;
 }
@@ -1424,8 +1425,8 @@ body::after {
 
 /* Section container */
 .report-section-block {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 16px;
   padding: 36px;
   margin-bottom: 28px;
@@ -1886,7 +1887,9 @@ body::after {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   cursor: pointer;
-}
+
+  position: relative;
+  z-index: 7;}
 .card-preview-wrap canvas {
   display: block;
   width: 100%;
@@ -8960,7 +8963,13 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     holder.appendChild(hint);
   }
 
-  if (previewWrap) renderCardToCanvas(previewWrap);
+  // Wait for fonts before drawing canvas
+  if (previewWrap) {
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+      try { renderCardToCanvas(previewWrap); }
+      catch(e) { console.warn('[Phil OS] Card render error:', e.message); }
+    });
+  }
 }
 
 function renderCardToCanvas(container) {
