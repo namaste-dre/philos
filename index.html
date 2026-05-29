@@ -3817,7 +3817,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--muted);margin-bottom:28px;" id="profile-archetype-variant"></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <button onclick="show('screen-report')" style="background:var(--accent);border:none;border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#08061a;cursor:pointer;">View Full Report</button>
-        <button onclick="confirmRetake()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;">Retake</button>
+
       </div>
     </div>
 
@@ -4125,10 +4125,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         </div>
       </div>
 
-      <!-- Retake -->
-      <div style="padding:0 52px 40px;text-align:center;" id="rs-retake">
-        <button class="btn-secondary" onclick="resetQuiz()">Retake assessment</button>
-      </div>
+
 
     </div><!-- /report-sections -->
   </div><!-- /report-layout -->
@@ -10342,13 +10339,15 @@ async function onAuthReady() {
     }
   }
 
-  // Update landing CTA based on state
+  // Route: completed → profile directly. In-progress or new → landing.
   const userState = hasCompletion ? 'completed' : hasProgress ? 'progress' : 'none';
-  console.log('[Phil OS] Auth ready. completion:', !!hasCompletion, '| progress:', !!hasProgress, '| answers:', progress?.answers ? Object.keys(progress.answers).length : 0, '| state:', userState);
   updateLandingCTA(userState, completion);
 
-  // Always go to landing — user chooses what to do from there
-  show('screen-landing');
+  if (hasCompletion) {
+    showProfile();          // go straight to profile — no extra screen
+  } else {
+    show('screen-landing'); // new user or in-progress — show landing
+  }
 }
 
 // ── Show nav bar ──
@@ -10777,7 +10776,7 @@ function updateLandingCTA(userState, completion) {
       <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;text-align:center;">${family}</div>
       <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-bottom:20px;text-align:center;">${variant}</div>
       <button class="btn-primary" style="width:100%;max-width:360px;" onclick="showProfile()">View My Report</button>`;
-    secondary.innerHTML = `<button style="width:100%;max-width:360px;background:transparent;border:1px solid var(--border2);border-radius:8px;padding:11px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;" onclick="confirmRetake()">Retake Assessment</button>`;
+    secondary.innerHTML = '';
   } else if (userState === 'progress') {
     primary.innerHTML = `
       <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;text-align:center;">Assessment In Progress</div>
