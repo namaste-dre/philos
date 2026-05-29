@@ -3500,7 +3500,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- ── 3. ITEM ANALYSIS ── OWNER ONLY -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Item Analysis</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Inspect any axis: question count, reversed item count, type breakdown, and all question texts. Use to verify measurement invariance (5 items, 2 reversed per axis).</p>
         <select id="dev-axis-select" onchange="devAxisInspect()" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;margin-bottom:10px;">
@@ -3551,7 +3551,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- ── 5. ARCHETYPE DISTANCE CHECKER ── -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;">Archetype Distance Checker</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Select an archetype and see its Euclidean distance to all 60 profiles. Validates that the correct archetype wins and shows how cleanly it separates from its nearest neighbours.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
@@ -3567,7 +3567,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- ── 6. SYSTEM STATUS ── -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">System Status</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="dev-system-stats">
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Questions</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-q-count">—</span></div>
@@ -3697,13 +3697,6 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
      SCREEN: PROFILE / SAVED REPORT
 ══════════════════════════════════════════ -->
 <div id="screen-profile" class="screen">
-  <!-- Floating glows -->
-  <div class="intro-symbols" aria-hidden="true">
-    <div class="landing-glow-3"></div>
-    <div class="landing-glow-4"></div>
-    <div style="position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.20) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
-    <div style="position:fixed;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.16) 0%,transparent 70%);top:75%;left:-60px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
-  </div>
   <div style="max-width:860px;margin:0 auto;padding:80px 24px 60px;width:100%;position:relative;z-index:6;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
       <div>
@@ -3719,19 +3712,19 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 
     <!-- Stats row -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px;">
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Rarity</div>
         <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent);" id="profile-stat-rarity">—</div>
       </div>
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Conviction</div>
         <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--purple2);" id="profile-stat-conviction">—</div>
       </div>
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Dominant Axis</div>
         <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--teal);" id="profile-stat-axis">—</div>
       </div>
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Completed</div>
         <div style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;color:var(--text2);" id="profile-stat-date">—</div>
       </div>
@@ -3814,19 +3807,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </div>
   </div>
 
-  <!-- ── SHAREABLE CARD SECTION — below header, above report layout ── -->
-  <div id="card-section" style="display:none;text-align:center;padding:40px 28px 0;background:rgba(8,6,26,0.88);">
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
-      <button class="card-download-btn" id="card-download-btn" onclick="downloadCard()" style="display:inline-flex;">
-        <span>↓</span> Download card
-      </button>
-      <button class="card-download-btn" id="card-share-btn" onclick="shareCard()" style="display:inline-flex;background:rgba(157,147,232,0.12);border-color:rgba(157,147,232,0.4);color:rgba(157,147,232,1);">
-        <span>↗</span> Share
-      </button>
-    </div>
-    <div id="card-preview-wrap-holder"></div>
-    <div class="card-hint" style="margin-bottom:40px;">Tap card to download · TikTok · Instagram · Reels · Reddit · X</div>
-  </div>
+
 
   <div class="report-layout">
 
@@ -3835,6 +3816,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div class="report-nav-title">Sections</div>
       <!-- Mobile dropdown — replaces horizontal scroll on small screens -->
       <select class="report-nav-dropdown" id="report-nav-dropdown" onchange="showReportSection(this.value);document.querySelectorAll('.rn-item').forEach(b=>b.classList.toggle('active',b.dataset.section===this.value));">
+        <option value="rs-card">Your Card</option>
         <option value="rs-identity">Who You Are</option>
         <option value="rs-world">In the World</option>
         <option value="rs-famous">Famous Minds</option>
@@ -3847,7 +3829,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         <option value="rs-map">Full Belief Map</option>
       </select>
       <!-- Desktop sidebar buttons -->
-      <button class="rn-item active" data-section="rs-identity"       onclick="showReportSection('rs-identity')">Who You Are</button>
+      <button class="rn-item active" data-section="rs-card"           onclick="showReportSection('rs-card')">Your Card</button>
+      <button class="rn-item"        data-section="rs-identity"       onclick="showReportSection('rs-identity')">Who You Are</button>
       <button class="rn-item"        data-section="rs-world"          onclick="showReportSection('rs-world')">In the World</button>
       <button class="rn-item"        data-section="rs-famous"         onclick="showReportSection('rs-famous')">Famous Minds</button>
       <button class="rn-item"        data-section="rs-patterns"       onclick="showReportSection('rs-patterns')">How You Operate</button>
@@ -3862,8 +3845,30 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <!-- ── SECTION PANELS ── -->
     <div class="report-sections" id="report-sections">
 
+      <!-- 00 · YOUR CARD — shown first on report generation -->
+      <div class="rs active" id="rs-card">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Your Phil OS</div>
+          <h2 class="rs-title">Your Shareable Card</h2>
+          <p class="rs-desc">Your philosophical OS in one card. Download it and share it anywhere — TikTok, Instagram, Reddit, X. It updates every time you retake the assessment.</p>
+        </div>
+        <div style="text-align:center;padding:8px 0 40px;">
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;">
+            <button class="card-download-btn" id="card-download-btn" onclick="downloadCard()" style="display:none;">
+              <span>↓</span> Download card
+            </button>
+            <button class="card-download-btn" id="card-share-btn" onclick="shareCard()" style="display:none;background:rgba(157,147,232,0.12);border-color:rgba(157,147,232,0.4);color:rgba(157,147,232,1);">
+              <span>↗</span> Share
+            </button>
+          </div>
+          <div id="card-preview-wrap-holder"></div>
+          <div class="card-hint" style="margin-top:16px;margin-bottom:8px;">Tap card to download</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:4px;">TIKTOK · INSTAGRAM · REELS · REDDIT · X</div>
+        </div>
+      </div>
+
       <!-- 01 · WHO YOU ARE -->
-      <div class="rs active" id="rs-identity">
+      <div class="rs" id="rs-identity">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 01 · Identity</div>
           <h2 class="rs-title">Who You Are</h2>
@@ -8915,9 +8920,9 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
 
   showNavProgress(false);
   show('screen-report');
-  // Reset nav and go to first section
+  // Reset nav and go to card section first
   document.querySelectorAll('.rn-item').forEach(el => el.style.display = '');
-  showReportSection('rs-identity');
+  showReportSection('rs-card');
 
   // Re-attach tooltips to dynamically injected phil-term nodes
   if (typeof window.attachTooltipBehaviour === 'function') {
@@ -8953,12 +8958,13 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     contradictions: (typeof state !== 'undefined' && state._lastContradictions) ? state._lastContradictions : [],
   };
 
-  // Show the card section (buttons + preview holder)
+  // Show card buttons inside the rs-card section
   const cardSection = document.getElementById('card-section');
   if (cardSection) cardSection.style.display = 'block';
-  // Keep legacy button references working
   const btn = document.getElementById('card-download-btn');
   if (btn) btn.style.display = 'inline-flex';
+  const shareBtn = document.getElementById('card-share-btn');
+  if (shareBtn) shareBtn.style.display = 'inline-flex';
 
   // Render preview into the holder div
   let previewWrap = document.getElementById('card-preview-wrap');
@@ -9509,6 +9515,7 @@ async function submitConsentGate() {
     console.warn('[Consent] Save failed — proceeding anyway:', e.message);
   }
 
+  _consentGatePassed = true; // prevent re-entry on this session
   const gate = document.getElementById('consent-gate');
   if (gate) gate.style.display = 'none';
 
@@ -10125,6 +10132,8 @@ const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
 let currentUser = null;
 
 // ── Boot: check session on load ──
+let _consentGatePassed = false; // module-level: survives onAuthReady re-entry
+
 async function authBoot() {
   let authHandled = false;
 
@@ -10138,6 +10147,7 @@ async function authBoot() {
       if (session) currentUser = session.user;
       return;
     }
+    if (event === 'USER_UPDATED') return; // metadata update — don't re-enter auth flow
     if (event === 'SIGNED_IN' && session && !authHandled) {
       authHandled = true;
       currentUser = session.user;
@@ -10169,7 +10179,7 @@ async function onAuthReady() {
   }
 
   // ── One-time GDPR + name onboarding for existing/OAuth users ──
-  if (currentUser) {
+  if (currentUser && !_consentGatePassed) {
     const meta = currentUser.user_metadata || {};
     if (!meta.gdpr_consent) {
       showConsentGate(meta);
