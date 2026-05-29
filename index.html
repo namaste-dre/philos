@@ -116,7 +116,7 @@ body::before {
 #screen-intake::before,
 #screen-generating::before {
   content: '';
-  position: absolute;
+  position: fixed;
   width: 900px; height: 900px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(100,80,255,0.55) 0%, rgba(80,60,200,0.18) 40%, transparent 70%);
@@ -130,7 +130,7 @@ body::before {
 #screen-intake::after,
 #screen-generating::after {
   content: '';
-  position: absolute;
+  position: fixed;
   width: 700px; height: 700px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(220,160,50,0.45) 0%, rgba(201,169,110,0.12) 40%, transparent 70%);
@@ -157,7 +157,7 @@ body::before {
 }
 /* Third accent glow — pink/violet mid-left */
 .intro-glow3 {
-  position: absolute;
+  position: fixed;
   width: 500px; height: 500px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(180,100,220,0.30) 0%, transparent 70%);
@@ -2209,9 +2209,9 @@ select.modal-input option { background: #12101e; }
 }
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before,
-#screen-profile::before, #screen-settings::before {
+#screen-profile::before, #screen-settings::before, #screen-resources::before {
   content: '';
-  position: absolute;
+  position: fixed;
   width: 1000px; height: 1000px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(100,80,255,0.70) 0%, rgba(80,60,200,0.28) 40%, transparent 68%);
@@ -2223,9 +2223,9 @@ select.modal-input option { background: #12101e; }
 }
 /* Gold glow — bottom right (matches intro) */
 #screen-landing::after, #screen-auth::after,
-#screen-profile::after, #screen-settings::after {
+#screen-profile::after, #screen-settings::after, #screen-resources::after {
   content: '';
-  position: absolute;
+  position: fixed;
   width: 800px; height: 800px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(220,160,50,0.60) 0%, rgba(201,169,110,0.20) 40%, transparent 68%);
@@ -2249,7 +2249,7 @@ select.modal-input option { background: #12101e; }
 }
 /* Pink/violet third glow */
 .landing-glow-3 {
-  position: absolute;
+  position: fixed;
   width: 500px; height: 500px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(180,100,220,0.30) 0%, transparent 70%);
@@ -2261,7 +2261,7 @@ select.modal-input option { background: #12101e; }
 }
 /* Teal centre glow */
 .landing-glow-4 {
-  position: absolute;
+  position: fixed;
   width: 500px; height: 500px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(80,180,140,0.20) 0%, transparent 70%);
@@ -2836,9 +2836,9 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div class="landing-glow-3"></div>
     <div class="landing-glow-4"></div>
     <!-- Additional glows to cover lower sections of the landing page -->
-    <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.22) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
-    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.20) 0%,transparent 70%);top:70%;left:-80px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
-    <div style="position:absolute;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(180,100,220,0.18) 0%,transparent 70%);top:85%;left:40%;filter:blur(90px);animation:driftA 18s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.22) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.20) 0%,transparent 70%);top:70%;left:-80px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(180,100,220,0.18) 0%,transparent 70%);top:85%;left:40%;filter:blur(90px);animation:driftA 18s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
     <svg class="intro-symbol" style="left:8%;top:15%;animation-delay:0s;animation-duration:22s;" width="80" height="80" viewBox="0 0 80 80" fill="none">
       <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
       <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6" transform="rotate(60 40 40)"/>
@@ -2970,52 +2970,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
     </div>
 
-    <!-- ── WHY IT MATTERS ── -->
-    <div style="margin-bottom:96px;">
-      <div style="text-align:center;margin-bottom:48px;">
-        <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Why it matters</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Your philosophy shapes<br/>everything you do.</h2>
-        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:560px;margin:0 auto;line-height:1.75;">Most people never examine the beliefs running their lives. Phil OS makes them visible.</p>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px;margin-bottom:48px;">
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-          <div style="font-size:26px;margin-bottom:12px;">🪞</div>
-          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you see yourself</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Where you place yourself in the causal chain of your own life. This belief sits underneath every success you celebrate and every failure you agonise over.</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-          <div style="font-size:26px;margin-bottom:12px;">👥</div>
-          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you see others</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Your beliefs about human nature and moral responsibility shape every relationship, every conflict, and every judgement you make.</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-          <div style="font-size:26px;margin-bottom:12px;">🌍</div>
-          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you see the world</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Whether meaning is discovered or constructed. Whether the arc of history bends toward anything at all. These determine what you work toward and what you hope for.</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-          <div style="font-size:26px;margin-bottom:12px;">⚖️</div>
-          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you make decisions</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Whether you lead with principle or consequence. Whether you trust authority or distrust it. These patterns run through every hard call you have ever made.</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-          <div style="font-size:26px;margin-bottom:12px;">🔥</div>
-          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">Where your conflicts come from</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Most relationship friction is incompatible operating systems underneath the surface issue. Two people with different beliefs about fairness will keep having the same fight in different clothes.</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-          <div style="font-size:26px;margin-bottom:12px;">🧭</div>
-          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">What actually drives you</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Phil OS does not tell you what to do with your life. It tells you what you already believe life is for — which is a lot more useful.</p>
-        </div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(157,147,232,0.06) 0%,rgba(201,169,110,0.04) 100%);border:1px solid rgba(157,147,232,0.2);border-radius:16px;padding:clamp(28px,4vw,48px);text-align:center;">
-        <div style="font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,28px);font-style:italic;color:var(--text);line-height:1.55;margin-bottom:16px;">"Most people spend their entire lives acting on beliefs they have never examined, in service of values they have never questioned, toward goals they have never chosen."</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;">Phil OS exists to change that</div>
-      </div>
-    </div>
 
-    <!-- ── CONTRADICTION ENGINE ── -->
+        <!-- ── CONTRADICTION ENGINE ── -->
     <div style="margin-bottom:96px;">
       <div style="text-align:center;margin-bottom:48px;">
         <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">The Contradiction Engine</div>
@@ -3147,7 +3103,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <div class="intro-symbols" aria-hidden="true">
     <div class="landing-glow-3"></div>
     <div class="landing-glow-4"></div>
-    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.18) 0%,transparent 70%);top:55%;right:-100px;filter:blur(80px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.18) 0%,transparent 70%);top:55%;right:-100px;filter:blur(80px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
   </div>
   <div style="max-width:620px;margin:0 auto;padding:60px 24px 80px;width:100%;position:relative;z-index:6;">
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:40px;">
@@ -3365,7 +3321,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <!-- Floating philosophical symbols -->
   <div class="intro-symbols" aria-hidden="true">
     <!-- Third glow blob — teal/green, centre -->
-    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(80,180,140,0.25) 0%,transparent 70%);top:30%;left:35%;filter:blur(60px);animation:driftA 20s ease-in-out infinite alternate;pointer-events:none;"></div>
+    <div style="position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(80,180,140,0.25) 0%,transparent 70%);top:30%;left:35%;filter:blur(60px);animation:driftA 20s ease-in-out infinite alternate;pointer-events:none;"></div>
     <svg class="intro-symbol" style="left:8%;top:15%;font-size:0;animation-delay:0s;animation-duration:22s;" width="80" height="80" viewBox="0 0 80 80" fill="none">
       <!-- Atom / orbits -->
       <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
@@ -3474,7 +3430,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           </select>
         </div>
         <button onclick="devCheckDistance()" id="dev-dist-btn" style="background:transparent;border:1px solid rgba(224,120,74,0.4);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);cursor:pointer;opacity:0.4;pointer-events:none;margin-bottom:10px;">Check Distances</button>
-        <div id="dev-dist-result" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);line-height:1.8;display:none;max-height:200px;overflow-y:auto;"></div>
+        <div id="dev-dist-result" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);line-height:1.8;display:none;max-height:340px;overflow-y:auto;"></div>
       </div>
 
       <!-- ── 6. SYSTEM STATUS ── -->
@@ -3612,8 +3568,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <div class="intro-symbols" aria-hidden="true">
     <div class="landing-glow-3"></div>
     <div class="landing-glow-4"></div>
-    <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.20) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
-    <div style="position:absolute;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.16) 0%,transparent 70%);top:75%;left:-60px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.20) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.16) 0%,transparent 70%);top:75%;left:-60px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
   </div>
   <div style="max-width:860px;margin:0 auto;padding:80px 24px 60px;width:100%;position:relative;z-index:6;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
@@ -9625,15 +9581,19 @@ function devCheckDistance() {
     return { id: a.id, family: a.family, variant: a.variant, dist: count ? Math.sqrt(sum / count) : 999 };
   });
   distances.sort((a, b) => a.dist - b.dist);
-  let html = '<div style="color:var(--muted);margin-bottom:8px;font-size:10px;">Top 10 nearest archetypes (lower = closer):</div>';
+  let html = '<div style="color:var(--muted);margin-bottom:10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Top 10 nearest archetypes (lower = closer):</div>';
   distances.slice(0, 10).forEach((d, i) => {
     const isTarget = d.id === variantId;
-    const bar = Math.round((1 - Math.min(d.dist / 5, 1)) * 80);
-    html += '<div style="margin-bottom:4px;display:flex;align-items:center;gap:8px;">';
-    html += '<span style="min-width:16px;color:var(--muted);">' + (i+1) + '</span>';
-    html += '<div style="flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;"><div style="width:' + bar + '%;height:100%;background:' + (isTarget ? 'var(--teal)' : 'var(--border2)') + ';"></div></div>';
-    html += '<span style="min-width:36px;color:' + (isTarget ? 'var(--teal)' : 'var(--text2)') + ';">' + d.dist.toFixed(2) + '</span>';
-    html += '<span style="color:' + (isTarget ? 'var(--teal)' : 'var(--muted)') + ';font-size:10px;">' + (isTarget ? '★ ' : '') + d.family.replace('The ','') + ' · ' + d.variant + '</span>';
+    const bar = Math.round((1 - Math.min(d.dist / 5, 1)) * 100);
+    const color = isTarget ? 'var(--teal)' : 'var(--text2)';
+    const muted = isTarget ? 'var(--teal)' : 'var(--muted)';
+    html += '<div style="display:grid;grid-template-columns:18px 44px 1fr;align-items:start;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.04);">';
+    html += '<span style="color:var(--muted);font-size:10px;padding-top:2px;">' + (i+1) + '</span>';
+    html += '<span style="color:' + color + ';font-weight:600;padding-top:2px;">' + d.dist.toFixed(2) + '</span>';
+    html += '<div style="min-width:0;">';
+    html += '<div style="color:' + color + ';font-size:11px;line-height:1.4;">' + (isTarget ? '★ ' : '') + d.family + ' · ' + d.variant + '</div>';
+    html += '<div style="height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:4px;"><div style="width:' + bar + '%;height:100%;background:' + (isTarget ? 'var(--teal)' : 'rgba(157,147,232,0.35)') + ';border-radius:2px;"></div></div>';
+    html += '</div>';
     html += '</div>';
   });
   el.innerHTML = html;
