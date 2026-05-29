@@ -2800,7 +2800,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:160px;overflow:hidden;z-index:3000;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
         <div style="padding:4px;">
           <button onclick="openSettings();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Settings</button>
-          <button onclick="show('screen-intro');toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
+          <button onclick="if(currentUser&&currentUser.email==='andre@thelifepm.com'){show('screen-intro');toggleSettingsMenu();}else{alert('Dev panel: owner access only.');}" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
           <div style="height:1px;background:var(--border);margin:4px 8px;"></div>
           <button onclick="handleSignOut();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(232,112,112,0.08)'" onmouseout="this.style.background='transparent'">Sign Out</button>
         </div>
@@ -3193,7 +3193,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button onclick="settingsChangePassword()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;">Change Password</button>
         <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;">Retake Assessment</button>
-        <button onclick="show('screen-intro')" style="background:transparent;border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);cursor:pointer;text-align:left;">Dev / QA Panel</button>
+        <button onclick="if(currentUser&&currentUser.email==='andre@thelifepm.com'){show('screen-intro');}else{alert('Dev panel: owner access only.');}" style="background:transparent;border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);cursor:pointer;text-align:left;">Dev / QA Panel</button>
         <button onclick="handleSignOut()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;margin-top:4px;">Sign Out</button>
       </div>
     </div>
@@ -3859,6 +3859,26 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 </div>
 
 <script>
+
+// ══════════════════════════════════════════
+// SECURITY: HTML SANITIZATION
+// ══════════════════════════════════════════
+function sanitizeHTML(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
+// Sanitize name input — strip everything except letters, spaces, hyphens, apostrophes
+function sanitizeName(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/<[^>]*>/g, '').replace(/[^\p{L}\p{N}\s\-'\.]/gu, '').trim().slice(0, 40);
+}
+
 // ══════════════════════════════════════════
 // QUESTION BANK
 // Each question: { id, tier, axis, type, text, options?, poleLeft, poleRight, weight, reversed? }
@@ -5023,7 +5043,7 @@ function interleaveTypes(arr) {
 
 function startQuiz() {
   const nameInput = document.getElementById('intake-name');
-  const name = nameInput ? nameInput.value.trim() : '';
+  const name = sanitizeName(nameInput ? nameInput.value : '');
   const shuffled = buildShuffledOrder();
   const opts = {};
   shuffled.forEach(q => {
@@ -5034,6 +5054,7 @@ function startQuiz() {
     answers: {},
     axisScores: {},
     userName: name,
+    emailCaptured: false,
     shuffledQuestions: shuffled,
     shuffledOptions: opts,
     qaMode: false,
@@ -7015,7 +7036,7 @@ async function submitEmailCapture() {
   if (!valid) return;
 
   // Save name from modal back to state
-  if (nameEl && nameEl.value.trim()) state.userName = nameEl.value.trim();
+  if (nameEl && nameEl.value.trim()) state.userName = sanitizeName(nameEl.value);
 
   // Store capture data on state for Supabase after report generates
   state.captureData = {
@@ -7177,7 +7198,7 @@ Return ONLY valid JSON — no markdown fences, no preamble:
     const res1 = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200 })
+      body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200, email: state.captureData?.email || '' })
     });
     if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
     const text1 = await res1.text();
@@ -7212,7 +7233,7 @@ Return ONLY valid JSON — no markdown fences:
     const res2 = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ messages: [{role:'user', content: prompt2}], max_tokens: 1800 })
+      body: JSON.stringify({ messages: [{role:'user', content: prompt2}], max_tokens: 1800, email: state.captureData?.email || '' })
     });
     if (!res2.ok) throw new Error(`Call 2 HTTP ${res2.status}`);
     const text2 = await res2.text();
