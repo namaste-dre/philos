@@ -61,6 +61,58 @@ body::before {
   z-index: 0;
   opacity: 0.7;
 }
+/* ── PERSISTENT AMBIENT GLOWS — always on, every screen, full scroll ── */
+body::after {
+  content: '';
+  position: fixed;
+  width: 1000px; height: 1000px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100,80,255,0.65) 0%, rgba(80,60,200,0.22) 40%, transparent 70%);
+  top: -340px; left: -240px;
+  animation: driftA 16s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(70px);
+  z-index: 1;
+}
+.body-glow-gold {
+  position: fixed;
+  width: 800px; height: 800px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,160,50,0.55) 0%, rgba(201,169,110,0.18) 40%, transparent 70%);
+  bottom: -200px; right: -160px;
+  animation: driftB 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(70px);
+  z-index: 1;
+}
+.body-glow-pink {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,100,220,0.35) 0%, transparent 70%);
+  top: 35%; left: -120px;
+  animation: driftC 24s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(90px);
+  z-index: 1;
+}
+@media (min-width: 768px) {
+  body::after {
+    width: 1300px; height: 1300px;
+    background: radial-gradient(circle, rgba(100,80,255,0.80) 0%, rgba(80,60,200,0.32) 40%, transparent 70%);
+    filter: blur(90px);
+  }
+  .body-glow-gold {
+    width: 1100px; height: 1100px;
+    background: radial-gradient(circle, rgba(220,160,50,0.70) 0%, rgba(201,169,110,0.28) 40%, transparent 70%);
+    filter: blur(100px);
+  }
+  .body-glow-pink {
+    width: 900px; height: 900px;
+    background: radial-gradient(circle, rgba(180,100,220,0.55) 0%, transparent 70%);
+    filter: blur(110px);
+  }
+}
 
 /* ── SIGNATURE CONSTELLATION CANVAS ── */
 #constellation-bg {
@@ -85,7 +137,7 @@ body::before {
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100%;
   height: 100%;
-  background: var(--bg);
+  background: transparent;
   z-index: 3;
   overflow-y: auto;
   overflow-x: hidden;
@@ -191,6 +243,9 @@ body::before {
   100% { transform: translate(40px,-60px) scale(1.1); }
 }
 .intro-inner { position: relative; z-index: 6; }
+/* Owner-only dev panel sections — hidden by default, shown by JS for owner */
+.owner-only { display: none !important; }
+body.is-owner .owner-only { display: block !important; }
 
 /* Eyebrow */
 .intro-eyebrow {
@@ -2769,6 +2824,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 </style>
 </head>
 <body>
+<div class="body-glow-gold" aria-hidden="true"></div>
+<div class="body-glow-pink" aria-hidden="true"></div>
 <canvas id="constellation-bg"></canvas>
 
 <!-- ══════════════════════════════════════════
@@ -2800,7 +2857,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:160px;overflow:hidden;z-index:3000;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
         <div style="padding:4px;">
           <button onclick="openSettings();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Settings</button>
-          <button onclick="if(currentUser&&currentUser.email==='andre@thelifepm.com'){show('screen-intro');toggleSettingsMenu();}else{alert('Dev panel: owner access only.');}" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
+          <button onclick="show('screen-intro');toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
           <div style="height:1px;background:var(--border);margin:4px 8px;"></div>
           <button onclick="handleSignOut();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(232,112,112,0.08)'" onmouseout="this.style.background='transparent'">Sign Out</button>
         </div>
@@ -3193,7 +3250,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button onclick="settingsChangePassword()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;">Change Password</button>
         <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;">Retake Assessment</button>
-        <button onclick="if(currentUser&&currentUser.email==='andre@thelifepm.com'){show('screen-intro');}else{alert('Dev panel: owner access only.');}" style="background:transparent;border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);cursor:pointer;text-align:left;">Dev / QA Panel</button>
+        <button onclick="show('screen-intro')" style="background:transparent;border:1px solid rgba(201,169,110,0.3);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);cursor:pointer;text-align:left;">Dev / QA Panel</button>
         <button onclick="handleSignOut()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;margin-top:4px;">Sign Out</button>
       </div>
     </div>
@@ -3368,7 +3425,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;">
 
       <!-- ── 1. REPORT GENERATOR ── -->
-      <div style="background:var(--surface);border:1px solid rgba(201,169,110,0.25);border-radius:12px;padding:20px 24px;">
+      <div class="owner-only" style="background:var(--surface);border:1px solid rgba(201,169,110,0.25);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Report Generator</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Generate a full report for any archetype without completing the assessment. Verifies API call, scoring, contradiction engine, and report render.</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -3389,7 +3446,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         <button onclick="startQAMode()" style="background:transparent;border:1px solid rgba(157,147,232,0.4);border-radius:6px;padding:9px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--purple2);cursor:pointer;">Start QA Assessment</button>
       </div>
 
-      <!-- ── 3. ITEM ANALYSIS ── -->
+      <!-- ── 3. ITEM ANALYSIS ── OWNER ONLY -->
       <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Item Analysis</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Inspect any axis: question count, reversed item count, type breakdown, and all question texts. Use to verify measurement invariance (5 items, 2 reversed per axis).</p>
@@ -3418,7 +3475,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- ── 5. ARCHETYPE DISTANCE CHECKER ── -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div class="owner-only" style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;">Archetype Distance Checker</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Select an archetype and see its Euclidean distance to all 60 profiles. Validates that the correct archetype wins and shows how cleanly it separates from its nearest neighbours.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
@@ -3434,7 +3491,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- ── 6. SYSTEM STATUS ── -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div class="owner-only" style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">System Status</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="dev-system-stats">
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Questions</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-q-count">—</span></div>
@@ -9733,6 +9790,16 @@ async function onAuthReady() {
     history.replaceState(null, '', window.location.pathname);
   }
 
+  // Owner check — unlocks hidden dev sections
+  if (currentUser && currentUser.email === 'andre@thelifepm.com') {
+    document.body.classList.add('is-owner');
+  } else {
+    document.body.classList.remove('is-owner');
+    // Update dev panel subtitle for beta users
+    const devSub = document.querySelector('#screen-intro p[style*="IBM Plex Mono"]');
+    if (devSub) devSub.textContent = 'Beta QA Panel · Run the assessment with question flags enabled and leave feedback.';
+  }
+
   showNav();
 
   let completion = null;
@@ -10191,7 +10258,7 @@ function updateLandingCTA(userState, completion) {
     primary.innerHTML = `
       <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;text-align:center;">Assessment In Progress</div>
       <button class="btn-primary" style="width:100%;max-width:360px;background:var(--teal);color:#08061a;" onclick="resumeAssessment()">Continue Assessment</button>`;
-    secondary.innerHTML = `<button style="width:100%;max-width:360px;background:transparent;border:1px solid var(--border2);border-radius:8px;padding:11px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;" onclick="landingBegin()">Start Over</button>`;
+    secondary.innerHTML = '';
   } else {
     primary.innerHTML = `<button class="btn-primary" style="width:100%;max-width:360px;" onclick="landingBegin()">Begin Assessment</button>`;
     secondary.innerHTML = '';
@@ -10563,60 +10630,4 @@ document.addEventListener('DOMContentLoaded', authBoot);
 
 </script>
 </body>
-</html>    <!-- ── VALUE DEPTH ── -->
-    <div style="margin-bottom:96px;">
-      <div style="text-align:center;margin-bottom:56px;">
-        <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Why it matters</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Your philosophy shapes<br/>everything you do.</h2>
-        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:560px;margin:0 auto;line-height:1.75;">Most people never examine the beliefs that are running their lives. Phil OS makes them visible. All of them.</p>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:24px;margin-bottom:48px;">
-
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
-          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🪞</div>
-          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you see yourself</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Where you place yourself in the causal chain of your own life. Whether you hold yourself responsible or see yourself as shaped by forces larger than individual will. This belief sits underneath every success you celebrate and every failure you agonise over.</p>
-        </div>
-
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
-          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">👥</div>
-          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you see others</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Whether you extend the same understanding to other people that you give yourself — or less. Your beliefs about human nature, moral responsibility, and what people deserve shape every relationship you have, every conflict you have, every judgement you make.</p>
-        </div>
-
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
-          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🌍</div>
-          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you see the world</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Whether reality is fundamentally ordered or chaotic. Whether meaning is discovered or constructed. Whether the arc of history bends toward anything at all. These are not abstract questions. They determine what you work toward, what you grieve, and what you are able to hope for.</p>
-        </div>
-
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
-          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">⚖️</div>
-          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">How you make decisions</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Whether you lead with principle or consequence. Whether authority comes from tradition, reason, or individual conscience. Whether you trust your gut or distrust it. These patterns run through every hard call you have ever made, often without you noticing.</p>
-        </div>
-
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
-          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🔥</div>
-          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">Where your conflicts come from</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Most relationship friction is not about the surface issue. It is about incompatible operating systems running underneath it. Two people with fundamentally different beliefs about fairness, authority, or human nature will keep having the same fight in different clothes until they understand what is actually happening.</p>
-        </div>
-
-        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:28px 24px;">
-          <div style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:12px;">🧭</div>
-          <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:10px;">What actually drives you</div>
-          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0;">Your beliefs about meaning and purpose sit underneath every career choice, every sacrifice, and every moment of fulfilment or emptiness you have ever experienced. Phil OS does not tell you what to do with your life. It tells you what you already believe life is for — which turns out to be a lot more useful.</p>
-        </div>
-
-      </div>
-
-      <!-- Pull quote -->
-      <div style="background:linear-gradient(135deg,rgba(157,147,232,0.06) 0%,rgba(201,169,110,0.04) 100%);border:1px solid rgba(157,147,232,0.2);border-radius:16px;padding:clamp(28px,4vw,48px);text-align:center;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:400px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(157,147,232,0.08) 0%,transparent 70%);pointer-events:none;"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,32px);font-style:italic;color:var(--text);line-height:1.5;margin-bottom:20px;position:relative;">"Most people spend their entire lives acting on beliefs they have never examined, in service of values they have never questioned, toward goals they have never chosen."</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;">Phil OS exists to change that</div>
-      </div>
-    </div>
-
-<
+</html>
