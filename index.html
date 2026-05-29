@@ -112,7 +112,9 @@ body::before {
   min-height: 100vh;
 }
 /* Primary deep-purple glow — top left */
-#screen-intro::before {
+#screen-intro::before,
+#screen-intake::before,
+#screen-generating::before {
   content: '';
   position: absolute;
   width: 900px; height: 900px;
@@ -124,7 +126,9 @@ body::before {
   filter: blur(60px);
 }
 /* Gold glow — bottom right */
-#screen-intro::after {
+#screen-intro::after,
+#screen-intake::after,
+#screen-generating::after {
   content: '';
   position: absolute;
   width: 700px; height: 700px;
@@ -136,12 +140,16 @@ body::before {
   filter: blur(70px);
 }
 @media (min-width: 768px) {
-  #screen-intro::before {
+  #screen-intro::before,
+  #screen-intake::before,
+  #screen-generating::before {
     width: 1200px; height: 1200px;
     background: radial-gradient(circle, rgba(100,80,255,0.75) 0%, rgba(80,60,200,0.30) 40%, transparent 70%);
     filter: blur(80px);
   }
-  #screen-intro::after {
+  #screen-intro::after,
+  #screen-intake::after,
+  #screen-generating::after {
     width: 1000px; height: 1000px;
     background: radial-gradient(circle, rgba(220,160,50,0.65) 0%, rgba(201,169,110,0.22) 40%, transparent 70%);
     filter: blur(90px);
@@ -371,6 +379,7 @@ body::before {
 /* ── INTAKE SCREEN ── */
 #screen-intake {
   overflow: hidden;
+  position: relative;
 }
 #screen-intake.active {
   display: flex;
@@ -381,30 +390,6 @@ body::before {
   text-align: center;
   min-height: 100vh;
   position: relative;
-}
-#screen-intake::before {
-  content: '';
-  position: absolute;
-  width: 900px; height: 900px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(100,80,255,0.55) 0%, rgba(80,60,200,0.18) 40%, transparent 70%);
-  top: -380px; left: -260px;
-  animation: driftA 16s ease-in-out infinite alternate;
-  pointer-events: none;
-  filter: blur(60px);
-  z-index: 0;
-}
-#screen-intake::after {
-  content: '';
-  position: absolute;
-  width: 700px; height: 700px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.45) 0%, rgba(201,169,110,0.12) 40%, transparent 70%);
-  bottom: -220px; right: -180px;
-  animation: driftB 20s ease-in-out infinite alternate;
-  pointer-events: none;
-  filter: blur(70px);
-  z-index: 0;
 }
 .intake-wrap { max-width: 520px; width: 100%; position: relative; z-index: 6; }
 .intake-eyebrow {
@@ -741,6 +726,7 @@ body::before {
 /* ── GENERATING SCREEN ── */
 #screen-generating {
   overflow: hidden;
+  position: relative;
 }
 #screen-generating.active {
   display: flex;
@@ -783,6 +769,62 @@ body::before {
    REPORT SCREEN
 ══════════════════════════════════════════ */
 #screen-report { padding: 0; overflow-x: hidden; }
+/* Report screen glows — fixed so they persist while scrolling */
+#screen-report::before {
+  content: '';
+  position: fixed;
+  width: 900px; height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100,80,255,0.40) 0%, rgba(80,60,200,0.12) 40%, transparent 70%);
+  top: -380px; left: -260px;
+  animation: driftA 16s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(60px);
+  z-index: 0;
+}
+#screen-report::after {
+  content: '';
+  position: fixed;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,160,50,0.35) 0%, rgba(201,169,110,0.10) 40%, transparent 70%);
+  bottom: -220px; right: -180px;
+  animation: driftB 20s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(70px);
+  z-index: 0;
+}
+@media (min-width: 768px) {
+  #screen-report::before {
+    width: 1200px; height: 1200px;
+    background: radial-gradient(circle, rgba(100,80,255,0.55) 0%, rgba(80,60,200,0.22) 40%, transparent 70%);
+    filter: blur(80px);
+  }
+  #screen-report::after {
+    width: 1000px; height: 1000px;
+    background: radial-gradient(circle, rgba(220,160,50,0.50) 0%, rgba(201,169,110,0.16) 40%, transparent 70%);
+    filter: blur(90px);
+  }
+}
+/* Fixed pink/violet third glow for report screen */
+.report-bg-glow3 {
+  position: fixed;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,100,220,0.25) 0%, transparent 70%);
+  top: 40%; left: -100px;
+  animation: driftC 24s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(80px);
+  z-index: 0;
+}
+@media (min-width: 768px) {
+  .report-bg-glow3 {
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(180,100,220,0.40) 0%, transparent 70%);
+    filter: blur(100px);
+  }
+}
 
 /* ══════════════════════════════════════════
    TABBED REPORT LAYOUT
@@ -3466,6 +3508,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
      SCREEN 1B: INTAKE
 ══════════════════════════════════════════ -->
 <div id="screen-intake" class="screen">
+  <div class="intro-glow3"></div>
   <div class="intake-wrap">
     <div class="intake-eyebrow">Before we begin</div>
     <div class="intake-q">What should we call you?</div>
@@ -3628,6 +3671,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 </div>
 
 <div id="screen-generating" class="screen">
+  <div class="intro-glow3"></div>
   <div style="position:relative;z-index:6;">
     <div class="gen-title">Mapping your OS</div>
     <p class="gen-sub">Analysing 32 axes across 4 causal tiers</p>
@@ -3647,6 +3691,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
      SCREEN 4: REPORT
 ══════════════════════════════════════════ -->
 <div id="screen-report" class="screen">
+  <div class="report-bg-glow3"></div>
   <div class="report-header">
     <div class="report-header-inner">
       <div class="report-eyebrow">Your Philosophical OS</div>
