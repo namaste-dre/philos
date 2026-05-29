@@ -243,9 +243,7 @@ body::after {
   100% { transform: translate(40px,-60px) scale(1.1); }
 }
 .intro-inner { position: relative; z-index: 6; }
-/* Owner-only dev panel sections — hidden until is-owner class applied */
-.owner-only { display: none; }
-body.is-owner .owner-only { display: block; }
+/* Dev panel — all sections visible to authenticated users */
 
 /* Eyebrow */
 .intro-eyebrow {
@@ -3464,7 +3462,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;">
 
       <!-- ── 1. REPORT GENERATOR ── -->
-      <div class="owner-only" style="background:var(--surface);border:1px solid rgba(201,169,110,0.25);border-radius:12px;padding:20px 24px;">
+      <div style="background:var(--surface);border:1px solid rgba(201,169,110,0.25);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;">Report Generator</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Generate a full report for any archetype without completing the assessment. Verifies API call, scoring, contradiction engine, and report render.</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -3498,17 +3496,46 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <!-- ── 4. CONTRADICTION TESTER ── -->
       <div style="background:var(--surface);border:1px solid rgba(232,112,112,0.2);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:6px;">Contradiction Tester</div>
-        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 12px;">Set any axis scores and run all 42 rules. All axes start at 4 (neutral). <strong style="color:var(--text);">1 = left pole, 7 = right pole.</strong> Adjust the axes relevant to the rule you want to test, then run.</p>
-        <div id="dev-contra-axes" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:320px;overflow-y:auto;padding-right:4px;"></div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 12px;">Select a rule → it pre-fills the exact axis values that trigger it. Adjust if needed, then run. Or run all 42 with custom values.</p>
+
+        <!-- Rule selector -->
+        <select id="dev-contra-rule-select" onchange="devContraSelectRule(this.value)" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;margin-bottom:10px;">
+          <option value="">— Pick a rule to test —</option>
+        </select>
+
+        <!-- Rule description -->
+        <div id="dev-contra-rule-desc" style="display:none;background:rgba(232,112,112,0.06);border:1px solid rgba(232,112,112,0.2);border-radius:6px;padding:10px 12px;margin-bottom:10px;font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--text2);line-height:1.6;"></div>
+
+        <!-- Two axis rows -->
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+          <div id="dev-ctra-row-a" style="display:grid;grid-template-columns:130px 28px 1fr 28px 28px;align-items:center;gap:6px;">
+            <div id="dev-ctra-label-a" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Axis A</div>
+            <div id="dev-ctra-polel-a" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-align:right;">1</div>
+            <input type="range" id="dev-ctra-slider-a" min="1" max="7" step="1" value="4" oninput="document.getElementById('dev-ctra-val-a').textContent=this.value;devContraHighlight('a',this.value);" style="accent-color:var(--danger);cursor:pointer;width:100%;">
+            <div id="dev-ctra-poleR-a" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-align:left;">7</div>
+            <div id="dev-ctra-val-a" style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--text);text-align:right;min-width:18px;">4</div>
+          </div>
+          <div id="dev-ctra-row-b" style="display:grid;grid-template-columns:130px 28px 1fr 28px 28px;align-items:center;gap:6px;">
+            <div id="dev-ctra-label-b" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Axis B</div>
+            <div id="dev-ctra-polel-b" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-align:right;">1</div>
+            <input type="range" id="dev-ctra-slider-b" min="1" max="7" step="1" value="4" oninput="document.getElementById('dev-ctra-val-b').textContent=this.value;devContraHighlight('b',this.value);" style="accent-color:var(--danger);cursor:pointer;width:100%;">
+            <div id="dev-ctra-poleR-b" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-align:left;">7</div>
+            <div id="dev-ctra-val-b" style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--text);text-align:right;min-width:18px;">4</div>
+          </div>
+        </div>
+
+        <!-- Fires when label -->
+        <div id="dev-contra-fires-when" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:0.5px;"></div>
+
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
           <button onclick="devTestContradictions()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);cursor:pointer;">Run All 42 Rules</button>
-          <button onclick="devContraReset()" style="background:transparent;border:1px solid var(--border2);border-radius:6px;padding:8px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Reset to 4</button>
+          <button onclick="devContraReset()" style="background:transparent;border:1px solid var(--border2);border-radius:6px;padding:8px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Reset</button>
         </div>
         <div id="dev-contra-result" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.7;display:none;max-height:220px;overflow-y:auto;"></div>
       </div>
 
       <!-- ── 5. ARCHETYPE DISTANCE CHECKER ── -->
-      <div class="owner-only" style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;">Archetype Distance Checker</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Select an archetype and see its Euclidean distance to all 60 profiles. Validates that the correct archetype wins and shows how cleanly it separates from its nearest neighbours.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
@@ -3524,7 +3551,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- ── 6. SYSTEM STATUS ── -->
-      <div class="owner-only" style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">System Status</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="dev-system-stats">
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Questions</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-q-count">—</span></div>
@@ -5088,7 +5115,7 @@ function show(screenId) {
   if (typeof updateNavLinks === 'function') updateNavLinks(screenId);
   if (screenId === 'screen-intro' && typeof devRefreshStats === 'function') {
     devRefreshStats();
-    if (typeof devContraRenderAxes === 'function') devContraRenderAxes();
+    if (typeof devContraPopulateRules === 'function') devContraPopulateRules();
   }
   // Show nav progress only during quiz
   if (typeof showNavProgress === 'function') showNavProgress(screenId === 'screen-quiz');
@@ -9645,43 +9672,104 @@ function devAxisInspect() {
 }
 
 // Contradiction Tester — run all 42 rules against a custom score set
-function devContraRenderAxes() {
-  const container = document.getElementById('dev-contra-axes');
-  if (!container || !AXIS_META) return;
-  container.innerHTML = '';
-  Object.entries(AXIS_META).forEach(([key, meta]) => {
-    const row = document.createElement('div');
-    row.style.cssText = 'display:grid;grid-template-columns:140px 1fr 28px;align-items:center;gap:8px;';
-    const label = document.createElement('div');
-    label.style.cssText = 'font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-    label.title = meta.label + ' · 1=' + meta.poleL + '  7=' + meta.poleR;
-    label.textContent = meta.label;
-    const slider = document.createElement('input');
-    slider.type = 'range'; slider.min = 1; slider.max = 7; slider.step = 1; slider.value = 4;
-    slider.id = 'ctra-' + key;
-    slider.style.cssText = 'width:100%;accent-color:var(--danger);cursor:pointer;';
-    slider.title = '1 = ' + meta.poleL + '   7 = ' + meta.poleR;
-    const val = document.createElement('div');
-    val.style.cssText = 'font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--text);text-align:right;font-weight:600;';
-    val.textContent = '4';
-    val.id = 'ctra-v-' + key;
-    slider.addEventListener('input', () => {
-      val.textContent = slider.value;
-      val.style.color = slider.value == 4 ? 'var(--muted)' : 'var(--danger)';
-    });
-    row.appendChild(label); row.appendChild(slider); row.appendChild(val);
-    container.appendChild(row);
+function devContraPopulateRules() {
+  const sel = document.getElementById('dev-contra-rule-select');
+  if (!sel || !CONTRADICTIONS) return;
+  sel.innerHTML = '<option value="">— Pick a rule to test —</option>';
+  const tierLabel = { A: '🔴 A', B: '🟡 B', C: '🔵 C' };
+  CONTRADICTIONS.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = tierLabel[c.tier] + '  ' + c.id + ' — ' + c.title;
+    sel.appendChild(opt);
   });
 }
 
+function devContraSelectRule(ruleId) {
+  const rule = CONTRADICTIONS.find(c => c.id === ruleId);
+  const desc = document.getElementById('dev-contra-rule-desc');
+  const firesWhen = document.getElementById('dev-contra-fires-when');
+  const result = document.getElementById('dev-contra-result');
+  if (result) result.style.display = 'none';
+
+  if (!rule) {
+    if (desc) desc.style.display = 'none';
+    if (firesWhen) firesWhen.style.display = 'none';
+    return;
+  }
+
+  // Get the check function source to determine thresholds
+  const checkSrc = rule.check.toString();
+  // Extract threshold values to pre-fill sliders
+  const aThresh = parseFloat((checkSrc.match(/[a-z]+\s*(>=|<=)\s*([\d.]+)/) || [])[2]) || 4;
+  const bThresh = parseFloat((checkSrc.match(/&&\s*[a-z]+\s*(>=|<=)\s*([\d.]+)/) || [])[2]) || 4;
+  const aOp = (checkSrc.match(/[a-z]+\s*(>=|<=)/) || [])[1] || '>=';
+  const bOp = (checkSrc.match(/&&\s*[a-z]+\s*(>=|<=)/) || [])[1] || '<=';
+
+  // Pre-fill slider A to the triggering value
+  const aVal = aOp === '>=' ? Math.ceil(aThresh) : Math.floor(aThresh);
+  const bVal = bOp === '>=' ? Math.ceil(bThresh) : Math.floor(bThresh);
+
+  const metaA = AXIS_META[rule.a];
+  const metaB = AXIS_META[rule.b];
+
+  // Update axis A
+  if (metaA) {
+    document.getElementById('dev-ctra-label-a').textContent = metaA.label;
+    document.getElementById('dev-ctra-label-a').title = '1=' + metaA.poleL + '  7=' + metaA.poleR;
+    document.getElementById('dev-ctra-polel-a').textContent = metaA.poleL.slice(0,8);
+    document.getElementById('dev-ctra-poleR-a').textContent = metaA.poleR.slice(0,8);
+    document.getElementById('dev-ctra-slider-a').value = aVal;
+    document.getElementById('dev-ctra-val-a').textContent = aVal;
+    devContraHighlight('a', aVal);
+  }
+  // Update axis B
+  if (metaB) {
+    document.getElementById('dev-ctra-label-b').textContent = metaB.label;
+    document.getElementById('dev-ctra-label-b').title = '1=' + metaB.poleL + '  7=' + metaB.poleR;
+    document.getElementById('dev-ctra-polel-b').textContent = metaB.poleL.slice(0,8);
+    document.getElementById('dev-ctra-poleR-b').textContent = metaB.poleR.slice(0,8);
+    document.getElementById('dev-ctra-slider-b').value = bVal;
+    document.getElementById('dev-ctra-val-b').textContent = bVal;
+    devContraHighlight('b', bVal);
+  }
+
+  // Show fires-when hint
+  if (firesWhen) {
+    const aLabel = metaA ? metaA.label : rule.a;
+    const bLabel = metaB ? metaB.label : rule.b;
+    const aPole = aOp === '>=' ? (metaA ? metaA.poleR : 'high') : (metaA ? metaA.poleL : 'low');
+    const bPole = bOp === '>=' ? (metaB ? metaB.poleR : 'high') : (metaB ? metaB.poleL : 'low');
+    firesWhen.textContent = 'FIRES WHEN: ' + aLabel + ' ' + aOp + ' ' + aThresh + ' (' + aPole + ')  AND  ' + bLabel + ' ' + bOp + ' ' + bThresh + ' (' + bPole + ')';
+    firesWhen.style.display = 'block';
+  }
+
+  // Show description snippet
+  if (desc && rule.text) {
+    desc.textContent = rule.text.slice(0, 220) + (rule.text.length > 220 ? '…' : '');
+    desc.style.display = 'block';
+  }
+}
+
+function devContraHighlight(side, val) {
+  const valEl = document.getElementById('dev-ctra-val-' + side);
+  if (!valEl) return;
+  valEl.style.color = (parseInt(val) === 4) ? 'var(--muted)' : 'var(--danger)';
+}
+
 function devContraReset() {
-  if (!AXIS_META) return;
-  Object.keys(AXIS_META).forEach(key => {
-    const s = document.getElementById('ctra-' + key);
-    const v = document.getElementById('ctra-v-' + key);
+  ['a','b'].forEach(side => {
+    const s = document.getElementById('dev-ctra-slider-' + side);
+    const v = document.getElementById('dev-ctra-val-' + side);
     if (s) s.value = 4;
     if (v) { v.textContent = '4'; v.style.color = 'var(--muted)'; }
   });
+  const sel = document.getElementById('dev-contra-rule-select');
+  if (sel) sel.value = '';
+  const desc = document.getElementById('dev-contra-rule-desc');
+  if (desc) desc.style.display = 'none';
+  const fw = document.getElementById('dev-contra-fires-when');
+  if (fw) fw.style.display = 'none';
   const el = document.getElementById('dev-contra-result');
   if (el) el.style.display = 'none';
 }
@@ -9689,38 +9777,52 @@ function devContraReset() {
 function devTestContradictions() {
   const el = document.getElementById('dev-contra-result');
   if (!el || !AXIS_META) return;
-  // Read all axis scores from sliders
+
+  // Read the two axis sliders; everything else stays at neutral 4
+  const rule = CONTRADICTIONS.find(c => c.id === document.getElementById('dev-contra-rule-select')?.value);
   const scores = {};
-  Object.keys(AXIS_META).forEach(key => {
-    const s = document.getElementById('ctra-' + key);
-    scores[key] = s ? parseFloat(s.value) : 4;
-  });
-  const fired = detectContradictions(scores);
-  // Show which axes were changed from neutral
-  const changed = Object.entries(scores).filter(([k,v]) => v !== 4).map(([k,v]) => {
-    const m = AXIS_META[k];
-    const pole = v < 4 ? m.poleL : m.poleR;
-    return m.label + ': ' + v + ' (' + pole + ')';
-  });
-  let html = '';
-  if (changed.length > 0) {
-    html += '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;">ACTIVE SCORES: ' + changed.join(' · ') + '</div>';
+  Object.keys(AXIS_META).forEach(k => scores[k] = 4);
+
+  if (rule) {
+    scores[rule.a] = parseFloat(document.getElementById('dev-ctra-slider-a').value);
+    scores[rule.b] = parseFloat(document.getElementById('dev-ctra-slider-b').value);
   }
+
+  const fired = detectContradictions(scores);
+  const tierColors = { A: 'var(--danger)', B: 'var(--accent)', C: 'var(--purple2)' };
+  let html = '';
+
+  if (rule) {
+    const metaA = AXIS_META[rule.a];
+    const metaB = AXIS_META[rule.b];
+    const aVal = scores[rule.a];
+    const bVal = scores[rule.b];
+    const aPole = aVal < 4 ? metaA?.poleL : metaA?.poleR;
+    const bPole = bVal < 4 ? metaB?.poleL : metaB?.poleR;
+    html += '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:0.5px;">' +
+      (metaA?.label || rule.a) + ': ' + aVal + ' (' + aPole + ')  ·  ' +
+      (metaB?.label || rule.b) + ': ' + bVal + ' (' + bPole + ')' +
+      '</div>';
+  }
+
   if (fired.length === 0) {
-    html += '<span style="color:var(--teal);">No contradictions detected. Try setting axes to extreme values (1 or 7) that logically conflict.</span>';
+    html += '<div style="color:var(--teal);margin-bottom:4px;">No contradictions fired.</div>';
+    if (rule) {
+      html += '<div style="color:var(--muted);font-size:11px;">The selected rule requires specific threshold values. Check the FIRES WHEN line above and adjust the sliders to match.</div>';
+    }
   } else {
-    const tierColors = { A: 'var(--danger)', B: 'var(--accent)', C: 'var(--purple2)' };
     fired.forEach(c => {
       const col = tierColors[c.tier] || 'var(--border2)';
       html += '<div style="padding:8px 10px;background:var(--surface2);border-radius:6px;border-left:3px solid ' + col + ';margin-bottom:6px;">';
       html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">';
       html += '<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:' + col + ';">Tier ' + c.tier + '</span>';
+      html += '<span style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);">' + c.id + '</span>';
       html += '<strong style="color:var(--text);font-size:12px;">' + c.title + '</strong>';
       html += '</div>';
-      if (c.text) html += '<div style="font-size:11px;color:var(--text2);line-height:1.5;">' + c.text.slice(0, 160) + (c.text.length > 160 ? '…' : '') + '</div>';
+      if (c.text) html += '<div style="font-size:11px;color:var(--text2);line-height:1.5;">' + c.text.slice(0, 180) + (c.text.length > 180 ? '…' : '') + '</div>';
       html += '</div>';
     });
-    html += '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--teal);margin-top:6px;">' + fired.length + ' contradiction' + (fired.length > 1 ? 's' : '') + ' fired</div>';
+    html += '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--teal);margin-top:4px;">✓ ' + fired.length + ' rule' + (fired.length > 1 ? 's' : '') + ' fired</div>';
   }
   el.innerHTML = html;
   el.style.display = 'block';
@@ -9833,7 +9935,9 @@ function devRunIntegrityCheck() {
   window.devRefreshStats          = devRefreshStats;
   window.devPopulateAxisDropdowns = devPopulateAxisDropdowns;
   window.devAxisInspect           = devAxisInspect;
-  window.devContraRenderAxes      = devContraRenderAxes;
+  window.devContraPopulateRules   = devContraPopulateRules;
+  window.devContraSelectRule      = devContraSelectRule;
+  window.devContraHighlight       = devContraHighlight;
   window.devContraReset           = devContraReset;
   window.devTestContradictions    = devTestContradictions;
   window.devDistFamilyChanged     = devDistFamilyChanged;
@@ -9895,19 +9999,7 @@ async function onAuthReady() {
     history.replaceState(null, '', window.location.pathname);
   }
 
-  // Owner check — unlocks hidden dev sections
-  const userEmail = (currentUser && currentUser.email ? currentUser.email.toLowerCase().trim() : '');
-  if (userEmail === 'andre@thelifepm.com') {
-    document.body.classList.add('is-owner');
-    // Direct JS fallback in case CSS class doesn't propagate in time
-    document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'block');
-  } else {
-    document.body.classList.remove('is-owner');
-    document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
-    // Update dev panel subtitle for beta users
-    const devSub = document.querySelector('#screen-intro p[style*="IBM Plex Mono"]');
-    if (devSub) devSub.textContent = 'Beta QA Panel · Run the assessment with question flags enabled and leave feedback.';
-  }
+
 
   showNav();
 
