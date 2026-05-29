@@ -243,9 +243,9 @@ body::after {
   100% { transform: translate(40px,-60px) scale(1.1); }
 }
 .intro-inner { position: relative; z-index: 6; }
-/* Owner-only dev panel sections — hidden by default, shown by JS for owner */
-.owner-only { display: none !important; }
-body.is-owner .owner-only { display: block !important; }
+/* Owner-only dev panel sections — hidden until is-owner class applied */
+.owner-only { display: none; }
+body.is-owner .owner-only { display: block; }
 
 /* Eyebrow */
 .intro-eyebrow {
@@ -898,7 +898,9 @@ body.is-owner .owner-only { display: block !important; }
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  background: rgba(8,6,26,0.97);
+  background: rgba(8,6,26,0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   scrollbar-width: none;
   z-index: 10;
 }
@@ -910,6 +912,41 @@ body.is-owner .owner-only { display: block !important; }
   text-transform: uppercase;
   color: rgba(255,255,255,0.45);
   padding: 0 20px 16px;
+}
+/* Mobile section dropdown — hidden on desktop */
+.report-nav-dropdown {
+  display: none;
+}
+@media (max-width: 767px) {
+  .report-nav-dropdown {
+    display: block;
+    width: 100%;
+    background: rgba(8,6,26,0.85);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    margin: 8px 12px 0;
+    width: calc(100% - 24px);
+  }
+  .report-nav-dropdown option {
+    background: #12102a;
+    color: var(--text);
+  }
+  /* Hide scroll buttons on mobile — dropdown replaces them */
+  .rn-item {
+    display: none !important;
+  }
 }
 .rn-item {
   display: block;
@@ -983,7 +1020,9 @@ body.is-owner .owner-only { display: block !important; }
     border-bottom: 1px solid rgba(255,255,255,0.07);
     -webkit-overflow-scrolling: touch;
     z-index: 20;
-    background: rgba(8,6,26,0.98);
+    background: rgba(8,6,26,0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
   .report-nav-title { display: none; }
   .rn-item {
@@ -3458,20 +3497,14 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 
       <!-- ── 4. CONTRADICTION TESTER ── -->
       <div style="background:var(--surface);border:1px solid rgba(232,112,112,0.2);border-radius:12px;padding:20px 24px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:14px;">Contradiction Tester</div>
-        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Enter two axis scores manually and see which contradiction rules fire. Use to verify all 42 rules are triggering correctly.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <select id="dev-contra-axis1" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">
-            <option value="">Axis 1</option>
-          </select>
-          <input id="dev-contra-val1" type="number" min="1" max="7" value="7" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;width:100%;box-sizing:border-box;" placeholder="Score 1-7"/>
-          <select id="dev-contra-axis2" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">
-            <option value="">Axis 2</option>
-          </select>
-          <input id="dev-contra-val2" type="number" min="1" max="7" value="1" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;width:100%;box-sizing:border-box;" placeholder="Score 1-7"/>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:6px;">Contradiction Tester</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 12px;">Set any axis scores and run all 42 rules. All axes start at 4 (neutral). <strong style="color:var(--text);">1 = left pole, 7 = right pole.</strong> Adjust the axes relevant to the rule you want to test, then run.</p>
+        <div id="dev-contra-axes" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:320px;overflow-y:auto;padding-right:4px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <button onclick="devTestContradictions()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);cursor:pointer;">Run All 42 Rules</button>
+          <button onclick="devContraReset()" style="background:transparent;border:1px solid var(--border2);border-radius:6px;padding:8px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Reset to 4</button>
         </div>
-        <button onclick="devTestContradictions()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);cursor:pointer;margin-bottom:10px;">Run All 42 Rules</button>
-        <div id="dev-contra-result" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.7;display:none;max-height:180px;overflow-y:auto;"></div>
+        <div id="dev-contra-result" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.7;display:none;max-height:220px;overflow-y:auto;"></div>
       </div>
 
       <!-- ── 5. ARCHETYPE DISTANCE CHECKER ── -->
@@ -3747,6 +3780,20 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <!-- ── SECTION NAV (left sidebar / mobile tab bar) ── -->
     <nav class="report-nav" id="report-nav">
       <div class="report-nav-title">Sections</div>
+      <!-- Mobile dropdown — replaces horizontal scroll on small screens -->
+      <select class="report-nav-dropdown" id="report-nav-dropdown" onchange="showReportSection(this.value);document.querySelectorAll('.rn-item').forEach(b=>b.classList.toggle('active',b.dataset.section===this.value));">
+        <option value="rs-identity">Who You Are</option>
+        <option value="rs-world">In the World</option>
+        <option value="rs-famous">Famous Minds</option>
+        <option value="rs-patterns">How You Operate</option>
+        <option value="rs-fingerprint">Fingerprint</option>
+        <option value="rs-alignment">Life Alignment</option>
+        <option value="rs-media">Culture Map</option>
+        <option value="rs-growth">Growth Edges</option>
+        <option value="rs-contradictions">Belief Tensions</option>
+        <option value="rs-map">Full Belief Map</option>
+      </select>
+      <!-- Desktop sidebar buttons -->
       <button class="rn-item active" data-section="rs-identity"       onclick="showReportSection('rs-identity')">Who You Are</button>
       <button class="rn-item"        data-section="rs-world"          onclick="showReportSection('rs-world')">In the World</button>
       <button class="rn-item"        data-section="rs-famous"         onclick="showReportSection('rs-famous')">Famous Minds</button>
@@ -5039,7 +5086,10 @@ function show(screenId) {
     document.body.scrollTop = 0;
   }
   if (typeof updateNavLinks === 'function') updateNavLinks(screenId);
-  if (screenId === 'screen-intro' && typeof devRefreshStats === 'function') devRefreshStats();
+  if (screenId === 'screen-intro' && typeof devRefreshStats === 'function') {
+    devRefreshStats();
+    if (typeof devContraRenderAxes === 'function') devContraRenderAxes();
+  }
   // Show nav progress only during quiz
   if (typeof showNavProgress === 'function') showNavProgress(screenId === 'screen-quiz');
 }
@@ -9595,29 +9645,82 @@ function devAxisInspect() {
 }
 
 // Contradiction Tester — run all 42 rules against a custom score set
-function devTestContradictions() {
-  const axis1 = document.getElementById('dev-contra-axis1').value;
-  const val1  = parseFloat(document.getElementById('dev-contra-val1').value) || 4;
-  const axis2 = document.getElementById('dev-contra-axis2').value;
-  const val2  = parseFloat(document.getElementById('dev-contra-val2').value) || 4;
+function devContraRenderAxes() {
+  const container = document.getElementById('dev-contra-axes');
+  if (!container || !AXIS_META) return;
+  container.innerHTML = '';
+  Object.entries(AXIS_META).forEach(([key, meta]) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:140px 1fr 28px;align-items:center;gap:8px;';
+    const label = document.createElement('div');
+    label.style.cssText = 'font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    label.title = meta.label + ' · 1=' + meta.poleL + '  7=' + meta.poleR;
+    label.textContent = meta.label;
+    const slider = document.createElement('input');
+    slider.type = 'range'; slider.min = 1; slider.max = 7; slider.step = 1; slider.value = 4;
+    slider.id = 'ctra-' + key;
+    slider.style.cssText = 'width:100%;accent-color:var(--danger);cursor:pointer;';
+    slider.title = '1 = ' + meta.poleL + '   7 = ' + meta.poleR;
+    const val = document.createElement('div');
+    val.style.cssText = 'font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--text);text-align:right;font-weight:600;';
+    val.textContent = '4';
+    val.id = 'ctra-v-' + key;
+    slider.addEventListener('input', () => {
+      val.textContent = slider.value;
+      val.style.color = slider.value == 4 ? 'var(--muted)' : 'var(--danger)';
+    });
+    row.appendChild(label); row.appendChild(slider); row.appendChild(val);
+    container.appendChild(row);
+  });
+}
+
+function devContraReset() {
+  if (!AXIS_META) return;
+  Object.keys(AXIS_META).forEach(key => {
+    const s = document.getElementById('ctra-' + key);
+    const v = document.getElementById('ctra-v-' + key);
+    if (s) s.value = 4;
+    if (v) { v.textContent = '4'; v.style.color = 'var(--muted)'; }
+  });
   const el = document.getElementById('dev-contra-result');
-  // Build a full neutral score set, override the two selected axes
+  if (el) el.style.display = 'none';
+}
+
+function devTestContradictions() {
+  const el = document.getElementById('dev-contra-result');
+  if (!el || !AXIS_META) return;
+  // Read all axis scores from sliders
   const scores = {};
-  Object.keys(AXIS_META).forEach(k => scores[k] = 4);
-  if (axis1) scores[axis1] = val1;
-  if (axis2) scores[axis2] = val2;
+  Object.keys(AXIS_META).forEach(key => {
+    const s = document.getElementById('ctra-' + key);
+    scores[key] = s ? parseFloat(s.value) : 4;
+  });
   const fired = detectContradictions(scores);
+  // Show which axes were changed from neutral
+  const changed = Object.entries(scores).filter(([k,v]) => v !== 4).map(([k,v]) => {
+    const m = AXIS_META[k];
+    const pole = v < 4 ? m.poleL : m.poleR;
+    return m.label + ': ' + v + ' (' + pole + ')';
+  });
   let html = '';
+  if (changed.length > 0) {
+    html += '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;">ACTIVE SCORES: ' + changed.join(' · ') + '</div>';
+  }
   if (fired.length === 0) {
-    html = '<span style="color:var(--teal);">No contradictions detected with these scores.</span>';
+    html += '<span style="color:var(--teal);">No contradictions detected. Try setting axes to extreme values (1 or 7) that logically conflict.</span>';
   } else {
+    const tierColors = { A: 'var(--danger)', B: 'var(--accent)', C: 'var(--purple2)' };
     fired.forEach(c => {
-      const tierColors = { A: 'var(--danger)', B: 'var(--accent)', C: 'var(--purple2)' };
-      html += '<div style="padding:8px 10px;background:var(--surface2);border-radius:4px;border-left:2px solid ' + (tierColors[c.tier] || 'var(--border2)') + ';margin-bottom:6px;">';
-      html += "<span style='font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:" + (tierColors[c.tier]) + ";'>" + "Tier " + c.tier + "</span> ";
-      html += '<strong style="color:var(--text);">' + c.title + '</strong>';
+      const col = tierColors[c.tier] || 'var(--border2)';
+      html += '<div style="padding:8px 10px;background:var(--surface2);border-radius:6px;border-left:3px solid ' + col + ';margin-bottom:6px;">';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">';
+      html += '<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:' + col + ';">Tier ' + c.tier + '</span>';
+      html += '<strong style="color:var(--text);font-size:12px;">' + c.title + '</strong>';
+      html += '</div>';
+      if (c.text) html += '<div style="font-size:11px;color:var(--text2);line-height:1.5;">' + c.text.slice(0, 160) + (c.text.length > 160 ? '…' : '') + '</div>';
       html += '</div>';
     });
+    html += '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:var(--teal);margin-top:6px;">' + fired.length + ' contradiction' + (fired.length > 1 ? 's' : '') + ' fired</div>';
   }
   el.innerHTML = html;
   el.style.display = 'block';
@@ -9730,6 +9833,8 @@ function devRunIntegrityCheck() {
   window.devRefreshStats          = devRefreshStats;
   window.devPopulateAxisDropdowns = devPopulateAxisDropdowns;
   window.devAxisInspect           = devAxisInspect;
+  window.devContraRenderAxes      = devContraRenderAxes;
+  window.devContraReset           = devContraReset;
   window.devTestContradictions    = devTestContradictions;
   window.devDistFamilyChanged     = devDistFamilyChanged;
   window.devCheckDistance         = devCheckDistance;
@@ -9791,10 +9896,14 @@ async function onAuthReady() {
   }
 
   // Owner check — unlocks hidden dev sections
-  if (currentUser && currentUser.email === 'andre@thelifepm.com') {
+  const userEmail = (currentUser && currentUser.email ? currentUser.email.toLowerCase().trim() : '');
+  if (userEmail === 'andre@thelifepm.com') {
     document.body.classList.add('is-owner');
+    // Direct JS fallback in case CSS class doesn't propagate in time
+    document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'block');
   } else {
     document.body.classList.remove('is-owner');
+    document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
     // Update dev panel subtitle for beta users
     const devSub = document.querySelector('#screen-intro p[style*="IBM Plex Mono"]');
     if (devSub) devSub.textContent = 'Beta QA Panel · Run the assessment with question flags enabled and leave feedback.';
@@ -10063,11 +10172,10 @@ async function showReportSection(sectionId) {
   const sec = document.getElementById(sectionId);
   if (sec) sec.classList.add('active');
   const navItem = document.querySelector('.rn-item[data-section="' + sectionId + '"]');
-  if (navItem) {
-    navItem.classList.add('active');
-    // On mobile (horizontal scroll nav) — scroll the active item into view
-    navItem.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }
+  if (navItem) navItem.classList.add('active');
+  // Keep mobile dropdown in sync
+  const dropdown = document.getElementById('report-nav-dropdown');
+  if (dropdown) dropdown.value = sectionId;
   // Scroll report screen to top
   const screen = document.getElementById('screen-report');
   if (screen) screen.scrollTop = 0;
