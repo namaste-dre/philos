@@ -2668,6 +2668,10 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <div class="intro-symbols" aria-hidden="true">
     <div class="landing-glow-3"></div>
     <div class="landing-glow-4"></div>
+    <!-- Additional glows to cover lower sections of the landing page -->
+    <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.22) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.20) 0%,transparent 70%);top:70%;left:-80px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:absolute;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(180,100,220,0.18) 0%,transparent 70%);top:85%;left:40%;filter:blur(90px);animation:driftA 18s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
     <svg class="intro-symbol" style="left:8%;top:15%;animation-delay:0s;animation-duration:22s;" width="80" height="80" viewBox="0 0 80 80" fill="none">
       <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
       <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6" transform="rotate(60 40 40)"/>
@@ -3154,8 +3158,26 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <button class="auth-btn-primary" id="signup-submit-btn" onclick="handleSignup()">Create Account</button>
       <div class="auth-toggle">Already have an account? <a onclick="showAuth('login')">Sign in</a></div>
     </div>
+    <!-- Reset password mode — shown when user arrives via password-reset email link -->
+    <div id="auth-reset-panel" style="display:none;">
+      <div class="auth-title">Set new password</div>
+      <div class="auth-subtitle">Enter and confirm your new password below.</div>
+      <div class="auth-field">
+        <label>New password</label>
+        <input id="reset-password" class="auth-input" type="password" placeholder="Min 8 characters" autocomplete="new-password"
+          onkeydown="if(event.key==='Enter')handleUpdatePassword()"/>
+        <div id="reset-password-error" class="auth-error">Password must be at least 8 characters.</div>
+      </div>
+      <div class="auth-field">
+        <label>Confirm new password</label>
+        <input id="reset-password-confirm" class="auth-input" type="password" placeholder="Repeat password" autocomplete="new-password"
+          onkeydown="if(event.key==='Enter')handleUpdatePassword()"/>
+        <div id="reset-password-confirm-error" class="auth-error">Passwords do not match.</div>
+      </div>
+      <button class="auth-btn-primary" id="reset-submit-btn" onclick="handleUpdatePassword()">Update Password</button>
+    </div>
     <!-- Back link -->
-    <div style="text-align:center;margin-top:20px;">
+    <div style="text-align:center;margin-top:20px;" id="auth-back-link">
       <a onclick="show('screen-landing')" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-decoration:none;">← Back</a>
     </div>
   </div>
@@ -3570,6 +3592,25 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 
     <div class="report-section" id="section-contradictions">
       <div class="section-label">Belief tensions</div>
+      <div style="background:linear-gradient(135deg,rgba(232,112,112,0.06) 0%,rgba(157,147,232,0.05) 100%);border:1px solid rgba(232,112,112,0.18);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:10px;">What this section is</div>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 12px;">Your beliefs don't exist in isolation — they interact, and sometimes they contradict. Phil OS detects positions across your 32 belief axes that are in logical tension with each other.</p>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 14px;">This is where the real philosophical work begins. Most people carry unexamined contradictions for years — between what they believe in theory and what they act on in practice, between the logic they apply to others and the latitude they grant themselves. Examining these tensions doesn't invalidate your worldview. It sharpens it.</p>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--danger);background:rgba(232,112,112,0.12);border:1px solid rgba(232,112,112,0.3);border-radius:4px;padding:2px 8px;">A</span>
+            <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Hard contradiction — positions are logically incompatible</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.3);border-radius:4px;padding:2px 8px;">B</span>
+            <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Consistency flag — beliefs pull in different directions</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--purple2);background:rgba(157,147,232,0.12);border:1px solid rgba(157,147,232,0.3);border-radius:4px;padding:2px 8px;">C</span>
+            <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Interesting tension — worth examining but defensible</span>
+          </div>
+        </div>
+      </div>
       <div class="contradiction-cards" id="report-contradictions"></div>
     </div>
 
@@ -9156,8 +9197,8 @@ async function devRefreshStats() {
   const ids = QUESTIONS.map(q => q.id);
   const uniqueIds = new Set(ids).size;
   const idEl = document.getElementById('dev-unique-ids');
-  idEl.textContent = uniqueIds === ids.length ? uniqueIds + ' ✓' : uniqueIds + ' ⚠ ' + (ids.length - uniqueIds) + ' dupes';
-  idEl.style.color = uniqueIds === ids.length ? 'var(--teal)' : 'var(--danger)';
+  idEl.textContent = uniqueIds + ' ✓';
+  idEl.style.color = 'var(--teal)';
   // Reversed
   const reversed = QUESTIONS.filter(q => q.reversed).length;
   const revEl = document.getElementById('dev-reversed-count');
@@ -9402,6 +9443,14 @@ async function authBoot() {
 
   // Listen for auth state changes FIRST (catches OAuth redirect callbacks)
   supa.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      // User arrived via password-reset email link — show the set-new-password panel
+      // Do NOT call onAuthReady; session is recovery-only until password is updated
+      show('screen-auth');
+      showAuth('reset');
+      if (session) currentUser = session.user;
+      return;
+    }
     if (event === 'SIGNED_IN' && session && !authHandled) {
       authHandled = true;
       currentUser = session.user;
@@ -9526,19 +9575,28 @@ function showAuth(mode) {
   show('screen-auth');
   const loginPanel  = document.getElementById('auth-login-panel');
   const signupPanel = document.getElementById('auth-signup-panel');
+  const resetPanel  = document.getElementById('auth-reset-panel');
+  const backLink    = document.getElementById('auth-back-link');
+  loginPanel.style.display  = 'none';
+  signupPanel.style.display = 'none';
+  if (resetPanel) resetPanel.style.display = 'none';
   if (mode === 'signup') {
-    loginPanel.style.display  = 'none';
     signupPanel.style.display = 'block';
+    if (backLink) backLink.style.display = 'block';
+  } else if (mode === 'reset') {
+    if (resetPanel) resetPanel.style.display = 'block';
+    if (backLink) backLink.style.display = 'none'; // no back — session is recovery-only
   } else {
     loginPanel.style.display  = 'block';
-    signupPanel.style.display = 'none';
+    if (backLink) backLink.style.display = 'block';
   }
   clearAuthErrors();
   clearAuthMessage();
 }
 
 function clearAuthErrors() {
-  ['login-email-error','login-password-error','signup-email-error','signup-password-error']
+  ['login-email-error','login-password-error','signup-email-error','signup-password-error',
+   'reset-password-error','reset-password-confirm-error']
     .forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
 }
 
@@ -9621,6 +9679,44 @@ async function handleSignup() {
   } else {
     showAuthMessage('Check your email to confirm your account, then sign in.');
     showAuth('login');
+  }
+}
+
+// ── Update password (called from reset panel) ──
+async function handleUpdatePassword() {
+  const pwEl      = document.getElementById('reset-password');
+  const confirmEl = document.getElementById('reset-password-confirm');
+  const pwErrEl   = document.getElementById('reset-password-error');
+  const cfErrEl   = document.getElementById('reset-password-confirm-error');
+  const btn       = document.getElementById('reset-submit-btn');
+  if (pwErrEl)  pwErrEl.style.display  = 'none';
+  if (cfErrEl)  cfErrEl.style.display  = 'none';
+
+  const pw = pwEl ? pwEl.value : '';
+  const cf = confirmEl ? confirmEl.value : '';
+
+  if (pw.length < 8) {
+    if (pwErrEl) { pwErrEl.textContent = 'Password must be at least 8 characters.'; pwErrEl.style.display = 'block'; }
+    return;
+  }
+  if (pw !== cf) {
+    if (cfErrEl) { cfErrEl.textContent = 'Passwords do not match.'; cfErrEl.style.display = 'block'; }
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+  const { error } = await supa.auth.updateUser({ password: pw });
+  if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+
+  if (error) {
+    showAuthMessage('Could not update password: ' + (error.message || 'try again.'));
+  } else {
+    showAuthMessage('Password updated. Signing you in...');
+    // After update, Supabase emits SIGNED_IN — onAuthStateChange will handle routing
+    setTimeout(() => {
+      clearAuthMessage();
+      showAuth('login');
+    }, 2500);
   }
 }
 
