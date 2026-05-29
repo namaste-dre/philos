@@ -3811,11 +3811,21 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         </div>
       </div>
       <div id="report-thinkers-line" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:28px;"></div>
-      <button class="card-download-btn" id="card-download-btn" onclick="downloadCard()" style="display:none">
-        <span>↓</span> Download your card
-      </button>
-      <div id="card-preview-wrap-holder"></div>
     </div>
+  </div>
+
+  <!-- ── SHAREABLE CARD SECTION — below header, above report layout ── -->
+  <div id="card-section" style="display:none;text-align:center;padding:40px 28px 0;background:rgba(8,6,26,0.88);">
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
+      <button class="card-download-btn" id="card-download-btn" onclick="downloadCard()" style="display:inline-flex;">
+        <span>↓</span> Download card
+      </button>
+      <button class="card-download-btn" id="card-share-btn" onclick="shareCard()" style="display:inline-flex;background:rgba(157,147,232,0.12);border-color:rgba(157,147,232,0.4);color:rgba(157,147,232,1);">
+        <span>↗</span> Share
+      </button>
+    </div>
+    <div id="card-preview-wrap-holder"></div>
+    <div class="card-hint" style="margin-bottom:40px;">Tap card to download · TikTok · Instagram · Reels · Reddit · X</div>
   </div>
 
   <div class="report-layout">
@@ -8943,7 +8953,10 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
     contradictions: (typeof state !== 'undefined' && state._lastContradictions) ? state._lastContradictions : [],
   };
 
-  // Show download button
+  // Show the card section (buttons + preview holder)
+  const cardSection = document.getElementById('card-section');
+  if (cardSection) cardSection.style.display = 'block';
+  // Keep legacy button references working
   const btn = document.getElementById('card-download-btn');
   if (btn) btn.style.display = 'inline-flex';
 
@@ -9348,7 +9361,7 @@ function renderCardToCanvas(container) {
   ctx.font = '500 18px "IBM Plex Mono",monospace';
   ctx.fillStyle='rgba(220,200,255,0.88)';
   ctx.fillText('160 questions \u00b7 34 belief axes \u00b7 your archetype', W/2, y+74);
-  const urlTxt = 'philos-thelifepm.netlify.app';
+  const urlTxt = 'phil-os.thelifepm.com';
   ctx.font = '600 20px "IBM Plex Mono",monospace';
   const urlW3 = ctx.measureText(urlTxt).width + 40;
   roundRect(W/2-urlW3/2, y+88, urlW3, 38, 19, null, null); ctx.fillStyle='rgba(201,169,110,0.25)'; ctx.fill();
@@ -9385,17 +9398,138 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 function downloadCard() {
-  if (!cardData) return;
-  const wrap = document.getElementById('card-preview-wrap');
-  const canvas = wrap ? wrap.querySelector('canvas') : null;
+  const canvas = getCardCanvas();
   if (!canvas) return;
+  const name = (state.userName || 'my').replace(/\s+/g,'-').toLowerCase();
+  const archSlug = (cardData?.archetypeName || 'phil-os').replace(/\s+/g,'-').toLowerCase();
+  const a = document.createElement('a');
+  a.download = `${name}-${archSlug}-philos.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
 
-  const name = state.userName ? state.userName.replace(/\s+/g, '-').toLowerCase() : 'my';
-  const archSlug = (cardData.archetypeName || 'phil-os').replace(/\s+/g, '-').toLowerCase();
-  const link = document.createElement('a');
-  link.download = `${name}-${archSlug}-philos.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+function getCardCanvas() {
+  if (!cardData) return null;
+  const wrap = document.getElementById('card-preview-wrap');
+  return wrap ? wrap.querySelector('canvas') : null;
+}
+
+function getShareText() {
+  const arch = cardData?.archetypeName || 'my archetype';
+  const rarity = cardData?.rarity ? ` — ${cardData.rarity}` : '';
+  return `I just mapped my complete philosophical OS. I'm ${arch}${rarity}. Discover yours:`;
+}
+
+function shareCard() {
+  const modal = document.getElementById('share-modal');
+  if (modal) modal.style.display = 'flex';
+  // Hide native share button if Web Share API not available
+  const nativeBtn = document.getElementById('share-native-btn');
+  if (nativeBtn) nativeBtn.style.display = navigator.share ? 'flex' : 'none';
+}
+
+function closeShareModal() {
+  const modal = document.getElementById('share-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function shareToX() {
+  const text = encodeURIComponent(getShareText());
+  const url  = encodeURIComponent('https://phil-os.thelifepm.com');
+  window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  closeShareModal();
+}
+
+function shareToReddit() {
+  const title = encodeURIComponent(getShareText());
+  const url   = encodeURIComponent('https://phil-os.thelifepm.com');
+  window.open(`https://reddit.com/submit?title=${title}&url=${url}`, '_blank');
+  closeShareModal();
+}
+
+function downloadForSocial() {
+  downloadCard();
+  closeShareModal();
+}
+
+async function shareNative() {
+  const canvas = getCardCanvas();
+  if (!canvas || !navigator.share) return;
+  try {
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    const name = (state.userName || 'my').replace(/\s+/g,'-').toLowerCase();
+    const archSlug = (cardData?.archetypeName || 'phil-os').replace(/\s+/g,'-').toLowerCase();
+    const file = new File([blob], `${name}-${archSlug}-philos.png`, { type: 'image/png' });
+    const shareData = { title: 'Phil OS', text: getShareText(), url: 'https://phil-os.thelifepm.com' };
+    if (navigator.canShare?.({ files: [file] })) shareData.files = [file];
+    await navigator.share(shareData);
+    closeShareModal();
+  } catch(e) {
+    if (e.name !== 'AbortError') console.warn('[Share]', e.message);
+  }
+}
+
+function showConsentGate(meta) {
+  const gate = document.getElementById('consent-gate');
+  if (!gate) return;
+  const existing  = meta.full_name || meta.name || meta.given_name || '';
+  const firstName = existing.split(' ')[0] || '';
+  const nameEl    = document.getElementById('consent-name');
+  if (nameEl && firstName) nameEl.value = firstName;
+  gate.style.display = 'flex';
+  if (nameEl) setTimeout(() => nameEl.focus(), 100);
+}
+
+async function submitConsentGate() {
+  const nameEl = document.getElementById('consent-name');
+  const gdprEl = document.getElementById('consent-gdpr');
+  const errEl  = document.getElementById('consent-gdpr-error');
+  const btn    = document.getElementById('consent-submit-btn');
+
+  if (!gdprEl.checked) { errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  const nameVal    = sanitizeName(nameEl?.value || '');
+  const fallback   = currentUser?.email ? currentUser.email.split('@')[0] : 'there';
+  const firstName  = nameVal || fallback;
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    await supa.auth.updateUser({
+      data: {
+        full_name:    firstName,
+        given_name:   firstName,
+        gdpr_consent: true,
+        consented_at: new Date().toISOString(),
+      }
+    });
+  } catch(e) {
+    console.warn('[Consent] Save failed — proceeding anyway:', e.message);
+  }
+
+  const gate = document.getElementById('consent-gate');
+  if (gate) gate.style.display = 'none';
+
+  // Refresh currentUser so onAuthReady sees updated metadata
+  try {
+    const { data: { user } } = await supa.auth.getUser();
+    if (user) currentUser = user;
+  } catch(e) {}
+
+  onAuthReady();
+}
+
+async function copyProfileLink() {
+  const url = 'https://phil-os.thelifepm.com';
+  try {
+    await navigator.clipboard.writeText(url);
+    const label = document.getElementById('copy-link-label');
+    if (label) { label.textContent = '✓ Copied!'; setTimeout(() => label.textContent = 'Copy profile link', 2000); }
+  } catch(e) {
+    prompt('Copy this link:', url);
+  }
 }
 
 // ══════════════════════════════════════════
@@ -9966,6 +10100,18 @@ function devRunIntegrityCheck() {
   window.devDistFamilyChanged     = devDistFamilyChanged;
   window.devCheckDistance         = devCheckDistance;
   window.devRunIntegrityCheck     = devRunIntegrityCheck;
+
+  // Share functions
+  window.downloadCard      = downloadCard;
+  window.shareCard         = shareCard;
+  window.closeShareModal   = closeShareModal;
+  window.shareToX          = shareToX;
+  window.shareToReddit     = shareToReddit;
+  window.downloadForSocial = downloadForSocial;
+  window.shareNative       = shareNative;
+  window.copyProfileLink   = copyProfileLink;
+  // Consent gate
+  window.submitConsentGate = submitConsentGate;
 })();
 
 
@@ -10022,7 +10168,14 @@ async function onAuthReady() {
     history.replaceState(null, '', window.location.pathname);
   }
 
-
+  // ── One-time GDPR + name onboarding for existing/OAuth users ──
+  if (currentUser) {
+    const meta = currentUser.user_metadata || {};
+    if (!meta.gdpr_consent) {
+      showConsentGate(meta);
+      return; // halt auth flow — consent gate calls onAuthReady() again on save
+    }
+  }
 
   showNav();
 
@@ -10868,5 +11021,87 @@ async function settingsChangePassword() {
 document.addEventListener('DOMContentLoaded', authBoot);
 
 </script>
+<!-- ── ONE-TIME CONSENT GATE — shown to users without gdpr_consent in metadata ── -->
+<div id="consent-gate" style="display:none;position:fixed;inset:0;background:rgba(8,6,26,0.97);backdrop-filter:blur(20px);z-index:9500;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#14122e;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:40px 32px;max-width:440px;width:100%;text-align:center;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">PHIL / OS</div>
+    <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.2;">Before we begin</div>
+    <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:28px;">We need two quick things to personalise your experience and stay GDPR-compliant.</p>
+
+    <!-- Name field -->
+    <div style="text-align:left;margin-bottom:16px;">
+      <label style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;">What should we call you?</label>
+      <input id="consent-name" class="auth-input" type="text" placeholder="Your first name" maxlength="40" autocomplete="given-name" style="width:100%;box-sizing:border-box;"/>
+    </div>
+
+    <!-- GDPR checkbox -->
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;text-align:left;">
+      <input type="checkbox" id="consent-gdpr" style="width:18px;height:18px;flex-shrink:0;margin-top:3px;accent-color:var(--accent);cursor:pointer;"/>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--muted);line-height:1.6;">
+        I agree to the processing of my philosophical profile data by The Life PM. I understand I can withdraw consent and delete my data at any time in Settings.
+      </div>
+    </div>
+    <div id="consent-gdpr-error" style="display:none;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--danger);margin-bottom:10px;text-align:left;">You must agree to continue.</div>
+
+    <button id="consent-submit-btn" onclick="submitConsentGate()" style="width:100%;background:var(--accent);color:#08061a;border:none;border-radius:10px;padding:14px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:pointer;margin-top:8px;">Continue →</button>
+
+    <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;">Your data is never sold. You can delete everything in Settings → Delete account.</div>
+  </div>
+</div>
+
+<!-- ── SHARE MODAL ── -->
+<div id="share-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(16px);z-index:9000;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#12102a;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:32px 28px;max-width:400px;width:100%;position:relative;">
+    <button onclick="closeShareModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;">✕</button>
+    <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;">Share your Phil OS</div>
+    <div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--muted);margin-bottom:24px;">Download your card and share it anywhere, or copy your profile link.</div>
+
+    <!-- Platform buttons -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+
+      <button onclick="shareToX()" style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:13px 16px;cursor:pointer;width:100%;text-align:left;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);">Post on X</div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);">Opens with pre-filled text</div>
+        </div>
+      </button>
+
+      <button onclick="shareToReddit()" style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:13px 16px;cursor:pointer;width:100%;text-align:left;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF4500"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+        <div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);">Post to Reddit</div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);">r/philosophy, r/mbti, r/selfimprovement</div>
+        </div>
+      </button>
+
+      <button onclick="downloadForSocial('tiktok')" style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:13px 16px;cursor:pointer;width:100%;text-align:left;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+        <div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);">TikTok / Reels / Stories</div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);">Download card → upload to any app</div>
+        </div>
+      </button>
+
+      <button onclick="shareNative()" id="share-native-btn" style="display:flex;align-items:center;gap:14px;background:rgba(157,147,232,0.08);border:1px solid rgba(157,147,232,0.25);border-radius:10px;padding:13px 16px;cursor:pointer;width:100%;text-align:left;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(157,147,232,1)" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+        <div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);">Share via device</div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);">Native share sheet with image</div>
+        </div>
+      </button>
+
+      <button onclick="copyProfileLink()" id="copy-link-btn" style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:13px 16px;cursor:pointer;width:100%;text-align:left;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);" id="copy-link-label">Copy profile link</div>
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);">Share your report URL</div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
