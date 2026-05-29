@@ -67,8 +67,8 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
-  opacity: 0.6;
+  z-index: 100;
+  opacity: 0.18;
 }
 @media (min-width: 768px) {
   #constellation-bg { opacity: 0.9; }
@@ -85,7 +85,7 @@ body::before {
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100%;
   height: 100%;
-  background: rgba(7,6,26,0.97);
+  background: var(--bg);
   z-index: 3;
   overflow-y: auto;
   overflow-x: hidden;
@@ -2553,6 +2553,52 @@ body.font-dyslexic .tradeoff-text,
 body.font-dyslexic .scenario-box,
 body.font-dyslexic .report-body p,
 body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !important; }
+
+/* ══════════════════════════════════════════
+   MOBILE BOTTOM NAV
+══════════════════════════════════════════ */
+#mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: rgba(7,6,26,0.96);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  z-index: 2001;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+}
+@media (max-width: 640px) {
+  #mobile-nav { display: flex; }
+  #app-nav .nav-right { display: none; }
+  #app-nav #nav-links { display: none !important; }
+  /* Push screen content above mobile nav */
+  .screen.active { padding-bottom: 64px; }
+}
+.mob-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+  transition: color 0.2s;
+  min-width: 56px;
+}
+.mob-nav-btn:hover, .mob-nav-btn.active { color: var(--accent); }
+.mob-nav-btn svg { flex-shrink: 0; }
+.mob-nav-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
 </style>
 </head>
 <body>
@@ -2570,7 +2616,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   </div>
   <!-- Nav links — hidden during quiz/report, shown on landing -->
   <div id="nav-links" style="display:none;align-items:center;gap:4px;margin-left:20px;">
-    <button class="nav-link-btn" onclick="navGoReport()">My Report</button>
+    <button class="nav-link-btn" onclick="navGoReport()">My Profile</button>
     <button class="nav-link-btn" onclick="show('screen-resources')">Resources</button>
   </div>
   <!-- Progress bar — only visible during quiz -->
@@ -2581,7 +2627,6 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div id="nav-progress-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;text-align:center;"></div>
   </div>
   <div class="nav-right">
-    <span class="nav-user" id="nav-user-email"></span>
     <!-- Settings dropdown -->
     <div style="position:relative;" id="settings-menu-wrap">
       <button class="nav-btn" onclick="toggleSettingsMenu()" id="settings-btn">Settings ▾</button>
@@ -2596,6 +2641,27 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </div>
   </div>
 </nav>
+
+<!-- Mobile bottom nav -->
+<div id="mobile-nav">
+  <button class="mob-nav-btn" onclick="show('screen-landing')" id="mob-home">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 9L10 3L17 9V18H13V13H7V18H3V9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <span class="mob-nav-label">Home</span>
+  </button>
+  <button class="mob-nav-btn" onclick="navGoReport()" id="mob-profile">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 18C3 14.5 6 12 10 12C14 12 17 14.5 17 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span class="mob-nav-label">Profile</span>
+  </button>
+  <button class="mob-nav-btn" onclick="show('screen-resources')" id="mob-resources">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="7" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span class="mob-nav-label">Resources</span>
+  </button>
+  <button class="mob-nav-btn" onclick="openSettings()" id="mob-settings">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2V4M10 16V18M18 10H16M4 10H2M15.66 4.34L14.24 5.76M5.76 14.24L4.34 15.66M15.66 15.66L14.24 14.24M5.76 5.76L4.34 4.34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <span class="mob-nav-label">Settings</span>
+  </button>
+</div>
+
 <div id="save-indicator">Progress saved</div>
 <div id="screen-landing" class="screen">
   <!-- Floating symbols — same as intro screen -->
@@ -2730,6 +2796,51 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- ── WHY IT MATTERS ── -->
+    <div style="margin-bottom:96px;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Why it matters</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Your philosophy shapes<br/>everything you do.</h2>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:560px;margin:0 auto;line-height:1.75;">Most people never examine the beliefs running their lives. Phil OS makes them visible.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px;margin-bottom:48px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div style="font-size:26px;margin-bottom:12px;">🪞</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you see yourself</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Where you place yourself in the causal chain of your own life. This belief sits underneath every success you celebrate and every failure you agonise over.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div style="font-size:26px;margin-bottom:12px;">👥</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you see others</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Your beliefs about human nature and moral responsibility shape every relationship, every conflict, and every judgement you make.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div style="font-size:26px;margin-bottom:12px;">🌍</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you see the world</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Whether meaning is discovered or constructed. Whether the arc of history bends toward anything at all. These determine what you work toward and what you hope for.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div style="font-size:26px;margin-bottom:12px;">⚖️</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">How you make decisions</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Whether you lead with principle or consequence. Whether you trust authority or distrust it. These patterns run through every hard call you have ever made.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div style="font-size:26px;margin-bottom:12px;">🔥</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">Where your conflicts come from</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Most relationship friction is incompatible operating systems underneath the surface issue. Two people with different beliefs about fairness will keep having the same fight in different clothes.</p>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div style="font-size:26px;margin-bottom:12px;">🧭</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">What actually drives you</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.7;margin:0;">Phil OS does not tell you what to do with your life. It tells you what you already believe life is for — which is a lot more useful.</p>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(157,147,232,0.06) 0%,rgba(201,169,110,0.04) 100%);border:1px solid rgba(157,147,232,0.2);border-radius:16px;padding:clamp(28px,4vw,48px);text-align:center;">
+        <div style="font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,28px);font-style:italic;color:var(--text);line-height:1.55;margin-bottom:16px;">"Most people spend their entire lives acting on beliefs they have never examined, in service of values they have never questioned, toward goals they have never chosen."</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;">Phil OS exists to change that</div>
       </div>
     </div>
 
@@ -2942,10 +3053,14 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <!-- Account -->
     <div class="settings-section" style="border-bottom:none;">
       <div class="settings-label">Account</div>
-      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-bottom:16px;" id="settings-account-email">—</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button onclick="handleSignOut()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:8px;padding:9px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);cursor:pointer;">Sign Out</button>
-        <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:9px 20px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Retake Assessment</button>
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:16px 20px;margin-bottom:16px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Signed in as</div>
+        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--text);font-weight:500;" id="settings-account-email">—</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button onclick="settingsChangePassword()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;">Change Password</button>
+        <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;">Retake Assessment</button>
+        <button onclick="handleSignOut()" style="background:transparent;border:1px solid rgba(232,112,112,0.4);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;margin-top:4px;">Sign Out</button>
       </div>
     </div>
 
@@ -6256,6 +6371,8 @@ function devInitPanel() {
     opt.textContent = f;
     familySelect.appendChild(opt);
   });
+  // Populate axis dropdowns
+  if (typeof AXIS_META !== "undefined") devPopulateAxisDropdowns();
 }
 
 function devFamilyChanged() {
@@ -9055,6 +9172,8 @@ async function devRefreshStats() {
   document.getElementById('dev-contradiction-count').textContent = typeof CONTRADICTIONS !== 'undefined' ? CONTRADICTIONS.length : '42';
   // User
   document.getElementById('dev-user-email').textContent = currentUser ? currentUser.email : '—';
+  // Populate all dropdowns
+  devPopulateAxisDropdowns();
   // DB
   if (typeof supa !== 'undefined' && currentUser) {
     try {
@@ -9071,20 +9190,24 @@ async function devRefreshStats() {
 }
 
 function devPopulateAxisDropdowns() {
+  if (typeof AXIS_META === 'undefined') return;
   const axes = Object.keys(AXIS_META);
   ['dev-axis-select','dev-contra-axis1','dev-contra-axis2'].forEach(id => {
     const el = document.getElementById(id);
-    if (!el || el.options.length > 1) return;
+    if (!el) return;
+    // Clear and repopulate
+    while (el.options.length > 1) el.remove(1);
     axes.forEach(a => {
       const opt = document.createElement('option');
       opt.value = a;
-      opt.textContent = AXIS_META[a].label + ' (' + a + ')';
+      opt.textContent = (AXIS_META[a].label || a) + ' (' + a + ')';
       el.appendChild(opt);
     });
   });
-  // Distance checker family dropdowns
+  // Distance checker family dropdown
   const distFam = document.getElementById('dev-dist-family');
-  if (distFam && distFam.options.length <= 1 && typeof ARCHETYPES !== 'undefined') {
+  if (distFam && typeof ARCHETYPES !== 'undefined') {
+    while (distFam.options.length > 1) distFam.remove(1);
     const seen = new Set();
     ARCHETYPES.forEach(a => {
       if (!seen.has(a.family)) {
@@ -9258,6 +9381,9 @@ function devRunIntegrityCheck() {
 
   // Expose so renderReport can call it after injecting dynamic content
   window.attachTooltipBehaviour = attachTooltipBehaviour;
+  // Expose dev functions to global scope (called from show())
+  window.devRefreshStats = typeof devRefreshStats !== 'undefined' ? devRefreshStats : null;
+  window.devPopulateAxisDropdowns = typeof devPopulateAxisDropdowns !== 'undefined' ? devPopulateAxisDropdowns : null;
 })();
 
 
@@ -9970,18 +10096,28 @@ function applySettingValue(key, val) {
     case 'fontsize':
       body.classList.remove('font-sm','font-md','font-lg','font-xl');
       body.classList.add('font-' + val);
+      // Apply CSS variable for base font size
+      const sizeMap = { sm: '15px', md: '17px', lg: '20px', xl: '23px' };
+      document.documentElement.style.setProperty('--base-font', sizeMap[val] || '17px');
+      // Apply to quiz text directly
+      const qTexts = document.querySelectorAll('.q-text');
+      const qSizes = { sm: 'clamp(18px,3vw,26px)', md: 'clamp(24px,4vw,34px)', lg: 'clamp(28px,4.5vw,40px)', xl: 'clamp(32px,5vw,46px)' };
+      qTexts.forEach(el => el.style.fontSize = qSizes[val] || qSizes.md);
       break;
     case 'font':
       body.classList.remove('font-playfair','font-ibm','font-dyslexic');
-      body.classList.add('font-' + val);
+      if (val !== 'playfair') body.classList.add('font-' + val);
+      // Apply to report and quiz text
+      const fontMap = { playfair: "'Playfair Display', serif", ibm: "'IBM Plex Sans', sans-serif", dyslexic: "OpenDyslexic, sans-serif" };
+      const fontVal = fontMap[val] || fontMap.playfair;
+      document.querySelectorAll('.q-text, .tradeoff-text, .scenario-box, .report-body p').forEach(el => el.style.fontFamily = fontVal);
       break;
     case 'progress':
       userSettings.progress = val;
-      // Will be picked up by next renderQuestion call
       break;
     case 'lang':
       userSettings.lang = val;
-      // UI lang switching — future implementation
+      applyLanguage(val);
       break;
   }
 }
@@ -10017,6 +10153,46 @@ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 }
 
 document.addEventListener('DOMContentLoaded', loadSettings);
+
+
+// ── Language strings (UI only — questions always English) ──
+const LANG_STRINGS = {
+  en: { begin: 'Begin Assessment', myProfile: 'My Profile', resources: 'Resources', settings: 'Settings', signOut: 'Sign Out', home: 'Home', continueAssessment: 'Continue Assessment', viewReport: 'View My Report' },
+  nl: { begin: 'Begin Assessment', myProfile: 'Mijn Profiel', resources: 'Bronnen', settings: 'Instellingen', signOut: 'Uitloggen', home: 'Home', continueAssessment: 'Ga Door', viewReport: 'Bekijk Mijn Rapport' },
+  de: { begin: 'Assessment starten', myProfile: 'Mein Profil', resources: 'Ressourcen', settings: 'Einstellungen', signOut: 'Abmelden', home: 'Start', continueAssessment: 'Weitermachen', viewReport: 'Bericht ansehen' },
+  fr: { begin: 'Commencer', myProfile: 'Mon Profil', resources: 'Ressources', settings: 'Paramètres', signOut: 'Déconnexion', home: 'Accueil', continueAssessment: 'Continuer', viewReport: 'Voir mon rapport' },
+  es: { begin: 'Comenzar', myProfile: 'Mi Perfil', resources: 'Recursos', settings: 'Ajustes', signOut: 'Cerrar sesión', home: 'Inicio', continueAssessment: 'Continuar', viewReport: 'Ver mi informe' },
+};
+
+function applyLanguage(lang) {
+  const s = LANG_STRINGS[lang] || LANG_STRINGS.en;
+  // Nav links
+  const profileBtn = document.querySelector('#nav-links button[onclick*="navGoReport"]');
+  if (profileBtn) profileBtn.textContent = s.myProfile;
+  const resourcesBtn = document.querySelector('#nav-links button[onclick*="screen-resources"]');
+  if (resourcesBtn) resourcesBtn.textContent = s.resources;
+  // Mobile nav
+  document.querySelectorAll('.mob-nav-label').forEach((el, i) => {
+    const labels = [s.home, s.myProfile, s.resources, s.settings];
+    if (labels[i]) el.textContent = labels[i];
+  });
+  // Settings button text
+  const settingsBtn = document.getElementById('settings-btn');
+  if (settingsBtn) settingsBtn.textContent = s.settings + ' ▾';
+}
+
+// ── Change password via Supabase ──
+async function settingsChangePassword() {
+  if (!currentUser || !currentUser.email) return;
+  const { error } = await supa.auth.resetPasswordForEmail(currentUser.email, {
+    redirectTo: 'https://phil-os.thelifepm.com'
+  });
+  if (error) {
+    alert('Could not send reset email. Try again.');
+  } else {
+    alert('Password reset email sent to ' + currentUser.email);
+  }
+}
 
 // Boot on DOM ready
 document.addEventListener('DOMContentLoaded', authBoot);
