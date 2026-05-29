@@ -783,6 +783,126 @@ body::before {
    REPORT SCREEN
 ══════════════════════════════════════════ */
 #screen-report { padding: 0; overflow-x: hidden; }
+
+/* ══════════════════════════════════════════
+   TABBED REPORT LAYOUT
+══════════════════════════════════════════ */
+.report-layout {
+  display: flex;
+  min-height: 100%;
+  align-items: flex-start;
+}
+.report-nav {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 28px 0 60px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: rgba(8,6,26,0.97);
+  scrollbar-width: none;
+  z-index: 10;
+}
+.report-nav::-webkit-scrollbar { display: none; }
+.report-nav-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding: 0 20px 16px;
+}
+.rn-item {
+  display: block;
+  width: 100%;
+  padding: 10px 20px 10px 18px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  border-left: 2px solid transparent;
+  background: transparent;
+  text-align: left;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  line-height: 1.5;
+}
+.rn-item:hover { color: var(--text2); background: rgba(255,255,255,0.04); }
+.rn-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(201,169,110,0.07); font-weight: 600; }
+.report-sections {
+  flex: 1;
+  min-width: 0;
+}
+/* Each section panel */
+.rs { display: none; padding: 44px 52px 100px; }
+.rs.active { display: block; }
+.rs-header {
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.rs-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 10px;
+}
+.rs-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3.5vw, 38px);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 14px;
+  line-height: 1.1;
+}
+.rs-desc {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 620px;
+  margin: 0;
+}
+/* Mobile: nav becomes horizontal tab bar */
+@media (max-width: 767px) {
+  .report-layout { flex-direction: column; }
+  .report-nav {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 56px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    -webkit-overflow-scrolling: touch;
+    z-index: 20;
+    background: rgba(8,6,26,0.98);
+  }
+  .report-nav-title { display: none; }
+  .rn-item {
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    padding: 11px 14px;
+    flex-shrink: 0;
+    font-size: 9px;
+  }
+  .rn-item.active { border-left: none; border-bottom-color: var(--accent); }
+  .rs { padding: 24px 18px 70px; }
+  .rs-header { margin-bottom: 24px; padding-bottom: 20px; }
+  .rs-title { font-size: clamp(22px, 6vw, 30px); }
+}
+
 #screen-report.active { display: block; }
 
 /* REPORT HEADER — dramatic cinematic hero */
@@ -3483,7 +3603,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Contradictions Detected</div>
       <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--danger);" id="profile-contradiction-count">—</div>
       <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-top:4px;">tensions in your belief system</div>
-      <button onclick="show('screen-report');setTimeout(()=>{const el=document.getElementById('section-contradictions');if(el)el.scrollIntoView({behavior:'smooth'});},100);" style="margin-top:16px;background:transparent;border:1px solid rgba(232,112,112,0.3);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--danger);cursor:pointer;">View contradictions →</button>
+      <button onclick="show('screen-report');showReportSection('rs-contradictions');" style="margin-top:16px;background:transparent;border:1px solid rgba(232,112,112,0.3);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--danger);cursor:pointer;">View contradictions →</button>
     </div>
   </div>
 </div>
@@ -3545,89 +3665,177 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </div>
   </div>
 
-  <div class="report-body">
+  <div class="report-layout">
 
-    <div class="report-section">
-      <div class="section-label">Who you are</div>
-      <div class="report-text" id="report-identity">—</div>
-    </div>
+    <!-- ── SECTION NAV (left sidebar / mobile tab bar) ── -->
+    <nav class="report-nav" id="report-nav">
+      <div class="report-nav-title">Sections</div>
+      <button class="rn-item active" data-section="rs-identity"       onclick="showReportSection('rs-identity')">Who You Are</button>
+      <button class="rn-item"        data-section="rs-world"          onclick="showReportSection('rs-world')">In the World</button>
+      <button class="rn-item"        data-section="rs-famous"         onclick="showReportSection('rs-famous')">Famous Minds</button>
+      <button class="rn-item"        data-section="rs-patterns"       onclick="showReportSection('rs-patterns')">How You Operate</button>
+      <button class="rn-item"        data-section="rs-fingerprint"    onclick="showReportSection('rs-fingerprint')">Fingerprint</button>
+      <button class="rn-item"        data-section="rs-alignment"      onclick="showReportSection('rs-alignment')">Life Alignment</button>
+      <button class="rn-item"        data-section="rs-media"          onclick="showReportSection('rs-media')">Culture Map</button>
+      <button class="rn-item"        data-section="rs-growth"         onclick="showReportSection('rs-growth')">Growth Edges</button>
+      <button class="rn-item"        data-section="rs-contradictions" onclick="showReportSection('rs-contradictions')">Belief Tensions</button>
+      <button class="rn-item"        data-section="rs-map"            onclick="showReportSection('rs-map')">Full Belief Map</button>
+    </nav>
 
-    <div class="report-section" id="section-world" style="display:none">
-      <div class="section-label">How you move through the world</div>
-      <div style="font-size:15px;color:var(--muted);margin-bottom:28px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">Five lenses. How your worldview shapes what you see, how you act, and what you can do with that.</div>
-      <div class="world-cards" id="report-world"></div>
-    </div>
+    <!-- ── SECTION PANELS ── -->
+    <div class="report-sections" id="report-sections">
 
-    <div class="report-section" id="section-famous">
-      <div class="section-label">Your type in the wild</div>
-      <div class="famous-grid" id="report-famous"></div>
-    </div>
-
-    <div class="report-section" id="section-patterns">
-      <div class="section-label">How you operate</div>
-      <div class="patterns-grid" id="report-patterns"></div>
-    </div>
-
-    <div class="report-section">
-      <div class="section-label">Your philosophical fingerprint</div>
-      <div style="font-size:15px;color:var(--muted);margin-bottom:24px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">The 5 axes where your position deviates furthest from centre.</div>
-      <div class="axis-bars" id="report-fingerprint-bars"></div>
-    </div>
-
-    <div class="report-section">
-      <div class="section-label">Life alignment</div>
-      <div id="report-alignment-full"></div>
-    </div>
-
-    <div class="report-section" id="section-media">
-      <div class="section-label">Your cultural ecosystem</div>
-      <div style="font-size:15px;color:var(--muted);margin-bottom:24px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;">Films, music, and books that resonate with how you see the world.</div>
-      <div class="media-grid" id="report-media"></div>
-    </div>
-
-    <div class="report-section">
-      <div class="section-label">Growth edges</div>
-      <div class="growth-list" id="report-growth">—</div>
-    </div>
-
-    <div class="report-section" id="section-contradictions">
-      <div class="section-label">Belief tensions</div>
-      <div style="background:linear-gradient(135deg,rgba(232,112,112,0.06) 0%,rgba(157,147,232,0.05) 100%);border:1px solid rgba(232,112,112,0.18);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:10px;">What this section is</div>
-        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 12px;">Your beliefs don't exist in isolation — they interact, and sometimes they contradict. Phil OS detects positions across your 32 belief axes that are in logical tension with each other.</p>
-        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 14px;">This is where the real philosophical work begins. Most people carry unexamined contradictions for years — between what they believe in theory and what they act on in practice, between the logic they apply to others and the latitude they grant themselves. Examining these tensions doesn't invalidate your worldview. It sharpens it.</p>
-        <div style="display:flex;gap:16px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--danger);background:rgba(232,112,112,0.12);border:1px solid rgba(232,112,112,0.3);border-radius:4px;padding:2px 8px;">A</span>
-            <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Hard contradiction — positions are logically incompatible</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.3);border-radius:4px;padding:2px 8px;">B</span>
-            <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Consistency flag — beliefs pull in different directions</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--purple2);background:rgba(157,147,232,0.12);border:1px solid rgba(157,147,232,0.3);border-radius:4px;padding:2px 8px;">C</span>
-            <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Interesting tension — worth examining but defensible</span>
-          </div>
+      <!-- 01 · WHO YOU ARE -->
+      <div class="rs active" id="rs-identity">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 01 · Identity</div>
+          <h2 class="rs-title">Who You Are</h2>
+          <p class="rs-desc">Phil OS doesn't just name your worldview — it explains where it came from and what it produces. This is the philosophical portrait of your archetype: how your foundational beliefs about reality, meaning, and morality combine into a specific, identifiable way of being. Not a label. A diagnosis.</p>
+        </div>
+        <div class="report-section" style="border:none;padding:0;">
+          <div class="report-text" id="report-identity">—</div>
         </div>
       </div>
-      <div class="contradiction-cards" id="report-contradictions"></div>
-    </div>
 
-    <div class="report-section">
-      <div class="section-label">Full belief map</div>
-      <div class="tier-divider"><div class="tier-divider-line"></div><span class="tier-divider-label t1">Foundations + Structural</span><div class="tier-divider-line"></div></div>
-      <div class="axis-bars" id="axes-t1"></div>
-      <div class="tier-divider" style="margin-top:28px"><div class="tier-divider-line"></div><span class="tier-divider-label t2">Epistemic + Meaning</span><div class="tier-divider-line"></div></div>
-      <div class="axis-bars" id="axes-t2"></div>
-      <div class="tier-divider" style="margin-top:28px"><div class="tier-divider-line"></div><span class="tier-divider-label t3">Applied</span><div class="tier-divider-line"></div></div>
-      <div class="axis-bars" id="axes-t3"></div>
-    </div>
+      <!-- 02 · IN THE WORLD -->
+      <div class="rs" id="rs-world">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 02 · Expression</div>
+          <h2 class="rs-title">In the World</h2>
+          <p class="rs-desc">Five lenses through which your worldview operates in daily life. Each describes how your philosophical stance shows up in how you see yourself, relate to others, navigate decisions, and imagine the future. This is your philosophy translated into behaviour.</p>
+        </div>
+        <div class="report-section" id="section-world" style="border:none;padding:0;">
+          <div class="world-cards" id="report-world"></div>
+        </div>
+      </div>
 
-    <div class="retry-wrap">
-      <button class="btn-secondary" onclick="resetQuiz()">Retake assessment</button>
-    </div>
-  </div>
+      <!-- 03 · FAMOUS MINDS -->
+      <div class="rs" id="rs-famous">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 03 · Precedent</div>
+          <h2 class="rs-title">Famous Minds</h2>
+          <p class="rs-desc">Thinkers, leaders, and creators whose philosophical profiles closely match yours — drawn from history, public life, and culture. These are not perfect clones. They share enough of your core architecture to be instructive: what they built, where they failed, and what their work reveals about yours.</p>
+        </div>
+        <div class="report-section" id="section-famous" style="border:none;padding:0;">
+          <div class="famous-grid" id="report-famous"></div>
+        </div>
+      </div>
+
+      <!-- 04 · HOW YOU OPERATE -->
+      <div class="rs" id="rs-patterns">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 04 · Patterns</div>
+          <h2 class="rs-title">How You Operate</h2>
+          <p class="rs-desc">The recurring patterns your philosophical profile generates — your signature strength and your predictable blind spot. Both are direct outputs of your worldview, not random personality traits. Understanding these patterns is how you start choosing them deliberately rather than being driven by them unconsciously.</p>
+        </div>
+        <div class="report-section" id="section-patterns" style="border:none;padding:0;">
+          <div class="patterns-grid" id="report-patterns"></div>
+        </div>
+      </div>
+
+      <!-- 05 · FINGERPRINT -->
+      <div class="rs" id="rs-fingerprint">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 05 · Signature</div>
+          <h2 class="rs-title">Your Philosophical Fingerprint</h2>
+          <p class="rs-desc">The 5 belief axes where your position deviates furthest from the neutral midpoint. These are the positions that most define your philosophical identity — where you've taken the clearest stance and where your worldview is most distinctive. Your fingerprint is what makes your archetype yours specifically.</p>
+        </div>
+        <div class="report-section" style="border:none;padding:0;">
+          <div class="axis-bars" id="report-fingerprint-bars"></div>
+        </div>
+      </div>
+
+      <!-- 06 · LIFE ALIGNMENT -->
+      <div class="rs" id="rs-alignment">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 06 · Alignment</div>
+          <h2 class="rs-title">Life Alignment</h2>
+          <p class="rs-desc">How your worldview translates into professional environments, leadership style, and relationship dynamics. These aren't preferences — they're structural outputs of your belief system. The environments you thrive in are the ones that match your philosophical architecture. The ones that drain you are structurally misaligned with how you think.</p>
+        </div>
+        <div class="report-section" style="border:none;padding:0;">
+          <div id="report-alignment-full"></div>
+        </div>
+      </div>
+
+      <!-- 07 · CULTURE MAP -->
+      <div class="rs" id="rs-media">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 07 · Culture</div>
+          <h2 class="rs-title">Culture Map</h2>
+          <p class="rs-desc">The films, music, and books that resonate most with how your worldview processes experience. Cultural output isn't decoration — it's evidence that your way of seeing already exists and has been articulated. These selections were chosen because they embody the same philosophical tensions, commitments, and aesthetics your profile produces.</p>
+        </div>
+        <div class="report-section" id="section-media" style="border:none;padding:0;">
+          <div class="media-grid" id="report-media"></div>
+        </div>
+      </div>
+
+      <!-- 08 · GROWTH EDGES -->
+      <div class="rs" id="rs-growth">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 08 · Development</div>
+          <h2 class="rs-title">Growth Edges</h2>
+          <p class="rs-desc">The places where your philosophical commitments create blind spots, resistances, or unresolved tensions. These aren't weaknesses to fix — they're the specific directions your thinking can develop. Every strong worldview has edges. Knowing yours is the difference between being moved by your philosophy and being trapped by it.</p>
+        </div>
+        <div class="report-section" style="border:none;padding:0;">
+          <div class="growth-list" id="report-growth">—</div>
+        </div>
+      </div>
+
+      <!-- 09 · BELIEF TENSIONS -->
+      <div class="rs" id="rs-contradictions">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 09 · Contradictions</div>
+          <h2 class="rs-title">Belief Tensions</h2>
+          <p class="rs-desc">Where your beliefs contradict each other. This is the most philosophically rigorous section — and the most practically useful. Most people carry unexamined contradictions for years. Identifying them doesn't mean your worldview is broken. It means your thinking is complex enough to hold competing commitments. The question is whether you've chosen that, or whether it happened to you.</p>
+        </div>
+        <div class="report-section" id="section-contradictions" style="border:none;padding:0;margin:0;">
+          <div style="background:linear-gradient(135deg,rgba(232,112,112,0.06) 0%,rgba(157,147,232,0.05) 100%);border:1px solid rgba(232,112,112,0.18);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:10px;">How to use this section</div>
+            <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 12px;">A contradiction doesn't mean you're wrong — it means two positions you hold are in logical tension. The engine runs 42 rules across your 32 axes and flags every place where your beliefs pull in incompatible directions. Use this section as an exercise in logical consistency: for each tension, ask whether you can defend holding both positions or whether one needs revision.</p>
+            <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 14px;">This is active philosophy, not passive reading. The thinkers who built the clearest worldviews did it by stress-testing their own beliefs. Phil OS is doing that for you automatically — finding the fault lines so you can decide, deliberately, whether to bridge them or own them.</p>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--danger);background:rgba(232,112,112,0.12);border:1px solid rgba(232,112,112,0.3);border-radius:4px;padding:2px 8px;">A</span>
+                <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Hard contradiction — positions are logically incompatible</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.3);border-radius:4px;padding:2px 8px;">B</span>
+                <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Consistency flag — beliefs pull in different directions</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--purple2);background:rgba(157,147,232,0.12);border:1px solid rgba(157,147,232,0.3);border-radius:4px;padding:2px 8px;">C</span>
+                <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Interesting tension — worth examining but defensible</span>
+              </div>
+            </div>
+          </div>
+          <div class="contradiction-cards" id="report-contradictions"></div>
+        </div>
+      </div>
+
+      <!-- 10 · FULL BELIEF MAP -->
+      <div class="rs" id="rs-map">
+        <div class="rs-header">
+          <div class="rs-eyebrow">Section 10 · Data</div>
+          <h2 class="rs-title">Full Belief Map</h2>
+          <p class="rs-desc">Your complete score across all 32 philosophical axes, organised by causal tier. This is the raw data layer behind your archetype — the actual positions your answers point to on every axis from metaphysics to applied ethics. The further a bar extends from centre, the more clearly you've committed to that pole.</p>
+        </div>
+        <div class="report-section" style="border:none;padding:0;">
+          <div class="tier-divider"><div class="tier-divider-line"></div><span class="tier-divider-label t1">Foundations + Structural</span><div class="tier-divider-line"></div></div>
+          <div class="axis-bars" id="axes-t1"></div>
+          <div class="tier-divider" style="margin-top:28px"><div class="tier-divider-line"></div><span class="tier-divider-label t2">Epistemic + Meaning</span><div class="tier-divider-line"></div></div>
+          <div class="axis-bars" id="axes-t2"></div>
+          <div class="tier-divider" style="margin-top:28px"><div class="tier-divider-line"></div><span class="tier-divider-label t3">Applied</span><div class="tier-divider-line"></div></div>
+          <div class="axis-bars" id="axes-t3"></div>
+        </div>
+      </div>
+
+      <!-- Retake -->
+      <div style="padding:0 52px 40px;text-align:center;" id="rs-retake">
+        <button class="btn-secondary" onclick="resetQuiz()">Retake assessment</button>
+      </div>
+
+    </div><!-- /report-sections -->
+  </div><!-- /report-layout -->
 </div>
 
 <script>
@@ -8177,8 +8385,10 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
         <div class="famous-desc">${f.desc}</div>
       </div>`
     ).join('');
-  } else if (document.getElementById('section-famous')) {
-    document.getElementById('section-famous').style.display = 'none';
+  } else {
+    // hide nav tab for famous if no data
+    const famNav = document.querySelector('.rn-item[data-section="rs-famous"]');
+    if (famNav) famNav.style.display = 'none';
   }
 
   // ── PATTERNS ──
@@ -8190,8 +8400,9 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
         <div class="pattern-text">${p.text}</div>
       </div>`
     ).join('');
-  } else if (document.getElementById('section-patterns')) {
-    document.getElementById('section-patterns').style.display = 'none';
+  } else {
+    const patNav = document.querySelector('.rn-item[data-section="rs-patterns"]');
+    if (patNav) patNav.style.display = 'none';
   }
 
   // ── FINGERPRINT BARS ──
@@ -8342,8 +8553,9 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
             <div class="media-item-sub">${m.note}</div>
           </div>`).join('')}
       </div>`;
-  } else if (document.getElementById('section-media')) {
-    document.getElementById('section-media').style.display = 'none';
+  } else {
+    const mediaNav = document.querySelector('.rn-item[data-section="rs-media"]');
+    if (mediaNav) mediaNav.style.display = 'none';
   }
 
   // ── GROWTH ──
@@ -8388,7 +8600,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
         </div>`;
       }).join('');
     } else {
-      document.getElementById('section-contradictions').style.display = 'none';
+      const contraNav = document.querySelector('.rn-item[data-section="rs-contradictions"]'); if (contraNav) contraNav.style.display = 'none';
     }
   }
 
@@ -8514,6 +8726,9 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
 
   showNavProgress(false);
   show('screen-report');
+  // Reset nav and go to first section
+  document.querySelectorAll('.rn-item').forEach(el => el.style.display = '');
+  showReportSection('rs-identity');
 
   // Re-attach tooltips to dynamically injected phil-term nodes
   if (typeof window.attachTooltipBehaviour === 'function') {
@@ -9422,9 +9637,14 @@ function devRunIntegrityCheck() {
 
   // Expose so renderReport can call it after injecting dynamic content
   window.attachTooltipBehaviour = attachTooltipBehaviour;
-  // Expose dev functions to global scope (called from show())
-  window.devRefreshStats = typeof devRefreshStats !== 'undefined' ? devRefreshStats : null;
-  window.devPopulateAxisDropdowns = typeof devPopulateAxisDropdowns !== 'undefined' ? devPopulateAxisDropdowns : null;
+  // Expose dev functions to global scope (called from HTML onclick attributes)
+  window.devRefreshStats          = devRefreshStats;
+  window.devPopulateAxisDropdowns = devPopulateAxisDropdowns;
+  window.devAxisInspect           = devAxisInspect;
+  window.devTestContradictions    = devTestContradictions;
+  window.devDistFamilyChanged     = devDistFamilyChanged;
+  window.devCheckDistance         = devCheckDistance;
+  window.devRunIntegrityCheck     = devRunIntegrityCheck;
 })();
 
 
@@ -9738,6 +9958,22 @@ async function handleForgotPassword() {
 }
 
 // ── Sign out ──
+async function showReportSection(sectionId) {
+  document.querySelectorAll('.rs').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.rn-item').forEach(el => el.classList.remove('active'));
+  const sec = document.getElementById(sectionId);
+  if (sec) sec.classList.add('active');
+  const navItem = document.querySelector('.rn-item[data-section="' + sectionId + '"]');
+  if (navItem) {
+    navItem.classList.add('active');
+    // On mobile (horizontal scroll nav) — scroll the active item into view
+    navItem.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }
+  // Scroll report screen to top
+  const screen = document.getElementById('screen-report');
+  if (screen) screen.scrollTop = 0;
+}
+
 async function handleSignOut() {
   await supa.auth.signOut();
 }
