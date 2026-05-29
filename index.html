@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <!-- v3.1 -->
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Phil OS — Map your complete philosophical operating system. Discover your archetype across 32 belief axes."/>
+<meta name="theme-color" content="#07061a"/>
 <title>Philosophical OS — Know Your Operating System</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -14,12 +16,13 @@
   --surface: #111028;
   --surface2: #181535;
   --surface3: #1e1b40;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.16);
-  --border3: rgba(157,147,232,0.22);
-  --text: #f0ede6;
-  --text2: #ccc8be;
-  --muted: #8c88a0;
+  --border: rgba(255,255,255,0.10);
+  --border2: rgba(255,255,255,0.18);
+  --border3: rgba(157,147,232,0.28);
+  /* Accessibility: all text vars pass WCAG AAA on #07061a */
+  --text: #f2efe8;   /* 17.5:1 */
+  --text2: #d4d0c8;  /* 13.2:1 */
+  --muted: #b4b0c8;  /* 9.51:1 — upgraded from #8c88a0 (5.85:1) */
   --accent: #c9a96e;
   --accent2: #e8c87a;
   --purple: #9d93e8;
@@ -50,6 +53,76 @@ body {
   min-height: 100vh;
   overflow: hidden;
   font-weight: 400;
+}
+
+/* ══════════════════════════════════════════
+   ACCESSIBILITY — WCAG 2.1 AA/AAA
+══════════════════════════════════════════ */
+
+/* Skip to content link — keyboard users */
+.skip-to-content {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 99999;
+  background: var(--accent);
+  color: #08061a;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.skip-to-content:focus {
+  top: 16px;
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Focus rings — visible for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+/* Remove focus ring on mouse click — only for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure all buttons and links have pointer cursor and min touch target */
+button, [role="button"], a, select, input, textarea {
+  cursor: pointer;
+}
+button, [role="button"] {
+  min-height: 44px; /* WCAG 2.5.5 touch target */
+  min-width: 44px;
+}
+/* Except very small inline controls where min-height conflicts */
+input[type="range"] { min-height: 24px; }
+input[type="checkbox"] { min-height: 18px; min-width: 18px; }
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  :root {
+    --text: CanvasText;
+    --text2: CanvasText;
+    --muted: CanvasText;
+    --bg: Canvas;
+    --accent: Highlight;
+    --border: ButtonBorder;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── GRAIN TEXTURE OVERLAY ── */
@@ -909,7 +982,7 @@ body::after {
   font-size: 9px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.45);
+  color:rgba(255,255,255,0.62);
   padding: 0 20px 16px;
 }
 /* Mobile section dropdown — hidden on desktop */
@@ -983,7 +1056,7 @@ body::after {
   font-size: 10px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.45);
+  color:rgba(255,255,255,0.62);
   margin-bottom: 10px;
 }
 .rs-title {
@@ -1958,7 +2031,7 @@ body::after {
   outline: none; transition: border-color 0.2s, box-shadow 0.2s; display: block;
 }
 .modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,169,110,0.12); }
-.modal-input::placeholder { color: rgba(255,255,255,0.25); }
+.modal-input::placeholder { color:rgba(255,255,255,0.65); }
 select.modal-input {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -2111,7 +2184,7 @@ select.modal-input option { background: #12101e; }
   outline: none;
   border-color: rgba(201,169,110,0.5);
 }
-.qa-flag-textarea::placeholder { color: rgba(255,255,255,0.25); }
+.qa-flag-textarea::placeholder { color:rgba(255,255,255,0.65); }
 .progress-flag-dot {
   position: absolute;
   top: -4px;
@@ -2864,6 +2937,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
 <div class="body-glow-gold" aria-hidden="true"></div>
 <div class="body-glow-pink" aria-hidden="true"></div>
 <canvas id="constellation-bg"></canvas>
@@ -3002,6 +3076,43 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--text2);line-height:1.8;margin:0;">MBTI puts you in one of 16 boxes. The Enneagram gives you a number. The Big Five scores you on traits. Every one of them is measuring the surface. How you behave. How you prefer to interact. What you are like.<br/><br/>Phil OS goes underneath all of that. We are measuring what you believe. About free will. About reality. About where morality comes from. About what a human being actually is.</p>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--text2);line-height:1.8;margin:0;">Most people have never had this conversation with themselves. Not properly. Phil OS forces it. 160 carefully constructed questions across 32 dimensions of belief. No leading questions. No right answers. Just honest ones.<br/><br/><span style="color:var(--text);font-weight:500;">The result is not a category. It is a map. Your specific, personal, complete philosophical operating system. And what it means for your actual life.</span></p>
         </div>
+      </div>
+    </div>
+
+    <!-- ── FOUR LENSES — before features ── -->
+    <div style="margin-bottom:96px;">
+      <div style="text-align:center;margin-bottom:56px;">
+        <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">What Phil OS maps</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Not just what you believe.<br/>How you <em>see</em>.</h2>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:580px;margin:0 auto;line-height:1.75;">Your philosophy doesn't stay in your head. It determines how you interpret every relationship, institution, and moment of your life. Phil OS maps all four lenses at once.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:20px;">
+
+        <div style="background:rgba(157,147,232,0.06);border:1px solid rgba(157,147,232,0.18);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(157,147,232,0.7);margin-bottom:14px;">Lens 01</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">How you believe</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Your metaphysical foundations — what you think reality is made of, whether free will exists, whether morality is discovered or invented, and where meaning comes from. This is the bedrock everything else is built on.</p>
+        </div>
+
+        <div style="background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.18);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:14px;">Lens 02</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">How you see yourself</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether you are the author of your life or a product of forces beyond you. How much you hold yourself responsible. Whether your identity is fixed or constructed. These beliefs shape every decision you make about your own path.</p>
+        </div>
+
+        <div style="background:rgba(91,191,148,0.06);border:1px solid rgba(91,191,148,0.18);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(91,191,148,0.7);margin-bottom:14px;">Lens 03</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">How you see others</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether people deserve blame or understanding. How you explain bad behaviour — character or circumstance. The moral weight you extend to strangers, enemies, and people unlike you. This is the engine of every conflict and every connection.</p>
+        </div>
+
+        <div style="background:rgba(224,120,74,0.06);border:1px solid rgba(224,120,74,0.18);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(224,120,74,0.7);margin-bottom:14px;">Lens 04</div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">How you see society</div>
+          <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether social structures are natural, constructed, or corrupted. How justice should work. Whether tradition or progress is the wiser guide. What you owe to people you'll never meet. The political is always philosophical first.</p>
+        </div>
+
       </div>
     </div>
 
@@ -3554,11 +3665,11 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;">Archetype Distance Checker</div>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--text2);line-height:1.6;margin:0 0 14px;">Select an archetype and see its Euclidean distance to all 60 profiles. Validates that the correct archetype wins and shows how cleanly it separates from its nearest neighbours.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <select id="dev-dist-family" onchange="devDistFamilyChanged()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;">
+          <select id="dev-dist-family" onchange="devDistFamilyChanged()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;width:100%;">
             <option value="">Family</option>
           </select>
-          <select id="dev-dist-variant" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;opacity:0.4;pointer-events:none;">
+          <select id="dev-dist-variant" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;opacity:0.4;pointer-events:none;width:100%;">
             <option value="">Variant</option>
           </select>
         </div>
@@ -3696,59 +3807,62 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 <!-- ══════════════════════════════════════════
      SCREEN: PROFILE / SAVED REPORT
 ══════════════════════════════════════════ -->
-<div id="screen-profile" class="screen">
-  <div style="max-width:860px;margin:0 auto;padding:80px 24px 60px;width:100%;position:relative;z-index:6;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px;">
-      <div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Your Profile</div>
-        <h1 style="font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,42px);font-weight:700;color:var(--text);margin:0;" id="profile-archetype-title">Your Archetype</h1>
-        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--muted);margin-top:6px;" id="profile-archetype-variant"></div>
-      </div>
+<div id="screen-profile" class="screen" role="main" aria-label="Your philosophical profile">
+  <div id="main-content" style="max-width:860px;margin:0 auto;padding:80px 24px 80px;width:100%;position:relative;z-index:6;box-sizing:border-box;">
+
+    <!-- Header row -->
+    <div style="margin-bottom:52px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Your Philosophical OS</div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:clamp(32px,6vw,52px);font-weight:700;color:var(--text);margin:0 0 8px;line-height:1.05;" id="profile-archetype-title">Your Archetype</h1>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--muted);margin-bottom:28px;" id="profile-archetype-variant"></div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <button onclick="show('screen-report')" style="background:var(--accent);border:none;border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#08061a;cursor:pointer;">View Full Report</button>
-        <button onclick="confirmRetake()" style="background:transparent;border:1px solid var(--border2);border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;">Retake Assessment</button>
+        <button onclick="confirmRetake()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:11px 22px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;">Retake</button>
       </div>
     </div>
 
-    <!-- Stats row -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px;">
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Rarity</div>
+    <!-- Stats row — matching landing page card style -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;">Rarity</div>
         <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent);" id="profile-stat-rarity">—</div>
       </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Conviction</div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;">Conviction</div>
         <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--purple2);" id="profile-stat-conviction">—</div>
       </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Dominant Axis</div>
-        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--teal);" id="profile-stat-axis">—</div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;">Dominant Axis</div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--teal);" id="profile-stat-axis">—</div>
       </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:20px 24px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Completed</div>
-        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;font-weight:600;color:var(--text2);" id="profile-stat-date">—</div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;">Completed</div>
+        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:15px;font-weight:600;color:var(--text2);" id="profile-stat-date">—</div>
       </div>
     </div>
 
     <!-- Tagline -->
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px 32px;margin-bottom:24px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Your Tagline</div>
-      <div style="font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,24px);font-style:italic;color:var(--text);line-height:1.5;" id="profile-tagline">—</div>
+    <div style="border-top:1px solid rgba(255,255,255,0.07);padding:32px 0;margin-bottom:0;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:14px;">Your Tagline</div>
+      <div style="font-family:'Playfair Display',serif;font-size:clamp(18px,3vw,26px);font-style:italic;color:var(--text);line-height:1.5;" id="profile-tagline">—</div>
     </div>
 
-    <!-- Fingerprint axes -->
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px 32px;margin-bottom:24px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">Philosophical Fingerprint</div>
-      <div id="profile-fingerprint" style="display:flex;flex-direction:column;gap:14px;"></div>
+    <!-- Fingerprint -->
+    <div style="border-top:1px solid rgba(255,255,255,0.07);padding:32px 0;margin-bottom:0;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:22px;">Philosophical Fingerprint</div>
+      <div id="profile-fingerprint" style="display:flex;flex-direction:column;gap:16px;"></div>
     </div>
 
-    <!-- Contradictions summary -->
-    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:28px 32px;" id="profile-contradictions-block">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Contradictions Detected</div>
-      <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--danger);" id="profile-contradiction-count">—</div>
-      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);margin-top:4px;">tensions in your belief system</div>
-      <button onclick="show('screen-report');showReportSection('rs-contradictions');" style="margin-top:16px;background:transparent;border:1px solid rgba(232,112,112,0.3);border-radius:6px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--danger);cursor:pointer;">View contradictions →</button>
+    <!-- Contradictions -->
+    <div style="border-top:1px solid rgba(255,255,255,0.07);padding:32px 0 0;" id="profile-contradictions-block">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:14px;">Contradictions Detected</div>
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;">
+        <div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:700;color:var(--danger);line-height:1;" id="profile-contradiction-count">—</div>
+        <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);">tensions in your belief system</div>
+      </div>
+      <button onclick="show('screen-report');showReportSection('rs-contradictions');" style="margin-top:18px;background:transparent;border:1px solid rgba(232,112,112,0.25);border-radius:6px;padding:9px 18px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--danger);cursor:pointer;">View contradictions →</button>
     </div>
+
   </div>
 </div>
 
@@ -3758,7 +3872,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div class="gen-title">Mapping your OS</div>
     <p class="gen-sub">Analysing 32 axes across 4 causal tiers</p>
     <p class="gen-sub" style="font-size:12px;opacity:0.55;margin-top:6px;">This can take up to a minute — your report is being written from scratch</p>
-    <div class="gen-steps" id="gen-steps">
+    <div class="gen-steps" id="gen-steps" role="status" aria-live="polite" aria-label="Report generation progress">
       <div class="gen-step" data-step="0"><div class="gen-dot"></div>Scoring foundational axes</div>
       <div class="gen-step" data-step="1"><div class="gen-dot"></div>Detecting contradictions</div>
       <div class="gen-step" data-step="2"><div class="gen-dot"></div>Computing belief fingerprint</div>
@@ -3812,7 +3926,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <div class="report-layout">
 
     <!-- ── SECTION NAV (left sidebar / mobile tab bar) ── -->
-    <nav class="report-nav" id="report-nav">
+    <nav class="report-nav" id="report-nav" aria-label="Report sections">
       <div class="report-nav-title">Sections</div>
       <!-- Mobile dropdown — replaces horizontal scroll on small screens -->
       <select class="report-nav-dropdown" id="report-nav-dropdown" onchange="showReportSection(this.value);document.querySelectorAll('.rn-item').forEach(b=>b.classList.toggle('active',b.dataset.section===this.value));">
@@ -3846,7 +3960,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div class="report-sections" id="report-sections">
 
       <!-- 00 · YOUR CARD — shown first on report generation -->
-      <div class="rs active" id="rs-card">
+      <div class="rs active" id="rs-card" role="region" aria-label="Your shareable card">
         <div class="rs-header">
           <div class="rs-eyebrow">Your Phil OS</div>
           <h2 class="rs-title">Your Shareable Card</h2>
@@ -3868,7 +3982,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 01 · WHO YOU ARE -->
-      <div class="rs" id="rs-identity">
+      <div class="rs" id="rs-identity" role="region" aria-label="Who you are">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 01 · Identity</div>
           <h2 class="rs-title">Who You Are</h2>
@@ -3880,7 +3994,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 02 · IN THE WORLD -->
-      <div class="rs" id="rs-world">
+      <div class="rs" id="rs-world" role="region" aria-label="In the world">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 02 · Expression</div>
           <h2 class="rs-title">In the World</h2>
@@ -3892,7 +4006,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 03 · FAMOUS MINDS -->
-      <div class="rs" id="rs-famous">
+      <div class="rs" id="rs-famous" role="region" aria-label="Famous minds like yours">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 03 · Precedent</div>
           <h2 class="rs-title">Famous Minds</h2>
@@ -3904,7 +4018,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 04 · HOW YOU OPERATE -->
-      <div class="rs" id="rs-patterns">
+      <div class="rs" id="rs-patterns" role="region" aria-label="How you operate">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 04 · Patterns</div>
           <h2 class="rs-title">How You Operate</h2>
@@ -3916,7 +4030,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 05 · FINGERPRINT -->
-      <div class="rs" id="rs-fingerprint">
+      <div class="rs" id="rs-fingerprint" role="region" aria-label="Philosophical fingerprint">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 05 · Signature</div>
           <h2 class="rs-title">Your Philosophical Fingerprint</h2>
@@ -3928,7 +4042,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 06 · LIFE ALIGNMENT -->
-      <div class="rs" id="rs-alignment">
+      <div class="rs" id="rs-alignment" role="region" aria-label="Life alignment">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 06 · Alignment</div>
           <h2 class="rs-title">Life Alignment</h2>
@@ -3940,7 +4054,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 07 · CULTURE MAP -->
-      <div class="rs" id="rs-media">
+      <div class="rs" id="rs-media" role="region" aria-label="Culture map">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 07 · Culture</div>
           <h2 class="rs-title">Culture Map</h2>
@@ -3952,7 +4066,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 08 · GROWTH EDGES -->
-      <div class="rs" id="rs-growth">
+      <div class="rs" id="rs-growth" role="region" aria-label="Growth edges">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 08 · Development</div>
           <h2 class="rs-title">Growth Edges</h2>
@@ -3964,7 +4078,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 09 · BELIEF TENSIONS -->
-      <div class="rs" id="rs-contradictions">
+      <div class="rs" id="rs-contradictions" role="region" aria-label="Belief tensions">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 09 · Contradictions</div>
           <h2 class="rs-title">Belief Tensions</h2>
@@ -3995,7 +4109,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
 
       <!-- 10 · FULL BELIEF MAP -->
-      <div class="rs" id="rs-map">
+      <div class="rs" id="rs-map" role="region" aria-label="Full belief map">
         <div class="rs-header">
           <div class="rs-eyebrow">Section 10 · Data</div>
           <h2 class="rs-title">Full Belief Map</h2>
@@ -10136,6 +10250,14 @@ let _consentGatePassed = false; // module-level: survives onAuthReady re-entry
 
 async function authBoot() {
   let authHandled = false;
+
+  // If returning from OAuth redirect, hash contains access_token.
+  // Show a neutral loading state immediately so auth screen never flashes.
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    show('screen-generating');
+    document.getElementById('gen-title') && (document.getElementById('gen-title').textContent = 'Signing you in…');
+    document.getElementById('gen-sub')   && (document.getElementById('gen-sub').textContent   = '');
+  }
 
   // Listen for auth state changes FIRST (catches OAuth redirect callbacks)
   supa.auth.onAuthStateChange(async (event, session) => {
