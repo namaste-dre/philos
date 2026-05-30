@@ -9632,6 +9632,10 @@ async function shareNative() {
 }
 
 function showConsentGate(meta) {
+  // Always hide the auth-loading overlay first
+  const overlay = document.getElementById('auth-loading');
+  if (overlay) overlay.style.display = 'none';
+
   const gate = document.getElementById('consent-gate');
   if (!gate) return;
   const existing  = meta.full_name || meta.name || meta.given_name || '';
@@ -10298,6 +10302,16 @@ async function authBoot() {
   if (window.location.hash && window.location.hash.includes('access_token')) {
     const overlay = document.getElementById('auth-loading');
     if (overlay) overlay.style.display = 'flex';
+
+    // Hard failsafe: if auth hasn't resolved in 8s, hide overlay and show landing
+    setTimeout(() => {
+      const o = document.getElementById('auth-loading');
+      if (o && o.style.display !== 'none') {
+        console.warn('[Auth] Loading timeout — forcing navigation');
+        o.style.display = 'none';
+        show('screen-landing');
+      }
+    }, 8000);
   }
 
   // Listen for auth state changes FIRST (catches OAuth redirect callbacks)
@@ -10336,6 +10350,13 @@ async function authBoot() {
 
 // ── After successful auth: route user ──
 async function onAuthReady() {
+  // Always hide auth-loading overlay — runs even if an error occurs below
+  const _hideOverlay = () => {
+    const o = document.getElementById('auth-loading');
+    if (o) o.style.display = 'none';
+  };
+
+  try {
   // Clear OAuth hash from URL without reload
   if (window.location.hash && window.location.hash.includes('access_token')) {
     history.replaceState(null, '', window.location.pathname);
@@ -10345,11 +10366,12 @@ async function onAuthReady() {
   if (currentUser && !_consentGatePassed) {
     const meta = currentUser.user_metadata || {};
     if (!meta.gdpr_consent) {
-      showConsentGate(meta);
+      showConsentGate(meta); // hides overlay internally
       return; // halt auth flow — consent gate calls onAuthReady() again on save
     }
   }
 
+  _hideOverlay();
   showNav();
 
   let completion = null;
@@ -10388,8 +10410,15 @@ async function onAuthReady() {
   updateLandingCTA(userState, completion);
 
   if (hasCompletion) {
-    show('screen-report'); // go straight to their report
+    show('screen-report');
   } else {
+    show('screen-landing');
+  }
+
+  } catch(e) {
+    // Any unhandled error — hide overlay and fall back to landing
+    console.warn('[onAuthReady] Error:', e.message);
+    _hideOverlay();
     show('screen-landing');
   }
 }
