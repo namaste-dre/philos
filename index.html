@@ -7586,7 +7586,7 @@ WRITING RULES:
 8. No colons introducing lists in narrative text. No bullet points.
 
 Return ONLY valid JSON — no markdown fences, no preamble:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph. Must feel like a sharp personal description. 75 words minimum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
+{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"HARD LIMIT: maximum 55 words. Do not exceed 55 words under any circumstances. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph that ends on a complete sentence.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
 
   let report1;
   try {
@@ -9348,10 +9348,9 @@ function renderCardToCanvas(container) {
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
   nameWords.forEach((w, i) => ctx.fillText(w, PAD+36, NAME_Y + i * nameLineH));
 
-  // Archetype icon — centred in the right zone, vertically on the name block
+  // Archetype icon — centred in right zone, clipped to block so it never bleeds any edge
   const archIcon = getArchetypeIcon(cardData.archetypeName);
   if (archIcon && archIcon.draw) {
-    // Right zone: from (nameMaxW + PAD + 48 + 16) to (W - PAD)
     const rightZoneLeft = PAD + 48 + nameMaxW + 16;
     const rightZoneRight = W - PAD;
     const iconX = Math.round((rightZoneLeft + rightZoneRight) / 2);
@@ -9359,6 +9358,9 @@ function renderCardToCanvas(container) {
     const nameBlockBot = NAME_Y + (nameWords.length - 1) * nameLineH;
     const iconCentreY = Math.round((nameBlockTop + nameBlockBot) / 2);
     ctx.save();
+    ctx.beginPath();
+    ctx.rect(PAD + 3, y + 3, W - PAD*2 - 6, B1H - 6);
+    ctx.clip();
     const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, iconSize*0.85);
     ig.addColorStop(0,'rgba(157,147,232,0.32)');
     ig.addColorStop(0.5,'rgba(120,100,240,0.12)');
@@ -9376,15 +9378,6 @@ function renderCardToCanvas(container) {
   ctx.font = '500 20px "IBM Plex Mono",monospace';
   ctx.fillStyle = 'rgba(180,160,220,0.82)'; ctx.textAlign = 'left';
   ctx.fillText(strip(cardData.archetypeVariant||'').toUpperCase(), PAD+36, variantY+16);
-
-  const rarityStr = rarityMapH[cardData.archetypeName] || '';
-  if (rarityStr) {
-    ctx.font = '600 16px "IBM Plex Mono",monospace';
-    const rpW = ctx.measureText(rarityStr).width + 24;
-    roundRect(W-PAD-36-rpW, variantY+1, rpW, 26, 13, 'rgba(201,169,110,0.14)', 'rgba(201,169,110,0.5)', 1.5);
-    ctx.fillStyle = GOLD2; ctx.textAlign='center';
-    ctx.fillText(rarityStr, W-PAD-36-rpW/2, variantY+18);
-  }
 
   y += B1H + 14;
 
@@ -9420,7 +9413,11 @@ function renderCardToCanvas(container) {
 
   ctx.font = '400 20px "IBM Plex Sans",sans-serif';
   ctx.fillStyle = TEXT; ctx.textAlign = 'left';
-  // maxLines=8 exactly fills the 252px text area (8 × 30px lineH)
+  // Hard limit: 340 chars max. Box = 8 lines × 30px = 240px text area. Truncate at word boundary.
+  if (whoText.length > 340) {
+    whoText = whoText.slice(0, 340).replace(/\s+\S*$/, '');
+  }
+  // maxLines=8 exactly fills the 240px text area (8 × 30px lineH)
   wrapText(whoText, whoX+22, y+62, whoW-44, 30, 8);
 
   // STATS — 3 stacked vertically, equal height
