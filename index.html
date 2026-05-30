@@ -2378,16 +2378,9 @@ select.modal-input option { background: #12101e; }
   justify-content: flex-start;
   padding-top: 40px;
 }
-/* Profile: pure black slate, no glows, no rounding */
-#screen-profile {
-  background: #000000 !important;
-}
-#screen-profile * {
-  border-radius: 0 !important;
-}
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before,
-#screen-settings::before, #screen-resources::before {
+#screen-profile::before, #screen-settings::before, #screen-resources::before {
   content: '';
   position: fixed;
   width: 1000px; height: 1000px;
@@ -2401,7 +2394,7 @@ select.modal-input option { background: #12101e; }
 }
 /* Gold glow — bottom right (matches intro) */
 #screen-landing::after, #screen-auth::after,
-#screen-settings::after, #screen-resources::after {
+#screen-profile::after, #screen-settings::after, #screen-resources::after {
   content: '';
   position: fixed;
   width: 800px; height: 800px;
@@ -5302,6 +5295,9 @@ function show(screenId) {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
+  // Hide constellation on profile (pure black bg) — show everywhere else
+  const constBg = document.getElementById('constellation-bg');
+  if (constBg) constBg.style.display = (screenId === 'screen-profile') ? 'none' : '';
   if (typeof updateNavLinks === 'function') updateNavLinks(screenId);
   if (screenId === 'screen-intro' && typeof devRefreshStats === 'function') {
     devRefreshStats();
@@ -10382,15 +10378,8 @@ async function onAuthReady() {
     }
   }
 
-  // Route: completed → report directly. In-progress or new → landing.
-  const userState = hasCompletion ? 'completed' : hasProgress ? 'progress' : 'none';
-  updateLandingCTA(userState, completion);
-
-  if (hasCompletion) {
-    show('screen-report');
-  } else {
-    show('screen-landing');
-  }
+  // Always route to landing after login — user navigates to report themselves
+  show('screen-landing');
 
 
 }
