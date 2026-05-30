@@ -2158,9 +2158,19 @@ select.modal-input option { background: #12101e; }
 .qa-flag-toggle.flagged .qa-flag-icon { background: #c9a96e; color: #08061a; border-color: #c9a96e; }
 .qa-flag-body {
   display: none;
-  padding: 0 16px 16px;
 }
-.qa-flag-body.open { display: block; }
+.qa-flag-body.open {
+  display: block;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  background: #13102a;
+  border-top: 1px solid rgba(201,169,110,0.35);
+  padding: 14px 20px 24px;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+}
 .qa-flag-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -11038,13 +11048,15 @@ function navGoAssessment() {
 
 function navGoReport() {
   if (!currentUser) { showAuth('login'); return; }
-  fetchLatestCompletion().then(completion => {
-    if (completion && completion.report_json) {
-      showProfile();
-    } else {
-      show('screen-landing');
-    }
-  });
+  // Go directly to report if available, otherwise landing
+  if (typeof fetchLatestCompletion === 'function') {
+    fetchLatestCompletion().then(completion => {
+      if (completion) show('screen-report');
+      else show('screen-landing');
+    });
+  } else {
+    show('screen-landing');
+  }
 }
 
 // Show nav links only on landing + profile screens
