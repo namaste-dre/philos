@@ -20,9 +20,9 @@
   --border2: rgba(255,255,255,0.18);
   --border3: rgba(157,147,232,0.28);
   /* Accessibility: all text vars pass WCAG AAA on #07061a */
-  --text: #f2efe8;   /* 17.5:1 */
-  --text2: #d4d0c8;  /* 13.2:1 */
-  --muted: #b4b0c8;  /* 9.51:1 — upgraded from #8c88a0 (5.85:1) */
+  --text: #ffffff;   /* pure white — max contrast */
+  --text2: #ede9e0;  /* warm off-white — body copy */
+  --muted: #ccc8dc;  /* light lavender-grey — labels/secondary */
   --accent: #c9a96e;
   --accent2: #e8c87a;
   --purple: #9d93e8;
@@ -2158,19 +2158,9 @@ select.modal-input option { background: #12101e; }
 .qa-flag-toggle.flagged .qa-flag-icon { background: #c9a96e; color: #08061a; border-color: #c9a96e; }
 .qa-flag-body {
   display: none;
+  padding: 0 16px 16px;
 }
-.qa-flag-body.open {
-  display: block;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 2000;
-  background: #13102a;
-  border-top: 1px solid rgba(201,169,110,0.35);
-  padding: 14px 20px 24px;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
-}
+.qa-flag-body.open { display: block; }
 .qa-flag-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -2868,8 +2858,8 @@ select.modal-input option { background: #12101e; }
 /* High contrast mode */
 body.hc-mode {
   --text: #ffffff;
-  --text2: #e8e8e8;
-  --muted: #b0afc0;
+  --text2: #ede9e0;
+  --muted: #ccc8dc;
   --border: rgba(255,255,255,0.25);
   --border2: rgba(255,255,255,0.35);
   --surface: rgba(255,255,255,0.07);
@@ -5312,31 +5302,7 @@ function show(screenId) {
   }
   // Show nav progress only during quiz
   if (typeof showNavProgress === 'function') showNavProgress(screenId === 'screen-quiz');
-  // Push to browser history so back button works — skip auth/generating (no back into those)
-  const noHistory = ['screen-auth', 'screen-generating'];
-  if (!noHistory.includes(screenId) && (!history.state || history.state.screen !== screenId)) {
-    history.pushState({ screen: screenId }, '', window.location.pathname);
-  }
 }
-
-// Browser back button support
-window.addEventListener('popstate', (e) => {
-  if (e.state && e.state.screen) {
-    // Re-activate screen directly without pushing new history entry
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(e.state.screen);
-    if (el) { el.classList.add('active'); window.scrollTo(0,0); }
-    if (typeof updateNavLinks === 'function') updateNavLinks(e.state.screen);
-    if (typeof showNavProgress === 'function') showNavProgress(e.state.screen === 'screen-quiz');
-  } else {
-    // No state — we're at the bottom of the stack, go to landing if authed else auth
-    if (typeof currentUser !== 'undefined' && currentUser) {
-      show('screen-landing');
-    } else {
-      show('screen-auth');
-    }
-  }
-});
 
 function resetQuiz() { show('screen-intro'); }
 
@@ -5637,10 +5603,7 @@ function renderQuestion() {
         <span>${flagData.flagged ? 'Flagged for review' : 'Flag this question'}</span>
       </div>
       <div class="qa-flag-body${flagData.flagged ? ' open' : ''}" id="qa-flag-body-${q.id}">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="qa-flag-label" style="margin-bottom:0;">Note — auto-saved as you type</div>
-          <button onclick="qaCloseFlag('${q.id}')" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.4);border-radius:6px;color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;cursor:pointer;">Done ✕</button>
-        </div>
+        <div class="qa-flag-label">Notes</div>
         <textarea
           class="qa-flag-textarea"
           id="qa-note-${q.id}"
@@ -5672,11 +5635,6 @@ function qaToggleFlag(qid) {
   }
   if (body) body.classList.toggle('open', flagData.flagged);
   qaUpdateProgressDots();
-}
-
-function qaCloseFlag(qid) {
-  const body = document.getElementById('qa-flag-body-' + qid);
-  if (body) body.classList.remove('open');
 }
 
 function qaSaveNote(qid, value) {
@@ -7417,22 +7375,6 @@ function skipEmailCapture() {
 // ══════════════════════════════════════════
 // GENERATE REPORT
 // ══════════════════════════════════════════
-// Fixes literal newlines inside JSON string values (model sometimes writes them)
-function fixJsonNewlines(s) {
-  let result = '';
-  let inString = false;
-  let escaped = false;
-  for (let i = 0; i < s.length; i++) {
-    const c = s[i];
-    if (escaped) { result += c; escaped = false; }
-    else if (c === '\\' && inString) { result += c; escaped = true; }
-    else if (c === '"') { result += c; inString = !inString; }
-    else if (inString && (c === '\n' || c === '\r')) { result += '\\n'; }
-    else { result += c; }
-  }
-  return result;
-}
-
 async function generateReport() {
   show('screen-generating');
 
@@ -7558,40 +7500,28 @@ WRITING RULES:
 6. Cover HOW THEY THINK, HOW THEY FEEL ABOUT THE WORLD, HOW THEY DECIDE, HOW THEY RELATE, WHAT DRIVES AND DRAINS THEM
 7. No em dashes anywhere. Use but, and, so, because instead.
 8. No colons introducing lists in narrative text. No bullet points.
+9. Use ${userName}'s name the way a person would in real conversation — naturally, sparingly, never at the start of consecutive sentences or paragraphs. It should feel warm and personal, not robotic. Aim for 2-4 uses across the full identity section, placed mid-thought where it lands with weight, not as a paragraph opener every time.
 
 Return ONLY valid JSON — no markdown fences, no preamble:
 {"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph. Must feel like a sharp personal description. 75 words minimum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
 
-  const DEV_EMAIL = 'dre63052@gmail.com';
-  const isDevUser = (currentUser?.email || state.captureData?.email || '') === DEV_EMAIL;
-
-  const call1 = async () => fetch('/api/generate', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200, email: currentUser?.email || state.captureData?.email || '' })
-  });
-
   let report1;
   try {
-    let res1 = await call1();
-    // Dev account: auto-retry once on 429 after 5s instead of failing
-    if (res1.status === 429 && isDevUser) {
-      document.getElementById('gen-error').textContent = 'Rate limited — retrying in 5s…';
-      await new Promise(r => setTimeout(r, 5000));
-      res1 = await call1();
-    }
+    const res1 = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200, email: currentUser?.email || state.captureData?.email || '' })
+    });
     if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
     const text1 = await res1.text();
     if (text1.trim().startsWith('<!')) throw new Error('Call 1 returned HTML (timeout/server error)');
     const data1 = JSON.parse(text1);
     const raw1 = data1.content?.[0]?.text || '';
-    const clean1 = fixJsonNewlines(raw1.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim());
+    const clean1 = raw1.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
     report1 = JSON.parse(clean1);
   } catch(e) {
     const msg = e.message || '';
-    const userMsg = isDevUser
-      ? 'DEV — ' + msg
-      : msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'
+    const userMsg = msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'
       : msg.includes('429') ? 'Rate limit reached. Please wait a few minutes and try again.'
       : msg.includes('401') ? 'Session expired. Please sign in again.'
       : msg.includes('500') ? 'Server error on part 1. Please try again.'
@@ -7629,7 +7559,7 @@ Return ONLY valid JSON — no markdown fences:
     if (text2.trim().startsWith('<!')) throw new Error('Call 2 returned HTML (timeout/server error)');
     const data2 = JSON.parse(text2);
     const raw2 = data2.content?.[0]?.text || '';
-    const clean2 = fixJsonNewlines(raw2.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim());
+    const clean2 = raw2.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
     report2 = JSON.parse(clean2);
   } catch(e) {
     // Call 2 failure is non-fatal — render with world section empty
