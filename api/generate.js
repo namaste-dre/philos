@@ -2,6 +2,7 @@ export const config = { maxDuration: 60 };
 
 // ── Constants ───────────────────────────────────────────
 const ALLOWED_ORIGIN  = 'https://phil-os.thelifepm.com';
+const DEV_EMAILS      = ['dre63052@gmail.com'];
 const RATE_LIMIT      = 6;          // calls per window (3 report = 2 API calls each)
 const RATE_WINDOW_HRS = 24;
 const MAX_TOKENS_CAP  = 2500;       // hard ceiling — client cannot exceed this
@@ -96,7 +97,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid model' });
   }
 
-  // ── Rate limiting by IP ──
+  // ── Rate limiting by IP — skipped for dev accounts ──
+  const isDev = DEV_EMAILS.includes((body.email || '').toLowerCase().trim());
   const ip = (
     req.headers['x-forwarded-for']?.split(',')[0] ||
     req.headers['x-real-ip'] ||
@@ -104,7 +106,7 @@ export default async function handler(req, res) {
     'unknown'
   ).trim();
   const rateKey = `generate:${ip}`;
-  const rate    = await checkRateLimit(rateKey);
+  const rate    = isDev ? { allowed: true } : await checkRateLimit(rateKey);
 
   if (!rate.allowed) {
     return res.status(429).json({
@@ -125,7 +127,7 @@ export default async function handler(req, res) {
   }
   const messages = body.messages.slice(0, 4).map(m => ({
     role:    m.role === 'assistant' ? 'assistant' : 'user',
-    content: typeof m.content === 'string' ? m.content.slice(0, 12000) : '',
+    content: typeof m.content === 'string' ? m.content.slice(0, isDev ? 32000 : 16000) : '',
   }));
 
   try {
