@@ -5312,7 +5312,31 @@ function show(screenId) {
   }
   // Show nav progress only during quiz
   if (typeof showNavProgress === 'function') showNavProgress(screenId === 'screen-quiz');
+  // Push to browser history so back button works — skip auth/generating (no back into those)
+  const noHistory = ['screen-auth', 'screen-generating'];
+  if (!noHistory.includes(screenId) && (!history.state || history.state.screen !== screenId)) {
+    history.pushState({ screen: screenId }, '', window.location.pathname);
+  }
 }
+
+// Browser back button support
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.screen) {
+    // Re-activate screen directly without pushing new history entry
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(e.state.screen);
+    if (el) { el.classList.add('active'); window.scrollTo(0,0); }
+    if (typeof updateNavLinks === 'function') updateNavLinks(e.state.screen);
+    if (typeof showNavProgress === 'function') showNavProgress(e.state.screen === 'screen-quiz');
+  } else {
+    // No state — we're at the bottom of the stack, go to landing if authed else auth
+    if (typeof currentUser !== 'undefined' && currentUser) {
+      show('screen-landing');
+    } else {
+      show('screen-auth');
+    }
+  }
+});
 
 function resetQuiz() { show('screen-intro'); }
 
@@ -7538,13 +7562,24 @@ WRITING RULES:
 Return ONLY valid JSON — no markdown fences, no preamble:
 {"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph. Must feel like a sharp personal description. 75 words minimum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
 
+  const DEV_EMAIL = 'dre63052@gmail.com';
+  const isDevUser = (currentUser?.email || state.captureData?.email || '') === DEV_EMAIL;
+
+  const call1 = async () => fetch('/api/generate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200, email: currentUser?.email || state.captureData?.email || '' })
+  });
+
   let report1;
   try {
-    const res1 = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200, email: currentUser?.email || state.captureData?.email || '' })
-    });
+    let res1 = await call1();
+    // Dev account: auto-retry once on 429 after 5s instead of failing
+    if (res1.status === 429 && isDevUser) {
+      document.getElementById('gen-status').textContent = 'Rate limited — retrying in 5s…';
+      await new Promise(r => setTimeout(r, 5000));
+      res1 = await call1();
+    }
     if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
     const text1 = await res1.text();
     if (text1.trim().startsWith('<!')) throw new Error('Call 1 returned HTML (timeout/server error)');
@@ -7554,7 +7589,9 @@ Return ONLY valid JSON — no markdown fences, no preamble:
     report1 = JSON.parse(clean1);
   } catch(e) {
     const msg = e.message || '';
-    const userMsg = msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'
+    const userMsg = isDevUser
+      ? 'DEV — ' + msg
+      : msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'
       : msg.includes('429') ? 'Rate limit reached. Please wait a few minutes and try again.'
       : msg.includes('401') ? 'Session expired. Please sign in again.'
       : msg.includes('500') ? 'Server error on part 1. Please try again.'
