@@ -5613,7 +5613,10 @@ function renderQuestion() {
         <span>${flagData.flagged ? 'Flagged for review' : 'Flag this question'}</span>
       </div>
       <div class="qa-flag-body${flagData.flagged ? ' open' : ''}" id="qa-flag-body-${q.id}">
-        <div class="qa-flag-label">Notes</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div class="qa-flag-label" style="margin-bottom:0;">Note — auto-saved as you type</div>
+          <button onclick="qaCloseFlag('${q.id}')" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.4);border-radius:6px;color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;cursor:pointer;">Done ✕</button>
+        </div>
         <textarea
           class="qa-flag-textarea"
           id="qa-note-${q.id}"
@@ -5645,6 +5648,11 @@ function qaToggleFlag(qid) {
   }
   if (body) body.classList.toggle('open', flagData.flagged);
   qaUpdateProgressDots();
+}
+
+function qaCloseFlag(qid) {
+  const body = document.getElementById('qa-flag-body-' + qid);
+  if (body) body.classList.remove('open');
 }
 
 function qaSaveNote(qid, value) {
@@ -7385,6 +7393,22 @@ function skipEmailCapture() {
 // ══════════════════════════════════════════
 // GENERATE REPORT
 // ══════════════════════════════════════════
+// Fixes literal newlines inside JSON string values (model sometimes writes them)
+function fixJsonNewlines(s) {
+  let result = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escaped) { result += c; escaped = false; }
+    else if (c === '\\' && inString) { result += c; escaped = true; }
+    else if (c === '"') { result += c; inString = !inString; }
+    else if (inString && (c === '\n' || c === '\r')) { result += '\\n'; }
+    else { result += c; }
+  }
+  return result;
+}
+
 async function generateReport() {
   show('screen-generating');
 
@@ -7526,7 +7550,7 @@ Return ONLY valid JSON — no markdown fences, no preamble:
     if (text1.trim().startsWith('<!')) throw new Error('Call 1 returned HTML (timeout/server error)');
     const data1 = JSON.parse(text1);
     const raw1 = data1.content?.[0]?.text || '';
-    const clean1 = raw1.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
+    const clean1 = fixJsonNewlines(raw1.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim());
     report1 = JSON.parse(clean1);
   } catch(e) {
     const msg = e.message || '';
@@ -7568,7 +7592,7 @@ Return ONLY valid JSON — no markdown fences:
     if (text2.trim().startsWith('<!')) throw new Error('Call 2 returned HTML (timeout/server error)');
     const data2 = JSON.parse(text2);
     const raw2 = data2.content?.[0]?.text || '';
-    const clean2 = raw2.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
+    const clean2 = fixJsonNewlines(raw2.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim());
     report2 = JSON.parse(clean2);
   } catch(e) {
     // Call 2 failure is non-fatal — render with world section empty
