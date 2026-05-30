@@ -560,55 +560,6 @@ body::after {
 }
 .intake-input::placeholder { color: var(--muted); font-weight: 400; }
 .intake-hint { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
-.intake-section-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  opacity: 0.75;
-  margin-bottom: 14px;
-  margin-top: 8px;
-}
-.intake-gender-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 28px;
-}
-.intake-gender-btn {
-  background: var(--surface);
-  border: 2px solid var(--border2);
-  border-radius: 10px;
-  color: var(--text2);
-  padding: 16px 12px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.18s, background 0.18s, color 0.18s;
-  text-align: center;
-}
-.intake-gender-btn:hover {
-  border-color: rgba(201,169,110,0.5);
-  color: var(--text);
-}
-.intake-gender-btn.selected {
-  border-color: var(--accent);
-  background: rgba(201,169,110,0.10);
-  color: var(--accent);
-}
-.intake-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 0;
-}
-@media (max-width: 480px) {
-  .intake-row { grid-template-columns: 1fr; }
-  .intake-gender-grid { grid-template-columns: 1fr 1fr; }
-}
 
 /* ── QUIZ HEADER ── */
 .quiz-header {
@@ -3009,6 +2960,11 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <button class="nav-link-btn" onclick="navGoReport()">My Profile</button>
     <button class="nav-link-btn" onclick="show('screen-resources')">Resources</button>
   </div>
+  <!-- Guest nav: shown when not logged in on public screens -->
+  <div id="nav-guest" style="display:none;align-items:center;gap:10px;margin-left:20px;">
+    <button onclick="showAuth('login')"  class="nav-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.20);color:var(--text2);">Sign In</button>
+    <button onclick="showAuth('signup')" class="nav-btn" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.55);color:var(--accent);">Sign Up</button>
+  </div>
   <!-- Progress bar — only visible during quiz -->
   <div id="nav-progress-wrap" style="flex:1;margin:0 20px;display:none;flex-direction:column;gap:4px;">
     <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
@@ -3801,71 +3757,11 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <div class="intro-glow3"></div>
   <div class="intake-wrap">
     <div class="intake-eyebrow">Before we begin</div>
-    <div class="intake-q">Tell us about yourself</div>
-    <p class="intake-hint">This personalises your questions, pronouns, and report throughout the assessment.</p>
-
-    <!-- Name -->
-    <div class="intake-section-label">First name</div>
+    <div class="intake-q">What should we call you?</div>
+    <p class="intake-hint">Your name personalises the questions and report throughout the assessment.</p>
     <input id="intake-name" class="intake-input" type="text" placeholder="Your first name" maxlength="40" autocomplete="given-name" autofocus
-      style="margin-bottom:28px;"
-      onkeydown="if(event.key==='Enter')document.getElementById('intake-age').focus()"/>
-
-    <!-- Gender -->
-    <div class="intake-section-label">Gender</div>
-    <div class="intake-gender-grid">
-      <button class="intake-gender-btn" data-gender="man"        onclick="intakeSelectGender(this)">Man</button>
-      <button class="intake-gender-btn" data-gender="woman"      onclick="intakeSelectGender(this)">Woman</button>
-      <button class="intake-gender-btn" data-gender="non-binary" onclick="intakeSelectGender(this)">Non-binary</button>
-      <button class="intake-gender-btn" data-gender="other"      onclick="intakeSelectGender(this)">Other / prefer not to say</button>
-    </div>
-
-    <!-- Age + Country row -->
-    <div class="intake-row" style="margin-bottom:28px;">
-      <div>
-        <div class="intake-section-label">Age</div>
-        <input id="intake-age" class="intake-input" type="number" placeholder="Your age" min="13" max="100"
-          style="margin-bottom:0;text-align:center;font-size:20px;padding:18px 20px;"
-          onkeydown="if(event.key==='Enter')document.getElementById('intake-country').focus()"/>
-      </div>
-      <div>
-        <div class="intake-section-label">Country</div>
-        <select id="intake-country" class="intake-input" style="margin-bottom:0;font-size:16px;padding:18px 20px;cursor:pointer;">
-          <option value="">Select country</option>
-          <option>Netherlands</option>
-          <option>United States</option>
-          <option>United Kingdom</option>
-          <option>Germany</option>
-          <option>France</option>
-          <option>Belgium</option>
-          <option>Australia</option>
-          <option>Canada</option>
-          <option>Spain</option>
-          <option>Italy</option>
-          <option>Portugal</option>
-          <option>Sweden</option>
-          <option>Norway</option>
-          <option>Denmark</option>
-          <option>Finland</option>
-          <option>Switzerland</option>
-          <option>Austria</option>
-          <option>Poland</option>
-          <option>Brazil</option>
-          <option>Mexico</option>
-          <option>Argentina</option>
-          <option>India</option>
-          <option>Japan</option>
-          <option>South Korea</option>
-          <option>China</option>
-          <option>South Africa</option>
-          <option>New Zealand</option>
-          <option>Ireland</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="intake-error" style="color:var(--danger);font-family:'IBM Plex Mono',monospace;font-size:12px;margin-bottom:16px;display:none;"></div>
-    <button class="btn-primary" onclick="state.qaMode ? startQAQuiz() : startQuiz()">Start the assessment →</button>
+      onkeydown="if(event.key==='Enter')startQuiz()"/>
+    <button class="btn-primary" onclick="state.qaMode ? startQAQuiz() : startQuiz()">Start the assessment</button>
   </div>
 </div>
 
@@ -5378,17 +5274,6 @@ const QUESTIONS = [
 
 
 // ══════════════════════════════════════════
-// PRONOUN MAP
-// ══════════════════════════════════════════
-const PRONOUN_MAP = {
-  'man':        { subject: 'he',   object: 'him',  possessive: 'his',   reflexive: 'himself' },
-  'woman':      { subject: 'she',  object: 'her',  possessive: 'her',   reflexive: 'herself' },
-  'non-binary': { subject: 'they', object: 'them', possessive: 'their', reflexive: 'themselves' },
-  'other':      { subject: 'they', object: 'them', possessive: 'their', reflexive: 'themselves' },
-};
-const DEFAULT_PRONOUNS = { subject: 'they', object: 'them', possessive: 'their', reflexive: 'themselves' };
-
-// ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
 let state = {
@@ -5396,14 +5281,10 @@ let state = {
   answers: {},
   axisScores: {},
   userName: '',
-  userGender: '',
-  userAge: null,
-  userCountry: '',
-  userPronouns: { ...DEFAULT_PRONOUNS },
   shuffledQuestions: [],
   shuffledOptions: {},
   qaMode: false,
-  qaFlags: {},
+  qaFlags: {},      // { [question_id]: { flagged: bool, note: string } }
   displayTextCache: {},
 };
 
@@ -5411,6 +5292,13 @@ let state = {
 // NAVIGATION
 // ══════════════════════════════════════════
 function show(screenId) {
+  // Auth guard — protected screens require login
+  const protected_ = ['screen-quiz','screen-intake','screen-profile','screen-report'];
+  if (protected_.includes(screenId) && !currentUser) {
+    showAuth('signup');
+    return;
+  }
+
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(screenId);
   if (el) {
@@ -5482,56 +5370,19 @@ function interleaveTypes(arr) {
   return result;
 }
 
-function intakeSelectGender(btn) {
-  document.querySelectorAll('.intake-gender-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-}
-
 function startQuiz() {
-  const nameInput    = document.getElementById('intake-name');
-  const ageInput     = document.getElementById('intake-age');
-  const countryInput = document.getElementById('intake-country');
-  const errorEl      = document.getElementById('intake-error');
-  const selectedGenderBtn = document.querySelector('.intake-gender-btn.selected');
-
-  const name    = sanitizeName(nameInput ? nameInput.value : '');
-  const gender  = selectedGenderBtn ? selectedGenderBtn.dataset.gender : '';
-  const age     = ageInput ? parseInt(ageInput.value, 10) : null;
-  const country = countryInput ? countryInput.value : '';
-
-  // Validate
-  if (!name) {
-    if (errorEl) { errorEl.textContent = 'Please enter your first name.'; errorEl.style.display = 'block'; }
-    if (nameInput) nameInput.focus();
-    return;
-  }
-  if (!gender) {
-    if (errorEl) { errorEl.textContent = 'Please select your gender.'; errorEl.style.display = 'block'; }
-    return;
-  }
-  if (!age || age < 13 || age > 100) {
-    if (errorEl) { errorEl.textContent = 'Please enter a valid age (13–100).'; errorEl.style.display = 'block'; }
-    if (ageInput) ageInput.focus();
-    return;
-  }
-  if (errorEl) errorEl.style.display = 'none';
-
-  const pronouns = PRONOUN_MAP[gender] || { ...DEFAULT_PRONOUNS };
+  const nameInput = document.getElementById('intake-name');
+  const name = sanitizeName(nameInput ? nameInput.value : '');
   const shuffled = buildShuffledOrder();
   const opts = {};
   shuffled.forEach(q => {
     if (q.options) opts[q.id] = shuffle(q.options);
   });
-
   state = {
     currentQ: 0,
     answers: {},
     axisScores: {},
     userName: name,
-    userGender: gender,
-    userAge: age,
-    userCountry: country,
-    userPronouns: pronouns,
     emailCaptured: false,
     shuffledQuestions: shuffled,
     shuffledOptions: opts,
@@ -5539,7 +5390,6 @@ function startQuiz() {
     qaFlags: {},
     displayTextCache: {},
   };
-
   document.getElementById('qa-mode-badge').style.display = 'none';
   initGlowSequences();
   tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
@@ -7515,9 +7365,7 @@ async function submitEmailCapture() {
   state.captureData = {
     first_name: nameEl ? nameEl.value.trim() : (state.userName || ''),
     email: emailEl.value.trim().toLowerCase(),
-    country: state.userCountry || (countryEl ? countryEl.value : ''),
-    gender: state.userGender || null,
-    age: state.userAge || null,
+    country: countryEl ? countryEl.value : '',
     gdpr_consent: true,
     consented_at: new Date().toISOString(),
   };
@@ -7589,9 +7437,7 @@ async function generateReport() {
   const oceanN = nRaw !== undefined ? parseFloat(nRaw).toFixed(1) : null;
   const oceanSummary = `O(Openness):${oceanO}/7 C(Conscientiousness):${oceanC}/7 A(Agreeableness):${oceanA}/7 E(Extraversion):${oceanE !== null ? oceanE+'/7' : 'not-measured'} N(Stability):${oceanN !== null ? oceanN+'/7' : 'not-measured'}`;
 
-  const userName   = state.userName || 'this person';
-  const pronouns   = state.userPronouns || DEFAULT_PRONOUNS;
-  const pronounStr = `${pronouns.subject}/${pronouns.object}/${pronouns.possessive}`;
+  const userName = state.userName || 'this person';
 
   // Full axis scores — compact format
   const axisDump = Object.entries(scores).map(([axis, score]) => {
@@ -7666,8 +7512,6 @@ WRITING RULES:
 6. Cover HOW THEY THINK, HOW THEY FEEL ABOUT THE WORLD, HOW THEY DECIDE, HOW THEY RELATE, WHAT DRIVES AND DRAINS THEM
 7. No em dashes anywhere. Use but, and, so, because instead.
 8. No colons introducing lists in narrative text. No bullet points.
-9. PRONOUNS: use ${pronounStr} for any third-person reference. Never use a gendered pronoun that contradicts this.
-10. AGE CONTEXT: this person is ${state.userAge || 'an adult'}. Let this inform life stage, stakes, and framing — do not state the age explicitly.
 
 Return ONLY valid JSON — no markdown fences, no preamble:
 {"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph. Must feel like a sharp personal description. 75 words minimum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
@@ -7704,8 +7548,6 @@ Return ONLY valid JSON — no markdown fences, no preamble:
 
 AXIS SCORES: ${axisDump}
 ARCHETYPE: ${arch.family} — ${arch.variant}
-PRONOUNS: use ${pronounStr} for third-person references. Never contradict this.
-AGE CONTEXT: ${state.userAge || 'adult'} years old — let this inform life stage without stating it.
 
 AXIS REFERENCE:
 ${axisRef}
@@ -10490,8 +10332,7 @@ async function authBoot() {
     currentUser = session.user;
     await onAuthReady();
   } else if (!session && !authHandled) {
-    show('screen-auth');
-    showAuth('login');
+    show('screen-landing');
   }
 }
 
@@ -10624,14 +10465,13 @@ function showAuth(mode) {
   if (resetPanel) resetPanel.style.display = 'none';
   if (mode === 'signup') {
     signupPanel.style.display = 'block';
-    if (backLink) backLink.style.display = 'block';
   } else if (mode === 'reset') {
     if (resetPanel) resetPanel.style.display = 'block';
-    if (backLink) backLink.style.display = 'none'; // no back — session is recovery-only
   } else {
-    loginPanel.style.display  = 'block';
-    if (backLink) backLink.style.display = 'block';
+    loginPanel.style.display = 'block';
   }
+  // Always show back link — takes user to landing
+  if (backLink) backLink.style.display = 'block';
   clearAuthErrors();
   clearAuthMessage();
 }
@@ -11221,10 +11061,26 @@ function navGoReport() {
 
 // Show nav links only on landing + profile screens
 function updateNavLinks(screenId) {
-  const links = document.getElementById('nav-links');
-  if (!links) return;
-  const hideOn = ['screen-quiz', 'screen-generating', 'screen-auth', 'screen-intake'];
-  links.style.display = (currentUser && !hideOn.includes(screenId)) ? 'flex' : 'none';
+  const authedLinks = document.getElementById('nav-links');
+  const guestLinks  = document.getElementById('nav-guest');
+  const navRight    = document.querySelector('#app-nav .nav-right');
+  const hideOn      = ['screen-quiz', 'screen-generating', 'screen-auth', 'screen-intake', 'screen-account'];
+  const publicScreens = ['screen-landing', 'screen-resources'];
+
+  if (hideOn.includes(screenId)) {
+    if (authedLinks) authedLinks.style.display = 'none';
+    if (guestLinks)  guestLinks.style.display  = 'none';
+    if (navRight)    navRight.style.display     = 'none';
+  } else if (currentUser) {
+    if (authedLinks) authedLinks.style.display = 'flex';
+    if (guestLinks)  guestLinks.style.display  = 'none';
+    if (navRight)    navRight.style.display     = '';
+  } else {
+    // Guest on public screen — show Sign In / Sign Up
+    if (authedLinks) authedLinks.style.display = 'none';
+    if (guestLinks)  guestLinks.style.display  = 'flex';
+    if (navRight)    navRight.style.display     = 'none';
+  }
 }
 
 
