@@ -7576,7 +7576,7 @@ Return ONLY valid JSON — no markdown fences, no preamble:
     let res1 = await call1();
     // Dev account: auto-retry once on 429 after 5s instead of failing
     if (res1.status === 429 && isDevUser) {
-      document.getElementById('gen-status').textContent = 'Rate limited — retrying in 5s…';
+      document.getElementById('gen-error').textContent = 'Rate limited — retrying in 5s…';
       await new Promise(r => setTimeout(r, 5000));
       res1 = await call1();
     }
