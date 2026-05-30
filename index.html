@@ -561,8 +561,28 @@ body::after {
 .intake-input::placeholder { color: var(--muted); font-weight: 400; }
 .intake-hint { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
 
-/* ── QUIZ HEADER ── */
-.quiz-header {
+/* Auth modal open state */
+#auth-modal.open { display: flex !important; }
+
+/* Onboarding modal */
+#onboarding-modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(8,6,26,0.92);
+  backdrop-filter: blur(20px);
+  z-index: 8500;
+  align-items: center; justify-content: center;
+  padding: 24px; overflow-y: auto;
+}
+#onboarding-modal.open { display: flex !important; }
+.onboarding-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 100%; max-width: 480px;
+  position: relative; z-index: 1;
+}
   position: sticky;
   top: 0;
   background: rgba(7,6,26,0.96);
@@ -2373,13 +2393,13 @@ select.modal-input option { background: #12101e; }
    AUTH SCREENS
 ══════════════════════════════════════════ */
 /* Auth/profile: center content vertically */
-#screen-auth.active, #screen-profile.active {
+#screen-profile.active {
   align-items: center;
   justify-content: flex-start;
   padding-top: 40px;
 }
 /* Purple deep glow — top left (matches intro) */
-#screen-landing::before, #screen-auth::before,
+#screen-landing::before,
 #screen-profile::before, #screen-settings::before, #screen-resources::before {
   content: '';
   position: fixed;
@@ -2393,7 +2413,7 @@ select.modal-input option { background: #12101e; }
   z-index: 0;
 }
 /* Gold glow — bottom right (matches intro) */
-#screen-landing::after, #screen-auth::after,
+#screen-landing::after,
 #screen-profile::after, #screen-settings::after, #screen-resources::after {
   content: '';
   position: fixed;
@@ -2960,11 +2980,6 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <button class="nav-link-btn" onclick="navGoReport()">My Profile</button>
     <button class="nav-link-btn" onclick="show('screen-resources')">Resources</button>
   </div>
-  <!-- Guest nav: shown when not logged in on public screens -->
-  <div id="nav-guest" style="display:none;align-items:center;gap:10px;margin-left:20px;">
-    <button onclick="showAuth('login')"  class="nav-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.20);color:var(--text2);">Sign In</button>
-    <button onclick="showAuth('signup')" class="nav-btn" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.55);color:var(--accent);">Sign Up</button>
-  </div>
   <!-- Progress bar — only visible during quiz -->
   <div id="nav-progress-wrap" style="flex:1;margin:0 20px;display:none;flex-direction:column;gap:4px;">
     <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
@@ -2973,13 +2988,15 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div id="nav-progress-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:0.04em;text-align:center;"></div>
   </div>
   <div class="nav-right">
+    <!-- Guest: Sign In / Sign Up — hidden when logged in -->
+    <button id="nav-signin-btn" onclick="showAuth('login')" style="display:none;background:transparent;border:1px solid rgba(255,255,255,0.22);border-radius:7px;padding:7px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--text2);cursor:pointer;margin-right:8px;">Sign In / Sign Up</button>
     <!-- Settings dropdown -->
     <div style="position:relative;" id="settings-menu-wrap">
       <button class="nav-btn" onclick="toggleSettingsMenu()" id="settings-btn">Settings ▾</button>
       <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:160px;overflow:hidden;z-index:3000;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
         <div style="padding:4px;">
           <button onclick="openSettings();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Settings</button>
-          <button onclick="show('screen-intro');toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
+          <button id="dev-panel-btn" onclick="show('screen-intro');toggleSettingsMenu();" style="display:none;width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
           <div style="height:1px;background:var(--border);margin:4px 8px;"></div>
           <button onclick="handleSignOut();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(232,112,112,0.08)'" onmouseout="this.style.background='transparent'">Sign Out</button>
         </div>
@@ -3009,7 +3026,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 </div>
 
 <div id="save-indicator">Progress saved</div>
-<div id="screen-landing" class="screen active">
+<div id="screen-landing" class="screen">
   <!-- Floating symbols — same as intro screen -->
   <div class="intro-symbols" aria-hidden="true">
     <div class="landing-glow-3"></div>
@@ -3473,7 +3490,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 <!-- ══════════════════════════════════════════
      SCREEN 0B: AUTH (login / signup)
 ══════════════════════════════════════════ -->
-<div id="screen-auth" class="screen">
+<div id="auth-modal" style="display:none;position:fixed;inset:0;background:rgba(8,6,26,0.90);backdrop-filter:blur(18px);z-index:8000;align-items:center;justify-content:center;padding:24px;overflow-y:auto;">
   <!-- Floating symbols -->
   <div class="intro-symbols" aria-hidden="true">
     <div class="landing-glow-3"></div>
@@ -3575,7 +3592,59 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </div>
     <!-- Back link -->
     <div style="text-align:center;margin-top:20px;" id="auth-back-link">
-      <a onclick="show('screen-landing')" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-decoration:none;">← Back</a>
+      <a onclick="hideAuth()" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-decoration:none;">← Back</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ONBOARDING MODAL — shown once after signup
+══════════════════════════════════════════ -->
+<div id="onboarding-modal">
+  <div class="onboarding-card">
+    <div class="intro-eyebrow" style="justify-content:center;margin-bottom:8px;">Welcome to Phil OS</div>
+    <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px;">One quick setup</div>
+    <div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);text-align:center;margin-bottom:28px;line-height:1.6;">This personalises your questions, pronouns, and report.</div>
+    <div id="onboarding-msg" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--danger);margin-bottom:12px;"></div>
+    <div class="intake-section-label">First Name</div>
+    <input id="ob-name" class="auth-input" type="text" placeholder="Your first name" maxlength="40" style="margin-bottom:20px;" autocomplete="given-name"/>
+    <div class="intake-section-label">Gender</div>
+    <div class="intake-gender-grid" style="margin-bottom:20px;">
+      <button class="intake-gender-btn" data-gender="man"        onclick="obSelectGender(this)">Man</button>
+      <button class="intake-gender-btn" data-gender="woman"      onclick="obSelectGender(this)">Woman</button>
+      <button class="intake-gender-btn" data-gender="non-binary" onclick="obSelectGender(this)">Non-binary</button>
+      <button class="intake-gender-btn" data-gender="other"      onclick="obSelectGender(this)">Other</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div>
+        <div class="intake-section-label">Age</div>
+        <input id="ob-age" class="auth-input" type="number" placeholder="Age" min="13" max="100" style="text-align:center;"/>
+      </div>
+      <div>
+        <div class="intake-section-label">Country</div>
+        <select id="ob-country" class="auth-input" style="cursor:pointer;">
+          <option value="">Select</option>
+          <option>Netherlands</option><option>United States</option><option>United Kingdom</option>
+          <option>Germany</option><option>France</option><option>Belgium</option>
+          <option>Australia</option><option>Canada</option><option>Spain</option>
+          <option>Italy</option><option>Portugal</option><option>Sweden</option>
+          <option>Norway</option><option>Denmark</option><option>Finland</option>
+          <option>Switzerland</option><option>Austria</option><option>Poland</option>
+          <option>Brazil</option><option>Mexico</option><option>Argentina</option>
+          <option>India</option><option>Japan</option><option>South Korea</option>
+          <option>China</option><option>South Africa</option><option>New Zealand</option>
+          <option>Ireland</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;">
+      <input type="checkbox" id="ob-gdpr" style="width:16px;height:16px;flex-shrink:0;margin-top:3px;accent-color:var(--accent);cursor:pointer;"/>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">I agree to the processing of my philosophical profile data by The Life PM. I can withdraw consent and delete my data at any time via Settings.</div>
+    </div>
+    <div id="ob-gdpr-error" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--danger);margin-bottom:10px;">You must agree to continue.</div>
+    <button class="auth-btn-primary" onclick="submitOnboarding()">Let's go →</button>
+    <div style="text-align:center;margin-top:14px;">
+      <a onclick="skipOnboarding()" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);cursor:pointer;">Skip for now</a>
     </div>
   </div>
 </div>
@@ -5292,13 +5361,6 @@ let state = {
 // NAVIGATION
 // ══════════════════════════════════════════
 function show(screenId) {
-  // Auth guard — protected screens require login
-  const protected_ = ['screen-quiz','screen-intake','screen-profile','screen-report'];
-  if (protected_.includes(screenId) && !currentUser) {
-    showAuth('signup');
-    return;
-  }
-
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(screenId);
   if (el) {
@@ -5606,20 +5668,30 @@ function renderQuestion() {
     </button>
   </div>`;
 
-  // QA flag panel — only in QA mode
-  if (state.qaMode) {
+  // QA flag panel — shown for ALL users during beta
+  {
     const flagData = state.qaFlags[q.id] || { flagged: false, note: '' };
+    const isDevUser = !!(currentUser && currentUser.email === 'dre63052@gmail.com');
+    const flagLabel = isDevUser
+      ? (flagData.flagged ? 'Flagged for QA review' : 'Flag for QA review')
+      : (flagData.flagged ? 'Feedback submitted ✓' : 'Give feedback on this question');
+    const flagPlaceholder = isDevUser
+      ? 'QA notes on this question or answer options.'
+      : 'Was this question clear? Confusing? Share your thoughts.';
     html += `<div class="qa-flag-panel">
       <div class="qa-flag-toggle${flagData.flagged ? ' flagged' : ''}" onclick="qaToggleFlag('${q.id}')">
-        <div class="qa-flag-icon">${flagData.flagged ? '✓' : ''}</div>
-        <span>${flagData.flagged ? 'Flagged for review' : 'Flag this question'}</span>
+        <div class="qa-flag-icon">${flagData.flagged ? '\u2713' : ''}</div>
+        <span>${flagLabel}</span>
       </div>
       <div class="qa-flag-body${flagData.flagged ? ' open' : ''}" id="qa-flag-body-${q.id}">
-        <div class="qa-flag-label">Notes</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div class="qa-flag-label" style="margin-bottom:0;">${isDevUser ? 'Dev notes' : 'Your feedback'} — auto-saved</div>
+          <button onclick="qaCloseFlag('${q.id}')" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.4);border-radius:6px;color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;cursor:pointer;">Done ✕</button>
+        </div>
         <textarea
           class="qa-flag-textarea"
           id="qa-note-${q.id}"
-          placeholder="What is wrong with this question or its answer options? Be specific."
+          placeholder="${flagPlaceholder}"
           oninput="qaSaveNote('${q.id}', this.value)"
         >${flagData.note || ''}</textarea>
       </div>
@@ -5628,7 +5700,7 @@ function renderQuestion() {
 
   document.getElementById('quiz-body').innerHTML = html;
 
-  // Update progress bar flag dots
+  // Update progress bar flag dots (QA mode only)
   if (state.qaMode) qaUpdateProgressDots();
 
   window.scrollTo(0, 0);
@@ -10308,7 +10380,6 @@ async function authBoot() {
     if (event === 'PASSWORD_RECOVERY') {
       // User arrived via password-reset email link — show the set-new-password panel
       // Do NOT call onAuthReady; session is recovery-only until password is updated
-      show('screen-auth');
       showAuth('reset');
       if (session) currentUser = session.user;
       return;
@@ -10332,7 +10403,7 @@ async function authBoot() {
     currentUser = session.user;
     await onAuthReady();
   } else if (!session && !authHandled) {
-    show('screen-landing');
+    showAuth('login');
   }
 }
 
@@ -10354,6 +10425,9 @@ async function onAuthReady() {
   }
 
   showNav();
+  hideAuth();
+  updateDevVisibility();
+  showOnboardingIfNeeded();
 
   let completion = null;
   let progress   = null;
@@ -10414,6 +10488,7 @@ function showNav() {
 function onSignedOut() {
   document.getElementById('app-nav').classList.remove('visible');
   document.body.classList.remove('authed');
+  updateDevVisibility();
   show('screen-landing');
 }
 
@@ -10455,25 +10530,86 @@ async function landingBegin() {
 }
 
 function showAuth(mode) {
-  show('screen-auth');
+  const modal = document.getElementById('auth-modal');
+  if (modal) modal.style.display = 'flex';
   const loginPanel  = document.getElementById('auth-login-panel');
   const signupPanel = document.getElementById('auth-signup-panel');
   const resetPanel  = document.getElementById('auth-reset-panel');
-  const backLink    = document.getElementById('auth-back-link');
-  loginPanel.style.display  = 'none';
-  signupPanel.style.display = 'none';
-  if (resetPanel) resetPanel.style.display = 'none';
-  if (mode === 'signup') {
-    signupPanel.style.display = 'block';
-  } else if (mode === 'reset') {
-    if (resetPanel) resetPanel.style.display = 'block';
-  } else {
-    loginPanel.style.display = 'block';
-  }
-  // Always show back link — takes user to landing
-  if (backLink) backLink.style.display = 'block';
+  if (loginPanel)  loginPanel.style.display  = 'none';
+  if (signupPanel) signupPanel.style.display = 'none';
+  if (resetPanel)  resetPanel.style.display  = 'none';
+  if (mode === 'signup')     { if (signupPanel) signupPanel.style.display = 'block'; }
+  else if (mode === 'reset') { if (resetPanel)  resetPanel.style.display  = 'block'; }
+  else                       { if (loginPanel)  loginPanel.style.display  = 'block'; }
   clearAuthErrors();
   clearAuthMessage();
+}
+
+function hideAuth() {
+  const modal = document.getElementById('auth-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+// ONBOARDING MODAL
+// ══════════════════════════════════════════
+function obSelectGender(btn) {
+  document.querySelectorAll('#onboarding-modal .intake-gender-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+async function showOnboardingIfNeeded() {
+  if (!currentUser) return;
+  try {
+    const { data: profile } = await supa.from('profiles').select('first_name,age,gender').eq('id', currentUser.id).single();
+    if (profile && profile.first_name && profile.age && profile.gender) return;
+  } catch(e) {}
+  const meta = currentUser.user_metadata || {};
+  const name = meta.given_name || (meta.full_name || '').split(' ')[0] || '';
+  const nameEl = document.getElementById('ob-name');
+  if (nameEl && name) nameEl.value = name;
+  const modal = document.getElementById('onboarding-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+async function submitOnboarding() {
+  const name    = (document.getElementById('ob-name')?.value || '').trim();
+  const genderBtn = document.querySelector('#onboarding-modal .intake-gender-btn.selected');
+  const gender  = genderBtn?.dataset.gender || '';
+  const ageRaw  = parseInt(document.getElementById('ob-age')?.value, 10);
+  const age     = isNaN(ageRaw) ? null : ageRaw;
+  const country = document.getElementById('ob-country')?.value || '';
+  const gdpr    = document.getElementById('ob-gdpr')?.checked;
+  const msgEl   = document.getElementById('onboarding-msg');
+  const errEl   = document.getElementById('ob-gdpr-error');
+  if (!name) { if (msgEl) { msgEl.textContent='Please enter your first name.'; msgEl.style.display='block'; } return; }
+  if (!gdpr) { if (errEl) errEl.style.display='block'; return; }
+  if (errEl) errEl.style.display='none';
+  if (msgEl) msgEl.style.display='none';
+  const pronouns = (typeof PRONOUN_MAP !== 'undefined' && PRONOUN_MAP[gender]) ? PRONOUN_MAP[gender] : { subject:'they', object:'them', possessive:'their', reflexive:'themselves' };
+  state.userName=name; state.userGender=gender; state.userAge=age; state.userCountry=country; state.userPronouns=pronouns;
+  await supa.auth.updateUser({ data: { given_name: name, full_name: name } });
+  if (typeof upsertProfile === 'function') upsertProfile({ first_name:name, gender, age, country, gdpr_consent:true, consented_at:new Date().toISOString(), marketing_consent:true });
+  const modal = document.getElementById('onboarding-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function skipOnboarding() {
+  const modal = document.getElementById('onboarding-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+// DEV VISIBILITY
+// ══════════════════════════════════════════
+function updateDevVisibility() {
+  const isDev = !!(currentUser && currentUser.email === 'dre63052@gmail.com');
+  ['dev-panel-btn','dev-panel-settings-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isDev ? '' : 'none';
+  });
+  const navSignIn = document.getElementById('nav-signin-btn');
+  if (navSignIn) navSignIn.style.display = currentUser ? 'none' : '';
 }
 
 function clearAuthErrors() {
@@ -11061,26 +11197,10 @@ function navGoReport() {
 
 // Show nav links only on landing + profile screens
 function updateNavLinks(screenId) {
-  const authedLinks = document.getElementById('nav-links');
-  const guestLinks  = document.getElementById('nav-guest');
-  const navRight    = document.querySelector('#app-nav .nav-right');
-  const hideOn      = ['screen-quiz', 'screen-generating', 'screen-auth', 'screen-intake', 'screen-account'];
-  const publicScreens = ['screen-landing', 'screen-resources'];
-
-  if (hideOn.includes(screenId)) {
-    if (authedLinks) authedLinks.style.display = 'none';
-    if (guestLinks)  guestLinks.style.display  = 'none';
-    if (navRight)    navRight.style.display     = 'none';
-  } else if (currentUser) {
-    if (authedLinks) authedLinks.style.display = 'flex';
-    if (guestLinks)  guestLinks.style.display  = 'none';
-    if (navRight)    navRight.style.display     = '';
-  } else {
-    // Guest on public screen — show Sign In / Sign Up
-    if (authedLinks) authedLinks.style.display = 'none';
-    if (guestLinks)  guestLinks.style.display  = 'flex';
-    if (navRight)    navRight.style.display     = 'none';
-  }
+  const links = document.getElementById('nav-links');
+  if (!links) return;
+  const hideOn = ['screen-quiz', 'screen-generating', 'screen-intake'];
+  links.style.display = (currentUser && !hideOn.includes(screenId)) ? 'flex' : 'none';
 }
 
 
