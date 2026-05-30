@@ -20,9 +20,9 @@
   --border2: rgba(255,255,255,0.18);
   --border3: rgba(157,147,232,0.28);
   /* Accessibility: all text vars pass WCAG AAA on #07061a */
-  --text: #ffffff;   /* pure white — max contrast */
-  --text2: #ede9e0;  /* warm off-white — body copy */
-  --muted: #ccc8dc;  /* light lavender-grey — labels/secondary */
+  --text: #f2efe8;   /* 17.5:1 */
+  --text2: #d4d0c8;  /* 13.2:1 */
+  --muted: #b4b0c8;  /* 9.51:1 — upgraded from #8c88a0 (5.85:1) */
   --accent: #c9a96e;
   --accent2: #e8c87a;
   --purple: #9d93e8;
@@ -193,7 +193,7 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.18;
+  opacity: 0.35;
 }
 @media (min-width: 768px) {
   #constellation-bg { opacity: 0.9; }
@@ -258,7 +258,7 @@ body::after {
   position: fixed;
   width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.25) 0%, rgba(201,169,110,0.06) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(220,160,50,0.35) 0%, rgba(201,169,110,0.06) 40%, transparent 70%);
   bottom: -220px; right: -180px;
   animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
@@ -276,7 +276,7 @@ body::after {
   #screen-intake::after,
   #screen-generating::after {
     width: 1000px; height: 1000px;
-    background: radial-gradient(circle, rgba(220,160,50,0.20) 0%, rgba(201,169,110,0.05) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(220,160,50,0.30) 0%, rgba(201,169,110,0.15) 40%, transparent 70%);
     filter: blur(90px);
   }
 }
@@ -757,7 +757,7 @@ body::after {
 }
 .tradeoff-opt:hover { border-color: rgba(201,169,110,0.4); background: rgba(201,169,110,0.06); transform: translateX(2px); }
 .tradeoff-opt:hover::before { transform: scaleY(1); }
-.tradeoff-opt.selected { border-color: var(--accent); background: rgba(201,169,110,0.05); }
+.tradeoff-opt.selected { border-color: var(--accent); background: rgba(201,169,110,0.15); }
 .tradeoff-opt.selected::before { transform: scaleY(1); }
 .tradeoff-letter {
   font-family: 'IBM Plex Mono', monospace;
@@ -916,7 +916,7 @@ body::after {
   position: fixed;
   width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.20) 0%, rgba(201,169,110,0.05) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(220,160,50,0.30) 0%, rgba(201,169,110,0.15) 40%, transparent 70%);
   bottom: -220px; right: -180px;
   animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
@@ -936,24 +936,7 @@ body::after {
   }
 }
 /* Fixed pink/violet third glow for report screen */
-.report-bg-glow3 {
-  position: fixed;
-  width: 500px; height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(180,100,220,0.25) 0%, transparent 70%);
-  top: 40%; left: -100px;
-  animation: driftC 24s ease-in-out infinite alternate;
-  pointer-events: none;
-  filter: blur(80px);
-  z-index: 0;
-}
-@media (min-width: 768px) {
-  .report-bg-glow3 {
-    width: 800px; height: 800px;
-    background: radial-gradient(circle, rgba(180,100,220,0.40) 0%, transparent 70%);
-    filter: blur(100px);
-  }
-}
+/* report bg glows now use .landing-glow-3 and .landing-glow-4 */
 
 /* ══════════════════════════════════════════
    TABBED REPORT LAYOUT
@@ -962,7 +945,7 @@ body::after {
   display: flex;
   min-height: 100%;
   align-items: flex-start;
-  background: rgba(8,6,26,0.78);
+  background: transparent;
 }
 .report-nav {
   width: 200px;
@@ -1366,7 +1349,7 @@ body::after {
 }
 .phil-tag-purple { background: rgba(157,147,232,0.10); border-color: rgba(157,147,232,0.30); color: rgba(190,182,255,0.9); }
 .phil-tag-purple .tag-dot { background: rgba(157,147,232,0.85); box-shadow: 0 0 6px rgba(157,147,232,0.6); }
-.phil-tag-gold   { background: rgba(201,169,110,0.05); border-color: rgba(201,169,110,0.30); color: rgba(220,190,130,0.9); }
+.phil-tag-gold   { background: rgba(201,169,110,0.15); border-color: rgba(201,169,110,0.30); color: rgba(220,190,130,0.9); }
 .phil-tag-gold   .tag-dot { background: rgba(201,169,110,0.9); box-shadow: 0 0 6px rgba(201,169,110,0.5); }
 .phil-tag-teal   { background: rgba(74,158,122,0.10);  border-color: rgba(74,158,122,0.30);  color: rgba(100,195,155,0.9); }
 .phil-tag-teal   .tag-dot { background: rgba(74,158,122,0.9); box-shadow: 0 0 6px rgba(74,158,122,0.5); }
@@ -1568,7 +1551,7 @@ body::after {
   pointer-events: none;
 }
 .contradiction-card.tier-b { border-left-color: var(--accent); }
-.contradiction-card.tier-b::before { background: radial-gradient(ellipse at right center, rgba(201,169,110,0.05) 0%, transparent 70%); }
+.contradiction-card.tier-b::before { background: radial-gradient(ellipse at right center, rgba(201,169,110,0.15) 0%, transparent 70%); }
 .contradiction-card.tier-c { border-left-color: var(--purple); }
 .contradiction-card.tier-c::before { background: radial-gradient(ellipse at right center, rgba(157,147,232,0.05) 0%, transparent 70%); }
 .contradiction-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
@@ -1840,7 +1823,7 @@ body::after {
   color: var(--text);
   line-height: 1.7;
   padding: 16px;
-  background: rgba(201,169,110,0.05);
+  background: rgba(201,169,110,0.15);
   border: 1px solid rgba(201,169,110,0.15);
   border-radius: 8px;
   margin-top: 4px;
@@ -2350,7 +2333,7 @@ select.modal-input option { background: #12101e; }
 .world-card-prompt {
   margin-top: 4px;
   padding: 14px 16px;
-  background: rgba(201,169,110,0.07);
+  background: rgba(201,169,110,0.17);
   border-left: 3px solid #c9a96e;
   border-radius: 0 6px 6px 0;
 }
@@ -2380,7 +2363,7 @@ select.modal-input option { background: #12101e; }
 }
 /* Purple deep glow — top left (matches intro) */
 #screen-landing::before, #screen-auth::before,
-#screen-profile::before, #screen-settings::before, #screen-resources::before {
+#screen-profile::before, #screen-report::before, #screen-settings::before, #screen-resources::before {
   content: '';
   position: fixed;
   width: 1000px; height: 1000px;
@@ -2394,12 +2377,12 @@ select.modal-input option { background: #12101e; }
 }
 /* Gold glow — bottom right (matches intro) */
 #screen-landing::after, #screen-auth::after,
-#screen-profile::after, #screen-settings::after, #screen-resources::after {
+#screen-profile::after, #screen-report::after, #screen-settings::after, #screen-resources::after {
   content: '';
   position: fixed;
   width: 800px; height: 800px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.60) 0%, rgba(201,169,110,0.20) 40%, transparent 68%);
+  background: radial-gradient(circle, rgba(220,160,50,0.70) 0%, rgba(201,169,110,0.30) 40%, transparent 68%);
   bottom: -180px; right: -140px;
   animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
@@ -2414,7 +2397,7 @@ select.modal-input option { background: #12101e; }
   }
   #screen-landing::after, #screen-auth::after {
     width: 1000px; height: 1000px;
-    background: radial-gradient(circle, rgba(220,160,50,0.20) 0%, rgba(201,169,110,0.05) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(220,160,50,0.30) 0%, rgba(201,169,110,0.15) 40%, transparent 70%);
     filter: blur(90px);
   }
 }
@@ -2858,8 +2841,8 @@ select.modal-input option { background: #12101e; }
 /* High contrast mode */
 body.hc-mode {
   --text: #ffffff;
-  --text2: #ede9e0;
-  --muted: #ccc8dc;
+  --text2: #e8e8e8;
+  --muted: #b0afc0;
   --border: rgba(255,255,255,0.25);
   --border2: rgba(255,255,255,0.35);
   --surface: rgba(255,255,255,0.07);
@@ -3011,7 +2994,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div class="landing-glow-4"></div>
     <!-- Additional glows to cover lower sections of the landing page -->
     <div style="position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,80,255,0.22) 0%,transparent 70%);top:55%;right:-150px;filter:blur(90px);animation:driftB 22s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
-    <div style="position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.20) 0%,transparent 70%);top:70%;left:-80px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,50,0.30) 0%,transparent 70%);top:70%;left:-80px;filter:blur(80px);animation:driftC 26s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
     <div style="position:fixed;width:450px;height:450px;border-radius:50%;background:radial-gradient(circle,rgba(180,100,220,0.18) 0%,transparent 70%);top:85%;left:40%;filter:blur(90px);animation:driftA 18s ease-in-out infinite alternate;pointer-events:none;z-index:0;"></div>
     <svg class="intro-symbol" style="left:8%;top:15%;animation-delay:0s;animation-duration:22s;" width="80" height="80" viewBox="0 0 80 80" fill="none">
       <ellipse cx="40" cy="40" rx="35" ry="14" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
@@ -3928,7 +3911,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
      SCREEN 4: REPORT
 ══════════════════════════════════════════ -->
 <div id="screen-report" class="screen">
-  <div class="report-bg-glow3"></div>
+  <div class="landing-glow-3"></div>
+  <div class="landing-glow-4"></div>
   <div class="report-header">
     <div class="report-header-inner">
       <div class="report-eyebrow">Your Philosophical OS</div>
@@ -6501,6 +6485,11 @@ const CONTRADICTIONS = [
     check:(d,j) => d >= 5.5 && j <= 2.5,
     title:'Hard Determinism + Desert-Based Justice',
     text:'You hold that every action is the inevitable product of prior causes — yet lean toward punishment as something people deserve. Hard determinism logically undermines the concept of moral desert: if someone could not have done otherwise, the framework of "deserving" punishment loses its grounding. Robert Sapolsky calls this the core tension of modern justice — the intellectual position is determinist, but the emotional system evolved to assign blame. The most consistent resolution: move to purely consequentialist/rehabilitative justice (punishment only justified by its effects), or adopt compatibilism (redefine freedom as acting from your own desires without external coercion).',
+   questions:[
+     'If a person\'s harmful action was fully caused by their genetics, upbringing, and neurology, do they deserve punishment in the same way someone with genuine freedom would?',
+     'Can you articulate what \'deserving\' punishment means without assuming the person could have done otherwise?',
+     'Would a purely forward-looking justice system — focused on rehabilitation and prevention — satisfy your moral intuitions about serious harm?',
+   ],
   },
   {
     id:'C02', tier:'A',
@@ -6508,6 +6497,11 @@ const CONTRADICTIONS = [
     check:(n,p) => n >= 5.5 && p <= 2.5,
     title:'Strong Naturalism + Non-Physical Mind',
     text:'You hold that everything that exists is part of the natural order — yet also hold that consciousness or mind has properties that cannot be fully captured by physical description. If everything is natural, and natural means causally governed by physical laws, a non-physical mind introduces something outside the natural order. This is one of the most philosophically active tensions in contemporary philosophy of mind. The resolution space includes property dualism (same substance, non-physical properties), panpsychism (consciousness is fundamental), or accepting physicalism fully and treating the hard problem as unsolved-but-solvable.',
+   questions:[
+     'What specifically makes you hold that consciousness resists physical description — is it the quality of experience, the first-person perspective, or something else?',
+     'If physical processes produce consciousness, does that require consciousness to be reducible to physical description — or could it be both produced by and not reducible to physics?',
+     'Which position are you more confident in: that everything is natural, or that consciousness is not fully physical?',
+   ],
   },
   {
     id:'C03', tier:'A',
@@ -6515,6 +6509,11 @@ const CONTRADICTIONS = [
     check:(r,mg) => r <= 2.5 && mg >= 5.5,
     title:'Anti-Realism + Moral Realism',
     text:'You lean toward anti-realism — the view that facts do not exist independently of minds — yet hold strong moral realism, which claims that moral facts exist independently of minds. But moral realism is a specific instance of mind-independent facts. You cannot coherently hold that no mind-independent facts exist while simultaneously holding that mind-independent moral facts do. This often arises because anti-realism starts as a position about physical facts and people do not extend it to ethics where their intuitions are stronger. Resolution: extend anti-realism to ethics (moral constructivism), or narrow anti-realism to specific domains.',
+   questions:[
+     'You hold that no mind-independent facts exist — but moral facts are a specific case of mind-independent facts. On what grounds do moral facts escape the anti-realist logic?',
+     'Is it possible your moral realism is actually a strong form of intersubjectivism — that moral facts are mind-dependent but socially real?',
+     'If you applied your anti-realism consistently to ethics, what would moral discourse look like?',
+   ],
   },
   {
     id:'C04', tier:'A',
@@ -6522,6 +6521,11 @@ const CONTRADICTIONS = [
     check:(d,s) => d >= 5.5 && s <= 2.5,
     title:'Hard Determinism + Authored Self',
     text:'You hold hard determinism — every decision is causally inevitable — yet lean toward a view of the self as authored and freely expressed. These assign incompatible answers to the same question. Hard determinism means the self is constituted by its causal history; the "authored self" position means the self is a genuine originating source of action. The most consistent resolutions: compatibilism (the self is real and acts freely even if determined), or accepting a fully causal account of personal identity.',
+   questions:[
+     'If every decision is causally inevitable, in what sense does the self author its choices rather than simply execute them?',
+     'Can the self be both the product of its causal history and a genuine originating source of action — and if so, how do you define origination?',
+     'What would you have to give up about your conception of self if you took hard determinism fully seriously?',
+   ],
   },
   {
     id:'C05', tier:'B',
@@ -6529,6 +6533,11 @@ const CONTRADICTIONS = [
     check:(d,r) => d >= 5.0 && r <= 3.0,
     title:'Determinism + High Personal Responsibility',
     text:'You lean toward determinism — behaviour is substantially caused by prior conditions — yet also hold strong personal responsibility, implying people are the genuine authors of their choices. These apply incompatible causal frameworks to the same question. This is one of the most common tensions in thoughtful people: the philosophical position is determinist but the emotional and practical stance retains strong responsibility intuitions. Resolution options: pragmatic responsibility (useful fiction that motivates behaviour), compatibilist responsibility (responsible for what flows from your character even if you didn’t choose your character), or weakening one position toward the other.',
+   questions:[
+     'When you hold someone responsible, what does that rest on — their character, their choices, or something that survives the determinist critique?',
+     'Is your strong responsibility intuition a considered philosophical position, or a moral reflex that your determinism has not fully reached yet?',
+     'What form of responsibility is still available and coherent within a determinist framework?',
+   ],
   },
   {
     id:'C06', tier:'B',
@@ -6536,6 +6545,11 @@ const CONTRADICTIONS = [
     check:(m,mp) => m <= 3.0 && mp <= 2.5,
     title:'Constructed Meaning + Nihilism as Practice',
     text:'You hold that meaning is constructed rather than discovered — yet your meaning practice scores toward nihilism, the view that nothing matters. These are different responses to the same starting point. If meaning is genuinely constructable, nihilism is a choice not to construct it — not a logical conclusion from meaninglessness. Camus made this distinction precisely: absurdism (construct and commit anyway) and nihilism (refuse to construct) both start from no cosmic purpose, but arrive at completely different practical orientations. The question worth sitting with: is the nihilism a philosophical position or an affective state that has been given philosophical clothing?',
+   questions:[
+     'If meaning is genuinely constructable, what has prevented you from constructing it — is this a philosophical position or something closer to an emotional state?',
+     'Is your nihilism a conclusion you arrived at, or a starting condition that your belief in constructable meaning has not yet overridden?',
+     'What would the first concrete step toward actually constructing meaning look like for you?',
+   ],
   },
   {
     id:'C07', tier:'B',
@@ -6543,6 +6557,10 @@ const CONTRADICTIONS = [
     check:(d,j) => d >= 5.0 && j <= 3.0,
     title:'Determinism + Punishment-Oriented Justice (Consistency Flag)',
     text:'You lean toward determinism but hold a justice orientation that still emphasises punishment as a legitimate response to harm. This is not yet a hard contradiction — compatibilism provides philosophical resources for limited accountability within a determinist framework — but the tension is real and worth examining. The question to ask: on what grounds is punishment justified if the harmful action was largely determined by prior causes? The most coherent answers involve deterrence, public safety, or rehabilitation — not desert.',
+   questions:[
+     'When punishment seems justified to you, what specifically is it achieving — and is that achievable without the concept of desert?',
+     'Is there a form of accountability that makes sense in a largely determined world and that you could actually endorse?',
+   ],
   },
   {
     id:'C08', tier:'B',
@@ -6550,6 +6568,11 @@ const CONTRADICTIONS = [
     check:(n,m) => n >= 5.5 && m >= 5.5,
     title:'Hard Naturalism + Meaning Realism',
     text:'You hold hard naturalism — everything that exists is part of the physical natural world — yet also hold that meaning is genuinely real in a mind-independent sense. This is a philosophically demanding combination. In a purely natural world, where does objective meaning reside? It is not obviously a physical property. The most coherent naturalist positions either adopt deflationary meaning (meaning is just a pattern of psychological states with evolutionary origins) or do the explicit philosophical work of showing how natural facts ground genuine meaning (naturalised teleology, Cornell-style). The combination is not impossible but requires explicit work to resolve.',
+   questions:[
+     'What kind of natural fact could constitute objective meaning — facts about flourishing, coherence, or something else?',
+     'If meaning is genuinely real in a physical universe, what does it consist in — and is the evidence for its reality the same kind as for other natural facts?',
+     'Are you doing the philosophical work of showing how natural facts ground meaning, or holding both positions without working out the connection?',
+   ],
   },
   {
     id:'C09', tier:'B',
@@ -6557,6 +6580,11 @@ const CONTRADICTIONS = [
     check:(p,e) => p >= 5.5 && e <= 2.5,
     title:'Structural Politics + Free Market Economics',
     text:'You hold that political outcomes are substantially determined by structural forces — systems of power and incentive — yet lean toward free market economics, which attributes economic outcomes to individual choices and merit. These apply opposite causal frameworks to the same underlying question of whether outcomes are determined by structure or individual agency. The most coherent position applies the same causal logic consistently: if structural forces shape political outcomes, they likely shape economic outcomes too. If individual agency is primary in economics, the same logic applies in politics.',
+   questions:[
+     'If structural forces substantially determine political outcomes, why do individual choices become primary in economic ones?',
+     'What specific mechanism makes the causal logic different in politics versus economics?',
+     'Is the inconsistency between your political and economic causal frameworks something you have explicitly worked through?',
+   ],
   },
   {
     id:'C10', tier:'B',
@@ -6564,6 +6592,11 @@ const CONTRADICTIONS = [
     check:(ms,ae) => ms >= 5.5 && ae <= 2.5,
     title:'High Moral Scope + Human-Priority Animal Ethics',
     text:'You hold that the moral circle extends broadly — perhaps to future generations or all sentient beings — yet lean toward human-centric animal ethics. This creates a tension: the general principle (moral consideration extends widely) is not being applied consistently to the animal domain. The most common explanation is compartmentalisation: broad moral scope is accepted as principle but the implications for animal treatment are kept in a separate mental register. The question worth examining: on what principled grounds does the moral scope principle fail to apply to non-human animals?',
+   questions:[
+     'What feature of persons includes them in your broad moral circle that non-human animals lack — and is that distinction principled or merely familiar?',
+     'If your moral scope extends on the basis of sentience or capacity to suffer, why does that logic not extend to animals?',
+     'Is your animal ethics position driven by considered principle or by the practical difficulty of fully extending your stated moral scope?',
+   ],
   },
   {
     id:'C11', tier:'C',
@@ -6571,6 +6604,10 @@ const CONTRADICTIONS = [
     check:(d,pr) => d >= 5.5 && pr <= 2.0,
     title:'Hard Determinism + Strong Progress Pessimism (Interesting Tension)',
     text:'You hold hard determinism — outcomes are the product of prior causes — alongside strong pessimism about civilisational trajectory. This is not a logical contradiction, but it creates an interesting motivational question: if outcomes are determined and the trajectory is negative, what is the basis for action to change that trajectory? The determinist who acts to change the future is not inconsistent — they are themselves a causal factor. But the combination of determinism and pessimism can, in practice, produce passivity that the intellectual position does not actually require.',
+   questions:[
+     'If you are yourself a causal factor in future outcomes, does your pessimism affect the probability of those outcomes — and what follows from that?',
+     'Is your progress pessimism a considered view about what is likely, or does it carry a quality of resignation that your determinism does not actually require?',
+   ],
   },
   {
     id:'C12', tier:'C',
@@ -6578,6 +6615,11 @@ const CONTRADICTIONS = [
     check:(r,id) => r >= 5.5 && id >= 5.5,
     title:'Strong Realism + Constructed Identity (Interesting Tension)',
     text:'You hold strong epistemic realism — facts exist independently of minds — alongside a strongly constructed view of personal identity. This is worth examining: if mind-independent facts exist about everything, are there mind-independent facts about persons? Strong social constructivism about identity holds that the self is substantially constituted by social and linguistic practices — a position that applies constructivist, not realist, logic to persons. This need not be a contradiction — social facts can be real while being mind-dependent in a different way than physical facts — but the tension deserves explicit philosophical attention.',
+   questions:[
+     'If mind-independent facts exist about everything, are there mind-independent facts about persons — and does that constrain what construction can do to identity?',
+     'On what grounds does the social construction of identity not count as a mind-independent fact for a realist?',
+     'Which are you more confident in: strong realism about external facts, or constructivism about personal identity?',
+   ],
   },
   {
     id:'C13', tier:'A',
@@ -6585,6 +6627,11 @@ const CONTRADICTIONS = [
     check:(ph,mc) => ph >= 5.5 && mc <= 2.5,
     title:'Physicalism + Non-Physical Consciousness',
     text:'You hold that reality is fundamentally physical — that everything that exists is constituted by physical processes — yet also hold that consciousness has properties that cannot be captured by physical description. This is the hard problem of consciousness in direct conflict with your metaphysical commitments. If physicalism is true, consciousness must be fully explicable in physical terms; if consciousness genuinely resists physical explanation, physicalism is false or incomplete. You cannot coherently hold both at strong values simultaneously without doing the philosophical work to show how they are compatible. The standard resolution paths are: eliminative materialism (deny that non-physical consciousness exists — it is an illusion), property dualism (physical substance, non-reducible mental properties), or accepting that physicalism requires revision.',
+   questions:[
+     'What specifically resists physical explanation in consciousness — the quality of experience, the first-person perspective, or the causal efficacy of mental states?',
+     'If consciousness genuinely has non-physical properties, what follows for your physicalist commitments — weakening physicalism, or reframing the mental properties?',
+     'Is the hard problem of consciousness something you believe physics will eventually solve, or a genuine limit on physical explanation?',
+   ],
   },
   {
     id:'C14', tier:'A',
@@ -6592,6 +6639,11 @@ const CONTRADICTIONS = [
     check:(em,sc) => em <= 2.5 && sc >= 5.5,
     title:'Revelation/Intuition Epistemology + Strong Science Trust',
     text:'You hold that revelation or intuition is the primary route to knowledge — yet also hold high trust in science as an epistemic authority. These ground knowledge in incompatible sources. Science is constitutively empirical: it derives knowledge from observation, hypothesis testing, and falsification — not revelation or intuition. To trust science highly is implicitly to endorse empirical method. The tension here is not merely academic: when scientific findings conflict with revealed or intuitive beliefs, which wins? The position requires explicit ranking. Resolution options include compartmentalisation (science for nature, revelation for meaning) with acknowledgement that this is a pragmatic division rather than a principled epistemology, or revising one of the two commitments.',
+   questions:[
+     'When science and revelation or intuition conflict, which do you actually follow — and does your answer reveal which you trust more?',
+     'Is compartmentalisation — science for nature, revelation for meaning — a principled position or a way of avoiding having to rank them?',
+     'What would it look like to hold a single coherent epistemology that genuinely includes both sources?',
+   ],
   },
   {
     id:'C15', tier:'A',
@@ -6599,6 +6651,11 @@ const CONTRADICTIONS = [
     check:(t,n) => t >= 5.5 && n >= 5.5,
     title:'Strong Teleology + Hard Naturalism',
     text:'You hold that reality has inherent direction or purpose — that things tend toward ends — alongside hard naturalism, which holds that everything is explicable through natural, non-directed physical processes. These are in direct tension. Classical teleology (Aristotelian final causes) was explicitly rejected by the scientific revolution precisely because natural explanation does not require purposes. In a fully naturalist framework, what exists is what has been selected, not what is aimed at. This combination is not impossible — some philosophers (Nagel in "Mind and Cosmos") argue that naturalism itself requires teleological enrichment — but it demands explicit philosophical work. The easy path of holding both unreflectively produces incoherence.',
+   questions:[
+     'What kind of direction or purpose do you believe reality has — and is it explicable through natural processes or does it require something additional?',
+     'If natural processes are fully non-directed, where does the teleological structure you perceive actually reside?',
+     'Are you committed to teleology because the evidence points that way, or because purposiveness is how you naturally experience the world?',
+   ],
   },
   {
     id:'C16', tier:'A',
@@ -6614,6 +6671,11 @@ const CONTRADICTIONS = [
     check:(so,soc) => so <= 2.5 && soc >= 5.5,
     title:'Individualist Ontology + Collectivist Society',
     text:'You hold that social reality is constituted by individuals — that groups and structures are reducible to the actions of persons — yet also hold a strongly collectivist view of how society should be organised. These apply inconsistent logic to the same question. If social reality is fundamentally individual, collectivist social arrangements must be understood as aggregations of individual choices — which limits their normative force. If collectivism is normatively compelling, it generally presupposes that groups and social structures have genuine independent standing. The tension is not fatal — methodological individualists can advocate for redistributive structures on purely individual-welfare grounds — but this requires explicit justification, not assumed compatibility.',
+   questions:[
+     'If social reality is constituted entirely by individuals, what normative force does collectivist organisation have beyond being an aggregate preference?',
+     'Is it possible to hold methodological individualism while genuinely advocating for collective structures — and if so, what is the argument?',
+     'Has the tension between your ontology and your social preferences come into focus for you before?',
+   ],
   },
   {
     id:'C18', tier:'B',
@@ -6621,6 +6683,11 @@ const CONTRADICTIONS = [
     check:(auth,eh) => auth <= 2.0 && eh <= 2.5,
     title:'Authority Skepticism + Low Epistemic Humility',
     text:'You hold a strongly skeptical position toward authority — resisting deference to institutions, tradition, or expertise — alongside low epistemic humility, meaning you are confident in your own assessments. This combination is worth examining carefully. Skepticism of authority is most coherent when paired with genuine uncertainty — the recognition that established views may be wrong, but so might yours. When skepticism of authority is paired with high confidence in personal judgment, it can function not as principled epistemic independence but as a self-exemption from the same scrutiny applied to others. The most consistent position applies equal epistemic standards to both institutional claims and personal beliefs.',
+   questions:[
+     'Do you apply the same level of scrutiny to your own assessments as you apply to institutional or authoritative claims?',
+     'Is your confidence in your own judgements based on a track record of being right, or more of a default stance?',
+     'What would principled independence from authority look like if it were paired with genuine epistemic humility?',
+   ],
   },
   {
     id:'C19', tier:'B',
@@ -6628,6 +6695,11 @@ const CONTRADICTIONS = [
     check:(hn,r) => hn >= 5.5 && r >= 5.5,
     title:'Universal Human Nature + Structural Responsibility',
     text:'You hold that human nature is fixed and universal — there are stable, essential features of persons — yet also hold that outcomes are primarily explained by structural forces rather than individual choices. These apply competing causal logics. If human nature is fixed, variation in outcomes across individuals and societies must be explained by something other than nature — which points toward structure. This is actually more consistent than it might appear: a fixed human nature in different structural environments could produce radically different outcomes. But the tension arises at the level of responsibility: if nature is fixed and structure is primary, individual responsibility for outcomes becomes difficult to ground. The position requires explicit articulation of where individual agency enters the causal chain.',
+   questions:[
+     'If human nature is fixed and structure is primary, where does individual responsibility enter the causal chain?',
+     'Is there a version of personal responsibility that is coherent given the causal weight you assign to structure?',
+     'Does your fixed human nature position make structural explanation stronger or weaker — and what follows from that?',
+   ],
   },
   {
     id:'C20', tier:'B',
@@ -6635,6 +6707,11 @@ const CONTRADICTIONS = [
     check:(kn,em) => Math.abs(kn - em) >= 3.0,
     title:'Knowledge Source / Epistemic Method Misalignment',
     text:'Your applied knowledge source and your stated epistemic method are pointing in significantly different directions. This is a common and important gap: people often endorse empiricism at the level of abstract principle while actually relying on intuition, testimony, or revealed authority in practice — or vice versa. The question is not which one is right, but which one is actually governing your beliefs. Genuine intellectual coherence requires that the method you endorse and the method you use converge. When they do not, your stated epistemology is a performance rather than an operating system.',
+   questions:[
+     'When you form your most confident beliefs, what process do you actually use — and is that the process you would endorse on reflection?',
+     'Is the gap between your stated method and your applied method something you have noticed before, or does this bring it into focus for the first time?',
+     'What would it look like to bring your epistemic practice into alignment with your stated epistemology?',
+   ],
   },
   {
     id:'C21', tier:'B',
@@ -6650,6 +6727,11 @@ const CONTRADICTIONS = [
     check:(to,pr) => to <= 2.5 && pr >= 5.5,
     title:'Past Authority + Progress Optimism',
     text:'You hold that past authority, tradition, or established norms are a primary reference point — yet also hold strong optimism about civilisational progress and improvement. These point in opposite directions. Reverence for past authority typically implies that inherited wisdom is the most reliable guide — which limits how much improvement is possible without abandoning established frameworks. Strong progress optimism implies that better arrangements are available ahead — which tends to require revising rather than preserving inherited structures. This combination is not impossible (a traditionalist who believes tradition is itself progressivist), but requires explicit articulation of how tradition and improvement are understood to be compatible.',
+   questions:[
+     'If tradition is the most reliable guide, what is the mechanism by which following tradition leads to improvement?',
+     'Can you articulate how the past authority you value and the progress you believe in are actually compatible — not just assumed to be?',
+     'Which commitment runs deeper: reverence for what has been established, or confidence that better arrangements are possible?',
+   ],
   },
   {
     id:'C23', tier:'B',
@@ -6657,6 +6739,11 @@ const CONTRADICTIONS = [
     check:(unc,eh) => unc <= 2.5 && eh <= 2.5,
     title:'Low Uncertainty Tolerance + Low Epistemic Humility',
     text:'You have both low tolerance for uncertainty — preferring resolved positions over open questions — and low epistemic humility — high confidence in your own assessments. This combination is worth flagging not as a logical contradiction but as a psychological profile with known failure modes. High confidence combined with discomfort with ambiguity tends to produce premature closure: positions adopted and defended before sufficient evidence is available, because the discomfort of not knowing exceeds the discomfort of being wrong. The most intellectually rigorous position holds uncertainty tolerance and epistemic calibration together — confidence proportioned to evidence, with genuine comfort in saying "I do not know yet."',
+   questions:[
+     'Can you identify a belief you hold confidently where, on reflection, the evidence supports less certainty than you feel?',
+     'Is the discomfort of not knowing something you actively work against, or something you have made peace with in certain domains?',
+     'What would intellectually honest uncertainty feel like — is it possible to distinguish it from weakness or indecision?',
+   ],
   },
   {
     id:'C24', tier:'B',
@@ -6664,6 +6751,10 @@ const CONTRADICTIONS = [
     check:(eco,soc) => eco <= 2.5 && soc <= 2.5,
     title:'Free Market Economics + Individualist Society',
     text:'You hold both free market economics and individualist social organisation. These are mutually reinforcing positions, but together they produce a coherent worldview with a specific and important blind spot: collective action problems. Markets and individual freedom both perform well when individual choices aggregate into beneficial outcomes. They perform badly when individually rational choices produce collectively harmful outcomes — pollution, arms races, public goods underproduction, coordination failures. The combination of both positions without a mechanism for collective action creates systematic vulnerability to exactly these problems. The question is not whether this combination is internally consistent (it is), but whether it is complete.',
+   questions:[
+     'Can you identify a collective action problem where your framework — markets plus individual freedom — does not produce a good outcome?',
+     'What mechanisms do you rely on to handle situations where individually rational choices produce collectively harmful outcomes?',
+   ],
   },
   {
     id:'C25', tier:'A',
@@ -6679,6 +6770,11 @@ const CONTRADICTIONS = [
     check:(rel,m) => rel >= 5.5 && m <= 2.5,
     title:'Faith-Positive Religion + Constructivist Meaning (Interesting Tension)',
     text:'You hold a faith-positive orientation toward religion alongside a constructivist view of meaning — the position that meaning is made rather than discovered. This combination is worth examining because most religious traditions ground meaning in discovery: meaning is real, given, and waiting to be apprehended through faith and practice. A constructivist who is faith-positive is choosing a religious orientation for reasons other than metaphysical conviction — perhaps community, ritual, aesthetic experience, or moral framework. That is a coherent position, but it is a substantially different relationship to religious tradition than the tradition itself typically demands. Worth asking: what is the actual function of religious commitment in your meaning-making?',
+   questions:[
+     'If meaning is made rather than discovered, what is your religious practice actually doing for you — providing structure, community, ritual, or something else?',
+     'Most religious traditions claim meaning is real and given, not constructed. Do you accept that claim, or are you participating in a tradition while rejecting its metaphysical foundation?',
+     'Is your relationship to religious tradition one of full belief, selective endorsement, or something more like cultural participation?',
+   ],
   },
   {
     id:'C27', tier:'C',
@@ -6686,6 +6782,11 @@ const CONTRADICTIONS = [
     check:(mg,eth) => mg <= 2.5 && eth <= 2.5,
     title:'Anti-Realist Moral Ground + Deontological Ethics (Interesting Tension)',
     text:'You hold moral anti-realism — moral facts are not mind-independent — alongside a deontological ethical framework that treats certain actions as intrinsically right or wrong regardless of consequences. Classical deontology (Kant, Ross) was typically grounded in claims about objective moral reality or rational necessity — the idea that some duties are real independently of what anyone prefers. Anti-realist deontology is possible — Korsgaard constructs deontological obligations from the structure of practical reason — but it is philosophically demanding. The tension worth examining: if moral facts are not mind-independent, what gives deontological rules their categorical force? "Wrong regardless of consequences" needs a grounding that anti-realism makes harder to supply.',
+   questions:[
+     'What gives your deontological rules their categorical force — the sense that some things are simply wrong — if moral facts are not mind-independent?',
+     'Can you articulate a deontological ethics that works without claiming that the duties are objectively real?',
+     'Is your deontological intuition stronger than your anti-realism, or the reverse — and does your answer suggest which to revise?',
+   ],
   },
   {
     id:'C28', tier:'C',
@@ -6693,6 +6794,11 @@ const CONTRADICTIONS = [
     check:(s,id) => s <= 2.0 && id <= 2.0,
     title:'Authored Self + Essential Identity (Interesting Tension)',
     text:'You hold a strongly authored view of the self — the self as a free, originating source of choices — alongside a strongly essentialist view of identity — that there is a fixed nature or essence to who you are. These are in gentle tension: the authored self emphasises radical freedom to constitute oneself through choices, while essentialist identity implies a nature that precedes and constrains those choices. The question is what the self is authoring if it has a fixed essential nature. These positions can coexist if the authoring is understood as expressing and actualising a given nature rather than creating it from scratch — but this limits the scope of self-authorship considerably. Sartrean authenticity (existence precedes essence) sits at one pole; Aristotelian eudaimonia (actualise your given nature) at the other.',
+   questions:[
+     'If you have a fixed essential nature, what exactly is the self authoring — is it expressing and actualising that nature, or something more radical?',
+     'Does the fixed essence you believe in constrain what the authored self can become — and if so, how much?',
+     'Are these two positions operating in separate registers of your thinking, or have you worked out how they are compatible?',
+   ],
   },
   // ── MIRROR RULES — bidirectional coverage ──
   // Each mirrors an existing rule in the opposite directional check
@@ -7500,7 +7606,6 @@ WRITING RULES:
 6. Cover HOW THEY THINK, HOW THEY FEEL ABOUT THE WORLD, HOW THEY DECIDE, HOW THEY RELATE, WHAT DRIVES AND DRAINS THEM
 7. No em dashes anywhere. Use but, and, so, because instead.
 8. No colons introducing lists in narrative text. No bullet points.
-9. Use ${userName}'s name the way a person would in real conversation — naturally, sparingly, never at the start of consecutive sentences or paragraphs. It should feel warm and personal, not robotic. Aim for 2-4 uses across the full identity section, placed mid-thought where it lands with weight, not as a paragraph opener every time.
 
 Return ONLY valid JSON — no markdown fences, no preamble:
 {"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"MANDATORY: exactly 75-85 words. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph. Must feel like a sharp personal description. 75 words minimum.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
@@ -9205,7 +9310,7 @@ function renderCardToCanvas(container) {
   g1.addColorStop(0,'rgba(100,80,220,0.5)'); g1.addColorStop(1,'rgba(100,80,220,0)');
   ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
   const g2 = ctx.createRadialGradient(W,H,0,W,H,1000);
-  g2.addColorStop(0,'rgba(220,160,50,0.20)'); g2.addColorStop(1,'rgba(220,160,50,0)');
+  g2.addColorStop(0,'rgba(220,160,50,0.30)'); g2.addColorStop(1,'rgba(220,160,50,0)');
   ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
 
   let y = PAD;
