@@ -37,7 +37,7 @@
   --tier4: #8a8a92;
   --r: 12px;
   --glow-purple: 0 0 40px rgba(157,147,232,0.18);
-  --glow-gold: 0 0 40px rgba(201,169,110,0.18);
+  --glow-gold: 0 0 40px rgba(201,169,110,0.09);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; overflow-x: hidden; }
@@ -151,7 +151,7 @@ body::after {
   position: fixed;
   width: 800px; height: 800px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.55) 0%, rgba(201,169,110,0.18) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(220,160,50,0.30) 0%, rgba(201,169,110,0.09) 40%, transparent 70%);
   bottom: -200px; right: -160px;
   animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
@@ -177,7 +177,7 @@ body::after {
   }
   .body-glow-gold {
     width: 1100px; height: 1100px;
-    background: radial-gradient(circle, rgba(220,160,50,0.70) 0%, rgba(201,169,110,0.28) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(220,160,50,0.38) 0%, rgba(201,169,110,0.13) 40%, transparent 70%);
     filter: blur(100px);
   }
   .body-glow-pink {
@@ -258,7 +258,7 @@ body::after {
   position: fixed;
   width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.45) 0%, rgba(201,169,110,0.12) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(220,160,50,0.25) 0%, rgba(201,169,110,0.06) 40%, transparent 70%);
   bottom: -220px; right: -180px;
   animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
@@ -276,7 +276,7 @@ body::after {
   #screen-intake::after,
   #screen-generating::after {
     width: 1000px; height: 1000px;
-    background: radial-gradient(circle, rgba(220,160,50,0.65) 0%, rgba(201,169,110,0.22) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(220,160,50,0.20) 0%, rgba(201,169,110,0.05) 40%, transparent 70%);
     filter: blur(90px);
   }
 }
@@ -303,6 +303,9 @@ body::after {
   #quiz-sketch-img { display: none !important; }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 @keyframes driftA {
   0%   { transform: translate(0,0) scale(1); }
   100% { transform: translate(90px,70px) scale(1.2); }
@@ -553,7 +556,7 @@ body::after {
 }
 .intake-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
+  box-shadow: 0 0 0 3px rgba(201,169,110,0.06);
 }
 .intake-input::placeholder { color: var(--muted); font-weight: 400; }
 .intake-hint { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
@@ -754,7 +757,7 @@ body::after {
 }
 .tradeoff-opt:hover { border-color: rgba(201,169,110,0.4); background: rgba(201,169,110,0.06); transform: translateX(2px); }
 .tradeoff-opt:hover::before { transform: scaleY(1); }
-.tradeoff-opt.selected { border-color: var(--accent); background: rgba(201,169,110,0.10); }
+.tradeoff-opt.selected { border-color: var(--accent); background: rgba(201,169,110,0.05); }
 .tradeoff-opt.selected::before { transform: scaleY(1); }
 .tradeoff-letter {
   font-family: 'IBM Plex Mono', monospace;
@@ -913,7 +916,7 @@ body::after {
   position: fixed;
   width: 700px; height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(220,160,50,0.35) 0%, rgba(201,169,110,0.10) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(220,160,50,0.20) 0%, rgba(201,169,110,0.05) 40%, transparent 70%);
   bottom: -220px; right: -180px;
   animation: driftB 20s ease-in-out infinite alternate;
   pointer-events: none;
@@ -928,7 +931,7 @@ body::after {
   }
   #screen-report::after {
     width: 1000px; height: 1000px;
-    background: radial-gradient(circle, rgba(220,160,50,0.50) 0%, rgba(201,169,110,0.16) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(220,160,50,0.28) 0%, rgba(201,169,110,0.08) 40%, transparent 70%);
     filter: blur(90px);
   }
 }
@@ -1129,7 +1132,7 @@ body::after {
   inset: 0;
   background:
     radial-gradient(ellipse 90% 70% at 15% -10%, rgba(120,100,255,0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 60% at 85% 110%, rgba(201,169,110,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 60% at 85% 110%, rgba(201,169,110,0.09) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 50% 50%, rgba(157,147,232,0.06) 0%, transparent 70%);
   pointer-events: none;
 }
@@ -1363,7 +1366,7 @@ body::after {
 }
 .phil-tag-purple { background: rgba(157,147,232,0.10); border-color: rgba(157,147,232,0.30); color: rgba(190,182,255,0.9); }
 .phil-tag-purple .tag-dot { background: rgba(157,147,232,0.85); box-shadow: 0 0 6px rgba(157,147,232,0.6); }
-.phil-tag-gold   { background: rgba(201,169,110,0.10); border-color: rgba(201,169,110,0.30); color: rgba(220,190,130,0.9); }
+.phil-tag-gold   { background: rgba(201,169,110,0.05); border-color: rgba(201,169,110,0.30); color: rgba(220,190,130,0.9); }
 .phil-tag-gold   .tag-dot { background: rgba(201,169,110,0.9); box-shadow: 0 0 6px rgba(201,169,110,0.5); }
 .phil-tag-teal   { background: rgba(74,158,122,0.10);  border-color: rgba(74,158,122,0.30);  color: rgba(100,195,155,0.9); }
 .phil-tag-teal   .tag-dot { background: rgba(74,158,122,0.9); box-shadow: 0 0 6px rgba(74,158,122,0.5); }
@@ -1453,7 +1456,7 @@ body::after {
   text-transform: uppercase;
   margin-bottom: 28px;
   padding-bottom: 14px;
-  border-bottom: 1px solid rgba(201,169,110,0.18);
+  border-bottom: 1px solid rgba(201,169,110,0.09);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -2030,7 +2033,7 @@ body::after {
   font-family: 'IBM Plex Sans', sans-serif; font-size: 17px;
   outline: none; transition: border-color 0.2s, box-shadow 0.2s; display: block;
 }
-.modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,169,110,0.12); }
+.modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,169,110,0.06); }
 .modal-input::placeholder { color:rgba(255,255,255,0.65); }
 select.modal-input {
   appearance: none;
@@ -2411,7 +2414,7 @@ select.modal-input option { background: #12101e; }
   }
   #screen-landing::after, #screen-auth::after {
     width: 1000px; height: 1000px;
-    background: radial-gradient(circle, rgba(220,160,50,0.65) 0%, rgba(201,169,110,0.22) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(220,160,50,0.20) 0%, rgba(201,169,110,0.05) 40%, transparent 70%);
     filter: blur(90px);
   }
 }
@@ -3069,7 +3072,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="background:linear-gradient(135deg,rgba(157,147,232,0.08) 0%,rgba(201,169,110,0.06) 100%);border:1px solid rgba(157,147,232,0.25);border-radius:20px;padding:clamp(32px,5vw,56px) clamp(20px,4vw,48px);position:relative;overflow:hidden;box-sizing:border-box;">
         <div style="position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(157,147,232,0.12) 0%,transparent 70%);pointer-events:none;"></div>
         <div style="text-align:center;margin-bottom:36px;position:relative;">
-          <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Stop. Read this first.</div>
+          <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Something different</div>
           <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,52px);font-weight:700;color:var(--text);line-height:1.1;margin:0;">This is not a<br/><em style="color:var(--accent);">personality test.</em></h2>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:28px;position:relative;">
@@ -3083,7 +3086,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     <div style="margin-bottom:96px;">
       <div style="text-align:center;margin-bottom:56px;">
         <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">What Phil OS maps</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Not just what you believe.<br/>How you <em>see</em>.</h2>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Not just what you believe. How you see. <em>And what you do with it.</em></h2>
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:580px;margin:0 auto;line-height:1.75;">Your philosophy doesn't stay in your head. It determines how you interpret every relationship, institution, and moment of your life. Phil OS maps all four lenses at once.</p>
       </div>
 
@@ -3095,7 +3098,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Your metaphysical foundations — what you think reality is made of, whether free will exists, whether morality is discovered or invented, and where meaning comes from. This is the bedrock everything else is built on.</p>
         </div>
 
-        <div style="background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.18);border-radius:16px;padding:28px 24px;">
+        <div style="background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.09);border-radius:16px;padding:28px 24px;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:14px;">Lens 02</div>
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">How you see yourself</div>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether you are the author of your life or a product of forces beyond you. How much you hold yourself responsible. Whether your identity is fixed or constructed. These beliefs shape every decision you make about your own path.</p>
@@ -3114,6 +3117,44 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         </div>
 
       </div>
+    </div>
+
+    <!-- ── SCIENCE VS PSEUDOSCIENCE ── -->
+    <div style="margin-bottom:96px;">
+      <div style="text-align:center;margin-bottom:52px;">
+        <div class="intro-eyebrow" style="justify-content:center;margin-bottom:16px;">Built differently</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.15;">Personality tests aren't science.<br/>Phil OS is.</h2>
+        <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:600px;margin:0 auto;line-height:1.75;">MBTI, Enneagram, Human Design — none of them are built on peer-reviewed evidence. They are built on intuition, ancient typologies, and proprietary frameworks that have never been independently validated. Phil OS was built to a different standard entirely.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:16px;overflow:hidden;max-width:760px;margin:0 auto;">
+        <!-- Others column -->
+        <div style="background:rgba(255,255,255,0.02);padding:36px 32px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(232,112,112,0.7);margin-bottom:24px;">Other tests</div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">No peer-reviewed validation</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Fixed type buckets that flatten nuance</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Response bias not controlled</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Proprietary framework — no source data</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Labels only — no contradiction detection</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">No actionable life guidance</span></div>
+          </div>
+        </div>
+        <!-- Phil OS column -->
+        <div style="background:rgba(91,191,148,0.05);border:1px solid rgba(91,191,148,0.15);padding:36px 32px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:24px;">Phil OS</div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Grounded in PhilPapers academic survey data</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">32 continuous axes — no forced buckets</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">40% reversed items — response bias controlled</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Questions defensible to professional philosophers</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">42-rule contradiction engine — catches internal conflicts</span></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Full life alignment report — career, relationships, growth</span></div>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:24px;letter-spacing:1px;">Based on the PhilPapers Surveys — the largest study of professional philosophers' beliefs ever conducted.</p>
     </div>
 
     <!-- ── WHAT YOU GET ── -->
@@ -4095,7 +4136,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
                 <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Hard contradiction — positions are logically incompatible</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.3);border-radius:4px;padding:2px 8px;">B</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.3);border-radius:4px;padding:2px 8px;">B</span>
                 <span style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);">Consistency flag — beliefs pull in different directions</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
@@ -5246,6 +5287,10 @@ let state = {
 // NAVIGATION
 // ══════════════════════════════════════════
 function show(screenId) {
+  // Hide auth-loading overlay whenever any screen navigation happens
+  const authOverlay = document.getElementById('auth-loading');
+  if (authOverlay) authOverlay.style.display = 'none';
+
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(screenId);
   if (el) {
@@ -9163,7 +9208,7 @@ function renderCardToCanvas(container) {
   g1.addColorStop(0,'rgba(100,80,220,0.5)'); g1.addColorStop(1,'rgba(100,80,220,0)');
   ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
   const g2 = ctx.createRadialGradient(W,H,0,W,H,1000);
-  g2.addColorStop(0,'rgba(220,160,50,0.35)'); g2.addColorStop(1,'rgba(220,160,50,0)');
+  g2.addColorStop(0,'rgba(220,160,50,0.20)'); g2.addColorStop(1,'rgba(220,160,50,0)');
   ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
 
   let y = PAD;
@@ -9278,7 +9323,7 @@ function renderCardToCanvas(container) {
   ctx.font = '600 14px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign = 'left';
   ctx.fillText('WHO YOU ARE', whoX+22, y+30);
-  ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(201,169,110,0.09)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(whoX+18,y+38); ctx.lineTo(whoX+whoW-18,y+38); ctx.stroke();
 
   // Text: prefer cardWhoYouAre (AI-generated ~80 word fill),
@@ -9491,7 +9536,7 @@ function renderCardToCanvas(container) {
   // FOOTER — flows naturally after CTA
   // ══════════════════════════════════════════
   const footerH = 58;
-  roundRect(PAD, y, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.18)', 1);
+  roundRect(PAD, y, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.09)', 1);
   ctx.font = '600 20px "IBM Plex Mono",monospace';
   ctx.fillStyle = GOLD; ctx.textAlign='center';
   ctx.fillText('PHIL/OS  \u00b7  thelifepm.com', W/2, y+36);
@@ -10248,12 +10293,11 @@ let _consentGatePassed = false; // module-level: survives onAuthReady re-entry
 async function authBoot() {
   let authHandled = false;
 
-  // If returning from OAuth redirect, hash contains access_token.
-  // Show a neutral loading state immediately so auth screen never flashes.
+  // If returning from OAuth redirect, show a minimal loading overlay immediately.
+  // Prevents auth screen from flashing before session resolves.
   if (window.location.hash && window.location.hash.includes('access_token')) {
-    show('screen-generating');
-    document.getElementById('gen-title') && (document.getElementById('gen-title').textContent = 'Signing you in…');
-    document.getElementById('gen-sub')   && (document.getElementById('gen-sub').textContent   = '');
+    const overlay = document.getElementById('auth-loading');
+    if (overlay) overlay.style.display = 'flex';
   }
 
   // Listen for auth state changes FIRST (catches OAuth redirect callbacks)
@@ -10339,14 +10383,14 @@ async function onAuthReady() {
     }
   }
 
-  // Route: completed → profile directly. In-progress or new → landing.
+  // Route: completed → report directly. In-progress or new → landing.
   const userState = hasCompletion ? 'completed' : hasProgress ? 'progress' : 'none';
   updateLandingCTA(userState, completion);
 
   if (hasCompletion) {
-    showProfile();          // go straight to profile — no extra screen
+    show('screen-report'); // go straight to their report
   } else {
-    show('screen-landing'); // new user or in-progress — show landing
+    show('screen-landing');
   }
 }
 
@@ -10993,7 +11037,15 @@ function navGoAssessment() {
 
 function navGoReport() {
   if (!currentUser) { showAuth('login'); return; }
-  showProfile();
+  // Go directly to report if available, otherwise landing
+  if (typeof fetchLatestCompletion === 'function') {
+    fetchLatestCompletion().then(completion => {
+      if (completion) show('screen-report');
+      else show('screen-landing');
+    });
+  } else {
+    show('screen-landing');
+  }
 }
 
 // Show nav links only on landing + profile screens
@@ -11152,7 +11204,13 @@ async function settingsChangePassword() {
 document.addEventListener('DOMContentLoaded', authBoot);
 
 </script>
-<!-- ── ONE-TIME CONSENT GATE — shown to users without gdpr_consent in metadata ── -->
+<!-- ── AUTH LOADING OVERLAY — shown during OAuth redirect, never blocks ── -->
+<div id="auth-loading" style="display:none;position:fixed;inset:0;background:#07061a;z-index:9800;align-items:center;justify-content:center;flex-direction:column;gap:20px;" aria-live="polite" aria-label="Signing in">
+  <div style="width:36px;height:36px;border:2px solid rgba(201,169,110,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);">One moment</div>
+</div>
+
+<!-- ── CONSENT GATE ── --> — shown to users without gdpr_consent in metadata ── -->
 <div id="consent-gate" style="display:none;position:fixed;inset:0;background:rgba(8,6,26,0.97);backdrop-filter:blur(20px);z-index:9500;align-items:center;justify-content:center;padding:24px;">
   <div style="background:#14122e;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:40px 32px;max-width:440px;width:100%;text-align:center;">
     <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">PHIL / OS</div>
