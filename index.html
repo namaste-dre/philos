@@ -10598,6 +10598,25 @@ function skipOnboarding() {
   if (modal) modal.style.display = 'none';
 }
 
+async function upsertProfile(data) {
+  if (!currentUser) return;
+  try {
+    await supa.from('profiles').upsert({
+      id:                currentUser.id,
+      first_name:        data.first_name        || null,
+      gender:            data.gender            || null,
+      age:               data.age               || null,
+      country:           data.country           || null,
+      gdpr_consent:      data.gdpr_consent      || false,
+      consented_at:      data.consented_at      || new Date().toISOString(),
+      marketing_consent: data.marketing_consent || false,
+      updated_at:        new Date().toISOString(),
+    }, { onConflict: 'id' });
+  } catch(e) {
+    console.warn('Profile upsert failed:', e.message);
+  }
+}
+
 // ══════════════════════════════════════════
 // DEV VISIBILITY
 // ══════════════════════════════════════════
@@ -10886,6 +10905,7 @@ async function saveCompletionToAccount(payload) {
       contradictions_count: payload.contradictions_count,
       report_json:       payload.report_json,
       instrument_version: payload.instrument_version || 'v3',
+      qa_mode:           payload.qa_mode || false,
       completed_at:      new Date().toISOString(),
     }, { onConflict: 'user_id' });
 
