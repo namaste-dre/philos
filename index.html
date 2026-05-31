@@ -2926,7 +2926,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 }
 @media (max-width: 640px) {
   #mobile-nav { display: flex; }
-  #app-nav .nav-right { display: none; }
+  #app-nav .nav-right .nav-links-wrap { display: none !important; }
   #app-nav #nav-links { display: none !important; }
   /* Push screen content above mobile nav — re-apply on screens that zero their padding */
   .screen.active { padding-bottom: 64px; }
@@ -2994,6 +2994,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <button class="nav-btn" onclick="toggleSettingsMenu()" id="settings-btn">Settings ▾</button>
       <div id="settings-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--surface);border:1px solid var(--border2);border-radius:10px;min-width:160px;overflow:hidden;z-index:3000;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
         <div style="padding:4px;">
+          <button id="my-account-menu-btn" onclick="showAccountScreen();toggleSettingsMenu();" style="display:none;width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">My Account</button>
           <button onclick="openSettings();toggleSettingsMenu();" style="width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Settings</button>
           <button id="dev-panel-btn" onclick="show('screen-intro');toggleSettingsMenu();" style="display:none;width:100%;background:transparent;border:none;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;text-align:left;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Dev / QA Panel</button>
           <div style="height:1px;background:var(--border);margin:4px 8px;"></div>
@@ -3073,9 +3074,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <h1 class="intro-title" style="margin-bottom:24px;">Your<br/><em>Philosophical</em><br/>Operating System</h1>
       <p style="font-family:'IBM Plex Sans',sans-serif;font-size:clamp(16px,2vw,20px);color:var(--text2);max-width:580px;margin:0 auto 16px;line-height:1.75;">You already have a complete philosophical operating system. You built it over decades from everything you read, argued, survived, and concluded. Phil OS maps it. All of it.</p>
       <p style="font-family:'IBM Plex Sans',sans-serif;font-size:clamp(15px,1.8vw,17px);color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.7;">Not what you wish you believed. What you actually do.</p>
-      <div id="landing-actions-guest" style="margin-bottom:40px;">
-        <button style="background:transparent;border:1px solid rgba(255,255,255,0.22);border-radius:8px;padding:10px 28px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);cursor:pointer;transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.22)';this.style.color='var(--text2)'" onclick="showAuth('login')">Sign In</button>
-      </div>
+      <div id="landing-actions-guest" style="display:none;margin-bottom:40px;"></div>
       <div id="landing-actions-authed" style="display:none;margin-bottom:40px;">
         <div id="landing-cta-primary"></div>
         <div id="landing-cta-secondary" style="margin-top:10px;"></div>
@@ -3472,6 +3471,59 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN: MY ACCOUNT
+══════════════════════════════════════════ -->
+<div id="screen-account" class="screen">
+  <div style="position:relative;z-index:1;width:100%;max-width:520px;margin:0 auto;padding:80px 24px 60px;">
+    <button onclick="history.back ? history.back() : show('screen-landing')" style="background:transparent;border:none;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--muted);cursor:pointer;padding:0;margin-bottom:32px;display:flex;align-items:center;gap:6px;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      BACK
+    </button>
+    <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text1);margin-bottom:6px;">My Account</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--muted);margin-bottom:36px;" id="account-email-display"></div>
+
+    <div id="account-save-banner" style="display:none;background:rgba(91,191,148,0.12);border:1px solid rgba(91,191,148,0.35);border-radius:8px;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:#5bbf94;margin-bottom:20px;">
+      ✓ Changes saved
+    </div>
+    <div id="account-error-banner" style="display:none;background:rgba(232,112,112,0.10);border:1px solid rgba(232,112,112,0.35);border-radius:8px;padding:10px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--danger);margin-bottom:20px;"></div>
+
+    <div style="display:flex;flex-direction:column;gap:18px;margin-bottom:28px;">
+      <div>
+        <div class="intake-section-label">First Name</div>
+        <input id="acct-name" class="auth-input" type="text" placeholder="Your first name" autocomplete="given-name" />
+      </div>
+      <div>
+        <div class="intake-section-label">Gender</div>
+        <select id="acct-gender" class="auth-input" style="cursor:pointer;">
+          <option value="">Select gender</option>
+          <option value="man">Man</option>
+          <option value="woman">Woman</option>
+          <option value="non-binary">Non-binary</option>
+          <option value="other">Other</option>
+          <option value="prefer-not-to-say">Prefer not to say</option>
+        </select>
+      </div>
+      <div>
+        <div class="intake-section-label">Age</div>
+        <input id="acct-age" class="auth-input" type="number" min="13" max="110" placeholder="Your age" />
+      </div>
+      <div>
+        <div class="intake-section-label">Country</div>
+        <input id="acct-country" class="auth-input" type="text" placeholder="Your country" autocomplete="country-name" />
+      </div>
+    </div>
+
+    <button onclick="saveAccountChanges()" id="acct-save-btn" style="width:100%;background:var(--accent);border:none;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#08061a;cursor:pointer;">
+      Save Changes
+    </button>
+
+    <div style="height:1px;background:var(--border);margin:32px 0;"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;">Danger Zone</div>
+    <button onclick="confirmDeleteAccount()" style="background:transparent;border:1px solid rgba(232,112,112,0.35);border-radius:8px;padding:10px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--danger);cursor:pointer;">Delete Account</button>
   </div>
 </div>
 
@@ -10478,6 +10530,8 @@ function showNav() {
   if (navLinks) navLinks.style.display = 'flex';
   const signInBtn = document.getElementById('nav-signin-btn');
   if (signInBtn) signInBtn.style.display = 'none';
+  const myAccountBtn = document.getElementById('my-account-menu-btn');
+  if (myAccountBtn) myAccountBtn.style.display = '';
 }
 
 // ── Sign out ──
@@ -10488,6 +10542,8 @@ function onSignedOut() {
   if (navLinks) navLinks.style.display = 'none';
   const signInBtn = document.getElementById('nav-signin-btn');
   if (signInBtn) signInBtn.style.display = '';
+  const myAccountBtn = document.getElementById('my-account-menu-btn');
+  if (myAccountBtn) myAccountBtn.style.display = 'none';
   updateDevVisibility();
   show('screen-landing');
 }
@@ -10596,6 +10652,85 @@ async function submitOnboarding() {
 function skipOnboarding() {
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.style.display = 'none';
+}
+
+// ── My Account screen ──
+async function showAccountScreen() {
+  if (!currentUser) { showAuth('login'); return; }
+  show('screen-account');
+  // Display email
+  const emailEl = document.getElementById('account-email-display');
+  if (emailEl) emailEl.textContent = currentUser.email || '';
+  // Hide banners
+  ['account-save-banner','account-error-banner'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Load existing profile
+  try {
+    const { data: profile } = await supa
+      .from('profiles')
+      .select('first_name,gender,age,country')
+      .eq('id', currentUser.id)
+      .single();
+    if (profile) {
+      const n = document.getElementById('acct-name');    if (n) n.value = profile.first_name || '';
+      const g = document.getElementById('acct-gender');  if (g) g.value = profile.gender    || '';
+      const a = document.getElementById('acct-age');     if (a) a.value = profile.age       || '';
+      const c = document.getElementById('acct-country'); if (c) c.value = profile.country   || '';
+    }
+  } catch(e) { /* no profile yet — fields stay empty */ }
+}
+
+async function saveAccountChanges() {
+  if (!currentUser) return;
+  const btn = document.getElementById('acct-save-btn');
+  const saveBanner  = document.getElementById('account-save-banner');
+  const errorBanner = document.getElementById('account-error-banner');
+  saveBanner.style.display  = 'none';
+  errorBanner.style.display = 'none';
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  const name    = (document.getElementById('acct-name')?.value    || '').trim();
+  const gender  =  document.getElementById('acct-gender')?.value  || '';
+  const ageRaw  = parseInt(document.getElementById('acct-age')?.value, 10);
+  const country = (document.getElementById('acct-country')?.value || '').trim();
+
+  if (!name) {
+    errorBanner.textContent = 'First name is required.';
+    errorBanner.style.display = '';
+    btn.textContent = 'Save Changes';
+    btn.disabled = false;
+    return;
+  }
+
+  try {
+    await supa.from('profiles').upsert({
+      id:         currentUser.id,
+      first_name: name,
+      gender:     gender   || null,
+      age:        isNaN(ageRaw) ? null : ageRaw,
+      country:    country  || null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'id' });
+    // Update display name in state
+    if (state) state.userName = name;
+    saveBanner.style.display = '';
+    setTimeout(() => { if (saveBanner) saveBanner.style.display = 'none'; }, 3000);
+  } catch(e) {
+    errorBanner.textContent = 'Save failed: ' + e.message;
+    errorBanner.style.display = '';
+  }
+  btn.textContent = 'Save Changes';
+  btn.disabled = false;
+}
+
+function confirmDeleteAccount() {
+  if (!confirm('Delete your account and all data permanently? This cannot be undone.')) return;
+  // Sign out and let user contact support — full deletion requires server-side admin call
+  handleSignOut();
+  alert('Account deletion requested. Contact support@thelifepm.com to complete removal.');
 }
 
 async function upsertProfile(data) {
