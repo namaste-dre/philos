@@ -7663,8 +7663,13 @@ Return ONLY valid JSON — no markdown fences, no preamble:
       : msg.includes('401') ? 'Session expired. Please sign in again.'
       : msg.includes('500') ? 'Server error on part 1. Please try again.'
       : 'Report generation failed (part 1): ' + msg + '. Please try again.';
-    document.getElementById('gen-error').textContent = userMsg;
-    document.getElementById('gen-error').style.color = 'var(--danger)';
+    document.getElementById('gen-error').innerHTML =
+      `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+        <div>⚠ ${userMsg}</div>
+        <button onclick="generateReport()" style="background:var(--accent);border:none;color:#1a1208;padding:10px 24px;border-radius:50px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;">
+          Try again
+        </button>
+      </div>`;
     show('screen-generating');
     return;
   }
@@ -10617,8 +10622,8 @@ function obSelectGender(btn) {
 async function showOnboardingIfNeeded() {
   if (!currentUser) return;
   try {
-    const { data: profile } = await supa.from('profiles').select('first_name,age,gender').eq('id', currentUser.id).single();
-    if (profile && profile.first_name && profile.age && profile.gender) return;
+    const { data: profile } = await supa.from('profiles').select('first_name,age,gender,gdpr_consent').eq('id', currentUser.id).single();
+    if (profile && profile.first_name && profile.gdpr_consent) return;
   } catch(e) {}
   const meta = currentUser.user_metadata || {};
   const name = meta.given_name || (meta.full_name || '').split(' ')[0] || '';

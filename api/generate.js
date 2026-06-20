@@ -6,7 +6,7 @@ const DEV_EMAILS      = ['dre63052@gmail.com'];
 const RATE_LIMIT      = 6;          // calls per window (3 report = 2 API calls each)
 const RATE_WINDOW_HRS = 24;
 const MAX_TOKENS_CAP  = 2500;       // hard ceiling — client cannot exceed this
-const ALLOWED_MODELS  = ['claude-sonnet-4-20250514'];
+const ALLOWED_MODELS  = ['claude-sonnet-4-6'];
 
 // ── Rate limiter (Supabase-backed) ──────────────────────
 async function checkRateLimit(key) {
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
   }
 
   // ── Model validation: prevent model injection ──
-  const model = body.model || 'claude-sonnet-4-20250514';
+  const model = body.model || 'claude-sonnet-4-6';
   if (!ALLOWED_MODELS.includes(model)) {
     return res.status(400).json({ error: 'Invalid model' });
   }
