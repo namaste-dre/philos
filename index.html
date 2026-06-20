@@ -4429,7 +4429,7 @@ const QUESTIONS = [
    {text:'Our best attempts to describe a real world that exists independently of us',score:7},
    {text:'Useful tools for prediction that may or may not correspond to anything real',score:3},
    {text:'Human constructions that work within our conceptual framework, not mirrors of nature',score:2}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t1r04b',tier:1,axis:'realism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'What counts as true or false depends on the perspective, framework, or culture of the person making the claim — there is no view from nowhere.',
@@ -4443,7 +4443,7 @@ const QUESTIONS = [
    {text:'This is my brain doing extraordinarily complex physical work',score:7},
    {text:'There is something about this experience that cannot be fully captured by brain activity alone.',score:2},
    {text:'Both are true in different ways, the physical explanation does not cancel the experience',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1p03',tier:1,axis:'physicalism',type:'scenario',
  text:'Scientists announce they have mapped every neural correlate of human consciousness and can fully explain subjective experience in physical terms. Your response:',
@@ -4504,7 +4504,7 @@ const QUESTIONS = [
    {text:'Withholding belief until there is good evidence, even on questions that matter deeply',score:7},
    {text:'Some questions are too important to wait for evidence, we have to commit and act',score:3},
    {text:'The standard of evidence should scale with the stakes of the belief',score:5}
- ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
 // ── MORAL GROUND (5 questions) ──
 
@@ -4548,7 +4548,7 @@ const QUESTIONS = [
    {text:'It confirms what I already knew. Meaning was always something I made, not found.',score:7},
    {text:'Unsettling, but it does not change how I actually live.',score:4},
    {text:'It genuinely undermines the idea that anything we do really matters',score:2}
- ],poleLeft:'',poleRight:'',weight:1.0},
+ ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 
 {id:'t2me03',tier:2,axis:'meaning',type:'tradeoff',
  text:'Which statement feels closer to true?',
@@ -4556,7 +4556,7 @@ const QUESTIONS = [
    {text:'Meaning is something you build, like a house rather than a discovery.',score:7},
    {text:'Meaning is something you find. It is out there waiting to be recognised.',score:2},
    {text:'Meaning emerges from contact between who you are and what the world offers.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.0},
+ ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 
 {id:'t2me05',tier:2,axis:'meaning',type:'scenario',
  text:'Someone tells you: "Once I stopped believing the universe had a plan for me, I actually felt free." What is your honest reaction?',
@@ -4564,12 +4564,12 @@ const QUESTIONS = [
    {text:'That makes complete sense to me, the absence of imposed meaning is a kind of liberation',score:7},
    {text:'I understand it but it would not feel like freedom to me, it would feel like loss',score:3},
    {text:'It depends on what they replaced the old meaning with',score:5}
- ],poleLeft:'',poleRight:'',weight:1.0},
+ ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 {id:'t2me06',tier:2,axis:'meaning',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Meaning is not something the universe contains — it is something human beings create through the commitments they choose to make.',
  options:[]},
-{id:'t2me06b',tier:2,axis:'meaning',type:'likert',weight:1.0,reversed:true,
+{id:'t2me06b',tier:2,axis:'meaning',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The things I find most meaningful in my life feel genuinely and objectively valuable — not merely valuable because I have chosen to care about them.',
  options:[]},
@@ -4636,7 +4636,7 @@ const QUESTIONS = [
    {text:'Restorative, justice means repairing harm and rebuilding relationships where possible',score:6},
    {text:'Transformative, justice means changing the systems that produce harm in the first place',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
-{id:'t3j01',tier:3,axis:'justice',type:'likert',weight:1.0,reversed:true,
+{id:'t3j01',tier:3,axis:'justice',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The most important purpose of responding to serious harm is not punishing the person but understanding what produced the behaviour and preventing it from happening again.',
  options:[]},
@@ -4742,7 +4742,7 @@ const QUESTIONS = [
    {text:'Support it — improving outcomes for the poorest is a legitimate and important use of collective resources.',score:7},
    {text:'Support it cautiously, I want to understand the economic effects on growth and incentives',score:4},
    {text:'Oppose it — using taxation to redistribute wealth, even for good outcomes, raises serious concerns about individual rights.',score:2}
- ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
 // ── SELF (5 questions) ──
 
@@ -4803,7 +4803,7 @@ const QUESTIONS = [
  poleLeft:'Disagree',poleRight:'Agree',
  text:'When there is a genuine conflict between human interests and animal interests, human interests should take priority — we have special obligations to our own kind.',
  options:[]},
-{id:'t3ms03b',tier:3,axis:'moral_scope',type:'likert',weight:1.0,reversed:true,
+{id:'t3ms03b',tier:3,axis:'moral_scope',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The capacity to suffer is the only morally relevant threshold — a being that can feel pain has genuine moral claims on us regardless of species, intelligence, or social bonds.',
  options:[]},
@@ -4841,7 +4841,7 @@ const QUESTIONS = [
    {text:'Refuse, meaning that is not earned or real is not meaning at all',score:7},
    {text:'Consider it, if meaning is constructed anyway, what is the difference?',score:5},
    {text:'Take it, feeling meaningful matters more than the metaphysical question',score:3}
- ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
 // ── SOCIETY (4 questions) ──
 {id:'t3so01',tier:3,axis:'society',type:'tradeoff',
@@ -4926,7 +4926,7 @@ const QUESTIONS = [
    {text:'In a meaningful sense no, if the beliefs and values that define a person change completely, that person is gone',score:3},
    {text:'The question of "sameness" is less interesting than what continuity actually requires',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
-{id:'t3id05',tier:3,axis:'identity',type:'likert',weight:1.0,reversed:true,
+{id:'t3id05',tier:3,axis:'identity',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Identity is not something you find — it is something you build. Who you are is constructed through your choices, relationships, and the stories you tell.',
  options:[]},
@@ -4973,7 +4973,7 @@ const QUESTIONS = [
 {id:'t3ec03',tier:3,axis:'economics',type:'likert',
  text:'Economic growth that increases inequality is not acceptable even if absolute conditions improve across the board — how wealth is distributed matters morally, not just whether the total grows.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
-{id:'t3ec05',tier:3,axis:'economics',type:'likert',weight:1.0,reversed:true,
+{id:'t3ec05',tier:3,axis:'economics',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'A just economy is one where no one is left without the basic conditions for a decent life — market outcomes alone cannot guarantee this.',
  options:[]},
@@ -5196,7 +5196,7 @@ const QUESTIONS = [
    {text:'Yes. Mathematics and logic reveal truths that observation alone cannot reach.',score:5},
    {text:'No. Reason without data just produces internally consistent fictions.',score:7},
    {text:'Sometimes. It depends on what kind of question we are asking.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15em04b',tier:1,axis:'epistemic_method',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Deep intuitions and personal spiritual experience can give us genuine access to truths that scientific testing and logical argument simply cannot reach.',
@@ -5233,7 +5233,7 @@ const QUESTIONS = [
    {text:'Societies change when individuals change. Lasting progress comes from changes in how people think and act.',score:2},
    {text:'Individuals are largely products of their social systems. Fix the system and people change.',score:7},
    {text:'The relationship runs in both directions. You cannot fully separate them.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15so05b',tier:1,axis:'social_ontology',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'Society is simply the sum of its individual members — there is no such thing as a social force or structure that exists independently of the people who make it up.',
@@ -5262,7 +5262,7 @@ const QUESTIONS = [
    {text:'How well we preserve and transmit what earlier generations discovered about how to live.',score:2},
    {text:'How far we have expanded the circle of who counts, who has rights, who matters.',score:7},
    {text:'How honestly we live in the present, without distorting it through either past or future.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15to04b',tier:1,axis:'temporal_orientation',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'The accumulated wisdom of our ancestors and the traditions they built carry more practical authority than any newly formed idea, however well-argued.',
@@ -5298,7 +5298,7 @@ const QUESTIONS = [
    {text:'Reason. Principles that can be justified to anyone, regardless of their beliefs.',score:5},
    {text:'The affected people themselves, working through what they can all accept.',score:6},
    {text:'The facts of human nature. What beings like us genuinely need to flourish.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15ma04b',tier:1,axis:'moral_authority',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'If a sacred text or authoritative religious tradition clearly commands something, that command carries more moral weight than any individual\'s personal conscience.',
@@ -5336,7 +5336,7 @@ const QUESTIONS = [
    {text:'These questions have answers and careful thinking can get us close to them.',score:2},
    {text:'These questions are genuinely hard enough that anyone claiming confident answers has probably not engaged with them deeply enough.',score:7},
    {text:'Some have answers we can approach; others may be permanently beyond our reach.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.5, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15eh05b',tier:1,axis:'epistemic_humility',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
  text:'On the big questions — whether God exists, whether we have free will, what makes life meaningful — careful thinking can lead to genuinely confident conclusions.',
