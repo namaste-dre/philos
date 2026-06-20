@@ -3510,6 +3510,10 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         <div class="intake-section-label">Country</div>
         <input id="acct-country" class="auth-input" type="text" placeholder="Your country" autocomplete="country-name" />
       </div>
+      <div>
+        <div class="intake-section-label">GDPR Consent</div>
+        <div id="acct-gdpr-status" style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;">—</div>
+      </div>
     </div>
 
     <button onclick="saveAccountChanges()" id="acct-save-btn" style="width:100%;background:var(--accent);border:none;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#08061a;cursor:pointer;">
@@ -3674,7 +3678,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">I agree to the processing of my philosophical profile data by The Life PM. I can withdraw consent and delete my data at any time via Settings.</div>
     </div>
     <div id="ob-gdpr-error" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--danger);margin-bottom:10px;">You must agree to continue.</div>
-    <button class="auth-btn-primary" onclick="submitOnboarding()">Let's go →</button>
+    <button class="auth-btn-primary" id="ob-submit-btn" onclick="submitOnboarding()">Let's go →</button>
   </div>
 </div>
 
@@ -10446,15 +10450,6 @@ async function onAuthReady() {
     history.replaceState(null, '', window.location.pathname);
   }
 
-  // ── One-time GDPR + name onboarding for existing/OAuth users ──
-  if (currentUser && !_consentGatePassed) {
-    const meta = currentUser.user_metadata || {};
-    if (!meta.gdpr_consent) {
-      showConsentGate(meta); // hides overlay internally
-      return; // halt auth flow — consent gate calls onAuthReady() again on save
-    }
-  }
-
   showNav();
   hideAuth();
   updateDevVisibility();
@@ -10596,12 +10591,10 @@ function obSelectGender(btn) {
 
 async function showOnboardingIfNeeded() {
   if (!currentUser) return;
-  try {
-    const { data: profile } = await supa.from('profiles').select('first_name,age,gender,gdpr_consent').eq('id', currentUser.id).single();
-    if (profile && profile.first_name && profile.gdpr_consent) return;
-  } catch(e) {}
+  const { data: profile } = await supa.from('profiles').select('first_name,age,gender,gdpr_consent').eq('id', currentUser.id).maybeSingle();
+  if (profile && profile.first_name && profile.gdpr_consent) return;
   const meta = currentUser.user_metadata || {};
-  const name = meta.given_name || (meta.full_name || '').split(' ')[0] || '';
+  const name = meta.given_name || (meta.full_name || meta.name || '').split(' ')[0] || '';
   const nameEl = document.getElementById('ob-name');
   if (nameEl && name) nameEl.value = name;
   const modal = document.getElementById('onboarding-modal');
@@ -10617,14 +10610,21 @@ async function submitOnboarding() {
   const gdpr    = document.getElementById('ob-gdpr')?.checked;
   const msgEl   = document.getElementById('onboarding-msg');
   const errEl   = document.getElementById('ob-gdpr-error');
+  const btn     = document.getElementById('ob-submit-btn');
   if (!name) { if (msgEl) { msgEl.textContent='Please enter your first name.'; msgEl.style.display='block'; } return; }
   if (!gdpr) { if (errEl) errEl.style.display='block'; return; }
   if (errEl) errEl.style.display='none';
   if (msgEl) msgEl.style.display='none';
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   const pronouns = (typeof PRONOUN_MAP !== 'undefined' && PRONOUN_MAP[gender]) ? PRONOUN_MAP[gender] : { subject:'they', object:'them', possessive:'their', reflexive:'themselves' };
   state.userName=name; state.userGender=gender; state.userAge=age; state.userCountry=country; state.userPronouns=pronouns;
-  await supa.auth.updateUser({ data: { given_name: name, full_name: name } });
-  if (typeof upsertProfile === 'function') upsertProfile({ first_name:name, gender, age, country, gdpr_consent:true, consented_at:new Date().toISOString(), marketing_consent:true });
+  try { await supa.auth.updateUser({ data: { given_name: name, full_name: name } }); } catch(e) {}
+  const saveError = await upsertProfile({ first_name:name, gender, age, country, gdpr_consent:true, consented_at:new Date().toISOString(), marketing_consent:true });
+  if (btn) { btn.disabled = false; btn.textContent = 'Continue'; }
+  if (saveError) {
+    if (msgEl) { msgEl.textContent = 'Could not save — check your connection and try again.'; msgEl.style.display = 'block'; }
+    return; // keep modal open — do NOT let this silently look done when it isn't
+  }
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.style.display = 'none';
 }
@@ -10647,19 +10647,23 @@ async function showAccountScreen() {
     if (el) el.style.display = 'none';
   });
   // Load existing profile
-  try {
-    const { data: profile } = await supa
-      .from('profiles')
-      .select('first_name,gender,age,country')
-      .eq('id', currentUser.id)
-      .single();
-    if (profile) {
-      const n = document.getElementById('acct-name');    if (n) n.value = profile.first_name || '';
-      const g = document.getElementById('acct-gender');  if (g) g.value = profile.gender    || '';
-      const a = document.getElementById('acct-age');     if (a) a.value = profile.age       || '';
-      const c = document.getElementById('acct-country'); if (c) c.value = profile.country   || '';
-    }
-  } catch(e) { /* no profile yet — fields stay empty */ }
+  const { data: profile } = await supa
+    .from('profiles')
+    .select('first_name,gender,age,country,gdpr_consent,consented_at')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+  if (profile) {
+    const n = document.getElementById('acct-name');    if (n) n.value = profile.first_name || '';
+    const g = document.getElementById('acct-gender');  if (g) g.value = profile.gender    || '';
+    const a = document.getElementById('acct-age');     if (a) a.value = profile.age       || '';
+    const c = document.getElementById('acct-country'); if (c) c.value = profile.country   || '';
+  }
+  const gdprEl = document.getElementById('acct-gdpr-status');
+  if (gdprEl) {
+    gdprEl.textContent = (profile && profile.gdpr_consent)
+      ? 'Consent given' + (profile.consented_at ? ' on ' + new Date(profile.consented_at).toLocaleDateString() : '')
+      : 'Not yet given';
+  }
 }
 
 async function saveAccountChanges() {
@@ -10685,22 +10689,21 @@ async function saveAccountChanges() {
     return;
   }
 
-  try {
-    await supa.from('profiles').upsert({
-      id:         currentUser.id,
-      first_name: name,
-      gender:     gender   || null,
-      age:        isNaN(ageRaw) ? null : ageRaw,
-      country:    country  || null,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'id' });
-    // Update display name in state
+  const { error } = await supa.from('profiles').upsert({
+    id:         currentUser.id,
+    first_name: name,
+    gender:     gender   || null,
+    age:        isNaN(ageRaw) ? null : ageRaw,
+    country:    country  || null,
+  }, { onConflict: 'id' });
+
+  if (error) {
+    errorBanner.textContent = 'Save failed: ' + error.message;
+    errorBanner.style.display = '';
+  } else {
     if (state) state.userName = name;
     saveBanner.style.display = '';
     setTimeout(() => { if (saveBanner) saveBanner.style.display = 'none'; }, 3000);
-  } catch(e) {
-    errorBanner.textContent = 'Save failed: ' + e.message;
-    errorBanner.style.display = '';
   }
   btn.textContent = 'Save Changes';
   btn.disabled = false;
@@ -10714,22 +10717,19 @@ function confirmDeleteAccount() {
 }
 
 async function upsertProfile(data) {
-  if (!currentUser) return;
-  try {
-    await supa.from('profiles').upsert({
-      id:                currentUser.id,
-      first_name:        data.first_name        || null,
-      gender:            data.gender            || null,
-      age:               data.age               || null,
-      country:           data.country           || null,
-      gdpr_consent:      data.gdpr_consent      || false,
-      consented_at:      data.consented_at      || new Date().toISOString(),
-      marketing_consent: data.marketing_consent || false,
-      updated_at:        new Date().toISOString(),
-    }, { onConflict: 'id' });
-  } catch(e) {
-    console.warn('Profile upsert failed:', e.message);
-  }
+  if (!currentUser) return 'not signed in';
+  const { error } = await supa.from('profiles').upsert({
+    id:                currentUser.id,
+    first_name:        data.first_name        || null,
+    gender:            data.gender            || null,
+    age:               data.age               || null,
+    country:           data.country           || null,
+    gdpr_consent:      data.gdpr_consent      || false,
+    consented_at:      data.consented_at      || new Date().toISOString(),
+    marketing_consent: data.marketing_consent || false,
+  }, { onConflict: 'id' });
+  if (error) { console.error('Profile upsert failed:', error.message); return error.message; }
+  return null;
 }
 
 // ══════════════════════════════════════════
