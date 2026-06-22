@@ -5717,10 +5717,7 @@ function renderQuestion() {
         <span>${flagLabel}</span>
       </div>
       <div class="qa-flag-body${flagData.flagged ? ' open' : ''}" id="qa-flag-body-${q.id}">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div class="qa-flag-label" style="margin-bottom:0;">${isDevUser ? 'Dev notes' : 'Your feedback'} — auto-saved</div>
-          <button onclick="qaCloseFlag('${q.id}')" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.4);border-radius:6px;color:#c9a96e;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;cursor:pointer;">Done ✕</button>
-        </div>
+        <div class="qa-flag-label" style="margin-bottom:10px;">${isDevUser ? 'Dev notes' : 'Your feedback'} — auto-saved</div>
         <textarea
           class="qa-flag-textarea"
           id="qa-note-${q.id}"
@@ -5742,6 +5739,7 @@ function renderQuestion() {
 function qaToggleFlag(qid) {
   if (!state.qaFlags[qid]) state.qaFlags[qid] = { flagged: false, note: '' };
   state.qaFlags[qid].flagged = !state.qaFlags[qid].flagged;
+  triggerProgressSave();
   // Re-render just the flag panel
   const flagData = state.qaFlags[qid];
   const toggle = document.querySelector('.qa-flag-toggle');
@@ -5757,6 +5755,7 @@ function qaToggleFlag(qid) {
 function qaSaveNote(qid, value) {
   if (!state.qaFlags[qid]) state.qaFlags[qid] = { flagged: false, note: '' };
   state.qaFlags[qid].note = value;
+  triggerProgressSave();
   // Auto-flag if note is typed
   if (value.trim() && !state.qaFlags[qid].flagged) {
     state.qaFlags[qid].flagged = true;
@@ -5770,6 +5769,7 @@ function qaSaveNote(qid, value) {
     qaUpdateProgressDots();
   }
 }
+
 
 function qaUpdateProgressDots() {
   // Remove existing dots
@@ -10943,6 +10943,7 @@ async function saveProgress() {
       answers:    state.answers,
       current_q:  state.currentQ,
       user_name:  state.userName || null,
+      qa_flags:   state.qaFlags || {},
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
     if (saveErr) { console.warn('[Phil OS] Progress save error:', saveErr.message); }
@@ -10983,7 +10984,7 @@ async function restoreProgress(progress) {
     shuffledQuestions: shuffled,
     shuffledOptions:   opts,
     qaMode:            false,
-    qaFlags:           {},
+    qaFlags:           progress.qa_flags || {},
     displayTextCache:  {},
     captureData:       null,
   };
