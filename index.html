@@ -5632,12 +5632,38 @@ function renderQuestion() {
   const pct = Math.round((state.currentQ / totalQ) * 100);
   document.getElementById('progress-fill').style.width = pct + '%';
 
-  // Section-based label
-  const secSize = Math.ceil(totalQ / 5);
-  const sectionIdx = Math.min(Math.floor(state.currentQ / secSize), 4);
+  // Section-based label.
+  // Boundaries match the real blocks buildShuffledOrder() produces, not a flat
+  // 1/5 split of total question count. buildShuffledOrder front-loads all T1
+  // (30 items) then all T1.5 + half of T2 (35+8=43 items) before any T3 content
+  // appears at all — these two block sizes are fixed by axis/tier counts, not
+  // randomised, so the boundaries below are reliable across every session.
+  // Sections 3-5 split the remaining 87 items (mostly T3) evenly, since there's
+  // no documented thematic sub-grouping of the 16 T3 axes to map onto 3 labels
+  // more precisely than that. Fixes a prior version that divided by Math.ceil(totalQ/5)
+  // regardless of actual content, which put users still deep in T1/T1.5 foundational
+  // questions under the "Mind and Knowledge" and "What Matters and Why" labels.
+  // See Decisions Log, 2026-06-22.
+  const sectionBoundaries = [30, 73, 102, 131, 160];
   const sectionNames = ['How Reality Works', 'Mind and Knowledge', 'What Matters and Why', 'How You Live It', 'Society and Action'];
-  const qInSec = (state.currentQ % secSize) + 1;
-  const secTotal = Math.min(secSize, totalQ - sectionIdx * secSize);
+  let sectionIdx, sectionStart, secTotal, qInSec;
+  if (totalQ === 160) {
+    sectionIdx = sectionBoundaries.findIndex(b => state.currentQ < b);
+    if (sectionIdx === -1) sectionIdx = sectionBoundaries.length - 1;
+    sectionStart = sectionIdx === 0 ? 0 : sectionBoundaries[sectionIdx - 1];
+    secTotal = sectionBoundaries[sectionIdx] - sectionStart;
+    qInSec = state.currentQ - sectionStart + 1;
+  } else {
+    // Fallback for any non-standard session length (free tier / tiered sessions,
+    // not yet shipped — Decisions Log P3, P21). The boundaries above are specific
+    // to the full 160-question buildShuffledOrder() output and won't apply once
+    // those features go live with a different totalQ; this keeps the label from
+    // breaking in the meantime rather than silently assuming 160 always holds.
+    const secSize = Math.ceil(totalQ / 5);
+    sectionIdx = Math.min(Math.floor(state.currentQ / secSize), 4);
+    qInSec = (state.currentQ % secSize) + 1;
+    secTotal = Math.min(secSize, totalQ - sectionIdx * secSize);
+  }
   document.getElementById('progress-label').textContent = `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`;
   // Sync nav progress bar
   updateNavProgress(pct, `${sectionNames[sectionIdx]} · ${qInSec}/${secTotal}`);
@@ -6580,6 +6606,13 @@ function computeFingerprint(scores) {
   // Top 5 philosophical axes by reliability-weighted deviation from centre (4.0)
   // Axes with more items are measured more precisely — weight deviation accordingly
   // Formula: adjustedDeviation = deviation * sqrt(itemCount / maxItemCount)
+  // NOTE: with the current normalised instrument (5 items per axis, all 32 axes,
+  // see Decisions Log A7), every itemCount below is 5 and maxItems is 5, so this
+  // multiplier is currently always 1 for every axis — it has no effect on today's
+  // output. It's kept rather than removed because the planned daily-question
+  // feature (Decisions Log P21 roadmap) will make item counts per axis vary again
+  // over time as users accumulate check-ins, at which point this term becomes live
+  // again exactly as originally designed.
   const AXIS_ITEM_COUNTS = {
     naturalism:5, physicalism:5, realism:5, determinism:5,
     moral_ground:5, meaning:5, teleology:5, human_nature:5,
@@ -6603,7 +6636,13 @@ function computeFingerprint(scores) {
       direction: score >= 4 ? 'right' : 'left',
     };
   });
-  deviations.sort((a, b) => b.adjustedDeviation - a.adjustedDeviation);
+  // Deterministic tiebreak: when adjustedDeviation ties (exact ties are real —
+  // e.g. several axes pinned at score 7 all have identical deviation), fall back
+  // to alphabetical axis key rather than relying on incidental object-key order.
+  // This doesn't change which axes qualify for the top 5 on non-tied data, it only
+  // makes the cutoff among exact ties reproducible and documented instead of
+  // accidental. See Decisions Log, 2026-06-22.
+  deviations.sort((a, b) => b.adjustedDeviation - a.adjustedDeviation || a.axis.localeCompare(b.axis));
   return deviations.slice(0, 5);
 }
 
@@ -6963,6 +7002,19 @@ const CONTRADICTIONS = [
   }
 ];
 
+// NOTE on q.weight (1.5 for T1/T1.5, 1.0 for T2/T3): within each axis every item
+// shares the same weight value (set by the axis's own tier), so this weighted mean
+// is mathematically identical to a plain average — the weight cancels out. It is
+// also not referenced anywhere in computeArchetype() or computeFingerprint(), and
+// its only other live use is being written as metadata into the `responses` table.
+// In short: weight currently does not make T1/T1.5 axes count for more than T2/T3
+// anywhere in the pipeline, despite the "causal architecture" framing in the
+// Architecture and Axis Map doc's "Tier Weight Rationale" section. That document
+// has been flagged for a correction. Deliberately not wiring weight into
+// computeArchetype's distance calculation here — doing so would change archetype
+// assignment for every respondent and needs its own re-validation against the
+// inter-family distance analysis in the Full Psychometric Audit (P6) first, not a
+// silent side effect of a comment fix. See Decisions Log, 2026-06-22.
 function computeScores() {
   const axisAccum = {};
   QUESTIONS.forEach(q => {
@@ -6984,58 +7036,47 @@ function computeScores() {
 
 // Computes a continuous strength value [0–1] for a contradiction rule.
 // Three structural patterns are supported:
-//   Type H-L: s1 >= threshHigh && s2 <= threshLow  → excess = how far each exceeds its threshold
-//   Type L-H: s1 <= threshLow  && s2 >= threshHigh → same logic, reversed directions
-//   Type ABS: |s1 - s2| >= threshold                → excess = how far divergence exceeds threshold
+//   Type H-L / L-H: one variable has a >= threshold, the other a <= threshold
+//   Type same-direction: both variables use the same operator (>= or <=), possibly different thresholds
+//   Type ABS: |s1 - s2| >= threshold → excess = how far divergence exceeds threshold
 // Strength is normalised so that hitting both thresholds exactly = 0.0 and maximum possible = 1.0
+//
+// IMPORTANT: each variable's own condition is located by matching its NAME directly
+// (params[0] = rule.a → s1, params[1] = rule.b → s2), never by text position. An
+// earlier version inferred "which param is high" from where the param name appeared
+// relative to '>=' in the source string — but a param's name always appears first in
+// the function signature itself, before any operator, so that check was structurally
+// always true regardless of which variable the >= condition actually belonged to.
+// Fixed 2026-06-22 — see Decisions Log. 11 of 43 rules were silently affected
+// (wrong severity returned whenever triggered, never an error or NaN): C02b, C03,
+// C09b, C10b, C14, C16, C17, C22, C25, C26b (mixed-direction), C01b (same-direction).
 function contradictionStrength(rule, s1, s2) {
   const expr = rule.check.toString();
-  // Detect abs pattern
   if (expr.includes('Math.abs')) {
     const tMatch = expr.match(/([\d.]+)\s*$/);
     const threshold = tMatch ? parseFloat(tMatch[1]) : 3.0;
     const excess = Math.max(0, Math.abs(s1 - s2) - threshold);
     return Math.min(1, excess / (7 - threshold));
   }
-  // Detect High-Low or Low-High pattern by extracting thresholds
-  const geMatch = expr.match(/([a-z]+)\s*>=\s*([\d.]+)/);
-  const leMatch = expr.match(/([a-z]+)\s*<=\s*([\d.]+)/);
-  if (geMatch && leMatch) {
-    // One axis goes high, one goes low
-    const hiThresh = parseFloat(geMatch[2]);
-    const loThresh = parseFloat(leMatch[2]);
-    // Determine which param is s1 vs s2 from rule.a / rule.b
-    const params = expr.match(/\(([^)]+)\)/)[1].split(',').map(p => p.trim());
-    // s1 corresponds to rule.a (first param), s2 to rule.b (second param)
-    let hiScore, loScore;
-    if (expr.indexOf(params[0]) < expr.indexOf('>=')) {
-      hiScore = s1; loScore = s2; // a is high axis
-    } else {
-      hiScore = s2; loScore = s1; // b is high axis
-    }
-    const excessHi = Math.max(0, hiScore - hiThresh);
-    const excessLo = Math.max(0, loThresh - loScore);
-    // Normalise: max excess for each is (7-threshold) for hi, threshold for lo
-    const maxExHi = Math.max(0.1, 7 - hiThresh);
-    const maxExLo = Math.max(0.1, loThresh);
-    return Math.min(1, Math.sqrt(((excessHi/maxExHi)**2 + (excessLo/maxExLo)**2) / 2));
+  const params = expr.match(/\(([^)]+)\)/)[1].split(',').map(p => p.trim());
+  // Find each named param's own comparison operator + threshold, wherever it sits in the text.
+  function findCond(varName) {
+    const re = new RegExp(varName + '\\s*(>=|<=)\\s*([\\d.]+)');
+    const m = expr.match(re);
+    return m ? { op: m[1], thresh: parseFloat(m[2]) } : null;
   }
-  // Same-direction pattern (both high or both low — e.g. n >= 5.5 && m >= 5.5)
-  const geAll = [...expr.matchAll(/([\d.]+)/g)].map(m => parseFloat(m[1])).filter(v => v > 0 && v < 10);
-  if (geAll.length === 2) {
-    const t1 = geAll[0], t2 = geAll[1];
-    if (expr.includes('>=') && !expr.includes('<=')) {
-      const e1 = Math.max(0, s1 - t1) / Math.max(0.1, 7 - t1);
-      const e2 = Math.max(0, s2 - t2) / Math.max(0.1, 7 - t2);
-      return Math.min(1, Math.sqrt((e1**2 + e2**2) / 2));
+  const c0 = findCond(params[0]); // rule.a's own condition → applies to s1
+  const c1 = findCond(params[1]); // rule.b's own condition → applies to s2
+  if (c0 && c1) {
+    function excess(score, cond) {
+      if (cond.op === '>=') return Math.max(0, score - cond.thresh) / Math.max(0.1, 7 - cond.thresh);
+      return Math.max(0, cond.thresh - score) / Math.max(0.1, cond.thresh);
     }
-    if (expr.includes('<=') && !expr.includes('>=')) {
-      const e1 = Math.max(0, t1 - s1) / Math.max(0.1, t1);
-      const e2 = Math.max(0, t2 - s2) / Math.max(0.1, t2);
-      return Math.min(1, Math.sqrt((e1**2 + e2**2) / 2));
-    }
+    const e0 = excess(s1, c0);
+    const e1 = excess(s2, c1);
+    return Math.min(1, Math.sqrt((e0 ** 2 + e1 ** 2) / 2));
   }
-  return rule.check(s1, s2) ? 0.5 : 0; // fallback
+  return rule.check(s1, s2) ? 0.5 : 0; // fallback for any shape that doesn't parse cleanly
 }
 
 function detectContradictions(scores) {
