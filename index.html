@@ -193,7 +193,7 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.18;
+  opacity: 0.7;
 }
 @media (min-width: 768px) {
   #constellation-bg { opacity: 0.9; }
@@ -1704,6 +1704,7 @@ body::after {
   gap: 12px;
 }
 @media (max-width: 600px) { .media-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr !important; } }
 .media-category {
   background: var(--surface);
   border: 1px solid rgba(255,255,255,0.09);
@@ -3146,9 +3147,9 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:600px;margin:0 auto;line-height:1.75;">MBTI, Enneagram, Human Design — none of them are built on peer-reviewed evidence. They are built on intuition, ancient typologies, and proprietary frameworks that have never been independently validated. Phil OS was built to a different standard entirely.</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:16px;overflow:hidden;max-width:760px;margin:0 auto;">
+      <div class="compare-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:16px;overflow:hidden;max-width:760px;margin:0 auto;">
         <!-- Others column -->
-        <div style="background:rgba(255,255,255,0.02);padding:36px 32px;">
+        <div style="background:rgba(255,255,255,0.02);padding:36px 32px;text-align:left;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(232,112,112,0.7);margin-bottom:24px;">Other tests</div>
           <div style="display:flex;flex-direction:column;gap:16px;">
             <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--danger);font-size:14px;flex-shrink:0;margin-top:2px;">✗</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">No peer-reviewed validation</span></div>
@@ -3160,7 +3161,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           </div>
         </div>
         <!-- Phil OS column -->
-        <div style="background:rgba(91,191,148,0.05);border:1px solid rgba(91,191,148,0.15);padding:36px 32px;">
+        <div style="background:rgba(91,191,148,0.05);border:1px solid rgba(91,191,148,0.15);padding:36px 32px;text-align:left;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:24px;">Phil OS</div>
           <div style="display:flex;flex-direction:column;gap:16px;">
             <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:var(--teal);font-size:14px;flex-shrink:0;margin-top:2px;">✓</span><span style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.55;">Grounded in PhilPapers academic survey data</span></div>
@@ -9876,8 +9877,8 @@ async function copyProfileLink() {
     return {
       nodeCount:  isDesktop ? 90  : 38,
       maxDist:    isDesktop ? 220 : 180,
-      lineAlpha:  isDesktop ? 0.28 : 0.12,
-      lineWidth:  isDesktop ? 0.9  : 0.6,
+      lineAlpha:  isDesktop ? 0.28 : 0.22,
+      lineWidth:  isDesktop ? 0.9  : 0.75,
       nodeRMin:   isDesktop ? 1.2  : 0.6,
       nodeRRange: isDesktop ? 2.8  : 1.8,
       speed:      isDesktop ? 0.32 : 0.28,
