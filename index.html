@@ -5706,10 +5706,10 @@ function renderQuestion() {
     html += `<div class="q-type-label">Choose the option that fits you best</div>
     <div class="tradeoff-wrap">`;
     opts.forEach((opt, i) => {
-      const letters = ['A', 'B', 'C', 'D'];
+      const letter = String.fromCharCode(65 + i); // A, B, C... scales to any option count
       const sel = cur === opt.score ? 'selected' : '';
       html += `<div class="tradeoff-opt ${sel}" data-score="${opt.score}" data-qid="${q.id}" onclick="selectOption('${q.id}',${opt.score})">
-        <div class="tradeoff-letter">${letters[i]}</div>
+        <div class="tradeoff-letter">${letter}</div>
         <div class="tradeoff-text">${opt.text}</div>
       </div>`;
     });
@@ -5720,7 +5720,7 @@ function renderQuestion() {
     const cur = state.answers[q.id];
     html += `<div class="scenario-wrap">
       <div class="q-text" style="margin-bottom:32px">${displayText}</div>
-      <div class="q-type-label">Which response fits you most honestly?</div>
+      <div class="q-type-label">Which response fits you most accurately?</div>
       <div class="scenario-options">`;
     opts.forEach(opt => {
       const sel = cur === opt.score ? 'selected' : '';
