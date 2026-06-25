@@ -1953,6 +1953,36 @@ body::after {
   display: block;
   margin-bottom: 6px;
 }
+/* ── QUESTION EXPLAIN ICON — sits between question text and answers ── */
+.q-explain-row {
+  display: flex;
+  justify-content: center;
+  margin: 2px 0 22px;
+}
+.phil-term.q-explain-term {
+  border-bottom: none;
+  display: inline-flex;
+  align-items: center;
+}
+.q-explain-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,169,110,0.45);
+  background: rgba(201,169,110,0.08);
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.q-explain-term:hover .q-explain-icon,
+.q-explain-term:focus .q-explain-icon {
+  background: rgba(201,169,110,0.18);
+  border-color: rgba(201,169,110,0.75);
+}
 .card-download-btn {
   display: inline-flex;
   align-items: center;
@@ -3462,6 +3492,16 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
     </div>
 
+    <!-- Question explanations -->
+    <div class="settings-section">
+      <div class="settings-label">Question Explanations</div>
+      <div class="settings-desc">A small "?" next to questions you can tap for a plain-language explanation. Written to clarify wording only, never to hint at an answer.</div>
+      <div class="settings-options" id="settings-qExplain">
+        <button class="settings-opt active" data-val="on" onclick="applySetting('qExplain',this)">On</button>
+        <button class="settings-opt" data-val="off" onclick="applySetting('qExplain',this)">Off</button>
+      </div>
+    </div>
+
     <!-- Account -->
     <div class="settings-section" style="border-bottom:none;">
       <div class="settings-label">Account</div>
@@ -4432,7 +4472,7 @@ const QUESTIONS = [
  options:[
    {text:'This is my brain doing extraordinarily complex physical work',score:7},
    {text:'There is something about this experience that cannot be fully captured by brain activity alone.',score:2},
-   {text:'Both are true in different ways, the physical explanation does not cancel the experience',score:4}
+   {text:'Both are true in different ways, the physical explanation does not cancel the experience',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1p03',tier:1,axis:'physicalism',type:'scenario',
@@ -4472,7 +4512,7 @@ const QUESTIONS = [
  text:'Your gut strongly tells you something is true. Well-designed studies consistently say the opposite. What do you do?',
  options:[
    {text:'Update toward the evidence. My gut is shaped by biases I cannot fully see.',score:7},
-   {text:'Consider both. Lived experience captures things studies often miss.',score:4},
+   {text:'Consider both. Lived experience captures things studies often miss.',score:4,pinLast:true},
    {text:'Trust my gut. I know my experience better than any study.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -4553,7 +4593,7 @@ const QUESTIONS = [
  options:[
    {text:'That makes complete sense to me, the absence of imposed meaning is a kind of liberation',score:7},
    {text:'I understand it but it would not feel like freedom to me, it would feel like loss',score:3},
-   {text:'It depends on what they replaced the old meaning with',score:5}
+   {text:'It depends on what they replaced the old meaning with',score:5,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
 {id:'t2me06',tier:2,axis:'meaning',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -4615,7 +4655,7 @@ const QUESTIONS = [
  text:'A teenager commits a serious crime after years of abuse and neglect. A judge has wide sentencing discretion. What approach feels most just?',
  options:[
    {text:'Heavy emphasis on rehabilitation and addressing the underlying trauma',score:7},
-   {text:'A balance of accountability and support, consequences matter but so does context',score:4},
+   {text:'A balance of accountability and support, consequences matter but so does context',score:4,pinLast:true},
    {text:'The crime warrants serious punishment, circumstances are mitigating, not excusing',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -4674,7 +4714,7 @@ const QUESTIONS = [
  options:[
    {text:'Faith is a personal matter and public policy decisions should be justified in terms accessible to everyone, regardless of their beliefs.',score:7},
    {text:'Faith-based reasoning deserves equal standing alongside any other deeply held value.',score:2},
-   {text:'It depends entirely on what they are advocating and whether it causes harm',score:4}
+   {text:'It depends entirely on what they are advocating and whether it causes harm',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3r03',tier:3,axis:'religion',type:'scenario',
@@ -4703,7 +4743,7 @@ const QUESTIONS = [
  options:[
    {text:'The systems in place produce and maintain these gaps',score:7},
    {text:'Individual differences in effort, choices, and ability play the primary role.',score:2},
-   {text:'Both, structure and individual factors are real and interact',score:4}
+   {text:'Both, structure and individual factors are real and interact',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3p02',tier:3,axis:'politics',type:'scenario',
@@ -4741,7 +4781,7 @@ const QUESTIONS = [
  options:[
    {text:'My history, brain, and circumstances are expressing themselves through me.',score:7},
    {text:'Something essential in me, a genuine self, is making a real choice.',score:2},
-   {text:'Both are true at different levels of description, neither cancels the other',score:4}
+   {text:'Both are true at different levels of description, neither cancels the other',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3se03',tier:3,axis:'self',type:'scenario',
@@ -4761,7 +4801,7 @@ const QUESTIONS = [
  options:[
    {text:'Growth, the self is capable of genuine self-directed development',score:3},
    {text:'Transformation, you are shaped by circumstances more than it feels like from the inside',score:6},
-   {text:'Both, some changes are driven by us, others happen to us, and it is hard to tell which is which',score:4}
+   {text:'Both, some changes are driven by us, others happen to us, and it is hard to tell which is which',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3se06',tier:3,axis:'self',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -4839,7 +4879,7 @@ const QUESTIONS = [
  options:[
    {text:'Maximising individual freedom, let people build their own lives with minimal interference',score:2},
    {text:'Strong collective investment, shared infrastructure, equality, and genuine safety nets',score:7},
-   {text:'Neither extreme works, the balance is what matters',score:4}
+   {text:'Neither extreme works, the balance is what matters',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3so03',tier:3,axis:'society',type:'likert',
@@ -4851,7 +4891,7 @@ const QUESTIONS = [
  options:[
    {text:'Individual rights, no tradition has the standing to override a person\'s fundamental claims',score:2},
    {text:'Tradition, communities have the right to maintain their character and norms',score:7},
-   {text:'It depends on the tradition, the right, and what is actually at stake',score:4}
+   {text:'It depends on the tradition, the right, and what is actually at stake',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3so05',tier:3,axis:'society',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -4867,7 +4907,7 @@ const QUESTIONS = [
  text:'Two people with identical talent start life in radically different circumstances. At 40, their outcomes are vastly different. What is the most accurate account of why?',
  options:[
    {text:'The circumstances were decisive, agency itself was shaped by those conditions',score:7},
-   {text:'Both circumstances and choices mattered, you cannot fully separate them',score:4},
+   {text:'Both circumstances and choices mattered, you cannot fully separate them',score:4,pinLast:true},
    {text:'Character and effort ultimately determine outcomes more than starting conditions',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -4940,7 +4980,7 @@ const QUESTIONS = [
  options:[
    {text:'Work within legal channels to change it, rule of law matters even when laws are bad',score:2},
    {text:'Resist it, unjust laws do not carry moral authority',score:7},
-   {text:'It depends on how serious the injustice is and what the cost of resistance would be',score:5}
+   {text:'It depends on how serious the injustice is and what the cost of resistance would be',score:5,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 // ── ECONOMICS (4 questions) ──
@@ -5070,7 +5110,7 @@ const QUESTIONS = [
  text:'Looking at the state of the world honestly, you feel:',
  options:[
    {text:'Cautious optimism, real problems, but trend lines are broadly positive',score:7},
-   {text:'Genuine uncertainty, progress in some areas, regression in others, no clear direction',score:4},
+   {text:'Genuine uncertainty, progress in some areas, regression in others, no clear direction',score:4,pinLast:true},
    {text:'Deep concern, the fundamental structures producing harm remain intact or are worsening',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -5078,7 +5118,7 @@ const QUESTIONS = [
  text:'A historian argues that for all of modern civilisation\'s achievements, it has also produced the capacity for unprecedented destruction, ecological collapse, and totalitarianism, and the net verdict is ambiguous at best.',
  options:[
    {text:'I disagree, by almost every measurable metric, human life has improved dramatically',score:7},
-   {text:'A fair point, the gains and losses are real and the ledger is genuinely unclear',score:4},
+   {text:'A fair point, the gains and losses are real and the ledger is genuinely unclear',score:4,pinLast:true},
    {text:'I think they are being too generous, the structural problems are more fundamental than the gains',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -5109,7 +5149,7 @@ const QUESTIONS = [
  options:[
    {text:'That sounds right to me. Consciousness was a contingent outcome, not a destination.',score:2},
    {text:'I find it hard to believe something like consciousness was purely accidental.',score:6},
-   {text:'I am genuinely uncertain. Both feel plausible.',score:4}
+   {text:'I am genuinely uncertain. Both feel plausible.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1tel04',tier:1,axis:'teleology',type:'tradeoff',
@@ -5135,7 +5175,7 @@ const QUESTIONS = [
  options:[
    {text:'They violated something real and universal about what humans are.',score:7},
    {text:'They departed from the norms their culture taught them. Nothing more.',score:2},
-   {text:'Something in between. We have tendencies, but culture shapes how they play out.',score:4}
+   {text:'Something in between. We have tendencies, but culture shapes how they play out.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15hn03',tier:1,axis:'human_nature',type:'scenario',
@@ -5185,7 +5225,7 @@ const QUESTIONS = [
  options:[
    {text:'Yes. Mathematics and logic reveal truths that observation alone cannot reach.',score:5},
    {text:'No. Reason without data just produces internally consistent fictions.',score:7},
-   {text:'Sometimes. It depends on what kind of question we are asking.',score:4}
+   {text:'Sometimes. It depends on what kind of question we are asking.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15em04b',tier:1,axis:'epistemic_method',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -5206,7 +5246,7 @@ const QUESTIONS = [
  options:[
    {text:'The accumulated individual choices and circumstances of the people in poverty.',score:2},
    {text:'The structural arrangements of the economy and society that produce and maintain poverty.',score:7},
-   {text:'Both, in ways that cannot easily be separated.',score:4}
+   {text:'Both, in ways that cannot easily be separated.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15so03',tier:1,axis:'social_ontology',type:'scenario',
@@ -5214,7 +5254,7 @@ const QUESTIONS = [
  options:[
    {text:'Someone made bad decisions. Find them and hold them responsible.',score:2},
    {text:'The structure of the institution produced the outcome regardless of who the individuals were.',score:7},
-   {text:'Both individual decisions and structural conditions contributed. Both matter.',score:4}
+   {text:'Both individual decisions and structural conditions contributed. Both matter.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15so05',tier:1,axis:'social_ontology',type:'tradeoff',
@@ -5222,7 +5262,7 @@ const QUESTIONS = [
  options:[
    {text:'Societies change when individuals change. Lasting progress comes from changes in how people think and act.',score:2},
    {text:'Individuals are largely products of their social systems. Fix the system and people change.',score:7},
-   {text:'The relationship runs in both directions. You cannot fully separate them.',score:4}
+   {text:'The relationship runs in both directions. You cannot fully separate them.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15so05b',tier:1,axis:'social_ontology',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -5243,7 +5283,7 @@ const QUESTIONS = [
  options:[
    {text:'The tradition. It has proven itself over time and encodes accumulated wisdom.',score:2},
    {text:'The newer understanding. Better knowledge should update our practices.',score:7},
-   {text:'It depends entirely on the specific tradition and the specific right in question.',score:4}
+   {text:'It depends entirely on the specific tradition and the specific right in question.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15to04',tier:1,axis:'temporal_orientation',type:'tradeoff',
@@ -5251,7 +5291,7 @@ const QUESTIONS = [
  options:[
    {text:'How well we preserve and transmit what earlier generations discovered about how to live.',score:2},
    {text:'How far we have expanded the circle of who counts, who has rights, who matters.',score:7},
-   {text:'How honestly we live in the present, without distorting it through either past or future.',score:4}
+   {text:'How honestly we live in the present, without distorting it through either past or future.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15to04b',tier:1,axis:'temporal_orientation',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -5278,7 +5318,7 @@ const QUESTIONS = [
  options:[
    {text:'They are right to follow their conscience. It is the deepest authority.',score:7},
    {text:'They are undermining the foundation that makes moral life possible.',score:2},
-   {text:'It depends on what the religion commanded and what their conscience demanded.',score:4}
+   {text:'It depends on what the religion commanded and what their conscience demanded.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15lma04',tier:1,axis:'moral_authority',type:'tradeoff',
@@ -5338,7 +5378,7 @@ const QUESTIONS = [
  options:[
    {text:'Hold them accountable for their actions. Whatever caused it, the response has to be about responsibility.',score:3},
    {text:'Ask what produced the behaviour — their history, circumstances, state of mind. Understanding comes first.',score:7},
-   {text:'Vary my approach depending on what is at stake. Both frames have their place.',score:5}
+   {text:'Vary my approach depending on what is at stake. Both frames have their place.',score:5,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2fwip03',tier:2,axis:'freewill_practice',type:'scenario',
@@ -5346,7 +5386,7 @@ const QUESTIONS = [
  options:[
    {text:'I feel they could have done otherwise. The anger and hurt are real.',score:2},
    {text:'I try to understand what drove the behaviour. The causal frame is my genuine first response.',score:7},
-   {text:'Both happen at once. The feeling blames them; the thinking tries to understand.',score:4}
+   {text:'Both happen at once. The feeling blames them; the thinking tries to understand.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2fwip04',tier:2,axis:'freewill_practice',type:'likert',
@@ -5358,7 +5398,7 @@ const QUESTIONS = [
  options:[
    {text:'I think about what I genuinely want and what I am going to choose. Freedom feels real.',score:2},
    {text:'I think about changing my environment or conditions to produce better outcomes. The causal frame is more useful.',score:7},
-   {text:'I use both. I hold myself capable of choosing while also designing my conditions carefully.',score:4}
+   {text:'I use both. I hold myself capable of choosing while also designing my conditions carefully.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t2fwip06',tier:2,axis:'freewill_practice',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
@@ -5384,6 +5424,29 @@ const QUESTIONS = [
  options:[]},
 
 ];
+
+// ══════════════════════════════════════════
+// QUESTION EXPLANATIONS
+// Optional "?" clarifier shown between the question text and the answers.
+// Job: define unfamiliar terms or scenario mechanics only. Never interpret
+// what the question is "really asking" or hint at which answer fits which
+// pole. For tradeoff/scenario items, describe the general construct being
+// probed, not the individual options. Before adding an entry, run the test:
+// show the explanation alone, with no question attached, and check whether
+// someone could guess which answer it points toward. If they can, rewrite it.
+//
+// QUESTION_EXPLANATIONS_ENABLED is a global kill switch. Set it to false to
+// pull explanations for every user immediately (e.g. if one is found to be
+// non-neutral) regardless of each user's personal Settings toggle. The
+// per-user toggle lives in Settings as userSettings.qExplain ('on'/'off').
+// Both must be satisfied for an explanation to render. Decisions Log, 2026-06-25.
+// ══════════════════════════════════════════
+const QUESTION_EXPLANATIONS_ENABLED = true;
+
+const QUESTION_EXPLANATIONS = {
+  't15em04b': 'This is about how real knowledge of the world can be reached. "Deep intuitions and personal spiritual experience" means inner, subjective ways of knowing, like a strong gut sense, a moment of insight, or a religious or mystical experience. "Scientific testing and logical argument" means external, checkable methods like experiments or step by step reasoning. The question is whether the first kind of experience can sometimes reach true things about reality that the second kind cannot.',
+  't15so05': 'This question is about which direction of cause and effect feels stronger to you: does lasting change start with individual people changing how they think and act, or does it start with changing the systems and structures people live inside? The three options span that range, including one that sits between the other two.',
+};
 
 
 // ══════════════════════════════════════════
@@ -5434,6 +5497,18 @@ function shuffle(arr) {
   return a;
 }
 
+// Shuffles tradeoff/scenario options but keeps any option marked pinLast:true
+// fixed at the end. Some options are a synthesis of the other two ("both",
+// "it depends", "the relationship runs in both directions") and only read
+// sensibly once the two poles they reference have already been seen. Without
+// this, shuffle() could place that option first, before the poles it refers
+// to exist on screen. See Decisions Log, 2026-06-25.
+function shuffleOptionsKeepPinned(options) {
+  const pinned = options.filter(o => o.pinLast);
+  const rest = options.filter(o => !o.pinLast);
+  return [...shuffle(rest), ...pinned];
+}
+
 // Build shuffled question order: Tier 1 weighted to first third, rest interleaved
 function buildShuffledOrder() {
   const t1 = QUESTIONS.filter(q => q.tier === 1);
@@ -5482,7 +5557,7 @@ function startQuiz() {
   const shuffled = buildShuffledOrder();
   const opts = {};
   shuffled.forEach(q => {
-    if (q.options) opts[q.id] = shuffle(q.options);
+    if (q.options) opts[q.id] = shuffleOptionsKeepPinned(q.options);
   });
   state = {
     currentQ: 0,
@@ -5524,7 +5599,7 @@ function startQAQuiz() {
   const shuffled = buildShuffledOrder();
   const opts = {};
   shuffled.forEach(q => {
-    if (q.options) opts[q.id] = shuffle(q.options);
+    if (q.options) opts[q.id] = shuffleOptionsKeepPinned(q.options);
   });
 
   const isQA = state.qaMode;
@@ -5635,6 +5710,27 @@ function injectName(text, qIndex, name) {
 // ══════════════════════════════════════════
 // RENDER QUESTION
 // ══════════════════════════════════════════
+// Renders the optional "?" clarifier between the question text and the
+// answers. Gated by two switches that both have to allow it: the global
+// QUESTION_EXPLANATIONS_ENABLED kill switch, and the user's own Settings
+// toggle (userSettings.qExplain). Returns '' if either is off, or if there
+// is no entry for this question yet.
+function renderQuestionExplain(q) {
+  if (!QUESTION_EXPLANATIONS_ENABLED) return '';
+  if (typeof userSettings !== 'undefined' && userSettings.qExplain === 'off') return '';
+  const text = QUESTION_EXPLANATIONS[q.id];
+  if (!text) return '';
+  return `<div class="q-explain-row">
+    <span class="phil-term q-explain-term" tabindex="0">
+      <span class="q-explain-icon">?</span>
+      <span class="phil-tip">
+        <span class="phil-tip-term">About this question</span>
+        ${text}
+      </span>
+    </span>
+  </div>`;
+}
+
 function renderQuestion() {
   const allQ = state.shuffledQuestions;
   const q = allQ[state.currentQ];
@@ -5691,6 +5787,7 @@ function renderQuestion() {
   updateQuizBackground(q.axis, q.tier);
 
   let html = `${q.type !== 'scenario' ? `<div class="q-text">${displayText}</div>` : ''}`;
+  html += renderQuestionExplain(q);
 
   if (q.type === 'likert') {
     const cur = state.answers[q.id];
@@ -5720,6 +5817,7 @@ function renderQuestion() {
     const cur = state.answers[q.id];
     html += `<div class="scenario-wrap">
       <div class="q-text" style="margin-bottom:32px">${displayText}</div>
+      ${renderQuestionExplain(q)}
       <div class="q-type-label">Which response fits you most accurately?</div>
       <div class="scenario-options">`;
     opts.forEach(opt => {
@@ -5766,6 +5864,9 @@ function renderQuestion() {
   }
 
   document.getElementById('quiz-body').innerHTML = html;
+
+  // Attach hover/tap behaviour to the question-explain icon, if one was rendered
+  if (typeof window.attachTooltipBehaviour === 'function') window.attachTooltipBehaviour();
 
   // Update progress bar flag dots (QA mode only)
   if (state.qaMode) qaUpdateProgressDots();
@@ -7250,7 +7351,7 @@ function devGenerateReport() {
 
   // Shuffle options for non-likert questions (required for answer matching)
   QUESTIONS.forEach(q => {
-    if (q.options) state.shuffledOptions[q.id] = shuffle([...q.options]);
+    if (q.options) state.shuffledOptions[q.id] = shuffleOptionsKeepPinned(q.options);
   });
 
   // Map target scores onto all questions — handle reversed items correctly
@@ -10593,7 +10694,7 @@ async function landingBegin() {
     // Full quiz init — skip intake and intro
     const shuffled = buildShuffledOrder();
     const opts = {};
-    shuffled.forEach(q => { if (q.options) opts[q.id] = shuffle(q.options); });
+    shuffled.forEach(q => { if (q.options) opts[q.id] = shuffleOptionsKeepPinned(q.options); });
     state = {
       currentQ: 0, answers: {}, axisScores: {},
       userName: firstName,
@@ -11026,7 +11127,7 @@ async function restoreProgress(progress) {
   const shuffled = buildShuffledOrder();
   const opts = {};
   shuffled.forEach(q => {
-    if (q.options && q.options.length) opts[q.id] = shuffle([...q.options]);
+    if (q.options && q.options.length) opts[q.id] = shuffleOptionsKeepPinned(q.options);
   });
   state = {
     currentQ:          progress.current_q || 0,
@@ -11396,7 +11497,7 @@ function updateNavLinks(screenId) {
 // ══════════════════════════════════════════
 const SETTINGS_DEFAULTS = {
   lang: 'en', fontsize: 'md', font: 'playfair',
-  contrast: 'normal', motion: 'full', progress: 'bar'
+  contrast: 'normal', motion: 'full', progress: 'bar', qExplain: 'on'
 };
 let userSettings = { ...SETTINGS_DEFAULTS };
 
@@ -11454,6 +11555,9 @@ function applySettingValue(key, val) {
       break;
     case 'progress':
       userSettings.progress = val;
+      break;
+    case 'qExplain':
+      userSettings.qExplain = val;
       break;
     case 'lang':
       userSettings.lang = val;
