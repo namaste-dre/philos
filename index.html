@@ -10309,7 +10309,7 @@ async function copyProfileLink() {
       term.addEventListener('blur', hide);
       term.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (tip.classList.contains('tip-visible')) { hide(); } else { show(); }
+        show();
       });
     });
 
