@@ -6033,6 +6033,13 @@ function renderQuestion() {
   // Update progress bar flag dots (QA mode only)
   if (state.qaMode) qaUpdateProgressDots();
 
+  // Reset scroll position on the actual scrolling container. window.scrollTo
+  // alone is a no-op here (body has overflow:hidden) — #screen-quiz is what
+  // really scrolls. Without this, scroll position carries over from the
+  // previous question, so the new question's "?" icon can render under
+  // residual scroll/momentum and eat the first tap.
+  const screenEl = document.getElementById('screen-quiz');
+  if (screenEl) screenEl.scrollTop = 0;
   window.scrollTo(0, 0);
 }
 
