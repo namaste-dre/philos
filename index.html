@@ -10383,7 +10383,9 @@ async function devRefreshStats() {
       document.getElementById('dev-progress-count').textContent = pc ?? '—';
     } catch(e) { document.getElementById('dev-progress-count').textContent = 'RLS/error'; }
     try {
-      const { count: cc } = await supa.from('account_completions').select('*', { count: 'exact', head: true });
+      // Post-M5: count can legitimately exceed 1 - each retake is a separate
+      // preserved row now, not an overwrite.
+      const { count: cc } = await supa.from('completions').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
       document.getElementById('dev-completions-count').textContent = cc ?? '—';
     } catch(e) { document.getElementById('dev-completions-count').textContent = 'RLS/error'; }
   }
@@ -11457,7 +11459,9 @@ function showSaveIndicator() {
 async function saveCompletionToAccount(payload) {
   if (!currentUser) return;
   try {
-    await supa.from('account_completions').upsert({
+    // Insert-many, attributed by user_id (D58/M5) - retakes are preserved as
+    // history instead of overwriting the previous completion.
+    await supa.from('completions').insert({
       user_id:           currentUser.id,
       email:             currentUser.email,
       archetype_family:  payload.archetype_family,
@@ -11469,7 +11473,7 @@ async function saveCompletionToAccount(payload) {
       instrument_version: payload.instrument_version || 'v3',
       qa_mode:           payload.qa_mode || false,
       completed_at:      new Date().toISOString(),
-    }, { onConflict: 'user_id' });
+    });
 
     // Clear progress row — assessment is done
     await supa.from('assessment_progress').delete().eq('user_id', currentUser.id);
@@ -11484,10 +11488,16 @@ async function saveCompletionToAccount(payload) {
 async function fetchLatestCompletion() {
   if (!currentUser) return null;
   try {
+    // Deterministic "latest" - completed_at, then generated_at, then id as a
+    // final stable tiebreak so this never depends on implicit ordering.
     const { data } = await supa
-      .from('account_completions')
+      .from('completions')
       .select('*')
       .eq('user_id', currentUser.id)
+      .order('completed_at', { ascending: false })
+      .order('generated_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(1)
       .maybeSingle();
     return data;
   } catch(e) { return null; }

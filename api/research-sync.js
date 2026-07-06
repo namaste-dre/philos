@@ -83,9 +83,11 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, optIn: false });
     }
 
-    // Opt-in: pull the account's de-identified fields from account_completions
+    // Opt-in: pull the account's de-identified fields from the latest completion
+    // (D58/M5 - completions is insert-many now, so this must pick the most recent
+    // row deterministically, not just "the row" as account_completions used to be).
     const compRes = await fetch(
-      `${supabaseUrl}/rest/v1/account_completions?user_id=eq.${userId}&select=archetype_family,archetype_variant,scores,fingerprint,contradictions_count,instrument_version`,
+      `${supabaseUrl}/rest/v1/completions?user_id=eq.${userId}&select=archetype_family,archetype_variant,scores,fingerprint,contradictions_count,instrument_version&order=completed_at.desc,generated_at.desc,id.desc&limit=1`,
       { headers: svcHeaders }
     );
     const compRows = await compRes.json();

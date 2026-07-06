@@ -66,9 +66,10 @@ export default async function handler(req, res) {
     steps.research_profiles = `error: ${e.message}`;
   }
 
-  // Step 2: user-scoped tables
-  for (const table of ['assessment_progress', 'analytics_events', 'account_completions', 'profiles']) {
-    const idCol = table === 'assessment_progress' ? 'user_id' : (table === 'profiles' ? 'id' : 'user_id');
+  // Step 2: user-scoped tables (account_completions is a view post-M5 - its
+  // rows live in completions now and are cleared in step 3 below)
+  for (const table of ['assessment_progress', 'analytics_events', 'profiles']) {
+    const idCol = table === 'profiles' ? 'id' : 'user_id';
     try {
       const r = await fetch(`${supabaseUrl}/rest/v1/${table}?${idCol}=eq.${userId}`, {
         method: 'DELETE', headers: { ...svcHeaders, 'Prefer': 'return=minimal' },
@@ -79,18 +80,23 @@ export default async function handler(req, res) {
     }
   }
 
-  // Step 3: completions by email match (responses cascade automatically - FK is ON DELETE CASCADE)
-  if (email) {
-    try {
-      const r = await fetch(`${supabaseUrl}/rest/v1/completions?email=eq.${encodeURIComponent(email)}`, {
+  // Step 3: completions - every historical row for this person, attributed
+  // (user_id, post-M5 insert-many) or anonymous-shaped (email match, pre-M5
+  // rows). Responses cascade automatically - FK is ON DELETE CASCADE.
+  try {
+    const byUser = await fetch(`${supabaseUrl}/rest/v1/completions?user_id=eq.${userId}`, {
+      method: 'DELETE', headers: { ...svcHeaders, 'Prefer': 'return=minimal' },
+    });
+    let byEmailOk = true;
+    if (email) {
+      const byEmail = await fetch(`${supabaseUrl}/rest/v1/completions?email=eq.${encodeURIComponent(email)}`, {
         method: 'DELETE', headers: { ...svcHeaders, 'Prefer': 'return=minimal' },
       });
-      steps.completions = r.ok ? 'deleted (responses cascaded)' : `failed: ${await r.text()}`;
-    } catch (e) {
-      steps.completions = `error: ${e.message}`;
+      byEmailOk = byEmail.ok;
     }
-  } else {
-    steps.completions = 'skipped: no email on account';
+    steps.completions = (byUser.ok && byEmailOk) ? 'deleted (responses cascaded)' : 'partial failure';
+  } catch (e) {
+    steps.completions = `error: ${e.message}`;
   }
 
   // Step 4: consent_log - anonymize (user_id -> NULL, email_hash kept) + final erasure-evidence row (R5/D58)
