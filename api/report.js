@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/completions?id=eq.${id}&select=*`,
+      `${supabaseUrl}/rest/v1/completions?id=eq.${id}&select=report_json,scores,fingerprint,first_name,archetype_family,archetype_variant,completed_at`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     const name = c.first_name || 'You';
     const archetype = c.archetype_family || '';
     const variant = c.archetype_variant || '';
-    const shareUrl = `https://philos-jade.vercel.app/report?id=${id}`;
+    const shareUrl = `https://phil-os.thelifepm.com/report?id=${id}`;
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send(renderReportPage({ c, report, scores, fingerprint, name, archetype, variant, shareUrl }));
@@ -50,7 +50,7 @@ function errorPage(msg) {
   <style>body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;}
   .msg{max-width:400px;} .logo{font-family:IBM Plex Mono,monospace;letter-spacing:4px;color:#c9a96e;margin-bottom:24px;font-size:20px;}
   p{color:#8c88a0;line-height:1.7;} a{color:#c9a96e;}</style></head>
-  <body><div class="msg"><div class="logo">PHIL/OS</div><p>${msg}</p><p><a href="https://philos-jade.vercel.app">Take the assessment</a></p></div></body></html>`;
+  <body><div class="msg"><div class="logo">PHIL/OS</div><p>${msg}</p><p><a href="https://phil-os.thelifepm.com">Take the assessment</a></p></div></body></html>`;
 }
 
 function bar(score, color) {
@@ -289,7 +289,7 @@ html,body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;
   <div style="font-family:IBM Plex Mono,monospace;font-size:14px;letter-spacing:4px;color:#8c88a0;">PHIL/OS · thelifepm.com</div>
   <div style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#8c88a0;margin-top:8px;">156 questions · 34 belief axes · your archetype</div>
   <div style="margin-top:20px;">
-    <a href="https://philos-jade.vercel.app" style="display:inline-block;background:#c9a96e;color:#08061a;font-family:IBM Plex Mono,monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border-radius:6px;text-decoration:none;">Take the assessment</a>
+    <a href="https://phil-os.thelifepm.com" style="display:inline-block;background:#c9a96e;color:#08061a;font-family:IBM Plex Mono,monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border-radius:6px;text-decoration:none;">Take the assessment</a>
   </div>
 </div>
 
