@@ -5,7 +5,7 @@ _Instrument v3 | 32 axes | 160 questions | 60 archetypes | Live at phil-os.theli
 
 ## SESSION START
 
-0. **AUDIT STATUS (updated 2026-07-06, later session): Checkpoint A is RULED.** Andre ruled on every item; all rulings are logged as Decisions Log entries **D40-D51** - that log is the authority. The B mechanical batch is applied locally and validated, **awaiting Andre's GitHub Desktop push**. Phase 7 is unblocked (scope = D45). Still open: D51 (instrument identity question), Phase 11 DB design doc (owed), Sonnet 6B run. Any session touching Phil OS still reads **`FABLE5_SESSION_HANDOVER_2026-07-06.md` FIRST**, then the D40-D51 entries.
+0. **AUDIT STATUS (updated 2026-07-06, final): Checkpoint A is RULED and the B batch is LIVE.** All rulings are Decisions Log entries **D40-D53** - that log is the authority. The B batch was pushed by Andre and verified live on phil-os.thelifepm.com (new stems serving, t1tel06b flag gone, /api/chat returns 503). D51 is resolved (D52): "Domain authority defines the construct; psychometrics defines the measurement" - see [[Phil OS - Instrument Governance]], which also holds the D53 decision template for major architectural rulings. Phase 7 is unblocked (scope = D45). Still open: Phase 11 DB design doc (owed by Fable), Sonnet 6B run (Andre triggers). Any session touching Phil OS still reads **`FABLE5_SESSION_HANDOVER_2026-07-06.md` FIRST**, then D40-D53.
 1. Read the full Project Instructions in `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\PHIL OS - Claude Project Instructions v3.0.md` _(path corrected 2026-07-06: the file moved out of the Inbox. Warning: that note is truncated mid-table and its current-state figures are stale - treat this CLAUDE.md as the more current source until it is rebuilt.)_
 2. Read `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md` - open items section
 3. Check `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Decisions Log.md` before touching anything locked
@@ -47,7 +47,7 @@ Hosting:       Vercel (auto-deploy from main branch)
 | 160 questions, 32 axes, 5 items/axis | ✅ Complete |
 | 60 archetypes (12 families × 5 variants) | ✅ Complete |
 | Archetype engine (13-axis Euclidean distance) | ✅ Complete |
-| Contradiction engine (exactly 42 real rules: 12 A, 22 B, 8 C. The phantom-comma bug at line 7269 that made .length read 43 is fixed locally in the B batch 2026-07-06, awaiting push.) | ✅ Fixed order-dependency bug 2026-06-22; comma fix in local B batch |
+| Contradiction engine (exactly 42 real rules: **11 A, 22 B, 9 C since D54's interim C01b demote** - was 12/22/8. Phantom-comma bug fixed and live 2026-07-06; length and iteration agree at 42. C01b's user-facing reframe still owed in Phase 7-8 per D44.) | ✅ Comma fix live; C01b demote in local interim patch |
 | AI report (claude-sonnet-5, 2-call split - model verified in live `api/generate.js`/`api/chat.js` 2026-07-06; the sonnet-4-6 listed here before was stale, and the 4-6 to 5 migration was never logged in the vault) | ✅ Working |
 | Email capture + Supabase | ✅ Working |
 | Auth (Google SSO + email/password) | ✅ Live |
@@ -59,9 +59,9 @@ Hosting:       Vercel (auto-deploy from main branch)
 | Stripe payment | ❌ Locked until herbeoordeling |
 | Sketch illustrations | ⚠️ 1/32 done (naturalism.png) |
 | Full systematic end-to-end test | ❌ Not yet run |
-| `t2m02` / `t3so04` rewrites | ⚠️ Applied locally in the validated B batch 2026-07-06 (with matching explanation updates), awaiting Andre's push |
+| `t2m02` / `t3so04` rewrites | ✅ Live 2026-07-06 (D9 stems + matching explanation updates, verified serving in production) |
 | Sonnet 5 pre-audit fixes (resume-shuffle bug, Conviction Strength rename, card footer, fingerprint labels, 34-to-32 typo, nav placement) | ✅ Pushed and live 2026-07-06 |
-| Fable 5 A-Z audit | ✅ Audit stage complete; **Checkpoint A RULED 2026-07-06 (D40-D51)**. B batch applied locally + validated, awaiting push. Phase 7 unblocked. Open: D51 identity question, Phase 11 DB doc, Sonnet 6B run |
+| Fable 5 A-Z audit | ✅ Audit stage complete; **Checkpoint A RULED (D40-D53), B batch LIVE, identity ruled (D52), governance doc standing (D50/D53)**. Phase 7 unblocked. Open: Phase 11 DB doc, Sonnet 6B run |
 
 ---
 
@@ -105,7 +105,7 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis. _(Reversed items: the
 
 ## NEXT PRIORITIES
 
-0. **Andre pushes the validated B batch** (GitHub Desktop -> main -> Vercel); rules on D51 (identity question); triggers the Sonnet 6B brief (items 3-9) when convenient. Then: Phase 11 DB design doc (Fable, owed), Phase 7 rewrite against `FABLE5_PSYCHOMETRIC_STANDARD.md` + D45 scope.
+0. **Phase 11 DB doc DELIVERED 2026-07-06** (vault 776: `Phil OS - Database Target Architecture (Phase 11)`) - Andre rules on R1-R5 + approves migration batches M1-M6 (M1 = zero-app-risk hardening, go-first candidate). **Then Phase 7 rewrite** against `FABLE5_PSYCHOMETRIC_STANDARD.md` + D45 scope, governed by [[Phil OS - Instrument Governance]]. Sonnet 6B brief (items 3-9) runs whenever Andre triggers it (i18n decision waits on it).
 1. Full systematic end-to-end test of all 160 questions
 2. Data-loss architecture fix for QA flags/responses
 3. Free tier gating + D49's D1-D3 (account deletion, privacy notice, consent upgrade) - all block any marketing push

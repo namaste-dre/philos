@@ -3656,7 +3656,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="display:flex;align-items:flex-start;gap:10px;margin:12px 0 4px;">
         <input type="checkbox" id="signup-gdpr" style="width:16px;height:16px;flex-shrink:0;margin-top:3px;accent-color:var(--accent);cursor:pointer;"/>
         <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">
-          I agree to the processing of my philosophical profile data by The Life PM for the purpose of generating and storing my Phil OS report. I can withdraw consent and delete my data at any time via Settings.
+          I agree to the processing of my philosophical profile data by The Life PM for the purpose of generating and storing my Phil OS report. I can withdraw consent and request deletion of my data at any time via support@thelifepm.com.
         </div>
       </div>
       <div id="signup-gdpr-error" class="auth-error" style="display:none;margin-bottom:6px;">You must agree to continue.</div>
@@ -3732,7 +3732,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </div>
     <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;">
       <input type="checkbox" id="ob-gdpr" style="width:16px;height:16px;flex-shrink:0;margin-top:3px;accent-color:var(--accent);cursor:pointer;"/>
-      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">I agree to the processing of my philosophical profile data by The Life PM. I can withdraw consent and delete my data at any time via Settings.</div>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">I agree to the processing of my philosophical profile data by The Life PM. I can withdraw consent and request deletion of my data at any time via support@thelifepm.com.</div>
     </div>
     <div id="ob-gdpr-error" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--danger);margin-bottom:10px;">You must agree to continue.</div>
     <button class="auth-btn-primary" id="ob-submit-btn" onclick="submitOnboarding()">Let's go →</button>
@@ -3993,7 +3993,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <input type="checkbox" id="modal-gdpr" />
       <div class="modal-gdpr-text">
         I agree to receive my report and occasional updates from The Life PM.
-        Your data is never sold or shared. You can unsubscribe any time.
+        Your data is never sold. You can unsubscribe any time.
       </div>
     </div>
 
@@ -7136,7 +7136,7 @@ const CONTRADICTIONS = [
   // ── MIRROR RULES — bidirectional coverage ──
   // Each mirrors an existing rule in the opposite directional check
 
-  {id:'C01b', tier:'A',
+  {id:'C01b', tier:'C',
    a:'determinism', b:'justice',
    check:(d,j) => j <= 2.0 && d <= 4.5,
    title:'Desert Justice Without Causal Examination',
@@ -11049,10 +11049,10 @@ async function saveAccountChanges() {
 }
 
 function confirmDeleteAccount() {
-  if (!confirm('Delete your account and all data permanently? This cannot be undone.')) return;
-  // Sign out and let user contact support — full deletion requires server-side admin call
+  if (!confirm('Request account deletion? You will be signed out now. Full removal is completed by our support team once you email support@thelifepm.com from your account email address.')) return;
+  // Interim flow (D55): real server-side deletion ships with Phase 11 (/api/delete-account)
   handleSignOut();
-  alert('Account deletion requested. Contact support@thelifepm.com to complete removal.');
+  alert('You have been signed out. To complete account deletion, email support@thelifepm.com from your account email address.');
 }
 
 async function upsertProfile(data) {
@@ -11883,7 +11883,7 @@ document.addEventListener('DOMContentLoaded', authBoot);
 
     <button id="consent-submit-btn" onclick="submitConsentGate()" style="width:100%;background:var(--accent);color:#08061a;border:none;border-radius:10px;padding:14px 20px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:pointer;margin-top:8px;">Continue →</button>
 
-    <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;">Your data is never sold. You can delete everything in Settings → Delete account.</div>
+    <div style="font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;">Your data is never sold. You can request deletion of your data at any time via support@thelifepm.com.</div>
   </div>
 </div>
 
