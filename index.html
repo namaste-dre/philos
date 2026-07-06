@@ -3003,11 +3003,6 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </button>
     <div class="nav-wordmark" style="cursor:pointer;" onclick="show('screen-landing')">PHIL / OS</div>
   </div>
-  <!-- Nav links — hidden during quiz/report, shown on landing -->
-  <div id="nav-links" style="display:none;align-items:center;gap:4px;margin-left:20px;">
-    <button class="nav-link-btn" onclick="navGoReport()">My Profile</button>
-    <button class="nav-link-btn" onclick="show('screen-resources')">Resources</button>
-  </div>
   <!-- Progress bar — only visible during quiz -->
   <div id="nav-progress-wrap" style="flex:1;margin:0 20px;display:none;flex-direction:column;gap:4px;">
     <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
@@ -3018,6 +3013,13 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   <div class="nav-right">
     <!-- Guest: Sign In / Sign Up — hidden when logged in -->
     <button id="nav-signin-btn" onclick="showAuth('login')" style="background:transparent;border:1px solid rgba(255,255,255,0.22);border-radius:7px;padding:7px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--text2);cursor:pointer;margin-right:8px;">Sign In / Sign Up</button>
+    <!-- Nav links — hidden during quiz/report, shown on landing. Moved here
+         (next to Settings) 2026-07-06 per Andre, used to float alone near
+         the logo, disconnected from the rest of the account controls. -->
+    <div id="nav-links" style="display:none;align-items:center;gap:4px;margin-right:8px;">
+      <button class="nav-link-btn" onclick="navGoReport()">My Profile</button>
+      <button class="nav-link-btn" onclick="show('screen-resources')">Resources</button>
+    </div>
     <!-- Settings dropdown -->
     <div style="position:relative;" id="settings-menu-wrap">
       <button class="nav-btn" onclick="toggleSettingsMenu()" id="settings-btn">Settings ▾</button>
@@ -4111,8 +4113,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         </div>
         <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-top-axis">—</span>
-          <span class="report-stat-label">Worldview Strength</span>
-          <span class="stat-tooltip-text">Worldview Strength measures how far your scores deviate from the neutral midpoint across all 32 axes — higher means your positions are more clearly defined on one side of each question. Lower means your worldview is more open, flexible, or genuinely undecided.</span>
+          <span class="report-stat-label">Conviction Strength</span>
+          <span class="stat-tooltip-text">Conviction Strength measures how far your scores deviate from the neutral midpoint across all 32 axes - higher means your positions are more clearly defined on one side of each question. Lower means your worldview is more open, flexible, or genuinely undecided.</span>
         </div>
         <div class="report-stat report-stat-tooltip" title="">
           <span class="report-stat-val" id="stat-contradictions">—</span>
@@ -9086,8 +9088,8 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   const statsEl = document.getElementById('report-stats');
   if (statsEl) {
     const topFP = fingerprint[0];
-    const topAxisLabel = topFP ? (AXIS_META[topFP.axis]?.label || topFP.axis) : '—';
-    // Worldview Strength = average deviation from centre across all axes (positional extremity, not certainty)
+    const topAxisLabel = topFP ? (AXIS_META[topFP.axis]?.label || topFP.axis) : '-';
+    // Conviction Strength = average deviation from centre across all axes (positional extremity, not certainty)
     const axScoreKeys = Object.keys(scores).filter(k => AXIS_META[k]);
     const totalDeviation = axScoreKeys.reduce((sum,k) => sum + Math.abs((scores[k]||4) - 4), 0);
     const convictionScore = Math.round((totalDeviation / (axScoreKeys.length * 3)) * 100);
@@ -9789,7 +9791,7 @@ function renderCardToCanvas(container) {
 
   const stItems = [
     {val: rarityValSt,      label: 'WORLDVIEW RARITY', accent: GOLD2,    bg: BLOCK2},
-    {val: convPctSt+'%',    label: 'WORLDVIEW STRENGTH', accent: PURPLE2,  bg: BLOCK4},
+    {val: convPctSt+'%',    label: 'CONVICTION STRENGTH', accent: PURPLE2,  bg: BLOCK4},
     {val: tensionsSt+'',    label: 'TENSIONS FOUND',   accent: TEAL,     bg: BLOCK3},
   ];
   const stH = Math.floor((B2H - 8) / 3) - 4;
@@ -9827,10 +9829,31 @@ function renderCardToCanvas(container) {
     const pct = Math.max(0,Math.min(1,(raw-1)/6));
     const fw = Math.max(bHfp,Math.round(pct*trackWfp));
     const tx = PAD+24+lblWfp;
-    ctx.font = '500 21px "IBM Plex Sans",sans-serif';
     ctx.fillStyle = TEXT; ctx.textAlign = 'left';
-    const lbl = meta.label.length>14?meta.label.slice(0,13)+'.':meta.label;
-    ctx.fillText(lbl, PAD+24, fy+14);
+    // Full axis name must always render, never hard-truncate (was slicing to
+    // 13 chars + '.', producing unreadable labels like "Social Ontolo.").
+    // Shrink font first, then wrap to 2 lines at a word boundary as a last
+    // resort, so every axis name stays legible in full. See Decisions Log 2026-07-06.
+    const lblMaxW = lblWfp - 10;
+    ctx.font = '500 21px "IBM Plex Sans",sans-serif';
+    if (ctx.measureText(meta.label).width <= lblMaxW) {
+      ctx.fillText(meta.label, PAD+24, fy+14);
+    } else {
+      ctx.font = '500 17px "IBM Plex Sans",sans-serif';
+      if (ctx.measureText(meta.label).width <= lblMaxW) {
+        ctx.fillText(meta.label, PAD+24, fy+14);
+      } else {
+        const words = meta.label.split(' ');
+        let line1 = words[0], line2 = '';
+        for (let wi = 1; wi < words.length; wi++) {
+          const test = line1 + ' ' + words[wi];
+          if (ctx.measureText(test).width <= lblMaxW) { line1 = test; }
+          else { line2 = words.slice(wi).join(' '); break; }
+        }
+        ctx.fillText(line1, PAD+24, fy+8);
+        if (line2) { ctx.font = '500 15px "IBM Plex Sans",sans-serif'; ctx.fillText(line2, PAD+24, fy+26); }
+      }
+    }
     roundRect(tx,fy,trackWfp,bHfp,bHfp/2,'rgba(255,255,255,0.06)',null);
     if(fw>bHfp) {
       const gr = ctx.createLinearGradient(tx,0,tx+fw,0);
@@ -9959,7 +9982,7 @@ function renderCardToCanvas(container) {
   ctx.fillText('What does your worldview say about you?', W/2, y+42); ctx.shadowBlur=0;
   ctx.font = '500 18px "IBM Plex Mono",monospace';
   ctx.fillStyle='rgba(220,200,255,0.88)';
-  ctx.fillText('160 questions \u00b7 34 belief axes \u00b7 your archetype', W/2, y+74);
+  ctx.fillText('160 questions \u00b7 32 belief axes \u00b7 your archetype', W/2, y+74);
   const urlTxt = 'phil-os.thelifepm.com';
   ctx.font = '600 20px "IBM Plex Mono",monospace';
   const urlW3 = ctx.measureText(urlTxt).width + 40;
@@ -9969,14 +9992,8 @@ function renderCardToCanvas(container) {
   ctx.fillStyle=GOLD2; ctx.fillText(urlTxt, W/2, y+113);
   y += ctaH + 12;
 
-  // ══════════════════════════════════════════
-  // FOOTER — flows naturally after CTA
-  // ══════════════════════════════════════════
-  const footerH = 58;
-  roundRect(PAD, y, W-PAD*2, footerH, 16, 'rgba(201,169,110,0.06)', 'rgba(201,169,110,0.09)', 1);
-  ctx.font = '600 20px "IBM Plex Mono",monospace';
-  ctx.fillStyle = GOLD; ctx.textAlign='center';
-  ctx.fillText('PHIL/OS  \u00b7  thelifepm.com', W/2, y+36);
+  // Redundant footer block (duplicated the CTA's own URL pill) removed
+  // 2026-07-06 per Andre's request to free up space on an already-tight card.
 
   container.innerHTML=''; container.appendChild(canvas);
   return canvas;
@@ -11260,9 +11277,16 @@ function triggerProgressSave() {
 async function saveProgress() {
   if (!currentUser) return;
   try {
+    // __shuffleOrder rides inside the existing answers jsonb column (no schema
+    // change needed) so a resumed session sees the exact same question order
+    // and position it left off at, instead of a freshly re-randomized one.
+    // See Decisions Log, exam order must lock at start, only restart reshuffles.
+    const answersToSave = Object.assign({}, state.answers, {
+      __shuffleOrder: (state.shuffledQuestions || []).map(q => q.id),
+    });
     const { error: saveErr } = await supa.from('assessment_progress').upsert({
       user_id:    currentUser.id,
-      answers:    state.answers,
+      answers:    answersToSave,
       current_q:  state.currentQ,
       user_name:  state.userName || null,
       qa_flags:   state.qaFlags || {},
@@ -11292,15 +11316,39 @@ async function fetchProgress() {
 
 async function restoreProgress(progress) {
   if (!progress) return;
-  // Rebuild full state — same as startQuiz but with saved answers + position
-  const shuffled = buildShuffledOrder();
+  // Rebuild full state — same as startQuiz but with saved answers + position.
+  // Bug fix (2026-07-06): this used to call buildShuffledOrder() fresh here,
+  // which generated a brand-new random order while reusing the OLD current_q
+  // index and answers dict, going back showed unanswered questions, going
+  // forward re-showed answered ones, because the ID-to-position mapping had
+  // silently shifted. Fix: reuse the exact order saved at the last saveProgress()
+  // call (carried in answers.__shuffleOrder) so position and content stay in
+  // sync. Falls back to a fresh shuffle only for legacy rows saved before this
+  // fix shipped (no __shuffleOrder present yet).
+  const savedAnswers = progress.answers || {};
+  const savedOrder = Array.isArray(savedAnswers.__shuffleOrder) ? savedAnswers.__shuffleOrder : null;
+  const restoredAnswers = Object.assign({}, savedAnswers);
+  delete restoredAnswers.__shuffleOrder;
+
+  let shuffled;
+  if (savedOrder) {
+    const byId = {};
+    QUESTIONS.forEach(q => { byId[q.id] = q; });
+    shuffled = savedOrder.map(id => byId[id]).filter(Boolean);
+    // Defensive: if the question bank changed since this row was saved and
+    // some ids no longer resolve, don't hand back a truncated quiz — reshuffle.
+    if (shuffled.length !== QUESTIONS.length) shuffled = buildShuffledOrder();
+  } else {
+    shuffled = buildShuffledOrder();
+  }
+
   const opts = {};
   shuffled.forEach(q => {
     if (q.options && q.options.length) opts[q.id] = shuffleOptionsKeepPinned(q.options);
   });
   state = {
     currentQ:          progress.current_q || 0,
-    answers:           progress.answers || {},
+    answers:           restoredAnswers,
     axisScores:        {},
     userName:          progress.user_name || '',
     shuffledQuestions: shuffled,
