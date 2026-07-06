@@ -177,6 +177,12 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
+  // Feature gate (D37/D46): chat is backlogged and has unmet pre-ship requirements.
+  // Set CHAT_ENABLED=true in Vercel env vars only when the P6B-1 fix list is done.
+  if (process.env.CHAT_ENABLED !== 'true') {
+    return res.status(503).json({ error: 'Chat is not yet available', code: 'CHAT_DISABLED' });
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 

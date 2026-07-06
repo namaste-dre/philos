@@ -1,14 +1,17 @@
-﻿# Phil OS — Claude Code Context
+﻿# Phil OS - Claude Code Context
 _Instrument v3 | 32 axes | 160 questions | 60 archetypes | Live at phil-os.thelifepm.com_
 
 ---
 
 ## SESSION START
 
-1. Read the full Project Instructions in `C:\Andre's 2nd brain\000 - Inbox\PHIL OS — Claude Project Instructions v3.0.md`
-2. Read `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS — Build Log.md` — open items section
-3. Check `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS — Decisions Log.md` before touching anything locked
+0. **AUDIT STATUS (updated 2026-07-06, later session): Checkpoint A is RULED.** Andre ruled on every item; all rulings are logged as Decisions Log entries **D40-D51** - that log is the authority. The B mechanical batch is applied locally and validated, **awaiting Andre's GitHub Desktop push**. Phase 7 is unblocked (scope = D45). Still open: D51 (instrument identity question), Phase 11 DB design doc (owed), Sonnet 6B run. Any session touching Phil OS still reads **`FABLE5_SESSION_HANDOVER_2026-07-06.md` FIRST**, then the D40-D51 entries.
+1. Read the full Project Instructions in `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\PHIL OS - Claude Project Instructions v3.0.md` _(path corrected 2026-07-06: the file moved out of the Inbox. Warning: that note is truncated mid-table and its current-state figures are stale - treat this CLAUDE.md as the more current source until it is rebuilt.)_
+2. Read `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md` - open items section
+3. Check `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Decisions Log.md` before touching anything locked
 4. Orient to current state from the Master Index before building
+
+_(Note: the paths above use plain hyphens, not em dashes - the actual filenames on disk use hyphens. This file previously had em dashes in these specific paths, which never matched the real filenames; fixed 2026-07-06.)_
 
 ---
 
@@ -37,26 +40,28 @@ Hosting:       Vercel (auto-deploy from main branch)
 
 ---
 
-## CURRENT STATE (as of 2026-06-25)
+## CURRENT STATE (as of 2026-07-06)
 
 | Component | Status |
 |---|---|
 | 160 questions, 32 axes, 5 items/axis | ✅ Complete |
 | 60 archetypes (12 families × 5 variants) | ✅ Complete |
 | Archetype engine (13-axis Euclidean distance) | ✅ Complete |
-| Contradiction engine (42–43 rules, graduated strength) | ✅ Fixed order-dependency bug 2026-06-22 |
-| AI report (claude-sonnet-4-6, 2-call split) | ✅ Working |
+| Contradiction engine (exactly 42 real rules: 12 A, 22 B, 8 C. The phantom-comma bug at line 7269 that made .length read 43 is fixed locally in the B batch 2026-07-06, awaiting push.) | ✅ Fixed order-dependency bug 2026-06-22; comma fix in local B batch |
+| AI report (claude-sonnet-5, 2-call split - model verified in live `api/generate.js`/`api/chat.js` 2026-07-06; the sonnet-4-6 listed here before was stale, and the 4-6 to 5 migration was never logged in the vault) | ✅ Working |
 | Email capture + Supabase | ✅ Working |
 | Auth (Google SSO + email/password) | ✅ Live |
 | Question explanations (all 160, neutrality-audited) | ✅ Live |
 | Answer-order pinning (27 synthesis options) | ✅ Live |
-| Shareable card (1080×2160) | ✅ Working |
+| Shareable card (1080×1920, 9:16 story format - verified in live render code 2026-07-06; the 1080×2160 previously listed here and locked in Decisions Log P7 is stale, P7 needs a dated correction entry) | ✅ Working |
 | Custom domain (phil-os.thelifepm.com) | ✅ Live |
 | Free tier gating | ❌ Not built |
 | Stripe payment | ❌ Locked until herbeoordeling |
 | Sketch illustrations | ⚠️ 1/32 done (naturalism.png) |
 | Full systematic end-to-end test | ❌ Not yet run |
-| `t2m02` / `t3so04` rewrites | ⚠️ Approved, not pushed |
+| `t2m02` / `t3so04` rewrites | ⚠️ Applied locally in the validated B batch 2026-07-06 (with matching explanation updates), awaiting Andre's push |
+| Sonnet 5 pre-audit fixes (resume-shuffle bug, Conviction Strength rename, card footer, fingerprint labels, 34-to-32 typo, nav placement) | ✅ Pushed and live 2026-07-06 |
+| Fable 5 A-Z audit | ✅ Audit stage complete; **Checkpoint A RULED 2026-07-06 (D40-D51)**. B batch applied locally + validated, awaiting push. Phase 7 unblocked. Open: D51 identity question, Phase 11 DB doc, Sonnet 6B run |
 
 ---
 
@@ -74,7 +79,7 @@ Hosting:       Vercel (auto-deploy from main branch)
 
 ## THE 32 AXES
 
-Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis, 2 reversed (40%).
+Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis. _(Reversed items: the "2 reversed (40%)" previously stated here is stale - live bank is 52/160 = 32.5% aggregate, 1-4 per axis. See PSYCHOMETRIC STANDARDS below and Decisions Log D30; resolution deferred to the Fable 5 audit.)_
 
 **T1 Foundations (weight 1.5):** naturalism · physicalism · realism · determinism · moral_ground · meaning
 
@@ -100,13 +105,13 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis, 2 reversed (40%).
 
 ## NEXT PRIORITIES
 
+0. **Andre pushes the validated B batch** (GitHub Desktop -> main -> Vercel); rules on D51 (identity question); triggers the Sonnet 6B brief (items 3-9) when convenient. Then: Phase 11 DB design doc (Fable, owed), Phase 7 rewrite against `FABLE5_PSYCHOMETRIC_STANDARD.md` + D45 scope.
 1. Full systematic end-to-end test of all 160 questions
 2. Data-loss architecture fix for QA flags/responses
-3. Push the `t2m02`/`t3so04` question-stem rewrites (already approved)
-4. Free tier gating — before any marketing push
-5. PhD endorsement outreach
-6. Remaining 31 sketch illustrations
-7. Monetise — post-herbeoordeling
+3. Free tier gating + D49's D1-D3 (account deletion, privacy notice, consent upgrade) - all block any marketing push
+4. PhD endorsement outreach
+5. Remaining 31 sketch illustrations
+6. Monetise - post-herbeoordeling
 
 ---
 
@@ -116,39 +121,45 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis, 2 reversed (40%).
 - Reversed items: agreeing = poleL = score 1 after 8 − raw
 - α target per axis: ≥ 0.70 (needs 300+ completions)
 - Option score range: max ≥ 5 (right pole), min ≤ 3 (left pole) on every tradeoff/scenario
-- Normalisation: 5 items/axis, 2 reversed (40%), identical across all 32 axes
+- Normalisation: 5 items/axis, 2 reversed (40%), identical across all 32 axes **- flagged 2026-07-06 (see Decisions Log D30): this does not match the live question bank.** Direct parse shows 52/160 = 32.5% reversed in aggregate, but per-axis counts actually range 1-4 (20%-80%), not a uniform 2. Not corrected here - deferred to the Fable 5 psychometric audit to judge and resolve.
 
 ---
 
-## LOCKED DECISIONS — DO NOT RE-LITIGATE
+## LOCKED DECISIONS - DO NOT RE-LITIGATE
 
-32 axes · 5 items/axis · 2 reversed/axis (40%) · 160 questions · 60 archetypes · 13-axis engine · 1–7 Likert · Instrument v3 · 3-tier contradiction system · graduated strength · liminal threshold 1.0 · email hard gate · GDPR required · no monetisation until herbeoordeling · Supabase for data · Vercel hosting · Question explanations: neutrality-audited, gated by kill switch + per-user setting · Two-app model rejected
+32 axes · 5 items/axis · 2 reversed/axis (40%) _(flagged 2026-07-06: this specific lock never matched reality - the uniform 64-flag state of 2026-05-26 included 15 wrong flags removed as scoring bugs on 2026-06-20 (D6); live distribution is uneven, resolution pending the Fable 5 audit per D30)_ · 160 questions · 60 archetypes · 13-axis engine · 1-7 Likert · Instrument v3 · 3-tier contradiction system · graduated strength · liminal threshold 1.0 · email hard gate · GDPR required · no monetisation until herbeoordeling · Supabase for data · Vercel hosting · Question explanations: neutrality-audited, gated by kill switch + per-user setting · Two-app model rejected
 
 ---
 
 ## VAULT DOCUMENTS
 
+_(Paths corrected 2026-07-06: actual filenames on disk use plain hyphens, not em dashes - this section previously had em dashes that never matched the real filenames.)_
+
 ```
 C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
 ├── 771 - Product Strategy and Vision\
-│   └── Phil OS — Product Snapshot.md
+│   └── Phil OS - Product Snapshot.md
 ├── 772 - Architecture and Build\
-│   ├── Phil OS — Architecture and Axis Map.md  ← source of truth on axes
-│   ├── Phil OS — Question Bank v3.md           ← canonical questions
-│   └── Phil OS — Scoring and Archetype Logic.md
+│   ├── Phil OS - Architecture and Axis Map.md  <- source of truth on axes
+│   └── Phil OS - Question Bank v3.md           <- canonical questions
 ├── 776 - Build Log and Decisions\
-│   ├── Phil OS — Build Log.md                  ← open items + session log
-│   ├── Phil OS — Decisions Log.md              ← every locked decision
-│   ├── Phil OS — Logic Log.md                  ← every scoring/weighting change
-│   └── Phil OS — Full Psychometric and Philosophical Audit v3.md
-└── Phil OS — Master Index.md
+│   ├── Phil OS - Build Log.md                  <- open items + session log
+│   ├── Phil OS - Decisions Log.md              <- every locked decision
+│   ├── Phil OS - Scoring and Archetype Logic.md <- corrected 2026-07-06: this lives in 776, not 772 as previously listed here
+│   ├── Phil OS - Full Psychometric and Philosophical Audit v3.md
+│   ├── Phil OS - Psychometric Validity Audit.md and v2 Post-Fix
+│   ├── Phil OS - Item Analysis and Question Standards.md
+│   └── Phil OS - Council Analysis Summary.md   <- substantial prior audit history, not all captured above - browse the full folder
+└── Phil OS - Master Index.md
 ```
+
+**In `C:\philos\` itself (this repo, not the vault):** `FABLE5_AUDIT_PLAN.md`, `FABLE5_FACT_FINDING.md`, `SONNET5_FIXES_LOG_2026-07-06.md` - the current top-priority work, see NEXT PRIORITIES above.
 
 ---
 
 ## BUILD STANDARDS
 
-- Production-ready only — no exceptions
+- Production-ready only - no exceptions
 - Validate every JS file with `node --check` before delivering
 - Fix errors silently and note what was fixed
 - Match existing code style exactly
@@ -158,7 +169,7 @@ C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
 ## NEVER DO
 
 - Re-litigate locked decisions without a new dated decision entry
-- State psychometric facts, philosophical positions, or philo standards from memory — source from docs
+- State psychometric facts, philosophical positions, or philo standards from memory - source from docs
 - Build free tier gating or Stripe before herbeoordeling resolves
 - Deliver unvalidated code
 - Skip end-of-session vault doc updates
@@ -167,40 +178,40 @@ C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
 
 ## WHO YOU ARE WORKING WITH
 
-**Andre Beasley** — American expat, 49, Zaltbommel, Netherlands. **AuDHD** (ADHD + Autism) — interest-based nervous system, hyperfocus is a strength, initiation difficulty and time blindness are real. Hard determinist, atheist humanist, former evangelical pastor. Partner Manja (moved in June 2026). **Coeliac disease** — severe gluten/wheat allergy, non-negotiable.
+**Andre Beasley** - American expat, 49, Zaltbommel, Netherlands. **AuDHD** (ADHD + Autism) - interest-based nervous system, hyperfocus is a strength, initiation difficulty and time blindness are real. Hard determinist, atheist humanist, former evangelical pastor. Partner Manja (moved in June 2026). **Coeliac disease** - severe gluten/wheat allergy, non-negotiable.
 
-On **WIA benefit (WGA-LAU)** — cannot earn KVK income until herbeoordeling resolves. No product revenue until cleared.
+On **WIA benefit (WGA-LAU)** - cannot earn KVK income until herbeoordeling resolves. No product revenue until cleared.
 
 **Building under The Life PM:** Plaud Matrix v2 · SynapseOS · Phil OS · PiggyLog · ChoreOS · ManDre Meal Planner · memoir *No Choice But to Leave*
 
 ## HOW TO WORK WITH ANDRE
 
-- **Direct and results-oriented.** Don't describe what should be done — do it.
+- **Direct and results-oriented.** Don't describe what should be done - do it.
 - **No yes-manning.** Push back when wrong. Give real opinions. Be a thinking partner, not a validator.
 - **No preambles.** Short declarative sentences. Get to the point.
 - **One clarifying question maximum.** Make a reasonable assumption, state it, proceed.
-- **Flag hyperfocus traps** — "This is solid. Before continuing — [X] is the actual bottleneck. Switch or finish first?"
+- **Flag hyperfocus traps** - "This is solid. Before continuing - [X] is the actual bottleneck. Switch or finish first?"
 
-## NO HALLUCINATION — HARD RULE
+## NO HALLUCINATION - HARD RULE
 
-1. **Never state a fact you are not certain of.** If you don't know an exact path, method name, or field — say so and check the live file.
+1. **Never state a fact you are not certain of.** If you don't know an exact path, method name, or field - say so and check the live file.
 2. **Never invent code paths, function names, or data contract fields.** Verify against the project docs first.
-3. **Validate every file before delivering** — st.parse() for Python, 
+3. **Validate every file before delivering** - st.parse() for Python, 
 ode --check for JS, json.loads() for configs.
 4. **Three confidence tiers:**
-   - ✅ **VERIFIED** — confirmed from a file read this session
-   - 🔍 **RESEARCHED** — from official documentation checked this session
-   - ⚠️ **INFERRED** — logical deduction — always flag, never state as fact
+   - ✅ **VERIFIED** - confirmed from a file read this session
+   - 🔍 **RESEARCHED** - from official documentation checked this session
+   - ⚠️ **INFERRED** - logical deduction - always flag, never state as fact
 5. Fix errors silently and note what was fixed.
 6. **Never agree with something wrong to avoid friction.**
 ---
 
-## END OF SESSION — MANDATORY
+## END OF SESSION - MANDATORY
 
-1. Build Log: C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS — Build Log.md
-2. Decisions Log (all new, dated): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS — Decisions Log.md
-3. Logic Log (any scoring change): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS — Logic Log.md
-4. Master Index (if build state changed): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\Phil OS — Master Index.md
-5. Update this CLAUDE.md — current state table and next priorities
+1. Build Log: C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md
+2. Decisions Log (all new, dated): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Decisions Log.md
+3. Scoring/logic changes: C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Scoring and Archetype Logic.md _(corrected 2026-07-06: there is no separate "Logic Log.md" file - confirmed via a vault-wide search, no such file exists anywhere in the Phil OS folder. Scoring/logic changes go in this file instead. This item previously pointed to a file that never existed.)_
+4. Master Index (if build state changed): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\Phil OS - Master Index.md
+5. Update this CLAUDE.md - current state table and next priorities
 
 Session summary: DECISIONS MADE / TASKS COMPLETED / NEW TASKS / VERSION
