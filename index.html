@@ -6848,12 +6848,7 @@ const SIG_AXES = [
 ];
 
 function computeArchetype(scores) {
-  let bestMatch = null;
-  let bestDist = Infinity;
-  let secondBest = null;
-  let secondDist = Infinity;
-
-  ARCHETYPES.forEach(arch => {
+  const ranked = ARCHETYPES.map(arch => {
     let dist = 0;
     let count = 0;
     arch.sig.forEach((sigVal, i) => {
@@ -6863,24 +6858,28 @@ function computeArchetype(scores) {
       dist += Math.pow(score - sigVal, 2);
       count++;
     });
-    const avgDist = count > 0 ? Math.sqrt(dist / count) : 999;
-    if (avgDist < bestDist) {
-      secondBest = bestMatch;
-      secondDist = bestDist;
-      bestMatch = arch;
-      bestDist = avgDist;
-    } else if (avgDist < secondDist) {
-      secondBest = arch;
-      secondDist = avgDist;
-    }
+    return { arch, dist: count > 0 ? Math.sqrt(dist / count) : 999 };
   });
 
-  const isLiminal = secondBest && (secondDist - bestDist) < 1.0;
+  let best = null;
+  ranked.forEach(r => { if (!best || r.dist < best.dist) best = r; });
+
+  // Liminality is FAMILY-level (D41): gap to the best variant of the nearest OTHER
+  // family. The second-best overall is nearly always a same-family sibling 0.4-0.7
+  // away, which made the old variant-level flag fire for 58 of 60 exact prototypes.
+  // Threshold 1.0 kept; recalibrate empirically at N=100+ per D41.
+  let bestOther = null;
+  ranked.forEach(r => {
+    if (best && r.arch.family === best.arch.family) return;
+    if (!bestOther || r.dist < bestOther.dist) bestOther = r;
+  });
+
+  const isLiminal = !!bestOther && (bestOther.dist - best.dist) < 1.0;
 
   return {
-    primary: bestMatch,
-    secondary: secondBest,
-    distance: bestDist,
+    primary: best ? best.arch : null,
+    secondary: bestOther ? bestOther.arch : null,
+    distance: best ? best.dist : Infinity,
     isLiminal,
   };
 }
@@ -7139,12 +7138,12 @@ const CONTRADICTIONS = [
   {id:'C01b', tier:'C',
    a:'determinism', b:'justice',
    check:(d,j) => j <= 2.0 && d <= 4.5,
-   title:'Desert Justice Without Causal Examination',
-   text:'You hold that people deserve punishment — that justice is about getting what is owed for choices made — without having committed to any view on whether those choices were causally determined. Desert-based justice only makes full sense if people could genuinely have done otherwise. If behaviour is substantially shaped by genetics, upbringing, circumstance, and neurology — as the scientific consensus increasingly shows — the desert framework either requires compatibilism (people deserve consequences for what flows from their character, even if character is caused) or revision. The unexamined combination of strong desert intuitions with no position on causal determinism is where most punitive justice systems live — and where most of their philosophical problems originate.',
+   title:'Retributive Justice and the Grounds of Desert',
+   text:'You hold a strongly desert-based view of justice: people should get what they are owed for the choices they have made. This is a coherent classical position, especially when paired with a libertarian view of free will, where genuine choice grounds genuine desert. What is worth examining is what does the grounding work on your view. If people could truly have done otherwise, desert follows naturally. If choices are substantially shaped by genetics, upbringing, and circumstance, desert needs a different foundation, such as the compatibilist idea that people answer for what flows from their own character. This is not a contradiction in your thinking. It is one of the oldest open questions in the philosophy of punishment, and your answers place you at the center of it.',
    questions:[
-     'What grounds the claim that someone deserves punishment — what must be true about their choices for desert to apply?',
-     'If a person’s character and choices are substantially shaped by factors outside their control, does that affect how much they deserve punishment?',
-     'Is there a version of justice you could endorse that doesn’t require people to have been able to do otherwise?',
+     'What grounds desert on your view: the ability to have done otherwise, ownership of your own character, or something else?',
+     'Would learning that someone had a severely deprived or abusive upbringing change how much punishment you think they deserve?',
+     'Is there any finding about how choices are caused that would soften your view of desert, or is desert independent of that question?',
    ]},
 
   {id:'C02b', tier:'A',

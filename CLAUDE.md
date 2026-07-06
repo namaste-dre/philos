@@ -47,7 +47,8 @@ Hosting:       Vercel (auto-deploy from main branch)
 | 160 questions, 32 axes, 5 items/axis | ✅ Complete |
 | 60 archetypes (12 families × 5 variants) | ✅ Complete |
 | Archetype engine (13-axis Euclidean distance) | ✅ Complete |
-| Contradiction engine (exactly 42 real rules: **11 A, 22 B, 9 C since D54's interim C01b demote** - was 12/22/8. Phantom-comma bug fixed and live 2026-07-06; length and iteration agree at 42. C01b's user-facing reframe still owed in Phase 7-8 per D44.) | ✅ Comma fix live; C01b demote in local interim patch |
+| Contradiction engine (exactly 42 real rules: 11 A, 22 B, 9 C. Phantom-comma bug fixed. **C01b fully reframed per D44 (D57)** - examination framing, libertarian retributivism named coherent. D44 is closed.) | ✅ Live except D57 reframe (local, awaiting push) |
+| Liminality (D41/D57): **family-level** - gap to best variant of nearest OTHER family, threshold 1.0. Prototype false-positives 58/60 -> 10/60; secondary always cross-family. Recalibrate at N=100+. | ⚠️ Implemented + validated locally, awaiting push |
 | AI report (claude-sonnet-5, 2-call split - model verified in live `api/generate.js`/`api/chat.js` 2026-07-06; the sonnet-4-6 listed here before was stale, and the 4-6 to 5 migration was never logged in the vault) | ✅ Working |
 | Email capture + Supabase | ✅ Working |
 | Auth (Google SSO + email/password) | ✅ Live |
@@ -105,7 +106,7 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis. _(Reversed items: the
 
 ## NEXT PRIORITIES
 
-0. **Phase 11 DB doc DELIVERED 2026-07-06** (vault 776: `Phil OS - Database Target Architecture (Phase 11)`) - Andre rules on R1-R5 + approves migration batches M1-M6 (M1 = zero-app-risk hardening, go-first candidate). **Then Phase 7 rewrite** against `FABLE5_PSYCHOMETRIC_STANDARD.md` + D45 scope, governed by [[Phil OS - Instrument Governance]]. Sonnet 6B brief (items 3-9) runs whenever Andre triggers it (i18n decision waits on it).
+0. **Phase 11: M1 EXECUTED 2026-07-06 (D56)** - all 7 Supabase advisor ERRORs gone (email-leak view dropped, grants locked to exact matrix, functions locked). Andre still owes: leaked-password toggle (Dashboard > Auth > Passwords), rulings on R1-R5 + batches M2-M6 (doc: vault 776 `Phil OS - Database Target Architecture (Phase 11)`). **Sonnet 5 sessions: your task list is the vault doc `Phil OS - Sonnet 5 Handover Brief` (776) - read it FIRST; it carries the UI one-strike protocol and the explicit-batch-approval rule.** **Fable sessions: Phase 7 rewrite is next** (against `FABLE5_PSYCHOMETRIC_STANDARD.md` + D45 scope, governed by [[Phil OS - Instrument Governance]]), then Phase 8 content, Phase 15 re-audit, and the two repro-required bugs (10i mobile sign-in, 10h dropdown - with Andre on a live device). Sonnet 6B brief (items 3-9) runs whenever Andre triggers it (i18n decision waits on it).
 1. Full systematic end-to-end test of all 160 questions
 2. Data-loss architecture fix for QA flags/responses
 3. Free tier gating + D49's D1-D3 (account deletion, privacy notice, consent upgrade) - all block any marketing push
