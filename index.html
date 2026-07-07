@@ -10376,10 +10376,14 @@ async function devRefreshStats() {
   idEl.textContent = uniqueIds + ' ✓';
   idEl.style.color = 'var(--teal)';
   // Reversed
+  // D40: reversed flag is Likert-only, so the target band applies to the
+  // Likert subset, not all 160 items - denominator fixed to match (was
+  // dividing by QUESTIONS.length, which always read as a false low percentage).
   const reversed = QUESTIONS.filter(q => q.reversed).length;
+  const likertCount = QUESTIONS.filter(q => q.type === 'likert').length;
   const revEl = document.getElementById('dev-reversed-count');
-  const revPct = Math.round(reversed / QUESTIONS.length * 100);
-  revEl.textContent = reversed + ' (' + revPct + '%)';
+  const revPct = likertCount > 0 ? (reversed / likertCount * 100) : 0;
+  revEl.textContent = reversed + '/' + likertCount + ' Likert items (' + revPct.toFixed(1) + '%)';
   revEl.style.color = revPct >= 30 && revPct <= 50 ? 'var(--teal)' : 'var(--danger)';
   // Axes
   document.getElementById('dev-axes-count').textContent = Object.keys(AXIS_META).length;
@@ -11938,9 +11942,13 @@ async function renderVersionInfo() {
     const b = data.build || {};
     if (footerEl) footerEl.textContent = 'Phil OS Instrument: ' + INSTRUMENT_VERSION + ' · Build: ' + b.commitSha;
     if (devBuildEl) {
+      // Display only the commit subject line - the full message is still
+      // available in data.build.commitMessage for anyone reading via
+      // /api/version directly, this is just the compact panel view.
+      const commitSubject = (b.commitMessage || 'unknown').split('\n')[0];
       devBuildEl.innerHTML =
         'Build: ' + b.commitSha + ' (' + b.environment + ')<br>' +
-        'Commit: ' + b.commitMessage + '<br>' +
+        'Commit: ' + commitSubject + '<br>' +
         'Deployment: ' + b.deploymentId + '<br>' +
         'Checked: ' + b.checkedAt;
     }
