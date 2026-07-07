@@ -3519,6 +3519,9 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       </div>
     </div>
 
+    <!-- QA/debug only - not user-facing marketing -->
+    <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);opacity:0.6;margin-top:24px;" id="settings-version-footer">Phil OS Instrument: - · Build: -</div>
+
   </div>
 </div>
 
@@ -3905,9 +3908,10 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Contradiction rules</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-contradiction-count">—</span></div>
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">DB progress rows</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-progress-count">—</span></div>
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">DB completions</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);" id="dev-completions-count">—</span></div>
-          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Instrument</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);">v3</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Instrument</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);" id="dev-instrument-version">—</span></div>
           <div style="display:flex;justify-content:space-between;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">User</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);" id="dev-user-email">—</span></div>
         </div>
+        <div id="dev-build-info" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:10px;">Build: -</div>
         <div id="dev-integrity-result" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;line-height:1.7;display:none;margin-bottom:10px;"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button onclick="devRefreshStats()" style="background:transparent;border:1px solid var(--border2);border-radius:6px;padding:7px 14px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;">Refresh</button>
@@ -10362,6 +10366,7 @@ async function copyProfileLink() {
 
 async function devRefreshStats() {
   if (typeof QUESTIONS === 'undefined') return;
+  renderVersionInfo();
   // Question counts
   document.getElementById('dev-q-count').textContent = QUESTIONS.length;
   // Unique IDs check
@@ -11915,6 +11920,34 @@ function syncSettingsUI() {
 function openSettings() {
   syncSettingsUI();
   show('screen-settings');
+  renderVersionInfo();
+}
+
+// QA/debug only - not user-facing marketing. Fetches build identity fresh
+// from /api/version (reads Vercel's runtime env vars) on every call, so this
+// can never drift from what is actually deployed - see api/version.js.
+async function renderVersionInfo() {
+  const footerEl = document.getElementById('settings-version-footer');
+  const devInstrumentEl = document.getElementById('dev-instrument-version');
+  const devBuildEl = document.getElementById('dev-build-info');
+  if (devInstrumentEl) devInstrumentEl.textContent = INSTRUMENT_VERSION;
+
+  try {
+    const res = await fetch('/api/version');
+    const data = await res.json();
+    const b = data.build || {};
+    if (footerEl) footerEl.textContent = 'Phil OS Instrument: ' + INSTRUMENT_VERSION + ' · Build: ' + b.commitSha;
+    if (devBuildEl) {
+      devBuildEl.innerHTML =
+        'Build: ' + b.commitSha + ' (' + b.environment + ')<br>' +
+        'Commit: ' + b.commitMessage + '<br>' +
+        'Deployment: ' + b.deploymentId + '<br>' +
+        'Checked: ' + b.checkedAt;
+    }
+  } catch (e) {
+    if (footerEl) footerEl.textContent = 'Phil OS Instrument: ' + INSTRUMENT_VERSION + ' · Build: unknown';
+    if (devBuildEl) devBuildEl.textContent = 'Build: unknown (could not reach /api/version)';
+  }
 }
 
 // Respect system prefers-reduced-motion on first load
