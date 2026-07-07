@@ -4375,50 +4375,57 @@ function sanitizeName(str) {
 // score 1-7 on likert (1=poleLeft, 7=poleRight)
 // tradeoff/scenario: option index maps to score
 // ══════════════════════════════════════════
+
+// Single source of truth for the instrument version - referenced at every
+// write site and in the dev-panel integrity check, so a future version bump
+// only needs to change this one constant.
+const INSTRUMENT_VERSION = 'v4';
 const QUESTIONS = [
 
 // ══════════════════════════════════════════
 // TIER 1 — FOUNDATIONS (weight 1.5)
 // ══════════════════════════════════════════
 
-// ── NATURALISM (6 questions) ──
+// ── NATURALISM (5 questions) ──
 
 {id:'t1n03',tier:1,axis:'naturalism',type:'scenario',
  text:'A close friend tells you they had a profound spiritual experience, something they felt was genuinely beyond the physical world. What is your honest reaction?',
  options:[
    {text:'Their brain produced something extraordinary, that does not make it supernatural',score:7},
+   {text:'I believe something genuinely spiritual happened to them',score:1},
    {text:'I cannot rule out that something real and non-physical happened to them',score:2},
    {text:'I take it seriously without committing to what it means',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1n04',tier:1,axis:'naturalism',type:'likert',
- text:'When something cannot currently be explained by natural means, a supernatural explanation is a genuine possibility, not merely a temporary gap in our knowledge.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.5, reversed:true},
+ text:'When something has no known explanation, the safest bet is a natural cause we have not found yet.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 {id:'t1n04b',tier:1,axis:'naturalism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'There is something about human consciousness — a soul, a spirit, or an inner life — that exists beyond what any physical brain process could produce.',
+ text:'Part of the human mind, call it a soul, a spirit, or an inner life, goes beyond anything a physical brain could produce.',
  options:[]},
 
 {id:'t1n05',tier:1,axis:'naturalism',type:'tradeoff',
  text:'Which statement feels most true to you?',
  options:[
    {text:'The universe is fully constituted by matter, energy, and the laws that govern them.',score:7},
+   {text:'Everything is natural, as far as the evidence shows. I have taken the alternatives seriously and still land here.',score:6},
    {text:'The universe contains or is animated by something beyond pure matter and energy',score:2},
    {text:'I genuinely do not know what the universe is ultimately made of',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1n06',tier:1,axis:'naturalism',type:'scenario',
- text:'A phenomenon consistently defies all known physical laws across thousands of controlled experiments. What would you conclude?',
+ text:'Something keeps breaking all known physical laws across thousands of careful experiments. What would you conclude?',
  options:[
    {text:'Our current physical laws are incomplete, there is a natural explanation we have not found',score:7},
    {text:'This might be evidence of something genuinely beyond the physical',score:2},
-   {text:'I would be extremely skeptical of the methodology before drawing any conclusion',score:5}
+   {text:'I would doubt the experiments themselves before drawing any conclusion',score:5}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
-// ── DETERMINISM (6 questions) ──
+// ── DETERMINISM (5 questions) ──
 {id:'t1d01',tier:1,axis:'determinism',type:'likert',
- text:'My decisions are genuinely my own — they are not the inevitable product of my biology, history, or the state of my brain at the moment I decide.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.5,reversed:true},
+ text:'My decisions come straight from my biology, my history, and the state of my brain at the moment I decide.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1d02',tier:1,axis:'determinism',type:'scenario',
  text:'A person grows up in poverty, exposed to chronic violence, with no stable adults and no educational opportunity. At 22 they commit a serious crime.',
@@ -4431,13 +4438,13 @@ const QUESTIONS = [
 {id:'t1d03',tier:1,axis:'determinism',type:'tradeoff',
  text:'If neuroscience could perfectly predict your next decision 10 seconds before you made it, what would that tell you?',
  options:[
-   {text:'That the decision was always going to happen — the feeling of choosing is real, but the outcome was fixed.',score:7},
+   {text:'That the decision was always going to happen. The feeling of choosing is real, but the outcome was fixed.',score:7},
    {text:'That the brain is predictable but the person still chose freely',score:3},
    {text:'Nothing definitive. Prediction does not eliminate genuine agency.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t1d04b',tier:1,axis:'determinism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'When I reflect on my own past, I genuinely believe I could have chosen differently at key moments — not just that things might have gone differently, but that I had real options I did not take.',
+ text:'Looking back at key moments in my life, I believe I truly could have chosen differently. I had real options that I did not take.',
  options:[]},
 
 {id:'t1d05',tier:1,axis:'determinism',type:'scenario',
@@ -4459,7 +4466,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1r03',tier:1,axis:'realism',type:'likert',
- text:'The world has properties that exist independently of how our minds perceive or categorise it.',
+ text:'The world is the way it is, no matter how our minds see it or sort it.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1r04',tier:1,axis:'realism',type:'scenario',
@@ -4474,12 +4481,13 @@ const QUESTIONS = [
  text:'Scientific theories are:',
  options:[
    {text:'Our best attempts to describe a real world that exists independently of us',score:7},
+   {text:'Theories point to a real world, but some of today\'s theories may later need changes.',score:6},
    {text:'Useful tools for prediction that may or may not correspond to anything real',score:3},
    {text:'Human constructions that work within our conceptual framework, not mirrors of nature',score:2}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t1r04b',tier:1,axis:'realism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'What counts as true or false depends on the perspective, framework, or culture of the person making the claim — there is no view from nowhere.',
+ text:'What counts as true or false depends on the viewpoint, framework, or culture of whoever makes the claim. There is no view from nowhere.',
  options:[]},
 
 // ── PHYSICALISM (5 questions) ──
@@ -4493,27 +4501,27 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t1p03',tier:1,axis:'physicalism',type:'scenario',
- text:'Scientists announce they have mapped every neural correlate of human consciousness and can fully explain subjective experience in physical terms. Your response:',
+ text:'Scientists announce they have fully mapped how the brain produces conscious experience, in purely physical terms. Your response:',
  options:[
    {text:'That is what I expected, the mind was always physical',score:7},
-   {text:'Impressive, but something about conscious experience that a physical description cannot fully capture',score:2},
-   {text:'A major discovery, but why physical processes feel like something remains open',score:4}
+   {text:'Impressive, but something about experience still escapes any physical description',score:2},
+   {text:'A major discovery, but why any of it feels like something is still open',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t1p02b',tier:1,axis:'physicalism',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'When you feel something deeply — love, grief, or awe — something about that experience seems to go beyond what any purely physical account of brain activity could fully capture.',
+ text:'An exact physical copy of you could still be missing something. It might not have the inner feeling of being you.',
  options:[]},
 
 {id:'t1p04',tier:1,axis:'physicalism',type:'likert',
- text:'What we call subjective inner experience — the feeling of being conscious — is ultimately a physical process that a complete neuroscience will fully explain.',
+ text:'Inner experience, the feeling of being conscious, is a physical process. A complete brain science will fully explain it.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t1p05',tier:1,axis:'physicalism',type:'tradeoff',
- text:'The mind-body problem, explaining why physical processes produce subjective experience, is:',
+ text:'Why does brain activity feel like anything from the inside? Which answer is closest to yours?',
  options:[
-   {text:'A solved or soon-to-be-solved scientific question',score:7},
-   {text:'A genuine mystery that may never yield to physical explanation',score:2},
-   {text:'Probably solvable but we are missing something fundamental in our current framework',score:4}
+   {text:'Whatever the details turn out to be, experience is something the physical brain does',score:7},
+   {text:'Experience points to something real about the mind that is not physical',score:2},
+   {text:'Genuinely open. I do not think we know enough yet to say either way.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 // ══════════════════════════════════════════
@@ -4522,7 +4530,7 @@ const QUESTIONS = [
 
 // ── KNOWLEDGE SOURCE (5 questions) ──
 {id:'t2k01',tier:2,axis:'knowledge',type:'likert',
- text:'The most reliable path to truth about the world is careful observation, testing, and evidence.',
+ text:'The surest path to truth about the world is to look carefully, test, and follow the evidence.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2k02',tier:2,axis:'knowledge',type:'tradeoff',
@@ -4542,7 +4550,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2k04',tier:2,axis:'knowledge',type:'likert',
- text:'Personal spiritual experience and direct revelation can give us genuine access to truths that evidential scrutiny alone can never reach.',
+ text:'Some truths come only through spiritual experience or revelation. Evidence alone cannot reach them.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 
 {id:'t2k05',tier:2,axis:'knowledge',type:'tradeoff',
@@ -4572,7 +4580,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2m04',tier:2,axis:'moral_ground',type:'likert',
- text:'What we call moral progress is just cultural change — there are no objective moral facts that humanity is getting better at recognising.',
+ text:'What we call moral progress is just cultural change. There are no objective moral facts that humanity is slowly getting better at seeing.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 
 {id:'t2m05',tier:2,axis:'moral_ground',type:'tradeoff',
@@ -4582,9 +4590,9 @@ const QUESTIONS = [
    {text:'Expressing a very strong preference or attitude that my culture has shaped',score:2},
    {text:'Making a claim that is true within the moral framework I hold, but frameworks can differ',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
-{id:'t2m06b',tier:2,axis:'moral_ground',type:'likert',weight:1.0,reversed:true,
+{id:'t2m06b',tier:2,axis:'moral_ground',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'There is no universal moral truth — different cultures have different moral systems and none is objectively more correct than the others.',
+ text:'Some things are morally wrong no matter what any culture or any era believes about them.',
  options:[]},
 
 // ── MEANING SOURCE (5 questions) ──
@@ -4592,38 +4600,39 @@ const QUESTIONS = [
 {id:'t2me02',tier:2,axis:'meaning',type:'scenario',
  text:'You have genuinely absorbed this fact: in roughly 5 billion years, the sun will expand and erase all trace of human existence. No record, no memory, nothing. How does that land?',
  options:[
-   {text:'It confirms what I already knew. Meaning was always something I made, not found.',score:7},
+   {text:'It confirms what I already knew. Meaning was always something I made, not found.',score:1},
    {text:'Unsettling, but it does not change how I actually live.',score:4},
-   {text:'It genuinely undermines the idea that anything we do really matters',score:2}
- ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
+   {text:'It genuinely undermines the idea that anything we do really matters',score:6},
+   {text:'What gives life meaning is real, and a physical ending does not erase it',score:7}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2me03',tier:2,axis:'meaning',type:'tradeoff',
  text:'Which statement feels closer to true?',
  options:[
-   {text:'Meaning is something you build, like a house rather than a discovery.',score:7},
-   {text:'Meaning is something you find. It is out there waiting to be recognised.',score:2},
+   {text:'Meaning is something you build, like a house rather than a discovery.',score:1},
+   {text:'Meaning is something you find. It is out there waiting to be recognised.',score:6},
    {text:'Meaning emerges from contact between who you are and what the world offers.',score:4}
- ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
+ ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2me05',tier:2,axis:'meaning',type:'scenario',
  text:'Someone tells you: "Once I stopped believing the universe had a plan for me, I actually felt free." What is your honest reaction?',
  options:[
-   {text:'That makes complete sense to me, the absence of imposed meaning is a kind of liberation',score:7},
-   {text:'I understand it but it would not feel like freedom to me, it would feel like loss',score:3},
-   {text:'It depends on what they replaced the old meaning with',score:5,pinLast:true}
- ],poleLeft:'',poleRight:'',weight:1.0, reversed:true},
+   {text:'That makes complete sense to me, the absence of imposed meaning is a kind of liberation',score:1},
+   {text:'I understand it but it would not feel like freedom to me, it would feel like loss',score:5},
+   {text:'It depends on what they replaced the old meaning with',score:3,pinLast:true}
+ ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t2me06',tier:2,axis:'meaning',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Meaning is not something the universe contains — it is something human beings create through the commitments they choose to make.',
+ text:'The universe does not contain meaning. People create it through the commitments they choose to make.',
  options:[]},
 {id:'t2me06b',tier:2,axis:'meaning',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The things I find most meaningful in my life feel genuinely and objectively valuable — not merely valuable because I have chosen to care about them.',
+ text:'The things I find most meaningful feel truly valuable in themselves. Their value is not just something I chose to give them.',
  options:[]},
 
-// ── SCIENCE TRUST (4 questions) ──
+// ── SCIENCE TRUST (5 questions) ──
 {id:'t2s01',tier:2,axis:'science',type:'likert',
- text:'When scientific consensus clearly points in one direction, evolution, climate, vaccines, the age of the universe, that should be everyone\'s starting point, not one option among many.',
+ text:'When scientists broadly agree on something, that should be everyone\'s starting point. It is not just one opinion among many.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2s02',tier:2,axis:'science',type:'tradeoff',
@@ -4631,7 +4640,8 @@ const QUESTIONS = [
  options:[
    {text:'The most reliable method humans have for finding out what is true',score:7},
    {text:'A powerful tool with real limits, especially on human and social questions',score:4},
-   {text:'One way of knowing among others, not inherently superior to all other approaches',score:2}
+   {text:'One way of knowing among others, not inherently superior to all other approaches',score:2},
+   {text:'Less reliable than claimed. Scientific institutions get big things wrong often enough that expert agreement cannot simply be trusted.',score:1}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2s03',tier:2,axis:'science',type:'scenario',
@@ -4643,11 +4653,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2s04',tier:2,axis:'science',type:'likert',
- text:'Science is one way of knowing among many — traditional wisdom, lived experience, and spiritual insight are equally valid paths to understanding the world.',
+ text:'Science is one way of knowing among many. Old wisdom, lived experience, and spiritual insight are just as valid.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 {id:'t2s05',tier:2,axis:'science',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Science has serious blind spots — particularly for questions about meaning, consciousness, and lived human experience — and we should not rely on it as our primary guide to understanding.',
+ text:'Science has serious blind spots, especially on meaning, consciousness, and lived experience. It should not be our main guide to understanding.',
  options:[]},
 
 // ══════════════════════════════════════════
@@ -4665,27 +4675,28 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3j03',tier:3,axis:'justice',type:'likert',
- text:'Justice that fails to give people what they genuinely deserve is not real justice — rehabilitation and prevention, however useful, miss the fundamental moral point.',
+ text:'Justice must give people what they deserve. Rehabilitation and prevention are useful, but they miss the moral point.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 
 {id:'t3j04',tier:3,axis:'justice',type:'scenario',
- text:'A teenager commits a serious crime after years of abuse and neglect. A judge has wide sentencing discretion. What approach feels most just?',
+ text:'A teenager commits a serious crime after years of abuse and neglect. The judge has wide freedom in sentencing. What feels most just?',
  options:[
-   {text:'Heavy emphasis on rehabilitation and addressing the underlying trauma',score:7},
+   {text:'Focus on rehabilitation and treating the trauma underneath',score:7},
    {text:'A balance of accountability and support, consequences matter but so does context',score:4,pinLast:true},
-   {text:'The crime warrants serious punishment, circumstances are mitigating, not excusing',score:2}
+   {text:'The crime deserves serious punishment. The circumstances soften it, but they do not excuse it.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3j05',tier:3,axis:'justice',type:'tradeoff',
  text:'Which concept of justice do you find most compelling?',
  options:[
-   {text:'Retributive, people deserve consequences proportional to the harm they caused',score:2},
-   {text:'Restorative, justice means repairing harm and rebuilding relationships where possible',score:6},
-   {text:'Transformative, justice means changing the systems that produce harm in the first place',score:7}
+   {text:'Retributive. People deserve consequences that match the harm they caused.',score:2},
+   {text:'Protective. Punishment is justified because it prevents future harm and keeps people safe.',score:4},
+   {text:'Restorative. Justice means repairing harm and rebuilding relationships where possible.',score:6},
+   {text:'Transformative. Justice means changing the systems that produce harm in the first place.',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3j01',tier:3,axis:'justice',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The most important purpose of responding to serious harm is not punishing the person but understanding what produced the behaviour and preventing it from happening again.',
+ text:'When someone causes serious harm, the main goal is not punishment. It is understanding what produced the behaviour and preventing it next time.',
  options:[]},
 
 // ── ETHICS ENGINE (5 questions) ──
@@ -4701,7 +4712,7 @@ const QUESTIONS = [
  text:'A doctor can save 5 patients by taking organs from 1 healthy person who came in for a routine checkup. The math is simple: 5 lives for 1.',
  options:[
    {text:'Still clearly wrong. People may not be used merely as instruments, whatever the numbers say.',score:1},
-   {text:'Five lives for one. The numbers settle it — outcomes are what matter morally.',score:7},
+   {text:'Five lives for one. The numbers settle it. Outcomes are what matter morally.',score:7},
    {text:'The numbers pull at me, but I cannot endorse it. Something in the calculation is missing.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
@@ -4714,44 +4725,46 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3e06',tier:3,axis:'ethics',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Some actions are simply wrong regardless of their consequences — there are moral duties that must not be violated even to prevent greater harm.',
+ text:'Some actions are simply wrong, no matter the consequences. Some duties must not be broken, even to prevent greater harm.',
  options:[]},
-{id:'t3e02b',tier:3,axis:'ethics',type:'likert',weight:1.0,reversed:true,
+{id:'t3e02b',tier:3,axis:'ethics',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Moral duties — like keeping promises, telling the truth, or respecting rights — bind us regardless of whether following them produces the best outcomes.',
+ text:'In the end, the right choice is whichever one leads to the best results for everyone affected. That holds even if it means breaking a rule or a promise.',
  options:[]},
 
 // ── RELIGION (5 questions) ──
 {id:'t3r01',tier:3,axis:'religion',type:'likert',
- text:'Organised religion has, on balance, been a net positive force in human history — providing meaning, community, and moral guidance across generations.',
+ text:'Taking history as a whole, organised religion has done more good than harm. It has given people meaning, community, and moral guidance.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 
 {id:'t3r02',tier:3,axis:'religion',type:'tradeoff',
  text:'When someone uses their personal faith as the main reason to support a public policy that affects others, your honest response is:',
  options:[
-   {text:'Faith is a personal matter and public policy decisions should be justified in terms accessible to everyone, regardless of their beliefs.',score:7},
+   {text:'Faith is personal. Public policy should be explained in terms that everyone can weigh, whatever they believe.',score:5},
    {text:'Faith-based reasoning deserves equal standing alongside any other deeply held value.',score:2},
+   {text:'Religious reasons should carry no weight at all in public policy.',score:7},
    {text:'It depends entirely on what they are advocating and whether it causes harm',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3r03',tier:3,axis:'religion',type:'scenario',
- text:'A child is raised in a strictly orthodox religious tradition that teaches they are inherently flawed, that questioning the faith is dangerous, and that people outside the faith are spiritually lost. No physical harm is occurring.',
+ text:'Parents raise their child strictly within their religious tradition. The child learns the faith\'s teachings as settled truth, is discouraged from doubting them, and is taught that people outside the faith are mistaken. There is no physical harm.',
  options:[
-   {text:'This is a form of harm — the psychological weight of being taught you are fundamentally flawed and that doubt is dangerous causes real damage.',score:7},
-   {text:'Uncomfortable to me, but parents have the right to raise children within their belief system.',score:2},
-   {text:'The long-term psychological effect on the specific child matters more than the doctrine alone',score:4}
+   {text:'Raising a child this way causes real psychological harm, even without any physical harm',score:7},
+   {text:'Parents have the right to raise children in their faith, and this is within that right',score:2},
+   {text:'It depends on the specific child and how these teachings actually affect them over time',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3r05',tier:3,axis:'religion',type:'tradeoff',
  text:'For someone grieving a devastating loss, religious belief that offers comfort and community is:',
  options:[
-   {text:'Still worth scrutinising — beliefs that insulate themselves from truth carry real costs, even when comforting',score:7},
-   {text:'A net positive regardless of whether it is true, human wellbeing matters',score:3},
-   {text:'Their choice, I do not make that judgment for others',score:4}
+   {text:'A real comfort because what it points to is real. The belief is not just useful, it is true.',score:1},
+   {text:'A net positive for their wellbeing, whatever the truth of the belief turns out to be',score:3},
+   {text:'Their choice, I do not make that judgment for others',score:4},
+   {text:'Still worth honest scrutiny. Comfort does not make a belief true, and false comfort has real costs.',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
-{id:'t3r06',tier:3,axis:'religion',type:'likert',weight:1.0,reversed:true,
+{id:'t3r06',tier:3,axis:'religion',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Religious faith, even when its specific claims cannot be verified, provides something genuinely valuable that secular life struggles to replace.',
+ text:'On balance, the world would be better off if people left religious belief behind.',
  options:[]},
 
 // ── POLITICS (5 questions) ──
@@ -4772,23 +4785,19 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3p03',tier:3,axis:'politics',type:'likert',
- text:'Individual economic freedom — keeping what you earn and choosing how to spend it — produces better outcomes for society than government redistribution programs.',
+ text:'Letting people keep what they earn and spend it as they choose works out better for society than programs that transfer wealth.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 
-{id:'t3p04',tier:3,axis:'politics',type:'tradeoff',
- text:'Individual freedom and collective equality are:',
- options:[
-   {text:'Fundamentally in tension, more of one usually means less of the other',score:4},
-   {text:'Complementary, genuine freedom requires the conditions that equality provides',score:7},
-   {text:'Separate values where freedom should generally take priority',score:2}
- ],poleLeft:'',poleRight:'',weight:1.0},
+{id:'t3p04',tier:3,axis:'politics',type:'likert',
+ text:'When the gap between rich and poor grows too large, freedom itself shrinks. Money becomes power over other people\'s lives.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3p05',tier:3,axis:'politics',type:'scenario',
- text:'A policy would significantly improve outcomes for the poorest 30% of the population but would require meaningfully higher taxes on the wealthiest 5%. You:',
+ text:'A policy would make life much better for the poorest 30% of people. To pay for it, taxes on the richest 5% would go up a lot. You:',
  options:[
-   {text:'Support it — improving outcomes for the poorest is a legitimate and important use of collective resources.',score:7},
-   {text:'Support it cautiously, I want to understand the economic effects on growth and incentives',score:4},
-   {text:'Oppose it — using taxation to redistribute wealth, even for good outcomes, raises serious concerns about individual rights.',score:2}
+   {text:'Support it. Helping the poorest is a fair and important use of shared resources.',score:7},
+   {text:'Support it with caution. I want to know the effects on growth and incentives first.',score:4},
+   {text:'Oppose it. Taxing some people to help others, even for good ends, raises serious questions about individual rights.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 // ── SELF (5 questions) ──
@@ -4810,8 +4819,8 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3se04',tier:3,axis:'self',type:'likert',
- text:'At my core, I am a stable person with a genuine character that persists through all the changes in my life.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
+ text:'The person I am today is mostly the result of things I did not choose: my genes, my upbringing, and what has happened to me.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3se05',tier:3,axis:'self',type:'tradeoff',
  text:'When you change significantly over time, your values, beliefs, personality, what is the right description?',
@@ -4822,10 +4831,10 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3se06',tier:3,axis:'self',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'I am the genuine author of my own choices and who I become — my life reflects who I truly am, not just what happened to me.',
+ text:'I am the true author of my choices and of who I become. My life reflects who I really am, not just what happened to me.',
  options:[]},
 
-// ── MORAL SCOPE (4 questions) ──
+// ── MORAL SCOPE (5 questions) ──
 
 {id:'t3ms02',tier:3,axis:'moral_scope',type:'scenario',
  text:'You can save either 1 human stranger or 100 dogs from death. The human and dogs are equally unknown to you.',
@@ -4836,7 +4845,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3ms03',tier:3,axis:'moral_scope',type:'likert',
- text:'The capacity to suffer is the morally relevant threshold, not species, intelligence, or social connection.',
+ text:'Whether a being can suffer is what counts morally, not its species, intelligence, or social ties.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3ms04',tier:3,axis:'moral_scope',type:'tradeoff',
@@ -4848,11 +4857,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3ms05',tier:3,axis:'moral_scope',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'When there is a genuine conflict between human interests and animal interests, human interests should take priority — we have special obligations to our own kind.',
+ text:'When human interests and animal interests truly clash, humans come first. We have special obligations to our own kind.',
  options:[]},
 {id:'t3ms03b',tier:3,axis:'moral_scope',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The capacity to suffer is the only morally relevant threshold — a being that can feel pain has genuine moral claims on us regardless of species, intelligence, or social bonds.',
+ text:'The only thing that matters morally is whether a being can suffer. Anything that feels pain has a claim on us, whatever its species or intelligence.',
  options:[]},
 
 // ── MEANING PRACTICE (5 questions) ──
@@ -4861,17 +4870,17 @@ const QUESTIONS = [
  text:'A close friend is in crisis, nothing feels worth doing. What is the most honest and useful thing you can tell them?',
  options:[
    {text:'Meaning is not waiting to be found, you have to build it, even knowing it is constructed.',score:7},
-   {text:'There are things worth caring about regardless of what the cosmos ultimately is — focus there.',score:6},
+   {text:'There are things worth caring about no matter what the universe ultimately is. Focus there.',score:6},
    {text:'Sit with the void rather than rushing to fill it, the discomfort is real and worth facing.',score:5},
-   {text:'Maybe nothing does feel worth it right now — that is an honest response to an honest situation.',score:2}
+   {text:'Maybe nothing does feel worth it right now. That is an honest response to an honest situation.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3mp03',tier:3,axis:'meaning_practice',type:'likert',
- text:'Even if the universe has no inherent meaning, the most honest response is to build meaning anyway — to commit fully rather than disengage.',
+ text:'Even if the universe has no built-in meaning, the honest response is to build meaning anyway. Commit fully rather than pull away.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3mp04',tier:3,axis:'meaning_practice',type:'tradeoff',
- text:'Imagine Sisyphus: condemned to push a rock up a hill forever, only for it to roll back each time — no purpose, no destination, no end. The idea that he could be happy doing this feels:',
+ text:'Imagine Sisyphus: condemned to push a rock up a hill forever, only for it to roll back each time. No purpose, no destination, no end. The idea that he could be happy doing this feels:',
  options:[
    {text:'Right, the rebellion itself is the point, not the outcome',score:7},
    {text:'Dishonest, dressing up futility as meaning does not change what it is',score:2},
@@ -4879,7 +4888,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3mp03b',tier:3,axis:'meaning_practice',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Sitting with the absence of meaning honestly — without rushing to fill it with constructed purpose — is more intellectually courageous than building meaning for comfort\'s sake.',
+ text:'Facing a lack of meaning honestly, without rushing to fill it, takes more courage than building meaning to feel better.',
  options:[]},
 
 {id:'t3mp05',tier:3,axis:'meaning_practice',type:'scenario',
@@ -4890,36 +4899,36 @@ const QUESTIONS = [
    {text:'Take it, feeling meaningful matters more than the metaphysical question',score:3}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
-// ── SOCIETY (4 questions) ──
+// ── SOCIETY (5 questions) ──
 {id:'t3so01',tier:3,axis:'society',type:'tradeoff',
  text:'Which produces a better society?',
  options:[
-   {text:'Maximising individual freedom, let people build their own lives with minimal interference',score:2},
-   {text:'Strong collective investment, shared infrastructure, equality, and genuine safety nets',score:7},
+   {text:'The most individual freedom possible. Let people build their own lives with little interference.',score:2},
+   {text:'Strong shared investment: public services, equality, and real safety nets.',score:7},
    {text:'Neither extreme works, the balance is what matters',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3so03',tier:3,axis:'society',type:'likert',
- text:'Truly free individuals require a society that actively provides the conditions for freedom, education, health, security, and opportunity.',
+ text:'No one is truly free without the basics. Society must provide education, health care, safety, and real opportunity.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3so04',tier:3,axis:'society',type:'tradeoff',
  text:'When a society\'s traditions conflict with individual rights, which should generally take priority?',
  options:[
-   {text:'Individual rights, no tradition has the standing to override a person\'s fundamental claims',score:2},
-   {text:'Tradition, communities have the right to maintain their character and norms',score:7},
+   {text:'Individual rights. No tradition has the standing to override a person\'s basic claims.',score:2},
+   {text:'Tradition. Communities have the right to keep their character and their norms.',score:7},
    {text:'It depends on the tradition, the right, and what is actually at stake',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3so05',tier:3,axis:'society',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'People are ultimately responsible for their own welfare. Society\'s job is to protect individual freedom, not to guarantee outcomes.',
+ text:'In the end, people are responsible for their own welfare. Society\'s job is to protect freedom, not to promise results.',
  options:[]},
-{id:'t3so05b',tier:3,axis:'society',type:'likert',weight:1.0,reversed:true,
+{id:'t3so05b',tier:3,axis:'society',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'People are ultimately responsible for their own welfare. Society should protect individual freedom — not guarantee outcomes or redistribute resources.',
+ text:'Judge a society by how it treats its weakest members, even when caring for them limits what others get to keep.',
  options:[]},
 
-// ── RESPONSIBILITY (4 questions) ──
+// ── RESPONSIBILITY (5 questions) ──
 {id:'t3resp01',tier:3,axis:'responsibility',type:'scenario',
  text:'Two people with identical talent start life in radically different circumstances. At 40, their outcomes are vastly different. What is the most accurate account of why?',
  options:[
@@ -4929,8 +4938,8 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3resp02',tier:3,axis:'responsibility',type:'likert',
- text:'When someone fails repeatedly in life, the honest explanation is usually their own poor choices and weak character — not external circumstances.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
+ text:'When someone keeps failing in life, the honest explanation is usually their circumstances. Think poverty, health, upbringing, and plain luck.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3resp03',tier:3,axis:'responsibility',type:'tradeoff',
  text:'Personal responsibility is:',
@@ -4944,16 +4953,16 @@ const QUESTIONS = [
 {id:'t3resp04',tier:3,axis:'responsibility',type:'scenario',
  text:'A person with severe untreated depression stops going to work and loses their job. How responsible are they for that outcome?',
  options:[
-   {text:'Their illness substantially diminished their agency, holding them fully responsible is a category error',score:7},
-   {text:'They bear some responsibility, seeking treatment and managing a condition is part of adult life',score:4},
-   {text:'Difficult, but ultimately responsible, many people manage serious conditions without losing jobs',score:2}
+   {text:'Their illness took away much of their control. Treating this as a simple personal choice misses what depression is.',score:7},
+   {text:'They bear some responsibility. Getting help and managing a condition is part of adult life.',score:4},
+   {text:'It is hard, but they are still responsible. Many people manage serious conditions and keep working.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3resp05',tier:3,axis:'responsibility',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'People are primarily responsible for the outcomes of their own lives — success and failure reflect personal choices more than circumstances.',
+ text:'People are mainly responsible for how their lives turn out. Success and failure reflect personal choices more than circumstances.',
  options:[]},
 
-// ── IDENTITY (4 questions) ──
+// ── IDENTITY (5 questions) ──
 {id:'t3id01',tier:3,axis:'identity',type:'tradeoff',
  text:'Who you fundamentally are, your core self, is best described as:',
  options:[
@@ -4963,26 +4972,26 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3id02',tier:3,axis:'identity',type:'likert',
- text:'Race, gender, class, and culture do not just influence identity, they fundamentally constitute it.',
+ text:'Race, gender, class, and culture do not just shape who you are. They are what you are made of.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3id03',tier:3,axis:'identity',type:'scenario',
  text:'A person radically changes their beliefs, values, and personality over 10 years. Are they the same person?',
  options:[
-   {text:'Yes, physical and psychological continuity is enough, even with radical change',score:5},
-   {text:'In a meaningful sense no, if the beliefs and values that define a person change completely, that person is gone',score:3},
-   {text:'The question of "sameness" is less interesting than what continuity actually requires',score:4}
+   {text:'Yes. The same body and connected memories are enough, even with radical change.',score:5},
+   {text:'In a real sense, no. If everything that defined the person has changed, that person is gone.',score:3},
+   {text:'Whether they are "the same" matters less than what actually carried over.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3id05',tier:3,axis:'identity',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Identity is not something you find — it is something you build. Who you are is constructed through your choices, relationships, and the stories you tell.',
+ text:'Identity is not something you find. It is something you build through your choices, your relationships, and the stories you tell.',
  options:[]},
 {id:'t3id05b',tier:3,axis:'identity',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Beneath all the changes a person goes through in life, there is a stable core — a genuine self that remains recognisably the same person.',
+ text:'Beneath all the changes in a person\'s life there is a stable core. A real self stays the same person throughout.',
  options:[]},
 
-// ── AUTHORITY (4 questions) ──
+// ── AUTHORITY (5 questions) ──
 
 {id:'t3auth02',tier:3,axis:'authority',type:'tradeoff',
  text:'An expert in their field tells you something that contradicts your current understanding. You:',
@@ -5000,43 +5009,43 @@ const QUESTIONS = [
    {text:'It depends on how serious the injustice is and what the cost of resistance would be',score:5,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
-// ── ECONOMICS (4 questions) ──
+// ── ECONOMICS (5 questions) ──
 {id:'t3ec01',tier:3,axis:'economics',type:'tradeoff',
  text:'The best economic system is one that:',
  options:[
-   {text:'Lets markets operate freely, they allocate resources better than central planners',score:2},
-   {text:'Uses markets where they work and redirects outputs through strong redistribution',score:6},
-   {text:'Fundamentally restructures ownership and production away from private profit',score:7}
+   {text:'Lets markets run freely. Markets place resources better than central planners do.',score:2},
+   {text:'Uses markets where they work, then shares the gains through strong redistribution.',score:6},
+   {text:'Rebuilds ownership and production so private profit is no longer the point.',score:7}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3ec02',tier:3,axis:'economics',type:'scenario',
  text:'A pharmaceutical company holds a patent on a drug that saves lives. Producing it costs €2 per dose. They charge €40,000 per course of treatment.',
  options:[
-   {text:'This is an unacceptable result of treating healthcare as a market — access to life-saving medicine should not depend on ability to pay.',score:7},
+   {text:'This is what happens when health care is treated as a market, and it is unacceptable. Access to life-saving medicine should not depend on ability to pay.',score:7},
    {text:'Problematic, but patents and profit incentives are what produce these drugs initially',score:3},
    {text:'The system needs reform, but removing incentives for innovation carries real costs',score:5}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3ec03',tier:3,axis:'economics',type:'likert',
- text:'Economic growth that increases inequality is not acceptable even if absolute conditions improve across the board — how wealth is distributed matters morally, not just whether the total grows.',
+ text:'Growth that widens the gap between rich and poor is not acceptable, even when everyone is better off in absolute terms. How wealth is shared matters, not just how much there is.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 {id:'t3ec05',tier:3,axis:'economics',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'A just economy is one where no one is left without the basic conditions for a decent life — market outcomes alone cannot guarantee this.',
+ text:'In a just economy, no one goes without the basics of a decent life. Markets alone cannot guarantee that.',
  options:[]},
 {id:'t3ec05b',tier:3,axis:'economics',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The best indicator of economic justice is whether people are free to keep what they earn, not whether wealth is distributed equally.',
+ text:'The real test of economic justice is whether people can keep what they earn, not whether wealth is spread equally.',
  options:[]},
 
-// ── UNCERTAINTY (4 questions) ──
+// ── UNCERTAINTY (5 questions) ──
 
 {id:'t3unc02',tier:3,axis:'uncertainty',type:'tradeoff',
  text:'When facing a major life decision with no clear right answer, you tend to:',
  options:[
    {text:'Gather what information exists, make a call, and accept uncertainty as part of the deal',score:7},
-   {text:'Wait until I have enough clarity, I would rather delay than decide badly',score:3},
-   {text:'Look for frameworks or principles that can cut through the uncertainty',score:5}
+   {text:'Wait until I have enough clarity, I would rather delay than decide badly',score:2},
+   {text:'Look for frameworks or principles that can cut through the uncertainty',score:3}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3unc03',tier:3,axis:'uncertainty',type:'scenario',
@@ -5048,79 +5057,80 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3unc04',tier:3,axis:'uncertainty',type:'likert',
- text:'People who are comfortable saying "I do not know" are generally more trustworthy than people who always have an answer.',
+ text:'People who can say "I do not know" are usually more worth trusting than people who always have an answer.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 {id:'t3unc05',tier:3,axis:'uncertainty',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'I need to reach a clear answer before I can move forward — sitting with unresolved questions makes it hard to act.',
+ text:'I need a clear answer before I can move forward. Sitting with open questions makes it hard to act.',
  options:[]},
 {id:'t3unc04b',tier:3,axis:'uncertainty',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Sitting with genuine, unresolved uncertainty on important questions is intellectually uncomfortable — I prefer to reach a clear position and commit to it.',
+ text:'Living with an unsettled question bothers me. I would rather reach a clear position and commit to it.',
  options:[]},
 
-// ── MIND / CONSCIOUSNESS (4 questions) ──
+// ── MIND / CONSCIOUSNESS (5 questions) ──
 
 {id:'t3mind02',tier:3,axis:'mind_consciousness',type:'scenario',
  text:'An AI system reports experiencing curiosity, discomfort, and satisfaction. It behaves in every way a conscious being would. Is it conscious?',
  options:[
    {text:'Probably not, behaviour and reports can exist without inner experience',score:2},
+   {text:'Yes. If it does everything a conscious being does, that is what being conscious is.',score:7},
    {text:'Possibly, if it has the functional properties, I cannot rule it out',score:5},
-   {text:'I genuinely do not know, and that uncertainty matters morally',score:6}
+   {text:'I genuinely do not know, and that uncertainty matters morally',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3mind03',tier:3,axis:'mind_consciousness',type:'likert',
- text:'The hard problem of consciousness is largely a philosophical confusion — once we fully explain all the brain\'s functions, there will be nothing left requiring a separate explanation.',
+ text:'Once science explains everything the brain does, nothing about consciousness will be left to explain.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3mind04',tier:3,axis:'mind_consciousness',type:'tradeoff',
- text:'Panpsychism is the idea that consciousness is not exclusive to brains — it is a basic feature of reality present in some form in all matter, from animals to atoms. It is not a spiritual claim but a philosophical response to why physical processes produce subjective experience at all. This view is:',
+ text:'Panpsychism is the idea that consciousness is not only in brains. In some simple form, it is a basic feature of all matter, from animals to atoms. It is not a spiritual claim. It is one philosophical answer to why physical processes feel like anything. This view is:',
  options:[
    {text:'An interesting attempt to solve a real problem, worth taking seriously',score:5},
-   {text:'Implausible, consciousness clearly emerges from complex systems, it is not fundamental',score:7},
-   {text:'Actually more plausible than pure physicalism once you sit with the hard problem',score:2}
+   {text:'Unlikely. Consciousness comes from complex systems. It is not a basic feature of matter.',score:7},
+   {text:'Actually more believable than pure physicalism, once you sit with the puzzle of experience',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3mind03b',tier:3,axis:'mind_consciousness',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The hard problem of consciousness — why physical processes feel like anything from the inside — is a genuine philosophical problem that neuroscience alone will never fully resolve.',
+ text:'Why brain activity feels like anything from the inside is a real puzzle. Brain science alone will never fully solve it.',
  options:[]},
-{id:'t3mind05',tier:3,axis:'mind_consciousness',type:'likert',weight:1.0,reversed:true,
+{id:'t3mind05',tier:3,axis:'mind_consciousness',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'No matter how completely neuroscience maps the brain, something about conscious experience — what it actually feels like from the inside — will remain unexplained by the physical account.',
+ text:'If a computer perfectly copied everything your brain does, the copy would really feel like being you. It would not just imitate you.',
  options:[]},
 
-// ── ANIMAL ETHICS (4 questions) ──
+// ── ANIMAL ETHICS (5 questions) ──
 {id:'t3an01',tier:3,axis:'animal_ethics',type:'likert',
- text:'Animals that can suffer have a genuine moral claim on us, their pain matters morally, not just instrumentally.',
+ text:'Animals that can suffer have a real moral claim on us. Their pain matters in itself, not just because of what it costs us.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3an02',tier:3,axis:'animal_ethics',type:'tradeoff',
- text:'Humans eating meat from factory-farmed animals when plant-based alternatives exist is:',
+ text:'Eating meat from factory farms, when plant-based options exist, is:',
  options:[
-   {text:'A serious ethical problem at massive scale',score:7},
-   {text:'Ethically problematic but understandable given culture, habit, and access',score:4},
-   {text:'A personal choice, humans are omnivores and animals do not have the same moral status',score:2}
+   {text:'A serious moral problem, happening at massive scale',score:7},
+   {text:'Morally troubling, but understandable given culture, habit, and access',score:4},
+   {text:'A personal choice. Humans are meat eaters by nature, and animals do not have the same moral standing.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3an03',tier:3,axis:'animal_ethics',type:'scenario',
- text:'A medical experiment could save thousands of human lives but requires causing serious suffering to 200 chimpanzees. You:',
+ text:'A medical experiment could save thousands of human lives. But it requires causing serious suffering to 200 chimpanzees. You:',
  options:[
-   {text:'Oppose it, the capacity for suffering carries equivalent weight regardless of species',score:7},
-   {text:'Support it reluctantly, human lives carry more moral weight than animal lives',score:2},
-   {text:'Support it only if every alternative has been exhausted and suffering is minimised',score:4}
+   {text:'Oppose it. Suffering counts the same, whatever the species.',score:7},
+   {text:'Support it reluctantly. Human lives carry more moral weight than animal lives.',score:2},
+   {text:'Support it only if every other option is exhausted and suffering is kept as low as possible',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3an05',tier:3,axis:'animal_ethics',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Human beings have a fundamentally different moral status from animals — our lives, suffering, and interests carry greater moral weight, not just more of the same weight.',
+ text:'Human beings stand on a different moral level from animals. Our lives and our suffering carry a different kind of weight, not just more of it.',
  options:[]},
 {id:'t3an02b',tier:3,axis:'animal_ethics',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Humans are fundamentally different from animals in morally relevant ways — our cognitive complexity and social bonds mean our interests nearly always take priority.',
+ text:'Humans differ from animals in ways that matter morally. Because of that, human interests nearly always come first.',
  options:[]},
 
-// ── PROGRESS (4 questions) ──
+// ── PROGRESS (5 questions) ──
 {id:'t3prog01',tier:3,axis:'progress',type:'likert',
- text:'On the whole, humanity is moving in a positive direction.',
+ text:'On the whole, humanity is headed in a good direction.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t3prog02',tier:3,axis:'progress',type:'tradeoff',
@@ -5132,19 +5142,19 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3prog03',tier:3,axis:'progress',type:'scenario',
- text:'A historian argues that for all of modern civilisation\'s achievements, it has also produced the capacity for unprecedented destruction, ecological collapse, and totalitarianism, and the net verdict is ambiguous at best.',
+ text:'A historian argues that modern civilisation\'s gains came with new dangers: mass destruction, ecological collapse, and total control. The overall verdict, they say, is unclear at best.',
  options:[
-   {text:'I disagree, by almost every measurable metric, human life has improved dramatically',score:7},
-   {text:'A fair point, the gains and losses are real and the ledger is genuinely unclear',score:4,pinLast:true},
-   {text:'I think they are being too generous, the structural problems are more fundamental than the gains',score:2}
+   {text:'I disagree. By almost every measure, human life has improved dramatically.',score:7},
+   {text:'A fair point. The gains and losses are both real, and the ledger is genuinely unclear.',score:4,pinLast:true},
+   {text:'They are being too generous. The structural problems run deeper than the gains.',score:2}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t3prog04',tier:3,axis:'progress',type:'likert',
- text:'Human nature and structural problems mean technology and scientific knowledge will never solve our deepest problems — they will likely create new ones as serious as those they solve.',
+ text:'Technology and science will never solve our deepest problems. They will likely create new ones just as serious as those they solve.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.0,reversed:true},
 {id:'t3prog05',tier:3,axis:'progress',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The narrative that things are generally getting better is misleading — it masks real deterioration in what matters most.',
+ text:'The story that things keep getting better is misleading. It hides real decline in what matters most.',
  options:[]},
 
 // ══════════════════════════════════════════
@@ -5178,11 +5188,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t1tel06',tier:1,axis:'teleology',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The universe has no destination, no built-in direction, and no purpose — it simply runs according to physical laws with nothing it is heading toward.',
+ text:'The universe is not heading anywhere. It has no goal and no purpose. It simply runs on physical laws.',
  options:[]},
 {id:'t1tel06b',tier:1,axis:'teleology',type:'likert',weight:1.5,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The emergence of life, consciousness, and intelligence in the universe seems like something that was always going to happen — as if reality was oriented toward complexity from the start.',
+ text:'Life, consciousness, and intelligence seem like they were always going to appear. Reality looks aimed at complexity from the start.',
  options:[]},
 
 // ── HUMAN NATURE (5 questions) ──
@@ -5212,21 +5222,21 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15hn06',tier:1,axis:'human_nature',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'What we call human nature is mostly a product of the specific culture, language, and social conditions a person grows up in — not something fixed in biology.',
+ text:'What we call human nature mostly comes from the culture, language, and conditions a person grows up in. It is not fixed in biology.',
  options:[]},
 {id:'t15hn01b',tier:1,axis:'human_nature',type:'likert',weight:1.5,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Human beings do not have a fixed nature — who we are is almost entirely shaped by the language, culture, and social conditions we grow up in.',
- options:[],reversed:true},
+ text:'Beneath all cultural differences, people everywhere share the same basic nature. The same needs, drives, and feelings show up in every culture.',
+ options:[]},
 
 // ── EPISTEMIC METHOD (5 questions) ──
 {id:'t15em01',tier:1,axis:'epistemic_method',type:'tradeoff',
  text:'When you want to understand something important, your most trusted starting point is:',
  options:[
    {text:'Observation, evidence, and testing. Reality is the court of appeal.',score:7},
-   {text:'Careful reasoning from first principles. Logic before data.',score:5},
+   {text:'Careful reasoning from first principles. Logic before data.',score:3},
    {text:'What has proven itself over time. Tradition carries compressed wisdom.',score:2},
-   {text:'Direct personal experience. The felt sense is a form of knowing.',score:3}
+   {text:'Direct personal experience. The felt sense is a form of knowing.',score:1}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15em03',tier:1,axis:'epistemic_method',type:'scenario',
@@ -5240,29 +5250,29 @@ const QUESTIONS = [
 {id:'t15em04',tier:1,axis:'epistemic_method',type:'tradeoff',
  text:'Logic and reason, without grounding in empirical observation, can still generate genuine knowledge about the world.',
  options:[
-   {text:'Yes. Mathematics and logic reveal truths that observation alone cannot reach.',score:5},
+   {text:'Yes. Mathematics and logic reveal truths that observation alone cannot reach.',score:3},
    {text:'No. Reason without data just produces internally consistent fictions.',score:7},
    {text:'Sometimes. It depends on what kind of question we are asking.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15em04b',tier:1,axis:'epistemic_method',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Deep intuitions and personal spiritual experience can give us genuine access to truths that scientific testing and logical argument simply cannot reach.',
+ text:'Some truths can only be reached through deep intuition or spiritual experience. Science and logic cannot get there.',
  options:[]},
 
 {id:'t15em05',tier:1,axis:'epistemic_method',type:'likert',
- text:'Spiritual or contemplative practices can have genuine personal value, but the claims they produce about reality still need to be assessed by the same standards as any other knowledge claim.',
+ text:'Spiritual practice can have real personal value. But any claims it makes about reality must be tested by the same standards as every other claim.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 // ── SOCIAL ONTOLOGY (5 questions) ──
 {id:'t15so01',tier:1,axis:'social_ontology',type:'likert',
- text:'Social structures, institutions, and cultural norms have real causal power in the world, above and beyond the individuals who make them up.',
+ text:'Structures, institutions, and norms have real power of their own, above and beyond the people inside them.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t15so02',tier:1,axis:'social_ontology',type:'tradeoff',
- text:'When we explain why poverty persists in a society, the most accurate explanation focuses on:',
+ text:'Why does poverty persist in a society? The best explanation focuses on:',
  options:[
-   {text:'The accumulated individual choices and circumstances of the people in poverty.',score:2},
-   {text:'The structural arrangements of the economy and society that produce and maintain poverty.',score:7},
+   {text:'The built-up choices and circumstances of the people in poverty.',score:2},
+   {text:'The way the economy and society are set up, which produces poverty and keeps it going.',score:7},
    {text:'Both, in ways that cannot easily be separated.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 
@@ -5283,7 +5293,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15so05b',tier:1,axis:'social_ontology',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Society is simply the sum of its individual members — there is no such thing as a social force or structure that exists independently of the people who make it up.',
+ text:'Society is just the sum of its members. There is no social force or structure over and above the people in it.',
  options:[]},
 
 // ── TEMPORAL ORIENTATION (5 questions) ──
@@ -5312,7 +5322,7 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15to04b',tier:1,axis:'temporal_orientation',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'The accumulated wisdom of our ancestors and the traditions they built carry more practical authority than any newly formed idea, however well-argued.',
+ text:'The wisdom of our ancestors and the traditions they built deserve more trust than any new idea, however well argued.',
  options:[]},
 
 {id:'t15to05',tier:1,axis:'temporal_orientation',type:'likert',
@@ -5324,8 +5334,8 @@ const QUESTIONS = [
  text:'When you need to decide what is right, where does the final authority lie?',
  options:[
    {text:'In religious texts or divine revelation.',score:1},
-   {text:'In reason and the principles that any rational person could endorse.',score:4},
-   {text:'In what nature and human flourishing actually require.',score:5},
+   {text:'In reason and the principles that any rational person could endorse.',score:5},
+   {text:'In what nature and human flourishing actually require.',score:4},
    {text:'In what affected parties, reasoning together, could agree to.',score:6},
    {text:'In my own conscience, ultimately. I am the final judge of my own actions.',score:7}
  ],poleLeft:'',poleRight:'',weight:1.5},
@@ -5348,11 +5358,11 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15ma04b',tier:1,axis:'moral_authority',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'If a sacred text or authoritative religious tradition clearly commands something, that command carries more moral weight than any individual\'s personal conscience.',
+ text:'A clear command from a sacred text or religious tradition carries real weight. It outweighs any one person\'s conscience.',
  options:[]},
 
 {id:'t15lma05',tier:1,axis:'moral_authority',type:'likert',
- text:'Reason and evidence are more reliable guides to moral truth than religious authority, tradition, or consensus.',
+ text:'To know right from wrong, trust reason and evidence. Do not lean on religion, tradition, or the majority.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 // ── EPISTEMIC HUMILITY (5 questions) ──
@@ -5374,28 +5384,28 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.5},
 
 {id:'t15eh04',tier:1,axis:'epistemic_humility',type:'likert',
- text:'Saying "I genuinely do not know" on important philosophical questions is an intellectually stronger position than most confident answers.',
+ text:'On the big questions, saying "I honestly do not know" is often stronger than a confident answer.',
  poleLeft:'Disagree',poleRight:'Agree',weight:1.5},
 
 {id:'t15eh05',tier:1,axis:'epistemic_humility',type:'tradeoff',
  text:'Which is closer to your view about fundamental questions like the nature of consciousness, the existence of God, or the basis of morality?',
  options:[
    {text:'These questions have answers and careful thinking can get us close to them.',score:2},
-   {text:'These questions are genuinely hard enough that anyone claiming confident answers has probably not engaged with them deeply enough.',score:7},
+   {text:'These questions are hard enough that I distrust confident answers, including my own.',score:7},
    {text:'Some have answers we can approach; others may be permanently beyond our reach.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.5},
 {id:'t15eh05b',tier:1,axis:'epistemic_humility',type:'likert',weight:1.5,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'On the big questions — whether God exists, whether we have free will, what makes life meaningful — careful thinking can lead to genuinely confident conclusions.',
+ text:'Careful thinking about the big questions, like God, free will, and meaning, can lead to truly confident answers.',
  options:[]},
 
 // ── FREE WILL IN PRACTICE (5 questions) ──
 {id:'t2fwip01',tier:2,axis:'freewill_practice',type:'tradeoff',
  text:'When someone behaves in a way that causes harm, your instinctive response is to:',
  options:[
-   {text:'Hold them accountable for their actions. Whatever caused it, the response has to be about responsibility.',score:3},
-   {text:'Ask what produced the behaviour — their history, circumstances, state of mind. Understanding comes first.',score:7},
-   {text:'Vary my approach depending on what is at stake. Both frames have their place.',score:5,pinLast:true}
+   {text:'Hold them accountable for their actions. Whatever caused it, the response has to be about responsibility.',score:2},
+   {text:'Ask what produced the behaviour: their history, circumstances, state of mind. Understanding comes first.',score:7},
+   {text:'Vary my approach depending on what is at stake. Both frames have their place.',score:4,pinLast:true}
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2fwip03',tier:2,axis:'freewill_practice',type:'scenario',
@@ -5407,8 +5417,8 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 
 {id:'t2fwip04',tier:2,axis:'freewill_practice',type:'likert',
- text:'While acknowledging that behaviour may be shaped by factors outside their control, I believe we should hold people responsible for their actions.',
- poleLeft:'Disagree',poleRight:'Agree',weight:1.0, reversed:true},
+ text:'When someone keeps making harmful choices, the useful question is what keeps the pattern going, not how much blame they deserve.',
+ poleLeft:'Disagree',poleRight:'Agree',weight:1.0},
 
 {id:'t2fwip05',tier:2,axis:'freewill_practice',type:'tradeoff',
  text:'When thinking about your own future choices, which frame do you actually use?',
@@ -5419,25 +5429,25 @@ const QUESTIONS = [
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t2fwip06',tier:2,axis:'freewill_practice',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'When people make bad choices, I hold them genuinely responsible — understanding the causes of behaviour does not change the fact that they chose it.',
+ text:'When people make bad choices, I hold them responsible. Understanding the causes does not change the fact that they chose.',
  options:[]},
 
 // ── AUTHORITY RELATIONSHIP (5 questions, formalised) ──
 
 {id:'t3auth08',tier:3,axis:'authority',type:'scenario',
- text:'A law exists that you believe causes real harm, but breaking it carries significant personal risk. What do you lean toward?',
+ text:'Your manager gives you an instruction you are convinced is a mistake. You have said so once, and the instruction stands. What do you lean toward?',
  options:[
-   {text:'Following it. The rule of law matters even when specific laws are bad.',score:2},
-   {text:'Resisting it. An unjust law carries no moral authority.',score:7},
-   {text:'Working within the system to change it while complying in the meantime.',score:4}
+   {text:'Doing it their way. It is their call and their responsibility.',score:2},
+   {text:'Pushing back again, or quietly doing it the way you think is right.',score:7},
+   {text:'Doing it their way, but putting your objection on record.',score:4}
  ],poleLeft:'',poleRight:'',weight:1.0},
 {id:'t3auth10b',tier:3,axis:'authority',type:'likert',weight:1.0,reversed:true,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'People who respect and work within established systems — laws, institutions, and professional expertise — tend to produce better outcomes than those who challenge or circumvent them.',
+ text:'People who work within the system usually get better results than people who fight it or go around it.',
  options:[]},
-{id:'t3auth11',tier:3,axis:'authority',type:'likert',weight:1.0,reversed:true,
+{id:'t3auth11',tier:3,axis:'authority',type:'likert',weight:1.0,
  poleLeft:'Disagree',poleRight:'Agree',
- text:'Established institutions — governments, courts, universities — have generally earned their authority and deserve the benefit of the doubt.',
+ text:'Governments, courts, and universities too often protect themselves. The people they serve come second.',
  options:[]},
 
 ];
@@ -5466,7 +5476,7 @@ const QUESTION_EXPLANATIONS = {
   "t1n04b": "This is asking whether you think part of what makes up a person's inner life works in a way that no physical description of the brain, however complete, could ever fully produce.",
   "t1n05": "This is asking what you think the universe is ultimately made of: matter and energy alone, something beyond that, or whether that question feels genuinely unresolved to you.",
   "t1n06": "This describes a hypothetical result that keeps breaking known physical laws no matter how carefully it is tested. The question is what you would conclude from that, not what you currently believe about the supernatural.",
-  "t1d01": "This is about whether you feel your decisions are free in a strong sense, not just experienced as your own, but not fully fixed in advance by your biology, history, or brain state at the moment of choosing.",
+  "t1d01": "This is about whether your decisions are fully fixed in advance by your biology, history, and brain state at the moment of choosing, or free in a stronger sense than that.",
   "t1d02": "This describes someone whose life circumstances were severe, and asks how much weight you give to those circumstances versus their own choice when explaining the crime they committed. It is about this one case, not a general policy position.",
   "t1d03": "This is a thought experiment: imagine a machine that could always correctly predict your next decision before you make it. The question is what that would mean for whether you are genuinely choosing, not whether such a machine could actually exist.",
   "t1d04b": "This distinguishes two claims: that the past could have unfolded differently in some abstract sense, versus that you, specifically, had a real option in front of you that you were able to take but did not. The statement is asking about the second, stronger claim.",
@@ -5478,9 +5488,9 @@ const QUESTION_EXPLANATIONS = {
   "t1r04b": "A view from nowhere means a neutral standpoint with no perspective or assumptions built in. This is asking whether truth is always relative to some framework or culture, or whether some claims can be true regardless of who is making them.",
   "t1p02": "This is asking which description feels more accurate to you when you have a strong emotional experience: that it is essentially brain activity, that something about it cannot be reduced to brain activity, or some combination of the two.",
   "t1p03": "This is a hypothetical: imagine neuroscience reaches a complete physical map of consciousness. The question is how you would react to that announcement, not whether you think it is likely to happen soon.",
-  "t1p02b": "This is asking whether you think a complete physical description of brain activity could, in principle, fully capture what an emotional experience like love or grief actually feels like from the inside, or whether something would always be left out.",
+  "t1p02b": "This is a thought experiment: an exact physical copy of you, identical in every physical detail. It asks whether such a copy could still lack the inner feeling of being you, or whether nothing would be missing.",
   "t1p04": "This is asking whether you think the feeling of being conscious is, at bottom, a physical process that a sufficiently advanced neuroscience could fully explain, with nothing left over.",
-  "t1p05": "The mind-body problem is the puzzle of why physical processes in the brain produce subjective experience at all, rather than no experience. This is asking how solvable you think that puzzle ultimately is.",
+  "t1p05": "This is about what conscious experience ultimately is. It asks whether the feeling of being aware is, at bottom, something physical the brain does, something beyond the physical, or something we cannot yet call either way.",
   "t2k01": "This is asking how much weight you put on observation, testing, and evidence specifically, compared to other ways people arrive at truth.",
   "t2k02": "This sets up a direct conflict between a strong personal intuition and well designed research that says the opposite, and asks which way you would lean in that specific kind of conflict.",
   "t2k03": "This describes a practice with deep cultural and personal meaning that controlled research finds has no effect beyond placebo. It asks how you respond: treating the lack of measurable effect as decisive, treating the practice's longevity and felt meaning as its own kind of evidence, or setting aside any claims about how it works while keeping whatever part of it genuinely helps people.",
@@ -5497,33 +5507,33 @@ const QUESTION_EXPLANATIONS = {
   "t2me06": "This is asking whether you think meaning is built by people through what they choose to commit to, rather than something already present in the universe waiting to be discovered.",
   "t2me06b": "This distinguishes two ways something could matter to you: because it has value on its own, independent of you, or because it only has value since you chose to care about it. The statement is asking which one matches how your own meaningful things actually feel to you.",
   "t2s01": "This is asking whether a clear scientific consensus should be the default starting point for everyone on that topic, rather than treated as just one perspective among several equally valid ones.",
-  "t2s02": "This is asking how you would rank science as a way of knowing: the most reliable method available, a strong but limited tool, or one valid approach among several with no special priority over the others.",
+  "t2s02": "This is asking how you would rank science as a way of knowing, from the most reliable method available, through a strong but limited tool, to an approach with no special priority, or one whose track record does not earn the trust it gets.",
   "t2s03": "This is about your personal reaction in the moment a new study contradicts something you have believed for a long time, not your general view of how science works.",
   "t2s04": "This is asking whether you think science holds no special priority over other paths to understanding, like tradition, personal experience, or spiritual insight, treating them as equally valid.",
   "t2s05": "This is asking whether you think science struggles specifically with questions like meaning, consciousness, and lived experience, to the point that it should not be your main guide to understanding those particular questions.",
   "t3j02": "This describes a case where a removable brain tumour eliminates someone's aggressive behaviour entirely. It asks how that medical fact should affect how you think about responsibility and consequences for the act.",
   "t3j03": "This contrasts two ideas about what justice is fundamentally for: giving people what they deserve, versus rehabilitating people and preventing future harm. It asks whether you think desert is the core of justice, with the other two as secondary, however useful they are.",
   "t3j04": "This describes a teenager who committed a serious crime after years of abuse and neglect, with a judge who has wide sentencing discretion. It asks what approach to that specific decision feels most just to you.",
-  "t3j05": "This names three different concepts of what justice is for: giving people consequences proportional to harm, repairing harm and relationships, or changing the systems that produce harm in the first place. It asks which concept you find most compelling.",
+  "t3j05": "This names four different ideas of what justice is for: matching consequences to harm, preventing future harm, repairing harm and relationships, or changing the systems that produce harm. It asks which you find most convincing.",
   "t3j01": "This contrasts punishment as the main purpose of responding to serious harm against understanding its causes and preventing it from happening again.",
   "t3e01": "This is the classic trolley problem: pulling a lever kills one person instead of five who would otherwise die. It is asking what you would do, and what kind of reasoning feels right to you in that exact dilemma.",
   "t3e03": "This is a version of a well known philosophical thought experiment where saving five lives requires taking organs from one healthy, unwilling person. It is testing how you weigh outcomes against using a person as a means to an end, not whether such a scenario could really happen.",
   "t3e05": "This describes a lie that would protect an innocent person from serious harm, with no real downside to telling it. It asks whether you would tell it, and what kind of reasoning gets you there.",
   "t3e06": "This is asking whether you think certain actions are wrong no matter the outcome, even in cases where breaking that rule would prevent greater harm overall.",
-  "t3e02b": "This is asking whether duties like promise keeping, honesty, or respecting rights hold even in situations where breaking them would produce a better overall outcome.",
+  "t3e02b": "This is asking whether the right action is ultimately decided by the overall results it produces, even in cases where getting the best results means breaking a rule or a promise.",
   "t3r01": "This is asking for your overall historical assessment of organised religion across generations, weighing it as a whole rather than judging any one tradition or current event.",
   "t3r02": "This is about using personal religious faith as the main justification for a policy that affects people who may not share that faith. It is asking how you feel about that specific use of faith in public reasoning, not about religious belief itself.",
-  "t3r03": "This describes a specific religious upbringing with a particular teaching about being flawed and that doubt is dangerous, with no physical harm involved. It asks how you weigh psychological effects like this against parents' right to raise children in their own belief system.",
+  "t3r03": "This describes a strict religious upbringing where the faith is taught as settled truth and doubt is discouraged, with no physical harm involved. It asks how you weigh possible psychological effects against parents' right to raise children in their own belief system.",
   "t3r05": "This is about religious belief that brings real comfort during grief, regardless of whether its specific claims are true. It asks how you weigh that comfort against the question of whether the belief is actually true.",
-  "t3r06": "This separates the truth of religious claims from their value. It is asking whether faith offers something genuinely valuable that secular life struggles to replace, independent of whether the specific claims can be verified.",
+  "t3r06": "This is asking whether you think religious belief, taken as a whole, serves humanity or holds it back, looking forward rather than at any one religion or claim.",
   "t3p01": "This is asking what your first instinct is about the cause of large gaps in wealth, health, and opportunity between groups: systemic factors, individual factors, or some interaction of both.",
   "t3p02": "This describes a fortune built through genuine innovation and hard work that now exceeds the combined wealth of a large share of the population. It asks how you weigh legitimate individual effort against the scale of the resulting concentration of wealth.",
   "t3p03": "This is comparing two approaches to economic outcomes for society as a whole: individuals keeping and directing their own earnings, versus government programs that redistribute wealth.",
-  "t3p04": "This is asking how you see the relationship between individual freedom and collective equality: as values that trade off against each other, as values that actually support one another, or as separate priorities where one should generally come first.",
+  "t3p04": "This is asking whether you think very large wealth gaps undermine other people's freedom in practice, because concentrated money can become power over how others live.",
   "t3p05": "This describes a specific policy tradeoff: meaningfully better outcomes for the poorest 30 percent, funded by higher taxes on the wealthiest 5 percent. It asks where you land on that specific tradeoff.",
   "t3se02": "This is asking what you think is actually going on, at a deeper level, in a moment when a decision feels like a genuine expression of who you are.",
   "t3se03": "This is a thought experiment: imagine being raised from birth in a completely different culture with different values. It asks whether some core, real you would still exist in that alternate life, or whether who you are is mostly the product of your specific upbringing.",
-  "t3se04": "This is asking whether you feel there is a stable core to who you are that stays consistent underneath all the changes you go through over time.",
+  "t3se04": "This is asking how much of who you are today comes from things you never chose, like genes, upbringing, and life events, rather than from your own self-directed choices.",
   "t3se05": "This is asking how you would describe significant change in yourself over time: as something you actively drive, as something that mostly happens to you and is shaped by circumstance, or as a mix where it is genuinely hard to separate the two.",
   "t3se06": "This is asking whether you feel like the genuine author of your own choices and the person you have become, as opposed to feeling like your life is mostly the result of things that happened to you.",
   "t3ms02": "This is a forced choice thought experiment between one unfamiliar human stranger and one hundred dogs, with no other information available. It is testing how you weigh human and animal lives against each other, not asking you to plan for a real rescue.",
@@ -5540,9 +5550,9 @@ const QUESTION_EXPLANATIONS = {
   "t3so03": "This is asking whether you think genuine individual freedom actually depends on a society that actively provides things like education, health, security, and opportunity, rather than freedom mainly being about being left alone.",
   "t3so04": "This is asking which should generally take priority when a society's traditions conflict with an individual's rights: the individual right, the tradition, or whether it depends on the specifics of the case.",
   "t3so05": "This is asking whether you think society's main responsibility is protecting individual freedom, with people bearing ultimate responsibility for their own outcomes, rather than guaranteeing particular outcomes.",
-  "t3so05b": "This is asking whether you think society's role should be limited to protecting individual freedom, with people remaining ultimately responsible for their own welfare rather than society guaranteeing outcomes or redistributing resources.",
+  "t3so05b": "This is asking whether the right measure of a society is how it treats its weakest members, even when caring for them means limits on what everyone else gets to keep.",
   "t3resp01": "This describes two people with the same talent who end up with very different outcomes after starting in very different circumstances. It asks what you think best explains that gap.",
-  "t3resp02": "This is asking whether you think repeated failure is usually best explained by a person's own choices and character, rather than by external circumstances.",
+  "t3resp02": "This is asking whether repeated failure in a person's life is usually best explained by their circumstances, such as poverty, health, upbringing, and luck, rather than by their own choices.",
   "t3resp03": "This is asking what you think personal responsibility actually is at a deeper level: a useful idea regardless of whether it holds up philosophically, something genuinely real, something real but limited, or something that does not really apply given how choices are caused.",
   "t3resp04": "This describes someone with severe untreated depression who stops working and loses their job. It asks how responsible you think they are for that specific outcome.",
   "t3resp05": "This is asking whether you think personal choices are generally a bigger factor in someone's life outcomes than the circumstances they were born into or faced.",
@@ -5567,7 +5577,7 @@ const QUESTION_EXPLANATIONS = {
   "t3mind03": "The hard problem of consciousness refers to explaining why physical brain processes are accompanied by subjective experience at all, rather than no experience. This is asking whether you think that problem will dissolve once all the brain's functions are explained, or whether something would still be left unexplained.",
   "t3mind04": "Panpsychism is described in the question itself: the idea that some form of consciousness is a basic feature of all matter, not unique to brains. This is asking how plausible you find that view as a response to the hard problem of consciousness.",
   "t3mind03b": "This is asking whether you think the hard problem of consciousness, explaining why physical processes feel like something from the inside, is something neuroscience alone could ever fully resolve, or whether it will remain genuinely unresolved by physical explanation alone.",
-  "t3mind05": "This is asking whether you think a complete neuroscience would still leave something about the felt quality of conscious experience unexplained, no matter how thorough the physical mapping becomes.",
+  "t3mind05": "This is a thought experiment about whether being you depends on what your brain is made of. If a machine copied everything your brain does, the question is whether the copy would actually feel like being you, or only act like it.",
   "t3an01": "This distinguishes two ways animal pain could matter: only because of what it does for humans, or because the animal's own suffering matters in itself. The statement is asking about the second, stronger claim.",
   "t3an02": "This is asking how seriously you think eating factory farmed meat is an ethical problem, given that plant based alternatives exist, on a scale from a serious large scale issue to a personal choice with no real ethical weight.",
   "t3an03": "This describes a medical experiment that could save thousands of human lives but requires causing serious suffering to 200 chimpanzees. It asks how you weigh those two outcomes against each other.",
@@ -5587,7 +5597,7 @@ const QUESTION_EXPLANATIONS = {
   "t15hn03": "This describes two people raised in completely different cultures meeting as adults, and asks what you think they would actually share underneath those differences.",
   "t15hn05": "This is a thought experiment about raising a child from birth in a completely different culture, and asks what kind of person you think they would become relative to who they actually are now.",
   "t15hn06": "This is asking whether you think what gets called human nature is mostly produced by culture, language, and social conditions, rather than something fixed in biology.",
-  "t15hn01b": "This is asking whether you think there is no fixed human nature at all, with who we are almost entirely shaped by the language, culture, and social conditions we grow up in.",
+  "t15hn01b": "This is asking whether you think all people share one underlying human nature, with the same core needs, drives, and feelings appearing in every culture.",
   "t15em01": "This is asking what you trust most as a starting point when you want to understand something important: evidence and testing, reasoning from first principles, tradition, or direct personal experience.",
   "t15em03": "This describes a long standing practice that feels deeply meaningful to people but shows no measurable effect beyond what merely expecting it to work would produce. It asks how you make sense of that combination.",
   "t15em04": "This is asking whether you think reasoning and logic, on their own, without any grounding in observation, can produce real knowledge about the world, or whether they cannot.",
@@ -5611,16 +5621,16 @@ const QUESTION_EXPLANATIONS = {
   "t15eh02": "This is asking what your first instinct is when you meet someone who holds very confident views on deep philosophical questions: respect, skepticism, or interest while holding your own view more loosely.",
   "t15eh03": "This describes a moment where you hold a strong conclusion on a deep question, and someone presents a serious argument against it that you cannot immediately answer. It asks what actually happens for you in that moment.",
   "t15eh04": "This is asking whether you think openly admitting you do not know is generally a stronger intellectual position than most confident answers on important philosophical questions.",
-  "t15eh05": "This is asking which is closer to your view on deep questions like consciousness, God, or the basis of morality: that they have real answers within reach, that anyone confident about them probably has not engaged with them deeply enough, or that some such questions are reachable while others may not be.",
+  "t15eh05": "This is asking which is closer to your view on deep questions like consciousness, God, or the basis of morality: that they have real answers within reach, that they are hard enough to make confident answers suspect, or that some are reachable while others may not be.",
   "t15eh05b": "This is asking whether you think careful thinking can actually lead to genuinely confident conclusions on big questions like these, rather than those questions remaining open no matter how carefully you think them through.",
   "t2fwip01": "This is asking what your instinctive response is when someone behaves in a way that causes harm: holding them accountable, asking what caused the behaviour, or varying your approach depending on the situation.",
   "t2fwip03": "This is asking what you actually feel, in the moment, when someone you care about does something that hurts you: blame toward them, an instinct to understand what drove it, or both at once.",
-  "t2fwip04": "This is asking whether you think people should be held responsible for their actions even while acknowledging that those actions may be shaped by factors outside their control.",
+  "t2fwip04": "This is asking which question matters more to you when someone repeatedly causes harm: understanding what keeps producing the behaviour, or working out how much blame they deserve.",
   "t2fwip05": "This is asking which frame you actually use when thinking about your own future choices: thinking in terms of what you want and will choose, thinking in terms of changing your conditions to get better outcomes, or both.",
   "t2fwip06": "This is asking whether you think understanding the causes behind someone's bad choice changes how responsible you hold them for it, or whether you think they remain genuinely responsible regardless.",
-  "t3auth08": "This describes a law you believe causes real harm, where breaking it carries real personal risk to you. It asks what you would lean toward doing in that situation.",
+  "t3auth08": "This describes a workplace disagreement where you think an instruction is wrong, you have said so once, and the person in charge has kept it in place. It asks what you would lean toward doing next.",
   "t3auth10b": "This is asking whether you think working within established systems generally produces better outcomes than challenging or going around them.",
-  "t3auth11": "This is asking whether you think major established institutions have generally earned their authority through how they have operated, and deserve the benefit of the doubt by default.",
+  "t3auth11": "This is asking whether you think large institutions mostly serve the people they exist for, or mostly end up protecting their own position and interests.",
 };
 
 
@@ -8055,7 +8065,7 @@ Return ONLY valid JSON — no markdown fences:
             reversed: q.reversed || false,
             scored_value: q.reversed ? (8 - answer) : answer,
             weight: q.weight || 1.0,
-            instrument_version: 'v3',
+            instrument_version: INSTRUMENT_VERSION,
             dev_flag: flagData ? !!flagData.flagged : false,
             dev_note: flagData ? (flagData.note || null) : null,
           };
@@ -8071,7 +8081,7 @@ Return ONLY valid JSON — no markdown fences:
           completed_at: new Date().toISOString(),
           source: 'philos-p446wuyzi-the-life-pm-s-projects.vercel.app',
           qa_mode: state.qaMode || false,
-          instrument_version: 'v3',
+          instrument_version: INSTRUMENT_VERSION,
           axis_count: 32,
           question_count: 160,
           responses: responsesPayload,
@@ -10436,12 +10446,18 @@ function devAxisInspect() {
   const byType = {};
   qs.forEach(q => { byType[q.type] = (byType[q.type] || 0) + 1; });
   const typeStr = Object.entries(byType).map(([t,n]) => n + ' ' + t).join(', ');
-  // Standard: 5 items, 2 reversed
+  // Standard (D40/D65, instrument v4): 5 items per axis; reversed flags on Likert items only;
+  // where an axis has 2+ Likert items, both keying directions must be present.
   const countOk = qs.length === 5;
-  const revOk = reversed.length === 2;
+  const badFlags = qs.filter(q => q.reversed && q.type !== 'likert');
+  const likerts = qs.filter(q => q.type === 'likert');
+  const likRev = likerts.filter(q => q.reversed).length;
+  const likDir = likerts.length - likRev;
+  const keyOk = badFlags.length === 0 && (likerts.length < 2 || (likRev > 0 && likDir > 0));
+  const keyMsg = badFlags.length ? '⚠ non-Likert reversed flag' : (likerts.length >= 2 && (likRev === 0 || likDir === 0)) ? '⚠ single-direction keying' : '✓';
   let html = '<div style="margin-bottom:10px;">';
   html += '<span style="color:' + (countOk ? 'var(--teal)' : 'var(--danger)') + ';">' + qs.length + ' items ' + (countOk ? '✓' : '⚠ expected 5') + '</span> &nbsp; ';
-  html += '<span style="color:' + (revOk ? 'var(--teal)' : 'var(--danger)') + ';">' + reversed.length + ' reversed ' + (revOk ? '✓' : '⚠ expected 2') + '</span> &nbsp; ';
+  html += '<span style="color:' + (keyOk ? 'var(--teal)' : 'var(--danger)') + ';">Likert keying ' + likDir + ' dir / ' + likRev + ' rev ' + keyMsg + '</span> &nbsp; ';
   html += '<span style="color:var(--muted);">' + typeStr + '</span>';
   html += '</div>';
   html += '<div style="color:var(--muted);margin-bottom:6px;">Poles: ' + (meta.poleL || '?') + ' ← → ' + (meta.poleR || '?') + '</div>';
@@ -10685,8 +10701,17 @@ function devRunIntegrityCheck() {
   QUESTIONS.forEach(q => { if (!axisGroups[q.axis]) axisGroups[q.axis] = []; axisGroups[q.axis].push(q); });
   Object.entries(axisGroups).forEach(([axis, qs]) => {
     if (qs.length !== 5) issues.push(axis + ': ' + qs.length + ' items (expected 5)');
-    const rev = qs.filter(q => q.reversed).length;
-    if (rev !== 2) warnings.push(axis + ': ' + rev + ' reversed (expected 2)');
+    const likerts = qs.filter(q => q.type === 'likert');
+    const revLikerts = likerts.filter(q => q.reversed).length;
+    if (likerts.length >= 2) {
+      if (revLikerts === 0) warnings.push(axis + ': no reversed Likert items among ' + likerts.length);
+      if (revLikerts === likerts.length) warnings.push(axis + ': all ' + likerts.length + ' Likert items reversed');
+    }
+    qs.forEach(q => {
+      if (q.reversed && q.type !== 'likert') {
+        issues.push(axis + '/' + q.id + ': reversed:true on a non-Likert item (violates D40)');
+      }
+    });
   });
   // Check all axes covered
   const axisKeys = Object.keys(AXIS_META);
@@ -10700,7 +10725,7 @@ function devRunIntegrityCheck() {
   // Report
   let html = '';
   if (issues.length === 0 && warnings.length === 0) {
-    html = '<div style="color:var(--teal);font-weight:600;">✓ All integrity checks passed. Instrument v3 is valid.</div>';
+    html = '<div style="color:var(--teal);font-weight:600;">✓ All integrity checks passed. Instrument ' + INSTRUMENT_VERSION + ' is valid.</div>';
   } else {
     if (issues.length > 0) {
       html += '<div style="color:var(--danger);font-weight:600;margin-bottom:6px;">Errors (' + issues.length + '):</div>';
@@ -11470,7 +11495,7 @@ async function saveCompletionToAccount(payload) {
       fingerprint:       payload.fingerprint,
       contradictions_count: payload.contradictions_count,
       report_json:       payload.report_json,
-      instrument_version: payload.instrument_version || 'v3',
+      instrument_version: payload.instrument_version || INSTRUMENT_VERSION,
       qa_mode:           payload.qa_mode || false,
       completed_at:      new Date().toISOString(),
     });
