@@ -11052,8 +11052,10 @@ async function submitOnboarding() {
     return; // keep modal open - required consent did not actually record
   }
 
-  // Marketing is optional - do not block onboarding on this one failing,
-  // but do not silently drop it either.
+  // Marketing is optional - do not block onboarding on this one failing.
+  // But an unchecked box failing to log is a non-event; a CHECKED box
+  // failing to save means we might be silently not honouring an opt-in,
+  // which is worth a visible (non-blocking) notice.
   const marketingResult = await recordConsent(session, {
     consentType: 'marketing',
     granted: marketing,
@@ -11061,7 +11063,12 @@ async function submitOnboarding() {
     source: 'onboarding',
     textSnapshot: document.getElementById('ob-marketing')?.parentElement?.textContent?.trim() || null,
   });
-  if (!marketingResult.ok) console.warn('[Consent] Marketing preference not recorded:', marketingResult.error);
+  if (!marketingResult.ok) {
+    console.warn('[Consent] Marketing preference not recorded:', marketingResult.error);
+    if (marketing) {
+      showToast('Your account was created, but your marketing email preference could not be saved. You can try again later in Settings.');
+    }
+  }
 
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.style.display = 'none';
@@ -11084,6 +11091,19 @@ async function recordConsent(session, { consentType, granted, consentVersion, so
   } catch (e) {
     return { ok: false, error: e.message };
   }
+}
+
+// Minimal non-blocking notice, bottom of viewport, auto-dismiss. Used where
+// a failure should be visible but must not interrupt the current flow.
+function showToast(message) {
+  const existing = document.getElementById('phil-os-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'phil-os-toast';
+  toast.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);max-width:420px;width:calc(100% - 48px);z-index:10000;background:#14122e;border:1px solid rgba(224,120,74,0.35);border-radius:10px;padding:14px 18px;font-family:IBM Plex Sans,sans-serif;font-size:13px;color:#f0ede6;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,0.35);';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => { const t = document.getElementById('phil-os-toast'); if (t) t.remove(); }, 8000);
 }
 
 function skipOnboarding() {
