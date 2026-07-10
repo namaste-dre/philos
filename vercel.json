@@ -3,6 +3,9 @@
     "api/generate.js": { "maxDuration": 60 },
     "api/chat.js":     { "maxDuration": 30 }
   },
+  "rewrites": [
+    { "source": "/report", "destination": "/api/report" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
