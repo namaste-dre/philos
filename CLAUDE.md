@@ -133,8 +133,8 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 
 ## NEXT PRIORITIES (as of 2026-07-10)
 
-0. **Andre: review and push local commits `0d7efd9` + `c5acf7c` + `4cc13f8` (Phase 8 + docs + 10c, D93-D95)** - fully verified, one deploy covers both batches. Then one QA-mode report generation to confirm r2 metadata + growth rendering.
-0b. **Fable's remaining window, governed by D86** - Phase 8 (D93/D94) and 10c (D95) are done. Next: scoped-down Phase 15 re-audit (capped 15-20% of capacity), then 10g report depth, then 10f positioning/claims boundaries. 10i and 10h-dropdown are Sonnet's, not Fable's.
+0. **Andre: review and push local commits `0d7efd9` through `1ffc8bb` (Phase 8 + 10c + Phase 15 + 10f docs, D93-D97)** - fully verified, one deploy covers everything. Then one QA-mode report generation to confirm r2 metadata + growth rendering.
+0b. **Fable's remaining window, governed by D86** - Phase 8 (D93/D94), 10c (D95), scoped Phase 15 (D96), and 10f boundaries (D97) are done. Sole remaining Fable item: 10g report-section content depth. Sonnet: implement landing copy inside `FABLE5_10F_CLAIMS_BOUNDARIES.md`. 10i and 10h-dropdown are Sonnet's, not Fable's.
 1. Step 4 of the consent sequence - unified onboarding/re-consent UI (collapse the 4 consent surfaces, delete dead consent-gate code, split age confirmation from assessment consent, build a real withdraw action, version-gate existing users).
 2. Step 5 - age enforcement (real server-side validation, not just the HTML min attribute).
 3. Step 6 - regression tests across the full consent flow.
