@@ -180,10 +180,18 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
       <div style="font-size:16px;color:#f0ede6;line-height:1.65;">${p.text}</div>
     </div>`).join('');
 
+  // Growth entries are {title, text, practice} objects since Phase 8;
+  // older stored reports hold plain strings — render both.
   const growthHtml = growth.map((g, i) => `
     <div style="display:flex;gap:22px;padding:24px 26px;background:#111028;border:1px solid rgba(255,255,255,0.09);border-radius:12px;align-items:flex-start;margin-bottom:12px;">
       <div style="font-family:Playfair Display,serif;font-size:26px;color:#b8aef5;line-height:1.1;flex-shrink:0;font-weight:700;opacity:0.75;">${i + 1}</div>
-      <div style="font-size:17px;color:#f0ede6;line-height:1.78;">${g}</div>
+      <div style="font-size:17px;color:#f0ede6;line-height:1.78;">${
+        (g && typeof g === 'object')
+          ? `<div style="font-weight:600;color:#f0ede6;margin-bottom:6px;">${g.title || ''}</div>
+             <div>${g.text || ''}</div>
+             ${g.practice ? `<div style="margin-top:10px;font-size:14px;color:#b8aef5;"><span style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Try this</span><br>${g.practice}</div>` : ''}`
+          : g
+      }</div>
     </div>`).join('');
 
   const worldHtml = worldCards.map((card, i) => worldCard(card, worldIcons[i]?.emoji || '○', worldIcons[i]?.bg || 'rgba(255,255,255,0.06)')).join('');

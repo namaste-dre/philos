@@ -138,7 +138,8 @@ export default async function handler(req, res) {
         'x-api-key':          apiKey,
         'anthropic-version':  '2023-06-01',
       },
-      body: JSON.stringify({ model, max_tokens: maxTokens, thinking: { type: 'disabled' }, messages }),
+      // Temperature fixed server-side for report reproducibility (C1/D47) — client cannot inject it
+      body: JSON.stringify({ model, max_tokens: maxTokens, temperature: 0.6, thinking: { type: 'disabled' }, messages }),
     });
 
     const data = await response.json();

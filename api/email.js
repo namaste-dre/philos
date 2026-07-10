@@ -23,10 +23,11 @@ export default async function handler(req, res) {
     </tr>
   `).join('');
 
+  // Growth entries are {title, text, practice} objects since Phase 8; older payloads hold strings.
   const growthHTML = (growth || []).map((g, i) => `
     <div style="margin-bottom:16px;padding:16px;background:rgba(157,147,232,0.08);border-left:3px solid #7c6fd4;border-radius:4px;">
-      <div style="color:#9d93e8;font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Growth Edge ${i + 1}</div>
-      <div style="color:#e8e6f0;font-family:sans-serif;font-size:14px;line-height:1.6;">${g}</div>
+      <div style="color:#9d93e8;font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Growth Edge ${i + 1}${(g && typeof g === 'object' && g.title) ? ' · ' + g.title : ''}</div>
+      <div style="color:#e8e6f0;font-family:sans-serif;font-size:14px;line-height:1.6;">${(g && typeof g === 'object') ? `${g.text || ''}${g.practice ? '<br><br><em>Try this: ' + g.practice + '</em>' : ''}` : g}</div>
     </div>
   `).join('');
 

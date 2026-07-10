@@ -11,6 +11,7 @@ const COMPLETION_COLUMNS = [
   'contradictions_count', 'completed_at', 'source', 'qa_mode',
   'report_json', 'instrument_version', 'axis_count', 'question_count',
   'gender', 'age',
+  'report_version', 'prompt_hash', 'model', 'temperature', 'generated_at',
 ];
 const RESPONSE_COLUMNS = [
   'question_id', 'question_text', 'axis', 'tier', 'question_type',

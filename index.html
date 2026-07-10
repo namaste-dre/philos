@@ -4399,6 +4399,12 @@ function sanitizeName(str) {
 // write site and in the dev-panel integrity check, so a future version bump
 // only needs to change this one constant.
 const INSTRUMENT_VERSION = 'v4';
+
+// Report pipeline version (D47). r1 = pre-Phase-8 (AI-generated card text,
+// growth, patterns, OCEAN in prompt). r2 = Phase 8: hard-written variant texts,
+// growth-edge library, tightened 2-call prompt, output validator, temp 0.6.
+const REPORT_VERSION = 'r2';
+
 const QUESTIONS = [
 
 // ══════════════════════════════════════════
@@ -6438,257 +6444,786 @@ const AXIS_META = {
 };
 
 // ══════════════════════════════════════════
+// GROWTH EDGE LIBRARY — Phase 8 (C1/D86)
+// 64 axis entries (32 axes x 2 poles) + 42 contradiction entries.
+// Selected deterministically by selectGrowthEdges(); replaces AI-generated growth.
+// Every pole pair written and reviewed together: both poles get edges of equal
+// dignity. An edge is a consequence of strength, never a verdict on the belief.
+// ══════════════════════════════════════════
+const GROWTH_EDGES_AXIS = {
+  naturalism: {
+    L: {title:'Testing the porous boundary',
+        text:'Because your world includes more than physics, the boundary between what you accept and what you doubt does most of your epistemic work. That boundary deserves regular inspection. A worldview open to the supernatural is strongest when it can still say no to specific claims.',
+        practice:'Next time you encounter a supernatural claim you like, ask what would count against it, and answer yourself honestly.'},
+    R: {title:'Hearing what you filter out',
+        text:'A settled naturalism filters experience before you notice it happening. Reports of the transcendent arrive pre-sorted as error, which means you never really examine them, and whole regions of human experience reach you only as caricature. You can keep the metaphysics and still lose the deafness.',
+        practice:'Ask one person of faith what their experience is actually like from the inside, and listen without preparing a rebuttal.'},
+  },
+  physicalism: {
+    L: {title:'Keeping the mystery precise',
+        text:'Holding that mind exceeds the physical puts you against a strong scientific headwind, which you already know. The edge is precision: mystery can become a place where hard questions go to rest rather than to work. Your position is strongest when it stays a sharp claim, not a comfortable fog.',
+        practice:'Write down which specific mental phenomenon you think physical explanation cannot reach, in one sentence, and revisit it when new evidence appears.'},
+    R: {title:'Respecting the unexplained remainder',
+        text:'Confidence that mind is physical can quietly become confidence that the remaining puzzles are small. The felt quality of experience is still genuinely unexplained, and treating it as nearly solved is faith wearing a lab coat. Your position gains strength when it names what it has not yet earned.',
+        practice:'When consciousness comes up, practise saying "we do not know yet" about the parts we genuinely do not know, without adding "but we will."'},
+  },
+  realism: {
+    L: {title:'Building on shifting ground',
+        text:'Seeing truth as constructed makes you brilliant at spotting hidden assumptions, and it can quietly corrode your own commitments. If every framework is a lens, choosing between lenses starts to feel arbitrary, and important decisions can lose their footing. Constructed ground can still be built on deliberately.',
+        practice:'Pick one belief you act on daily and write down why it deserves your commitment even if it is a construction.'},
+    R: {title:'Noticing the observer effects',
+        text:'Trusting that reality is simply there, independent of minds, makes you steady, and it can hide how much your vantage point shapes what you see. The facts may be mind-independent; your access to them never is. The strongest realism keeps one eye on its own instruments.',
+        practice:'For one contested fact you feel sure of, trace where you learned it and what your sources stood to gain.'},
+  },
+  determinism: {
+    L: {title:'Seeing the weight of circumstance',
+        text:'A strong sense of free agency is energising, and it can make other people\'s failures look like pure choice. Circumstance, biology, and luck do heavy lifting in every life, including yours. Genuine freedom is easiest to believe in from inside a life where it was affordable.',
+        practice:'When you next judge someone\'s bad decision, list three circumstances that made that decision cheaper for them than it would be for you.'},
+    R: {title:'Living what you know',
+        text:'Seeing behaviour as caused gives you rare compassion, and it can sit awkwardly with the resentment, pride, and blame you still actually feel. The edge is integration: a determinism held in the head but not the nervous system becomes a lecture, not a life.',
+        practice:'Next time you feel resentment toward someone, apply your own causal analysis to them in real time and notice what shifts.'},
+  },
+  moral_ground: {
+    L: {title:'Anchoring without bedrock',
+        text:'Holding morality as human-made frees you from false certainty, and it leaves your strongest moral reactions officially unexplained. You still find some things intolerable. The edge is owning those commitments as fully as a realist would, without the metaphysics you have declined.',
+        practice:'Name the one moral line you would defend at real cost, and write down what actually anchors it for you.'},
+    R: {title:'Explaining disagreement charitably',
+        text:'Confidence that moral facts exist can make persistent moral disagreement look like the other side\'s defect. But serious, informed people have disagreed about ethics for as long as ethics has existed. Your realism is strongest when it can explain that history without calling most of humanity blind.',
+        practice:'Take one moral view you consider plainly wrong and reconstruct the strongest honest case for it before rejecting it again.'},
+  },
+  meaning: {
+    L: {title:'Maintaining what you build',
+        text:'Constructed meaning is honest, and it is also maintenance-heavy. What you build can be unbuilt by grief, failure, or plain exhaustion, and there is no cosmic warranty behind it. People who know their meaning is chosen need practices that renew the choosing.',
+        practice:'Identify which single project or person currently carries most of your sense of meaning, and invest this month in a second source.'},
+    R: {title:'Meeting the unconvinced',
+        text:'Experiencing meaning as real and discovered gives your life unusual solidity. The edge is translation: people who have not found what you found are not necessarily failing to look. Your view is strongest when it can honour a seeker\'s empty-handedness without condescension.',
+        practice:'Ask someone who sees meaning as invented how they sustain commitment, and look for what your framework can learn from theirs.'},
+  },
+  teleology: {
+    L: {title:'Purposelessness without drift',
+        text:'Accepting a universe without direction is clarifying, and it quietly shifts all the work of direction onto you. Without cosmic purpose, personal purpose has no default setting; drift becomes the failure mode. The universe not having a plan does not exempt you from having one.',
+        practice:'Write one sentence stating what this year is for, by your own lights, and put it somewhere you will see it weekly.'},
+    R: {title:'Reading purpose carefully',
+        text:'Sensing direction in the universe gives your life a felt coherence most people lack. The edge is specificity: a purposeful cosmos can become a screen onto which preferences are projected as destiny. The conviction is strongest when you stay strict about what the purpose actually asks of you.',
+        practice:'Distinguish, in writing, one thing you believe the larger order asks of you from one thing you simply want, and check how you told them apart.'},
+  },
+  human_nature: {
+    L: {title:'Finding the common floor',
+        text:'Seeing people as shaped rather than fixed makes you unusually hopeful about change. The edge is the floor: some human patterns recur across every culture and era, and plans that ignore them tend to break. Malleability is real; it just is not unlimited.',
+        practice:'Pick one recurring human behaviour you consider socially constructed and check honestly whether any society has ever been without it.'},
+    R: {title:'Watching essence become excuse',
+        text:'A firm view of human nature keeps your expectations realistic. The edge is where description slides into permission, where "people are like this" becomes a reason to stop asking whether they could be otherwise. Natures constrain; they rarely dictate as much as they are credited with.',
+        practice:'Catch yourself once this week saying some behaviour is "just human nature," and ask what evidence would show it could actually shift.'},
+  },
+  epistemic_method: {
+    L: {title:'Letting evidence talk back',
+        text:'Trusting revelation or deep intuition connects you to sources of conviction that evidence alone never provides. The edge is correction: a knowing that cannot be wrong cannot learn. Your way of knowing is strongest where it stays answerable to something outside itself.',
+        practice:'Recall one belief your tradition or intuition once gave you that you later revised, and name what allowed the revision.'},
+    R: {title:'Measuring what will not sit still',
+        text:'Empirical discipline protects you from a thousand errors. It also trains you to under-weigh what resists measurement: grief, love, the texture of a life. Some of the most important knowledge arrives as testimony and experience, not data. Rigour that dismisses those is missing evidence, not avoiding it.',
+        practice:'Take one important life question you have been treating as a data problem and ask someone wise instead of something searchable.'},
+  },
+  social_ontology: {
+    L: {title:'Seeing the invisible scaffolding',
+        text:'Starting from individuals keeps agency and accountability sharp. The edge is the scaffolding: institutions, incentives, and inherited structures shape choices before anyone chooses. Analysis that starts and ends with individuals will keep fixing people while the machine that produces them runs on.',
+        practice:'For one recurring problem you attribute to individual failings, sketch what incentive structure would produce the same behaviour from decent people.'},
+    R: {title:'Finding the person in the structure',
+        text:'Seeing structures gives you explanatory power most people never develop. The edge is agency: inside every system are persons who chose, resisted, or complied, and explanations that dissolve them entirely stop being able to praise or blame anyone, including allies. Structures act through people who could sometimes do otherwise.',
+        practice:'Next time you explain an outcome structurally, name one point in the chain where an individual decision genuinely mattered.'},
+  },
+  temporal_orientation: {
+    L: {title:'Testing what tradition carries',
+        text:'Trusting inherited wisdom connects you to knowledge tested across generations, which is a real epistemic asset. The edge is sorting: traditions carry their accidents alongside their wisdom, and reverence makes the two hard to tell apart. Honouring the past includes asking which parts earned the honour.',
+        practice:'Choose one inherited practice you defend and trace what problem it originally solved, then check whether the problem still exists.'},
+    R: {title:'Salvaging before demolishing',
+        text:'Facing the future frees you from arrangements that deserve to end. The edge is salvage: what exists usually encodes solutions to problems you have not personally met yet. Building the new is faster and safer when you first learn what the old was quietly doing.',
+        practice:'Before your next push to replace something established, write down what it currently handles well and how your replacement covers it.'},
+  },
+  moral_authority: {
+    L: {title:'Owning the interpretive step',
+        text:'Grounding morality in the divine or in tradition gives your ethics depth and continuity. The edge is interpretation: every scripture and tradition reaches you through human readings, including yours. Naming your own interpretive choices is not disloyalty; it is honesty about how authority actually operates.',
+        practice:'Pick one moral rule you hold on authority and identify where interpretation entered, in the tradition\'s history or in your own reading.'},
+    R: {title:'Auditing the inner voice',
+        text:'Answering to your own conscience keeps your ethics genuinely yours. The edge is audit: a conscience checked by nothing outside itself drifts with mood, interest, and era, and calls the drift growth. Even a sovereign conscience needs an external witness sometimes.',
+        practice:'Invite one person you trust to challenge a moral call you have made recently, and let the challenge run to the end.'},
+  },
+  epistemic_humility: {
+    L: {title:'Scheduling the re-examination',
+        text:'Confidence lets you act while others deliberate, and it accumulates blind spots silently. Positions calcify simply because nothing is scheduled to disturb them. Strong views deserve service intervals like any load-bearing equipment.',
+        practice:'Pick your oldest strong opinion and spend twenty minutes with the best current case against it, this week.'},
+    R: {title:'Acting before certainty arrives',
+        text:'Genuine uncertainty is intellectually honest, and life keeps demanding decisions on schedules certainty does not honour. The edge is committing while unsure: acting at seventy percent confidence, cleanly, without either false conviction or paralysis. Doubt is a method, not an address.',
+        practice:'Take one decision you have been deferring for more clarity and make it this week at the confidence level you actually have.'},
+  },
+  knowledge: {
+    L: {title:'Cross-checking the inner compass',
+        text:'Intuition and revelation deliver knowledge with a felt certainty that reasoning rarely matches. The edge is that felt certainty is exactly what error feels like from the inside, too. The compass may be sound; it still deserves a second instrument beside it.',
+        practice:'Next time an intuition arrives with total certainty, write it down and check it against outcomes a month later.'},
+    R: {title:'Knowing what evidence cannot say',
+        text:'Requiring evidence keeps your beliefs clean. The edge is scope: whole categories of human knowing, what a friendship is worth, whether to forgive, arrive without anything resembling data. Treating those as lesser knowledge does not make you rigorous; it makes you partially informed.',
+        practice:'Identify one important judgment you have been postponing for lack of evidence that is really a judgment of value, and make it as one.'},
+  },
+  science: {
+    L: {title:'Separating the method from the institutions',
+        text:'Skepticism toward scientific consensus keeps you immune to fashionable certainty, which has real value. The edge is the difference between doubting institutions and doubting the method: peer-reviewed convergence across rival teams is not a press release. Discounting both together throws away the most error-corrected knowledge humans produce.',
+        practice:'Pick one consensus you doubt and read how the evidence was actually gathered before renewing the doubt.'},
+    R: {title:'Trusting without outsourcing',
+        text:'Trusting scientific consensus is usually the rational bet. The edge is where trust becomes outsourcing: "studies show" can end thinking rather than inform it, and consensus positions do get overturned by better data. The method deserves your trust precisely because it expects you to stay awake.',
+        practice:'For one claim you repeat with "the science says," go find the actual strength of the underlying evidence.'},
+  },
+  freewill_practice: {
+    L: {title:'Pricing in the headwinds',
+        text:'Holding people accountable keeps standards real and treats people as capable, which is a form of respect. The edge is uneven ground: identical choices cost different people wildly different amounts. Accountability that ignores headwinds stops measuring character and starts measuring luck.',
+        practice:'Before your next hard judgment of someone, ask what that same choice would have cost you at their worst moment.'},
+    R: {title:'Keeping expectations alive',
+        text:'Reading behaviour through its causes makes you slow to condemn, which people feel and value. The edge is expectation: explanations can quietly become predictions, and predictions become permissions. People often rise or sink to what those around them expect; pure explanation can withdraw the demand that helps people change.',
+        practice:'Pick one person you have quietly stopped expecting better from, and give them one clear, real expectation this month.'},
+  },
+  justice: {
+    L: {title:'Checking what punishment builds',
+        text:'Taking desert seriously honours victims and treats offenders as responsible agents rather than broken objects. The edge is outcomes: punishments satisfy the ledger and still sometimes manufacture the next offence. A desert theorist who also tracks results loses nothing and sees more.',
+        practice:'For one punishment you support, look up whether it actually reduces the behaviour it targets.'},
+    R: {title:'Weighing the victim\'s ledger',
+        text:'Focusing on rehabilitation and causes attacks harm at the root. The edge is the ledger: victims carry a real moral claim that "what conditions produced this" does not by itself answer. A justice of repair is strongest when the person harmed can recognise themselves in it.',
+        practice:'Next time you argue for a structural response to a crime, state in one sentence what the specific victim is owed.'},
+  },
+  ethics: {
+    L: {title:'Counting the costs of clean hands',
+        text:'Rules that do not bend protect what should never be traded. The edge is the bill: refusing to dirty your hands sometimes hands the harm to someone else, plus interest. Principle is strongest when it has looked its own consequences in the eye and accepted them knowingly.',
+        practice:'Take one rule you hold absolutely and write down the worst realistic outcome keeping it could produce, then decide again.'},
+    R: {title:'Guarding the untradeable',
+        text:'Weighing outcomes lets you do the most good with what you have. The edge is the remainder: some things, promises, persons, trust, degrade the moment they become tradeable, and a pure calculus keeps quietly putting them on the scale. The strongest consequentialists know which goods their arithmetic must not touch.',
+        practice:'Name one commitment you would keep even if the numbers said break it, and notice what that tells you about your actual ethics.'},
+  },
+  religion: {
+    L: {title:'Letting the outside voice in',
+        text:'Faith gives you what secular frameworks struggle to match: community, continuity, consolation with deep roots. The edge is insulation: a faith that only ever hears friendly voices loses the ability to distinguish its truth from its comfort. The traditions you love grew strong by surviving argument, not avoiding it.',
+        practice:'Read one serious critic of your tradition this month, chosen for quality rather than weakness.'},
+    R: {title:'Studying what you oppose',
+        text:'Opposing religion where it causes harm is a moral position, not a defect. The edge is resolution: opposition can flatten billions of very different believers into one adversary, and flat pictures produce bad predictions. Knowing exactly what you reject, in its strongest form, makes the rejection worth more.',
+        practice:'Have one conversation with a thoughtful believer this month where your only goal is to state their view so well they endorse it.'},
+  },
+  politics: {
+    L: {title:'Mapping where markets stop',
+        text:'Trusting individual and market solutions respects people\'s ability to run their own lives. The edge is the map: some problems, pollution, pandemics, monopoly, are structurally collective, and individual solutions to collective problems quietly become no solution. Knowing exactly where your tool stops working makes it a better tool.',
+        practice:'Pick one problem you frame individually and check what happened where purely individual solutions were actually tried.'},
+    R: {title:'Costing the collective machinery',
+        text:'Reaching for collective solutions takes seriously what individuals cannot fix alone. The edge is the machinery: every collective instrument is run by fallible people with their own incentives, and good intentions do not audit themselves. Structural ambition is strongest when paired with structural suspicion.',
+        practice:'For one policy you support, write down how you would detect, two years in, that it was failing.'},
+  },
+  self: {
+    L: {title:'Authoring with inherited ink',
+        text:'Experiencing yourself as the author of your choices gives you drive and ownership. The edge is the ink: temperament, upbringing, and era wrote themselves into you before you began writing. Authorship is real; sole authorship is the illusion. Knowing your inheritances makes the authoring more free, not less.',
+        practice:'Identify one trait you take full credit for and trace where you actually got it.'},
+    R: {title:'Steering a caused self',
+        text:'Seeing yourself as a product of causes brings honesty and self-compassion. The edge is the wheel: you are also one of the causes now, and causal humility can become an alibi for not steering. A caused self that deliberates still changes its own trajectory.',
+        practice:'Choose one pattern you have been explaining causally and run a two-week experiment in deliberately interrupting it.'},
+  },
+  moral_scope: {
+    L: {title:'Stress-testing the boundary',
+        text:'Prioritising humans keeps your moral energy focused where your obligations are thickest. The edge is the boundary\'s justification: history\'s worst moral errors were confident boundary drawings, and each felt obvious from inside. A scope this consequential deserves periodic stress-testing rather than inheritance.',
+        practice:'Write down what property makes humans morally special on your view, then check honestly which humans and animals actually have it.'},
+    R: {title:'Triaging an infinite claim',
+        text:'Extending moral weight to all sentient life is consistency taken seriously. The edge is triage: a concern that covers everything can spread thinner than action requires, and nearby obligations, family, neighbours, your own species\' emergencies, retain real moral pull. Universal scope still needs a working order of operations.',
+        practice:'Write your actual triage: when a near human claim and a distant larger claim conflict, decide in advance which wins and why.'},
+  },
+  meaning_practice: {
+    L: {title:'Auditing the shrug',
+        text:'Declining to perform meaning you do not feel is a kind of honesty most people never risk. The edge is telling conclusion from anaesthetic: nihilism in practice can be a considered position, or it can be pain wearing philosophy\'s coat. Only you can audit which, and the audit matters.',
+        practice:'Notice one activity that still absorbs you completely, and schedule more of it without renegotiating your metaphysics first.'},
+    R: {title:'Letting the structure flex',
+        text:'Actively building meaning makes your life unusually intentional. The edge is rigidity: a meaning structure maintained too tightly becomes another performance, and its upkeep can crowd out the unplanned experiences that renew it. Sometimes meaning arrives only when the schedule fails.',
+        practice:'Leave one block of time this week genuinely unassigned and see what shows up to fill it.'},
+  },
+  society: {
+    L: {title:'Counting what independence borrows',
+        text:'Self-reliance is a real strength, and it runs on infrastructure it rarely notices: languages, roads, institutions, and people who showed up before you could reciprocate. The edge is the ledger: independence that forgets its debts misjudges both itself and the people it judges.',
+        practice:'List five things your independence depended on this week that you did not build and could not have.'},
+    R: {title:'Keeping a self in the collective',
+        text:'Orienting to the collective builds what individualists merely inhabit. The edge is the remainder: a self so woven into the group that it cannot disagree with it has stopped contributing a perspective and started echoing one. The collective needs members who can stand apart, occasionally, on purpose.',
+        practice:'Identify one group consensus you privately doubt and voice the doubt once, carefully, this month.'},
+  },
+  responsibility: {
+    L: {title:'Adding the missing column',
+        text:'Personal responsibility builds competence and self-respect; a life run on it tends to work. The edge is the accounting: attributing your outcomes purely to effort misreads your own history and, applied to others, punishes people for their starting lines. Effort is real. So is the lane you ran it in.',
+        practice:'Take one success you attribute to pure effort and honestly list the tailwinds that helped, then apply the same math to someone struggling.'},
+    R: {title:'Locating the remaining lever',
+        text:'Structural explanation is usually more accurate than blame. The edge is the lever: within almost every constrained situation some margin of action remains, and explanations that erase it leave people, including you, waiting for rescue by history. Naming constraints and finding levers are not opposing acts.',
+        practice:'For one structural problem you care about, identify the single action within your actual reach this month, and take it.'},
+  },
+  identity: {
+    L: {title:'Dating the essential self',
+        text:'A firm sense of who you are provides stability that constructed identities work hard to match. The edge is the timestamp: the essential self you defend was assembled at some point, and treating its current edition as final can turn stability into confinement. Even bedrock has a geology.',
+        practice:'Name one "that is just not me" you have said recently and test it once, in low stakes, to see if it is still true.'},
+    R: {title:'Choosing when to stop revising',
+        text:'Treating identity as built gives you freedom most people never claim. The edge is closure: perpetual self-revision can become a way of never being anyone in particular, and some goods, deep skill, old friendship, trust, only compound inside commitments that survive your next redesign.',
+        practice:'Choose one commitment to declare load-bearing for the next year, exempt from reinvention, and tell someone.'},
+  },
+  authority: {
+    L: {title:'Verifying the trusted sources',
+        text:'Working with institutions rather than against them lets you build on accumulated competence. The edge is verification: deference extended by habit stops tracking whether the competence is still there. Institutions drift, and the people who trust them are the last to notice.',
+        practice:'Pick one institution you trust by default and spot-check one of its recent claims yourself.'},
+    R: {title:'Choosing what still gets trusted',
+        text:'Skepticism toward authority catches abuses that deference misses. The edge is the alternative: distrust of every institution does not produce independence, it produces reliance on whatever unvetted source got there first. Skepticism is a filter, and a filter that blocks everything feeds you nothing.',
+        practice:'Name the sources you actually rely on and apply the same skepticism to your favourites that you apply to institutions.'},
+  },
+  economics: {
+    L: {title:'Walking the market\'s edges',
+        text:'Trusting markets respects the information in prices and the dignity in exchange. The edge is the map\'s margins: real markets run on power differentials, inherited positions, and costs dumped on people outside the transaction. Market confidence is strongest in those who know exactly where markets fail.',
+        practice:'Pick one market outcome you consider fair and trace what each party\'s alternatives were when they agreed to it.'},
+    R: {title:'Following the redistribution home',
+        text:'Caring about distribution takes seriously that starting points are unearned. The edge is follow-through: transfers are administered by institutions with their own frictions and failures, and intentions do not audit outcomes. The strongest redistributive case tracks whether the money arrived and what it built.',
+        practice:'For one transfer programme you support, find out what fraction actually reaches its targets and what it changed.'},
+  },
+  uncertainty: {
+    L: {title:'Practising the unresolved',
+        text:'Wanting closure drives you to actually finish thinking where others leave a fog. The edge is premature verdicts: some questions are not late, they are genuinely open, and forcing them closed trades accuracy for comfort. Tolerating a specific, named uncertainty is a skill, and it grows.',
+        practice:'Choose one open question in your life and deliberately leave it open for thirty days, noticing the urge to resolve it.'},
+    R: {title:'Cashing out the ambiguity',
+        text:'Comfort with ambiguity keeps you honest where others fake certainty. The edge is convenience: openness can quietly become a way to avoid the exposure of committing, and endless both-sides can starve the people who need a decision from you. Some ambiguity is real; some is shelter.',
+        practice:'Find one question you have kept open mainly because closing it costs something, and close it.'},
+  },
+  mind_consciousness: {
+    L: {title:'Keeping the claim falsifiable',
+        text:'Holding consciousness as more than mechanism takes the deepest datum, experience itself, seriously. The edge is retreat: a non-physical mind can back away from every new neuroscience finding without ever conceding, which makes the view unfalsifiable rather than strong. Conviction that names its own test conditions earns more.',
+        practice:'Write down one future neuroscience result that would genuinely weaken your view, and commit to counting it if it comes.'},
+    R: {title:'Honouring the datum',
+        text:'Treating consciousness as physical keeps your picture of reality unified. The edge is the datum itself: raw experience is the one thing you know most directly, and briskly reducing it can shade into denying what you are using to do the denying. The mystery deserves solving, not dismissal.',
+        practice:'Spend ten minutes attending to raw experience itself, then write one honest sentence about what your framework explains and what it renames.'},
+  },
+  animal_ethics: {
+    L: {title:'Visiting the actual facts',
+        text:'Prioritising human interests reflects real asymmetries in obligation and understanding. The edge is distance: the systems your priorities license operate out of sight, at a scale few people have actually confronted. A boundary held with full knowledge of what happens across it carries more moral weight than one held at a distance.',
+        practice:'Spend twenty minutes learning what standard practice actually involves for one animal product you use, then re-decide your view with the facts in the room.'},
+    R: {title:'Working the human interface',
+        text:'Weighing animal suffering seriously is rigorous compassion. The edge is the interface: the change you want runs through humans, whose habits, cultures, and livelihoods are woven into the systems you oppose. Contempt for the unconverted is emotionally clean and strategically expensive.',
+        practice:'In your next conversation about animal ethics, aim only to be understood, not to win, and watch what changes.'},
+  },
+  progress: {
+    L: {title:'Keeping score of the wins',
+        text:'Pessimism sees the failures optimists explain away, which makes you a valuable early-warning system. The edge is the scoreboard: some things have genuinely improved, and a model that cannot register wins misreads reality in its own direction. Accurate pessimism is powerful; reflexive pessimism is just a different bias.',
+        practice:'Find one metric of human welfare that has objectively improved in your lifetime and let the fact fully land.'},
+    R: {title:'Reading the regressions',
+        text:'Optimism about progress is motivating and, on many long curves, well supported. The edge is the exceptions: progress has reversed before, locally and catastrophically, and confidence in the curve can numb you to the early signs of a bend. The best optimists keep a pessimist\'s watchlist.',
+        practice:'Name the one regression you think most plausible in the next decade and identify what early evidence of it would look like.'},
+  },
+};
+
+// Contradiction growth entries — keyed by rule id. Register follows tier per the
+// C01b standard (D44/D57): A treats resolution as needed, B treats alignment as
+// worth checking, C treats examination as valuable with the position intact.
+const GROWTH_EDGES_CONTRA = {
+  C01: {title:'Reconciling causation and desert',
+        text:'You hold that actions are fully caused and that people deserve punishment for them, and these two commitments are pulling against each other at full strength. This is the deepest fault line in your profile, and resolving it in either direction would reorganise how you judge everyone, including yourself.',
+        practice:'Write the strongest one-paragraph case for each side, wait a week, and read them both as if written by strangers.'},
+  C01b: {title:'Grounding your account of desert',
+        text:'Your retributivism is coherent, and its foundation is worth knowing explicitly rather than by feel. Whether desert rests on the ability to have done otherwise, on ownership of character, or on something else changes which real cases move you.',
+        practice:'Pick one criminal case from the news and write down exactly what, on your view, grounds what the person deserves.'},
+  C02: {title:'Locating the non-physical mind',
+        text:'You accept a fully natural world and a mind that is not physical, which leaves the mind without an obvious home. The work is deciding what kind of naturalism can host it, because one of the two commitments is currently paying rent the other refuses to acknowledge.',
+        practice:'Read one serious defence of property dualism and one of physicalism, and note which concessions each would demand of you.'},
+  C02b: {title:'Housing the supernatural in physical minds',
+        text:'You hold that minds are physical processes while reality includes the supernatural, and the combination needs an address: where does the more-than-physical operate if not in minds? Deciding what your supernatural actually consists of would let both beliefs stop undermining each other.',
+        practice:'Write one sentence stating what specifically exists beyond the physical on your view, and check whether your view of mind allows it.'},
+  C03: {title:'Anchoring moral facts without realism',
+        text:'You doubt that reality is mind-independent while holding that moral facts objectively exist, which gives your ethics a firmer status than your physics. That asymmetry needs a reason. Either moral facts get a special exemption you can state, or one commitment is due for revision.',
+        practice:'Explain to yourself in writing why moral truth survives the constructedness you see everywhere else, and see if the explanation persuades you.'},
+  C04: {title:'Authoring inside a causal chain',
+        text:'You experience yourself as the origin of your choices while holding that every event is fully caused, and both cannot be literally true as stated. Compatibilist accounts exist precisely for this gap, and engaging one would either dissolve the tension or sharpen which conviction you actually keep.',
+        practice:'Read a short introduction to compatibilism and write down whether your sense of authorship survives translation into it.'},
+  C05: {title:'Aligning explanation with expectation',
+        text:'You lean deterministic about behaviour while holding people to strong personal responsibility, and the alignment between the two is worth an explicit check. Many thoughtful people hold both by treating responsibility as forward-looking, about shaping future behaviour rather than settling cosmic accounts. Whether that is your position is worth finding out.',
+        practice:'Next time you hold someone accountable, ask yourself whether you are settling a score or shaping a future, and notice which answer is true.'},
+  C06: {title:'Choosing your response to constructed meaning',
+        text:'You see meaning as humanly made and are currently not making much, which reads less like a contradiction than an unfinished move. Constructed meaning permits construction. Whether you have concluded it is not worth the effort, or simply paused, deserves a conscious answer.',
+        practice:'Run a one-month experiment: commit to one small project as if it mattered, and audit how it felt at the end.'},
+  C06b: {title:'Living the meaning you affirm',
+        text:'You hold that real meaning exists to be found while living, in practice, as if it does not. The gap between conviction and conduct is information: either the conviction is inherited rather than owned, or something is blocking the practice. Both are workable once named.',
+        practice:'Identify the single biggest obstacle between you and living what you say about meaning, and name it to one person.'},
+  C07: {title:'Checking punishment against your causes',
+        text:'Your causal reading of behaviour and your punitive lean on justice are pulling in different directions, gently. The check is consistency across cases: whether the causation you grant in the abstract survives contact with offences that anger you.',
+        practice:'Take one crime that genuinely angers you and write its causal story as carefully as you would for a sympathetic case.'},
+  C08: {title:'Naturalising your meaning realism',
+        text:'You hold a strictly natural world that nonetheless contains real, discoverable meaning, which is a defensible but demanding combination. The work is stating where mind-independent meaning lives in a purely physical universe, because that account is currently owed and unpaid.',
+        practice:'Write three sentences on what makes meaning real on your view, using only resources your naturalism permits.'},
+  C08b: {title:'Asking your cosmos for more',
+        text:'Your world includes more than the physical, yet meaning has come up empty for you, which is an unusual and interesting position. A transcendent order that provides no meaning is worth interrogating: either it offers something you have not collected, or your metaphysics is more decorative than operational.',
+        practice:'Ask yourself what your supernatural commitments actually change about how you live, and write the honest answer down.'},
+  C09: {title:'Funding your structural politics',
+        text:'You want collective solutions and free-market economics, and the pairing is worth a design check: collective goals typically need funding and coordination mechanisms your economics may not want to authorise. Some serious positions thread this needle deliberately. Confirm yours is one of them.',
+        practice:'Pick one structural outcome you want and sketch how it gets funded and enforced within the market arrangements you prefer.'},
+  C09b: {title:'Squaring transfers with small government',
+        text:'You prefer individual solutions politically while favouring serious redistribution economically, which needs an institutional story: redistribution requires exactly the collective machinery your politics distrusts. Market-friendly redistribution designs exist, and knowing whether yours is one would settle the tension.',
+        practice:'Write down which institution runs your preferred redistribution and why you trust it with that job despite your politics.'},
+  C10: {title:'Extending the circle you drew',
+        text:'Your moral circle includes all sentient life in principle while your animal-ethics answers prioritise humans in practice. One of those is your actual view. Deciding which, consciously, beats letting context pick for you case by case.',
+        practice:'Decide on one concrete animal-welfare question, factory farming is the sharpest, what your wide moral scope actually requires of you.'},
+  C10b: {title:'Naming why animals count',
+        text:'You centre humans in your general moral scope while weighting animal suffering heavily, and the combination is more coherent than it first looks, if suffering is doing the work. The check is whether that principle, suffering counts wherever it occurs, is one you are willing to apply consistently.',
+        practice:'State in one sentence why animal suffering moves you, then test whether that sentence quietly commits you to more than you currently do.'},
+  C11: {title:'Examining determined despair',
+        text:'You hold that history unfolds by necessity and that it is heading badly, a combination with distinguished defenders and a specific risk: fatalism about outcomes you are, on your own theory, part of causing. Your pessimism and your determinism are each defensible; their intersection deserves one deliberate look.',
+        practice:'Identify one small outcome you can influence this month and act on it, treating your action as part of the causal stream.'},
+  C12: {title:'Examining constructed selves in a hard world',
+        text:'You hold reality as firmly mind-independent while holding identity as constructed, which is coherent and worth examining once: if construction runs deep enough to build selves, why does it stop before the world? The boundary you draw between hard facts and made selves is philosophically interesting and yours to articulate.',
+        practice:'Write down where construction stops on your view, and keep the sentence for the next time either commitment is challenged.'},
+  C12b: {title:'Examining your fixed point',
+        text:'You treat most knowledge as constructed while treating your own identity as fixed essence, making yourself the one solid object in a fluid world. This is worth one honest look, not because it is wrong, but because the exemption is doing quiet work in how you handle challenges to who you are.',
+        practice:'Ask which parts of your fixed identity have actually changed in ten years, and what that does to the fixedness.'},
+  C13: {title:'Deciding what consciousness is made of',
+        text:'You hold that everything is physical except, apparently, consciousness, and that exception is load-bearing: it either breaks your physicalism or your view of mind. This is the hard problem living in your own profile, and engaging it directly would resolve real downstream views.',
+        practice:'Read one accessible treatment of the hard problem of consciousness and decide which of your two commitments bends.'},
+  C14: {title:'Reconciling revelation with the lab',
+        text:'You ground knowledge in revelation or intuition while trusting science strongly, and the two need a treaty: what happens when they disagree? Many traditions have working answers, separate domains, or science as the study of creation. Adopting one deliberately would stop each commitment from ambushing the other.',
+        practice:'Write down what you would do if a firm scientific finding contradicted a revealed conviction, before it happens rather than after.'},
+  C14b: {title:'Applying your empiricism to science',
+        text:'You demand evidence for beliefs while distrusting the scientific consensus that produces most of it, which needs one clarification to be coherent: whether your doubt targets the method or the institutions. Doubting institutions is an empirical stance. Doubting the method with empiricist principles quietly saws the branch.',
+        practice:'Name one scientific consensus you reject and check whether your objection is about evidence quality or about the people involved.'},
+  C15: {title:'Sourcing purpose in a purposeless nature',
+        text:'Your world is strictly natural yet also going somewhere on purpose, and the destination needs a driver your naturalism can license. Purpose without a mind behind it is a real philosophical option, but it has to be chosen, not assumed.',
+        practice:'Write one sentence stating what gives the universe direction on your view, without using any resource your naturalism forbids.'},
+  C16: {title:'Re-grounding a morality that outlived its source',
+        text:'Your moral compass still points to divine authority while your metaphysics no longer includes the divine, which means your ethics is running on inherited fuel. The values may well survive re-grounding; many do. But until the new foundation is named, your deepest rules answer to an authority you have dismissed.',
+        practice:'Take one moral conviction you learned from religion and write its best secular justification, then check if you find it sufficient.'},
+  C16b: {title:'Choosing between the source and the fight',
+        text:'You ground morality in the divine while opposing religion strongly, a combination with real historical precedent, prophetic traditions did exactly this, but it needs its target clarified. Whether you oppose institutions on behalf of the divine, or something deeper, changes what your position actually is.',
+        practice:'Write down whether your quarrel is with God, with institutions, or with believers, and let the answer reorganise the fight.'},
+  C17: {title:'Explaining chosen collectivity',
+        text:'You see society as just individuals while preferring collective arrangements, which is coherent if collectivity is a choice individuals make, and worth stating that clearly. The check is whether your preferred arrangements require more social glue than your ontology admits exists.',
+        practice:'Describe your ideal community in three sentences, then check whether individuals alone, as you understand them, could actually hold it together.'},
+  C17b: {title:'Living apart from what you believe binds',
+        text:'You hold that structures shape people fundamentally while preferring an individualist life, which puts your theory and your address in different places. Both can stand, structures shape everyone including hermits, but the gap is worth examining for what it protects.',
+        practice:'Ask what your individualism costs you in the structural terms you yourself believe in, and write the answer down.'},
+  C18: {title:'Auditing the authority you kept',
+        text:'You distrust institutional authority while holding your own views with high confidence, which relocates authority rather than eliminating it: the throne moved inward. The alignment check is whether your inner authority earns the scrutiny you apply to the outer ones.',
+        practice:'Apply your standard institutional skepticism, incentives, blind spots, track record, to yourself on one confident opinion.'},
+  C19: {title:'Fitting fixed nature to fluid blame',
+        text:'You hold that human nature is fixed and universal while explaining outcomes structurally, and the two can cooperate: fixed natures responding to variable structures. The check is whether you apply them consistently, or reach for nature when it suits and structure when it excuses.',
+        practice:'Take one social outcome you care about and write both the nature half and the structure half of its explanation.'},
+  C20: {title:'Consolidating your two epistemologies',
+        text:'Your stated source of knowledge and your working method disagree by a wide margin, which usually means different domains run on different rules: intuition for life, evidence for facts, or the reverse. That split can be principled. Making the domain boundaries explicit is the alignment work.',
+        practice:'Write down which questions in your life get the evidence treatment and which get the intuition treatment, and whether the sorting has a principle.'},
+  C21: {title:'Aligning outcome ethics with desert justice',
+        text:'You judge actions by consequences while wanting justice to deliver desert, and desert is precisely the part of justice consequences cannot supply. Consequentialists have a standard move here, punishment as deterrence and repair, and checking whether that move satisfies you would align the two commitments.',
+        practice:'Ask yourself whether you would accept a punishment system that ignored desert entirely but minimised future harm, and note the answer.'},
+  C22: {title:'Reconciling old authority with new hope',
+        text:'You locate authority in the past while expecting the future to improve, which raises one productive question: improve by whose standard? If the past holds the standards, progress means departure from authority. There are good answers, tradition as seed rather than ceiling, but the question deserves yours.',
+        practice:'Name one way the future could improve on the tradition you honour, and check whether the tradition itself would bless the change.'},
+  C22b: {title:'Examining forward-facing pessimism',
+        text:'You face the future while expecting it to disappoint, an orientation with its own integrity, scouts face forward too, and one open question: what the facing is for, if not hope. Whether you are watching for dangers, opportunities, or simply refusing to look away says something worth knowing.',
+        practice:'Write one sentence on what you are looking toward the future for, given that you do not expect it to be better.'},
+  C23: {title:'Loosening the double grip',
+        text:'You need questions closed and you are confident in the closures, a pairing that gets things decided and rarely reopens them. The alignment check is error correction: with certainty guarding the front door and closure guarding the back, revision has no way in.',
+        practice:'Deliberately reopen one settled question this month and give the other side thirty undefended minutes.'},
+  C24: {title:'Providing for the market\'s losers',
+        text:'Your market economics and individualist social preferences reinforce each other cleanly, which is the alignment risk itself: nothing in the pair answers for people the market fails. A complete position says what happens to them. Yours is worth completing.',
+        practice:'Write down, in your preferred system, what concretely happens to someone who works hard and still fails, and decide if you accept it.'},
+  C25: {title:'Practising the determinism you preach',
+        text:'You hold hard determinism in theory while practising full accountability in daily life, the most common and most livable version of this tension, and still worth one honest resolution. Either accountability is your chosen tool for shaping caused behaviour, which is coherent, or your practice has not yet heard from your philosophy.',
+        practice:'Choose one recurring judgment of a specific person and consciously rerun it through your causal lens for two weeks.'},
+  C26: {title:'Examining faith with chosen meaning',
+        text:'You hold religion warmly while seeing meaning as humanly constructed, a combination that quietly reinterprets faith as practice rather than metaphysics. Many mature believers live exactly here. Knowing you do, explicitly, protects the position from both zealots and skeptics.',
+        practice:'Write down what your faith gives you that would survive even if its factual claims were bracketed, and notice how much remains.'},
+  C26b: {title:'Examining meaning without a giver',
+        text:'You oppose theism while holding that meaning is objectively real, which obliges one clarification: where meaning comes from with no mind behind the universe. Non-theistic meaning realism is a genuine philosophical position with serious defenders. Claiming it consciously would turn a tension into a stance.',
+        practice:'Read one non-theistic account of objective meaning and check whether it matches what you already believe.'},
+  C27: {title:'Examining rules without foundations',
+        text:'You doubt objective moral facts while holding firm moral rules, which usually means the rules are doing practical work: coordination, identity, protection of what you love. That is a real justification, different from the metaphysical one. Knowing which foundation your rules stand on makes them easier to defend.',
+        practice:'Pick your firmest rule and write down what actually happens, to you and others, if it is broken. That is your foundation.'},
+  C28: {title:'Examining the authored essence',
+        text:'You feel radically free while sensing a fixed core self, and the combination points at one of philosophy\'s oldest questions: whether authorship expresses a nature or creates one. Sartre and Aristotle split exactly here. You are in good company either way, and picking a side would sharpen your self-understanding.',
+        practice:'Recall your biggest life choice and ask honestly: did it reveal who you were, or decide it? Sit with whichever answer came.'},
+  C41: {title:'Fitting real meaning into physical stuff',
+        text:'For you everything is physical and meaning is fully real, leaving meaning either a physical fact, a strange one, or an exception to your physicalism. Naturalist meaning realism can be built, but it must be built; it does not come assembled.',
+        practice:'Write down where meaning physically lives on your view, in brains, in patterns, in facts about flourishing, and test the answer for a week.'},
+  C42: {title:'Squaring humility with one certainty',
+        text:'You hold your beliefs with unusual humility, except determinism, which you hold with near-total confidence. The exception may be earned, some positions do have stronger cases, but an examined worldview knows why its one certainty deserves the exemption the rest were denied.',
+        practice:'Apply your own uncertainty standards to determinism for one evening: list what evidence would lower your confidence, and check the list is not empty.'},
+};
+
+// Deterministic growth-edge selection — no AI involved (C1/D86).
+// Top 3 axes by extremity from midpoint (backfill guarantees 3 even for
+// near-midline profiles), plus up to 2 live contradictions by strength,
+// A before B before C at equal strength. Returns 3-5 entries.
+function selectGrowthEdges(scores, contradictions) {
+  const axisPicks = Object.entries(scores)
+    .filter(([axis]) => GROWTH_EDGES_AXIS[axis])
+    .map(([axis, score]) => ({axis, score, ext: Math.abs(score - 4)}))
+    .sort((a, b) => b.ext - a.ext)
+    .slice(0, 3)
+    .map(r => {
+      const entry = GROWTH_EDGES_AXIS[r.axis][r.score >= 4 ? 'R' : 'L'];
+      return {title: entry.title, text: entry.text, practice: entry.practice, source: 'axis', axis: r.axis};
+    });
+  const tierOrder = {A: 0, B: 1, C: 2};
+  const contraPicks = [...(contradictions || [])]
+    .filter(c => GROWTH_EDGES_CONTRA[c.id])
+    .sort((a, b) => (b.strength || 0) - (a.strength || 0) || tierOrder[a.tier] - tierOrder[b.tier])
+    .slice(0, 2)
+    .map(c => {
+      const entry = GROWTH_EDGES_CONTRA[c.id];
+      return {title: entry.title, text: entry.text, practice: entry.practice, source: 'tension', ruleId: c.id};
+    });
+  return axisPicks.concat(contraPicks);
+}
+
+// ══════════════════════════════════════════
 // ARCHETYPES — 60 types
 // ══════════════════════════════════════════
 const ARCHETYPES = [
   // ── FAMILY 1: THE DETERMINED HUMANIST ──
   {id:'1A', family:'The Determined Humanist', variant:'The Activist',
    sig:[7,7,6,7,2,1,7,5,7,6,3,2,1],
-   description:'You understand that behaviour is fully caused by prior conditions, and you use that understanding as fuel rather than an excuse for passivity. You direct your energy toward changing the systems that produce harm — because if circumstances determine outcomes, changing circumstances is the most powerful intervention available. You build meaning through committed action in a world that offers no pre-given purpose.',
+   tagline:'If circumstances make people, then changing circumstances is the work.',
+   cardTagline:'No one chose their starting point.\nYou work on the starting points.',
+   whoYouAre:'You see causes where others see culprits. Because behaviour flows from conditions, you put your energy into changing conditions, not blaming the people they produce. Purpose is not something you found. It is something you build daily, through work that makes the machinery of harm run a little less smoothly.',
+   description:'You understand that behaviour is fully caused by prior conditions, and you use that understanding as fuel rather than an excuse for passivity. You direct your energy toward changing the systems that produce harm, because if circumstances determine outcomes, changing circumstances is the most powerful intervention available. You build meaning through committed action in a world that offers no pre-given purpose.',
    thinkers:'Robert Sapolsky · Bryan Stevenson · Angela Davis',
-   strength:'Systems thinking as a moral superpower — you naturally diagnose root causes where others assign blame.',
-   failureMode:'Activist burnout without personal meaning scaffolding. When structural problems feel endless, the absence of cosmic purpose can become exhaustion rather than committed absurdist action.'},
+   strength:'Systems thinking as a moral superpower. You naturally diagnose root causes where others assign blame.',
+   failureMode:'Activist burnout without personal meaning scaffolding. When structural problems feel endless, the absence of cosmic purpose can become exhaustion rather than committed action.'},
 
   {id:'1B', family:'The Determined Humanist', variant:'The Philosopher',
    sig:[7,7,7,6,2,1,7,3,6,6,4,2,1],
+   tagline:'You would rather understand the machine than win an argument about it.',
+   cardTagline:'Determinism is not your weapon.\nIt is your favourite question.',
+   whoYouAre:'You follow arguments wherever they go, including places most people flinch from. Free will, causation, what praise and blame really mean, these are not debates you need to win. They are the most interesting questions you know, and you would rather sit with a hard truth than a comfortable story.',
    description:'You hold hard determinism and naturalism with intellectual rigour and genuine curiosity rather than as a battle cry. You are more interested in understanding the implications of your position than in deploying it as a weapon. The question of how a determined being acts with genuine commitment is the most interesting problem you know.',
    thinkers:'Daniel Dennett · Patricia Churchland · Galen Strawson',
-   strength:'Intellectual consistency under pressure — you can follow an argument wherever it leads without flinching.',
+   strength:'Intellectual consistency under pressure. You can follow an argument wherever it leads without flinching.',
    failureMode:'Analysis paralysis. The determinist philosopher can think so rigorously about action that action itself becomes difficult.'},
 
   {id:'1C', family:'The Determined Humanist', variant:'The Pragmatist',
    sig:[7,6,7,6,2,2,6,4,6,6,4,2,1],
-   description:'You hold determinist and naturalist foundations firmly but your primary orientation is practical — what works, what produces good outcomes, what actually changes things. Science is your primary tool and human wellbeing your primary metric. You hold your philosophical positions confidently but do not need them validated before you act.',
+   tagline:'Philosophy that never becomes action is, to you, expensive decoration.',
+   cardTagline:'Convictions held firmly.\nResults valued more.',
+   whoYouAre:'Your foundations are settled, so you spend your energy on what works. Evidence over ideology, outcomes over applause. You measure ideas by what they change, and you will take an imperfect improvement today over a perfect theory that never leaves the page.',
+   description:'You hold determinist and naturalist foundations firmly but your primary orientation is practical: what works, what produces good outcomes, what actually changes things. Science is your primary tool and human wellbeing your primary metric. You hold your philosophical positions confidently but do not need them validated before you act.',
    thinkers:'Peter Singer · Sam Harris · Steven Pinker',
    strength:'Translating philosophy into action without waiting for perfect certainty.',
-   failureMode:'Technocratic drift — the pragmatist can optimise for measurable outcomes and lose sight of what cannot be measured.'},
+   failureMode:'Technocratic drift. The pragmatist can optimise for measurable outcomes and lose sight of what cannot be measured.'},
 
   {id:'1D', family:'The Determined Humanist', variant:'The Quiet',
    sig:[7,5,5,7,2,1,7,3,5,6,3,2,1],
-   description:'You hold your determinist and naturalist foundations privately and without performance. You do not need others to agree with you. The conclusions are simply where honest thinking led. You live consistently with what you believe — in how you treat people, how you assign responsibility, how you make sense of suffering — without requiring an audience for it.',
+   tagline:'Your convictions do not need an audience to stay standing.',
+   cardTagline:'Believed without performance.\nLived without applause.',
+   whoYouAre:'You hold your conclusions privately and live them consistently, in how you treat people, how you judge, how you make sense of suffering. You feel no need to convert anyone. Honest thinking led you here, and the quiet agreement between what you believe and how you live is enough.',
+   description:'You hold your determinist and naturalist foundations privately and without performance. You do not need others to agree with you. The conclusions are simply where honest thinking led. You live consistently with what you believe, in how you treat people, how you assign responsibility, how you make sense of suffering, without requiring an audience for it.',
    thinkers:'Marcus Aurelius · Oliver Sacks · Albert Camus (private mode)',
-   strength:'Integrity — positions held privately are positions genuinely held.',
+   strength:'Integrity. Positions held privately are positions genuinely held.',
    failureMode:'Isolation. The quiet determinist can become so internally consistent that they stop engaging with people who think differently.'},
 
   {id:'1E', family:'The Determined Humanist', variant:'The Reconstructed Believer',
    sig:[6,6,6,6,2,2,6,4,6,6,5,2,1],
-   description:'You arrived at your current position through genuine intellectual and personal journey — often from a religious or spiritually significant background. Your naturalism and determinism are not inherited but earned, and you hold them with the particular confidence of someone who has tested them against real alternatives. You understand what it means to have once believed otherwise.',
+   tagline:'You did not inherit this worldview. You walked out of another one to build it.',
+   cardTagline:'You believed once.\nWhat you hold now, you earned.',
+   whoYouAre:'Your worldview was not handed to you. You once believed otherwise, and leaving that behind cost you something real. So you hold your naturalism with tested confidence, and you understand believers from the inside in a way most skeptics never will. You know exactly what changing your mind costs.',
+   description:'You arrived at your current position through genuine intellectual and personal journey, often from a religious or spiritually significant background. Your naturalism and determinism are not inherited but earned, and you hold them with the particular confidence of someone who has tested them against real alternatives. You understand what it means to have once believed otherwise.',
    thinkers:'Bart Ehrman · Ayaan Hirsi Ali · Christopher Hitchens',
-   strength:'Genuine empathy for the philosophical journey — you know the terrain from the inside.',
+   strength:'Genuine empathy for the philosophical journey. You know the terrain from the inside.',
    failureMode:'Overcorrection. The reconstructed believer can be more anti-religious than the position warrants, compensating for past certainty with new certainty.'},
 
   // ── FAMILY 2: THE STRUCTURAL REFORMER ──
   {id:'2A', family:'The Structural Reformer', variant:'The Systemic Analyst',
    sig:[6,6,5,6,3,2,7,7,7,5,4,2,1],
-   description:'You analyse human behaviour and social outcomes through structural causation — the systems, incentives, and power arrangements that produce what we call individual choices. Your moral concern is real and strong, but you direct it at institutions rather than individuals. You are more interested in why a problem exists than in who to blame for it.',
+   tagline:'Where others ask who did this, you ask what made this happen.',
+   cardTagline:'Everyone else sees a villain.\nYou see an incentive structure.',
+   whoYouAre:'You read the world through its systems. Where others see a bad choice, you see the incentives, pressures, and histories that made the choice likely. Your moral concern is real, but it points at institutions, not individuals. Understanding why a problem exists matters more to you than deciding who to blame.',
+   description:'You analyse human behaviour and social outcomes through structural causation: the systems, incentives, and power arrangements that produce what we call individual choices. Your moral concern is real and strong, but you direct it at institutions rather than individuals. You are more interested in why a problem exists than in who to blame for it.',
    thinkers:'Ibram X. Kendi · Rutger Bregman · Naomi Klein',
    strength:'Seeing the system when everyone else is looking at the individual.',
    failureMode:'Depersonalisation. The systemic analyst can become so focused on structure that they lose sight of the human beings inside the systems they analyse.'},
 
   {id:'2B', family:'The Structural Reformer', variant:'The Justice Architect',
    sig:[6,5,5,6,4,2,7,7,7,4,6,2,1],
-   description:'Your structural thinking is most sharply focused on justice. You believe that punishment without addressing underlying causes is not justice but theatre — it satisfies emotional needs without changing anything. You want to redesign what justice actually means: not who suffers, but what conditions produced the harm and how those conditions change.',
+   tagline:'Punishment that changes nothing is theatre, and you refuse to applaud.',
+   cardTagline:'Justice is not who suffers.\nIt is what finally changes.',
+   whoYouAre:'For you, justice is a design problem, not a revenge story. Punishment that leaves the causes of harm untouched satisfies feelings without fixing anything, and you cannot unsee that. You want systems that ask what produced this harm and what would stop it, and you hold compassion and rigour together while asking.',
+   description:'Your structural thinking is most sharply focused on justice. You believe that punishment without addressing underlying causes is not justice but theatre. It satisfies emotional needs without changing anything. You want to redesign what justice actually means: not who suffers, but what conditions produced the harm and how those conditions change.',
    thinkers:'Bryan Stevenson · Michelle Alexander · Howard Zehr',
    strength:'Holding compassion and structural analysis simultaneously without losing the edge of either.',
-   failureMode:'Policy idealism — designing perfect systems without accounting for political feasibility or human resistance to change.'},
+   failureMode:'Policy idealism. Designing perfect systems without accounting for political feasibility or human resistance to change.'},
 
   {id:'2C', family:'The Structural Reformer', variant:'The Economic Radical',
    sig:[6,5,5,5,3,2,7,7,7,5,5,2,1],
-   description:'You locate the primary source of human suffering in economic arrangements — in who owns what, who captures value, who bears the costs of production. Your structural analysis is sharpest in the economic domain. You believe that political rights without economic transformation are incomplete, and that the current distribution of wealth and power is constructed and therefore changeable.',
+   tagline:'You look at what everyone calls normal and see an arrangement someone chose.',
+   cardTagline:'Wealth is not weather.\nSomeone built this distribution.',
+   whoYouAre:'You trace suffering to its economic roots: who owns what, who captures value, who carries the costs. What most people treat as natural market weather, you see as built arrangements, and anything built can be rebuilt. Political rights without economic change strike you as a promise left half kept.',
+   description:'You locate the primary source of human suffering in economic arrangements: in who owns what, who captures value, who bears the costs of production. Your structural analysis is sharpest in the economic domain. You believe that political rights without economic transformation are incomplete, and that the current distribution of wealth and power is constructed and therefore changeable.',
    thinkers:'Karl Marx · David Graeber · Thomas Piketty',
    strength:'Seeing economic power where others see neutral market outcomes.',
-   failureMode:'Structural determinism — sometimes so focused on economic forces that individual agency and cultural factors are underweighted.'},
+   failureMode:'Structural determinism. Sometimes so focused on economic forces that individual agency and cultural factors are underweighted.'},
 
   {id:'2D', family:'The Structural Reformer', variant:'The Intersectional Analyst',
    sig:[6,5,4,5,4,2,7,7,7,5,6,3,1],
-   description:'You hold that structural analysis must account for multiple, intersecting systems of power — race, gender, class, ability, sexuality — that cannot be reduced to a single axis. Your thinking is shaped by the understanding that people occupy multiple structural positions simultaneously, and that effective reform requires addressing all of these rather than prioritising one.',
+   tagline:'You refuse to flatten anyone into a single story about power.',
+   cardTagline:'One lens is never enough.\nPeople live at intersections.',
+   whoYouAre:'You see power as layered. Race, gender, class, ability, each system runs through the others, and people live at the crossings. You distrust any analysis that flattens someone into a single category, however sympathetic. Reform that fixes one axis while ignoring the rest is, to you, unfinished work.',
+   description:'You hold that structural analysis must account for multiple, intersecting systems of power, including race, gender, class, ability, and sexuality, which cannot be reduced to a single axis. Your thinking is shaped by the understanding that people occupy multiple structural positions simultaneously, and that effective reform requires addressing all of these rather than prioritising one.',
    thinkers:'Kimberlé Crenshaw · bell hooks · Patricia Hill Collins',
    strength:'Holding complexity without collapsing it into a single narrative.',
-   failureMode:'Framework proliferation — sometimes so focused on complexity that practical action becomes difficult to prioritise.'},
+   failureMode:'Framework proliferation. Sometimes so focused on complexity that practical action becomes difficult to prioritise.'},
 
   {id:'2E', family:'The Structural Reformer', variant:'The Empirical Progressive',
    sig:[7,6,7,5,3,2,7,7,7,5,5,2,1],
-   description:'You hold structural positions grounded in empirical evidence rather than ideological commitment. You follow the data — on what reduces crime, what reduces poverty, what produces human flourishing — and you follow it wherever it leads, even when the conclusions challenge your ideological priors. You are a progressive by evidence, not by tribe.',
+   tagline:'Your politics have a bibliography, and you keep updating it.',
+   cardTagline:'Progressive by evidence.\nNever by tribe.',
+   whoYouAre:'You hold structural views because the data took you there, and you would follow the data back out if it turned. What reduces poverty, what cuts crime, what actually helps, these are empirical questions to you, not loyalty tests. Your side is whatever the strongest evidence currently supports.',
+   description:'You hold structural positions grounded in empirical evidence rather than ideological commitment. You follow the data on what reduces crime, what reduces poverty, and what produces human flourishing, and you follow it wherever it leads, even when the conclusions challenge your ideological priors. You are a progressive by evidence, not by tribe.',
    thinkers:'Steven Pinker · Angus Deaton · Hans Rosling',
-   strength:'Credibility — evidence-based structural positions are hard to dismiss and generate broad coalitions.',
-   failureMode:'Technocratic over-optimism — underestimating the role of power and human irrationality in resisting well-evidenced reforms.'},
+   strength:'Credibility. Evidence-based structural positions are hard to dismiss and generate broad coalitions.',
+   failureMode:'Technocratic over-optimism. Underestimating the role of power and human irrationality in resisting well-evidenced reforms.'},
 
   // ── FAMILY 3: THE RATIONAL EMPIRICIST ──
   {id:'3A', family:'The Rational Empiricist', variant:'The Scientific Realist',
    sig:[7,7,7,6,4,3,7,3,6,6,5,4,1],
-   description:'You believe science genuinely tracks reality — that our best theories are approximately true descriptions of a mind-independent world. This is not naive optimism but a carefully held philosophical position: the predictive success of science is best explained by the fact that it is, gradually and fallibly, getting the world right. You hold uncertainty proportional to evidence.',
+   tagline:'You trust the map because you watched how carefully it was drawn.',
+   cardTagline:'Science is not your religion.\nIt is your best instrument.',
+   whoYouAre:'You think science is slowly getting reality right, and you hold that view the way a careful scientist would, provisionally and on the evidence. Prediction that works is your anchor. You keep a clean line between what is established and what is still conjecture, and your confidence tracks that line exactly.',
+   description:'You believe science genuinely tracks reality, and that our best theories are approximately true descriptions of a mind-independent world. This is not naive optimism but a carefully held philosophical position: the predictive success of science is best explained by the fact that it is, gradually and fallibly, getting the world right. You hold uncertainty proportional to evidence.',
    thinkers:'David Deutsch · Sean Carroll · Hilary Putnam',
-   strength:'Calibrated confidence — you know the difference between what is established and what is speculative.',
-   failureMode:'Scientism drift — extending scientific methodology to questions it cannot answer and dismissing those questions as meaningless.'},
+   strength:'Calibrated confidence. You know the difference between what is established and what is speculative.',
+   failureMode:'Scientism drift. Extending scientific methodology to questions it cannot answer and dismissing those questions as meaningless.'},
 
   {id:'3B', family:'The Rational Empiricist', variant:'The Skeptic',
    sig:[7,6,6,5,2,2,7,3,6,6,7,4,1],
+   tagline:'The opinions you refuse to hold are the ones you are proudest of.',
+   cardTagline:'Show you the evidence.\nThen you will believe it.',
+   whoYouAre:'You are defined less by what you affirm than by what you decline to believe without evidence. Your own views get the same scrutiny you give everyone else\'s. Open questions stay open, however much the room wants a verdict, and being unsure in public costs you nothing.',
    description:'Your empiricism is defined by what you refuse to believe without evidence more than by what you confidently affirm. You apply the same scrutiny to your own positions as to others\'. You are comfortable with uncertainty, willing to hold questions open, and resistant to the social pressure to have strong opinions on everything.',
    thinkers:'Carl Sagan · Michael Shermer · Richard Feynman',
-   strength:'Intellectual honesty — you model how to hold beliefs proportionally to evidence.',
-   failureMode:'Paralytic skepticism — the refusal to commit until perfect evidence exists can become a way of avoiding the discomfort of being wrong.'},
+   strength:'Intellectual honesty. You model how to hold beliefs proportionally to evidence.',
+   failureMode:'Paralytic skepticism. The refusal to commit until perfect evidence exists can become a way of avoiding the discomfort of being wrong.'},
 
   {id:'3C', family:'The Rational Empiricist', variant:'The Analytic Philosopher',
    sig:[7,6,7,5,5,4,7,2,6,6,5,4,1],
+   tagline:'Half the great debates, you suspect, are people talking past each other precisely.',
+   cardTagline:'Define the terms first.\nMost disputes dissolve on contact.',
+   whoYouAre:'You take questions apart before you answer them. Precision is not pedantry to you, it is respect for the problem. Comforting conclusions hold no special appeal; you want the argument that survives inspection. Many famous disagreements look to you like confusions waiting for a careful pass that never came.',
    description:'You approach philosophical questions with logical precision, conceptual clarity, and argument structure. You are interested in getting things right more than in arriving at comforting conclusions. You hold that many philosophical disputes dissolve under careful analysis, and that clear thinking is the highest intellectual virtue.',
    thinkers:'Bertrand Russell · Derek Parfit · Susan Wolf',
-   strength:'Argumentation — you make the clearest, most defensible case for your position of any type.',
-   failureMode:'Ivory tower drift — philosophical precision can become disconnected from the messiness of how people actually reason and live.'},
+   strength:'Argumentation. You make the clearest, most defensible case for your position of any type.',
+   failureMode:'Ivory tower drift. Philosophical precision can become disconnected from the messiness of how people actually reason and live.'},
 
   {id:'3D', family:'The Rational Empiricist', variant:'The Naturalist Ethicist',
    sig:[7,7,6,5,6,4,7,4,6,6,6,5,1],
-   description:'You hold that ethics can be grounded in natural facts about human flourishing, suffering, and wellbeing — without invoking the supernatural or accepting that morality is merely subjective. Moral facts, for you, are facts about what beings like us need to live well. This is a coherent middle path between divine command and pure anti-realism.',
+   tagline:'Morality, for you, is a fact about what creatures like us need to flourish.',
+   cardTagline:'No commandments required.\nFlourishing is measurable enough.',
+   whoYouAre:'You think right and wrong are grounded in something real: what beings like us need to flourish, what makes lives go well or badly. No divine lawgiver required, no shrug of pure relativism accepted. Ethics, for you, is a serious study of human wellbeing, and its findings carry genuine weight.',
+   description:'You hold that ethics can be grounded in natural facts about human flourishing, suffering, and wellbeing, without invoking the supernatural or accepting that morality is merely subjective. Moral facts, for you, are facts about what beings like us need to live well. This is a coherent middle path between divine command and pure anti-realism.',
    thinkers:'Aristotle · Martha Nussbaum · Philippa Foot',
-   strength:'Bridging the is-ought gap — you offer a coherent account of why facts about the world generate moral obligations.',
-   failureMode:'Normative overreach — deriving too many specific moral conclusions from a general naturalist framework that does not actually entail them.'},
+   strength:'Bridging the is-ought gap. You offer a coherent account of why facts about the world generate moral obligations.',
+   failureMode:'Normative overreach. Deriving too many specific moral conclusions from a general naturalist framework that does not actually entail them.'},
 
   {id:'3E', family:'The Rational Empiricist', variant:'The Pragmatist',
    sig:[7,6,6,5,3,3,6,3,6,6,6,4,1],
-   description:'For you, truth is not a correspondence relation between propositions and a mind-independent world — it is what works, what guides successful action, what coheres with the rest of what you know. Science is valuable not because it mirrors nature but because it generates reliable predictions and powerful interventions.',
+   tagline:'True, for you, is the name we give ideas that keep working.',
+   cardTagline:'Truth is what holds up.\nEverything else is metaphysics.',
+   whoYouAre:'You judge ideas by what they do. A belief that guides successful action and coheres with the rest of what you know has earned the name true, and that is all the truth you need. Science impresses you not as a mirror of nature but as the most reliable tool humans have built.',
+   description:'For you, truth is not a correspondence relation between propositions and a mind-independent world. It is what works, what guides successful action, what coheres with the rest of what you know. Science is valuable not because it mirrors nature but because it generates reliable predictions and powerful interventions.',
    thinkers:'William James · John Dewey · Richard Rorty',
-   strength:'Intellectual flexibility — you update beliefs based on what works rather than defending positions for their own sake.',
-   failureMode:'Relativism creep — without a robust account of truth, the pragmatist can slide toward "whatever my community endorses" as the standard.'},
+   strength:'Intellectual flexibility. You update beliefs based on what works rather than defending positions for their own sake.',
+   failureMode:'Relativism creep. Without a robust account of truth, the pragmatist can slide toward "whatever my community endorses" as the standard.'},
 
   // ── FAMILY 4: THE EXISTENTIAL ARCHITECT ──
   {id:'4A', family:'The Existential Architect', variant:'The Absurdist',
    sig:[7,6,5,5,2,1,4,3,4,7,6,1,1],
-   description:'You have fully absorbed the absurdity of the human condition — the clash between the human need for meaning and the universe\'s silence — and you have chosen commitment over despair. You push your rock. Not because you believe the summit matters cosmically, but because the pushing itself is the point.',
+   tagline:'The universe never answered, so you stopped waiting and started living.',
+   cardTagline:'The summit does not matter.\nYou push the rock anyway.',
+   whoYouAre:'You have looked directly at the gap between the meaning humans crave and the silence the universe offers, and you chose commitment over despair. You keep pushing your rock, fully aware the summit does not matter. The pushing is the point, and somewhere in that defiance you found something like joy.',
+   description:'You have fully absorbed the absurdity of the human condition, the clash between the human need for meaning and the universe\'s silence, and you have chosen commitment over despair. You push your rock. Not because you believe the summit matters cosmically, but because the pushing itself is the point.',
    thinkers:'Albert Camus · Samuel Beckett · Milan Kundera',
-   strength:'Resilience without illusion — you do not need cosmic permission to care.',
-   failureMode:'The absurdist pose — using absurdism as an identity rather than a genuine practice. Performing rebellion rather than living it.'},
+   strength:'Resilience without illusion. You do not need cosmic permission to care.',
+   failureMode:'The absurdist pose. Using absurdism as an identity rather than a genuine practice. Performing rebellion rather than living it.'},
 
   {id:'4B', family:'The Existential Architect', variant:'The Sartrean',
    sig:[7,6,5,2,2,1,4,3,4,7,6,1,1],
-   description:'You hold that humans are radically free — condemned to choose without a nature that determines those choices — and that this freedom carries absolute responsibility. Existence precedes essence: you become who you are through your choices, not by discovering who you already were. This is vertiginous and demanding.',
+   tagline:'You were not issued a self. You are out here building one, choice by choice.',
+   cardTagline:'No script, no essence.\nEvery choice signs your name.',
+   whoYouAre:'You believe you are radically free, with no fixed nature deciding for you, and you feel the full weight of that. Every choice writes another line of who you are. You cannot hide behind circumstance or temperament, and you notice, sharply, when other people try to.',
+   description:'You hold that humans are radically free, condemned to choose without a nature that determines those choices, and that this freedom carries absolute responsibility. Existence precedes essence: you become who you are through your choices, not by discovering who you already were. This is vertiginous and demanding.',
    thinkers:'Jean-Paul Sartre · Simone de Beauvoir · Frantz Fanon',
    strength:'Radical ownership of choices and their consequences.',
-   failureMode:'Bad faith — the existentialist who recognises bad faith in others but practises it themselves.'},
+   failureMode:'Bad faith. The existentialist who recognises bad faith in others but practises it themselves.'},
 
   {id:'4C', family:'The Existential Architect', variant:'The Meaning Maker',
    sig:[6,6,5,4,2,1,4,4,6,7,6,1,1],
-   description:'You do not agonise over the absence of cosmic meaning — you create meaning with the same focused energy others spend looking for it. Your projects, relationships, and commitments are genuinely meaningful to you not because the universe endorses them but because you have chosen them and built your life around them.',
+   tagline:'Others search for meaning. You are busy manufacturing it.',
+   cardTagline:'Meaning was never delivered.\nSo you built your own.',
+   whoYouAre:'You spend no time mourning the meaning the universe failed to provide. You build your own, deliberately, out of projects, people, and commitments you chose. What you care about is meaningful because you built your life around it, and you know that, and it holds anyway.',
+   description:'You do not agonise over the absence of cosmic meaning. You create meaning with the same focused energy others spend looking for it. Your projects, relationships, and commitments are genuinely meaningful to you not because the universe endorses them but because you have chosen them and built your life around them.',
    thinkers:'Viktor Frankl · Irvin Yalom · Susan Wolf',
-   strength:'Purposefulness without self-deception — you know your meaning is constructed and choose it anyway.',
+   strength:'Purposefulness without self-deception. You know your meaning is constructed and choose it anyway.',
    failureMode:'Fragility under loss. Constructed meaning requires ongoing maintenance; when a central project collapses, the meaning structure can collapse with it.'},
 
   {id:'4D', family:'The Existential Architect', variant:'The Identity Builder',
    sig:[6,5,5,4,3,2,4,3,6,6,6,1,1],
-   description:'Your existentialism is most alive in the domain of identity. You hold that who you are is not discovered but built — through choices, commitments, relationships, and the stories you construct about yourself. You are suspicious of essentialism in all its forms and take responsibility for the self you have built.',
+   tagline:'Who you are is not a discovery. It is a construction site.',
+   cardTagline:'You were not born this.\nYou are building it.',
+   whoYouAre:'You treat selfhood as a project. Who you are was not waiting to be discovered; it is being assembled, through commitments, relationships, and the story you keep revising. Talk of fixed natures makes you suspicious. You own the self you have built, including the parts still under construction.',
+   description:'Your existentialism is most alive in the domain of identity. You hold that who you are is not discovered but built, through choices, commitments, relationships, and the stories you construct about yourself. You are suspicious of essentialism in all its forms and take responsibility for the self you have built.',
    thinkers:'Simone de Beauvoir · Charles Taylor · Judith Butler',
-   strength:'Self-authorship — you are the most intentional architect of your own character of any type.',
+   strength:'Self-authorship. You are the most intentional architect of your own character of any type.',
    failureMode:'Identity instability. When everything is constructed and chosen, it can be difficult to know when to commit and when to revise.'},
 
   {id:'4E', family:'The Existential Architect', variant:'The Relational Existentialist',
    sig:[6,5,5,4,3,1,4,5,5,6,6,1,1],
+   tagline:'Meaning, you have learned, is something people make between them.',
+   cardTagline:'Freedom is real.\nSo is the need for others.',
+   whoYouAre:'Your existentialism runs through other people. Meaning gets made between you and those you love, not in solitary acts of will. You take relationships with philosophical seriousness, because being truly met by another person is, for you, where authentic existence actually happens.',
    description:'You hold existentialist foundations but locate your meaning-making primarily in relationships and community rather than in solitary self-creation. Meaning is built between people, not just within them. You are less individualist than classic existentialism and more aware that authentic existence requires genuine encounter with others.',
    thinkers:'Martin Buber · Simone de Beauvoir · bell hooks',
-   strength:'Depth of relationship — you bring philosophical seriousness to how you are with others.',
+   strength:'Depth of relationship. You bring philosophical seriousness to how you are with others.',
    failureMode:'Codependence dressed as philosophy. Relational meaning-making can become meaning-outsourcing if the independence axis weakens.'},
 
   // ── FAMILY 5: THE MORAL REALIST ──
   {id:'5A', family:'The Moral Realist', variant:'The Kantian',
    sig:[6,6,7,4,7,5,4,4,5,6,2,5,4],
-   description:'You hold that moral facts are grounded in reason — that the categorical imperative captures something genuinely true about the structure of morality. Moral obligations are not consequences of divine command or natural facts but of the demands of rational consistency itself. You take duties seriously and believe persons have an unconditional dignity that may never be violated.',
+   tagline:'Some lines do not move, no matter how good the numbers look.',
+   cardTagline:'People are never instruments.\nDuty does not negotiate.',
+   whoYouAre:'You believe morality has the force of logic itself. Some things are owed to persons simply because they are persons, and no calculation of benefits overrides that. When everyone else is weighing outcomes, you are the one asking whether the act itself can be justified to the person it is done to.',
+   description:'You hold that moral facts are grounded in reason, and that the categorical imperative captures something genuinely true about the structure of morality. Moral obligations are not consequences of divine command or natural facts but of the demands of rational consistency itself. You take duties seriously and believe persons have an unconditional dignity that may never be violated.',
    thinkers:'Immanuel Kant · Christine Korsgaard · Onora O\'Neill',
-   strength:'Principled resistance to expedience — you do not compromise on persons even when the numbers seem to justify it.',
+   strength:'Principled resistance to expedience. You do not compromise on persons even when the numbers seem to justify it.',
    failureMode:'Moral rigidity. Kantian ethics struggles with genuine dilemmas where duties conflict and offers no clean resolution.'},
 
   {id:'5B', family:'The Moral Realist', variant:'The Virtue Ethicist',
    sig:[6,5,6,4,7,5,5,4,4,4,2,5,4],
-   description:'You hold that morality is primarily about character rather than rules or outcomes. The right action is what a person of genuine virtue would do — and virtue is not merely compliance with rules but a deep orientation of the self toward the good. You believe moral development is possible and that ethics is inseparable from the question of how to live.',
+   tagline:'The real moral question, for you, is not what to do but who to become.',
+   cardTagline:'Rules are for beginners.\nCharacter is the curriculum.',
+   whoYouAre:'You measure morality in character, not compliance. The question underneath every dilemma, for you, is what kind of person this choice is making you. You believe people genuinely develop, that wisdom is learned in practice, and that ethics and the art of living well were never separate subjects.',
+   description:'You hold that morality is primarily about character rather than rules or outcomes. The right action is what a person of genuine virtue would do, and virtue is not merely compliance with rules but a deep orientation of the self toward the good. You believe moral development is possible and that ethics is inseparable from the question of how to live.',
    thinkers:'Aristotle · Alasdair MacIntyre · Martha Nussbaum',
-   strength:'Integrating ethics with psychology and development — you ask not just what should I do but who should I be.',
+   strength:'Integrating ethics with psychology and development. You ask not just what should I do but who should I be.',
    failureMode:'Community parochialism. Virtue ethics is historically tied to specific communities and their standards.'},
 
   {id:'5C', family:'The Moral Realist', variant:'The Natural Law',
    sig:[5,5,7,4,7,6,5,4,4,3,2,5,4],
-   description:'You hold that moral facts are grounded in natural facts about what beings like humans need to flourish — facts discoverable through reason and experience, not divine revelation. Morality is not invented but discovered in the structure of human nature and the conditions of human flourishing.',
+   tagline:'Morality was not invented. It was found, written into what humans are.',
+   cardTagline:'Human nature has a shape.\nMorality follows from it.',
+   whoYouAre:'You believe morality is discovered, not decreed. What humans need to flourish is written into what humans are, and careful reason can read it there without any appeal to revelation. That gives your ethics an unusual reach: you can make your case to anyone, from any tradition, on shared human ground.',
+   description:'You hold that moral facts are grounded in natural facts about what beings like humans need to flourish, facts discoverable through reason and experience, not divine revelation. Morality is not invented but discovered in the structure of human nature and the conditions of human flourishing.',
    thinkers:'Aristotle · Thomas Aquinas (secular reading) · John Finnis',
-   strength:'Cross-cultural persuasion — natural law arguments do not require religious premises.',
-   failureMode:'Teleological overspecification — deriving too many specific moral conclusions from a general account of human nature.'},
+   strength:'Cross-cultural persuasion. Natural law arguments do not require religious premises.',
+   failureMode:'Teleological overspecification. Deriving too many specific moral conclusions from a general account of human nature.'},
 
   {id:'5D', family:'The Moral Realist', variant:'The Cornell Realist',
    sig:[7,7,7,5,7,4,6,4,5,5,2,5,4],
-   description:'You hold that moral facts are natural facts — specifically, facts about what promotes the flourishing of beings with our psychology and social nature. You are a full naturalist and a full moral realist simultaneously, holding that the two positions are compatible if moral properties are understood as natural properties discoverable empirically.',
+   tagline:'Moral facts, in your world, are as natural as chemistry and just as real.',
+   cardTagline:'Fully naturalist. Fully realist.\nYou refuse to choose.',
+   whoYouAre:'You hold two positions most people assume cannot coexist: the world is entirely natural, and moral facts are entirely real. For you they fit, because facts about flourishing are natural facts, discoverable the way any facts are. You built the rare worldview that gives up neither science nor moral truth.',
+   description:'You hold that moral facts are natural facts: specifically, facts about what promotes the flourishing of beings with our psychology and social nature. You are a full naturalist and a full moral realist simultaneously, holding that the two positions are compatible if moral properties are understood as natural properties discoverable empirically.',
    thinkers:'Peter Railton · Richard Boyd · Nicholas Sturgeon',
-   strength:'Philosophical completeness — you have a coherent account of how moral facts fit into a fully natural world.',
-   failureMode:'Technical abstraction — the position is philosophically powerful but difficult to communicate to non-specialists.'},
+   strength:'Philosophical completeness. You have a coherent account of how moral facts fit into a fully natural world.',
+   failureMode:'Technical abstraction. The position is philosophically powerful but difficult to communicate to non-specialists.'},
 
   {id:'5E', family:'The Moral Realist', variant:'The Constructivist',
    sig:[6,5,6,4,6,4,5,5,5,5,4,5,4],
-   description:'You hold that moral facts are real but constructed — real in the sense that they are not merely expressions of preference, constructed in the sense that they emerge from principles rational agents would agree to under fair conditions. The facts are real because the procedure is fair and the constraints are genuine.',
+   tagline:'Fairness is not found in the world. It is built by fair procedures, carefully.',
+   cardTagline:'Real enough to bind.\nBuilt by fair agreement.',
+   whoYouAre:'You believe moral truth is made, but made properly: it is whatever principles free and equal people would agree to under genuinely fair conditions. That is no mere preference, it binds. You care intensely about the fairness of the process, because for you the process is where the authority comes from.',
+   description:'You hold that moral facts are real but constructed. Real in the sense that they are not merely expressions of preference, constructed in the sense that they emerge from principles rational agents would agree to under fair conditions. The facts are real because the procedure is fair and the constraints are genuine.',
    thinkers:'John Rawls · T.M. Scanlon · Jürgen Habermas',
-   strength:'Democratic legitimacy — constructivist moral facts are grounded in procedures everyone can in principle accept.',
+   strength:'Democratic legitimacy. Constructivist moral facts are grounded in procedures everyone can in principle accept.',
    failureMode:'Proceduralism without substance. When the procedure is disputed, constructivism has limited resources to resolve the dispute.'},
 
   // ── FAMILY 6: THE COMPASSIONATE COLLECTIVIST ──
   {id:'6A', family:'The Compassionate Collectivist', variant:'The Care Ethicist',
    sig:[6,5,5,4,5,3,2,7,6,4,7,3,2],
-   description:'Your ethics begins with relationships, vulnerability, and care rather than abstract principles or aggregate outcomes. You hold that morality is fundamentally relational — that what we owe to each other flows from the particular connections and dependencies between us. You attend closely to context, emotion, and the specific needs of specific people.',
+   tagline:'Morality, for you, starts with the person in front of you, not the principle above.',
+   cardTagline:'Ethics begins in relationship.\nEverything else is commentary.',
+   whoYouAre:'Your ethics starts where people are joined: in relationships, dependencies, and the vulnerability of actual persons. Abstract principles feel bloodless to you next to the question of who needs care right now. You notice context, read feeling, and hold that what we owe each other grows from how we are connected.',
+   description:'Your ethics begins with relationships, vulnerability, and care rather than abstract principles or aggregate outcomes. You hold that morality is fundamentally relational, and that what we owe to each other flows from the particular connections and dependencies between us. You attend closely to context, emotion, and the specific needs of specific people.',
    thinkers:'Carol Gilligan · Nel Noddings · Virginia Held',
-   strength:'Attentiveness to the particular — you see the person in front of you, not the abstract moral agent.',
+   strength:'Attentiveness to the particular. You see the person in front of you, not the abstract moral agent.',
    failureMode:'Partiality without principle. Care ethics can struggle to adjudicate between competing caring relationships or generate obligations to distant strangers.'},
 
   {id:'6B', family:'The Compassionate Collectivist', variant:'The Animal Advocate',
    sig:[7,6,6,5,5,2,3,7,6,4,7,3,2],
-   description:'You hold that the capacity to suffer is the morally relevant threshold and that species membership is morally arbitrary. The scale of animal suffering in contemporary industrial systems is, for you, one of the greatest ongoing moral catastrophes in human history — not a minor concern but a central one.',
+   tagline:'Suffering counts wherever it happens, whatever species it happens in.',
+   cardTagline:'Pain does not check species.\nNeither does your ethics.',
+   whoYouAre:'You draw the moral line at the capacity to suffer, and species membership does not move it. What industrial systems do to animals registers with you as a moral emergency happening in plain sight, at staggering scale. You follow your principles to their logical end, even where most people stop.',
+   description:'You hold that the capacity to suffer is the morally relevant threshold and that species membership is morally arbitrary. The scale of animal suffering in contemporary industrial systems is, for you, one of the greatest ongoing moral catastrophes in human history. Not a minor concern but a central one.',
    thinkers:'Peter Singer · Tom Regan · Gary Francione',
-   strength:'Moral consistency and scope — you extend your principles to their logical conclusion without flinching.',
+   strength:'Moral consistency and scope. You extend your principles to their logical conclusion without flinching.',
    failureMode:'Alienation from movement-building. Uncompromising animal advocacy can isolate this type from people they need to persuade.'},
 
   {id:'6C', family:'The Compassionate Collectivist', variant:'The Ubuntu Thinker',
    sig:[5,4,5,4,5,4,3,7,6,4,7,3,2],
-   description:'You hold that personhood and flourishing are irreducibly relational — "I am because we are." Your identity, values, and sense of meaning are constituted through community and relationship rather than individual autonomy. You are skeptical of liberal individualism\'s assumption that the self exists prior to and independent of social bonds.',
+   tagline:'You know something the individualists forgot: no one becomes a person alone.',
+   cardTagline:'I am because we are.\nYou live that sentence.',
+   whoYouAre:'You know that no one becomes a person alone. Your identity, your values, your sense of what matters, all of it was formed in community and lives there still. The self-made individual strikes you as a story people tell after forgetting who raised them. You tend the fabric everyone else stands on.',
+   description:'You hold that personhood and flourishing are irreducibly relational: "I am because we are." Your identity, values, and sense of meaning are constituted through community and relationship rather than individual autonomy. You are skeptical of liberal individualism\'s assumption that the self exists prior to and independent of social bonds.',
    thinkers:'Desmond Tutu · Kwame Gyekye · Michael Eze',
-   strength:'Deep community orientation — you build and sustain the relational fabric that everyone benefits from.',
+   strength:'Deep community orientation. You build and sustain the relational fabric that everyone benefits from.',
    failureMode:'Community conformity. The Ubuntu thinker can sacrifice individual integrity for group harmony.'},
 
   {id:'6D', family:'The Compassionate Collectivist', variant:'The Empathic Realist',
    sig:[6,5,6,4,5,3,4,7,6,4,6,3,2],
-   description:'You combine strong empathic attunement with clear-eyed assessment of structural causes. You feel the suffering of others acutely and also understand why it exists — which means your compassion does not dissipate into sentimentality but directs itself toward the conditions that produce harm.',
+   tagline:'You feel the wound and study what made the knife.',
+   cardTagline:'Feel the suffering fully.\nThen trace its causes.',
+   whoYouAre:'You feel other people\'s suffering acutely, and you also understand where it comes from. That combination changes what compassion does in you. It does not dissolve into sentiment or burn out into despair; it aims itself, steadily, at the conditions that keep producing the pain.',
+   description:'You combine strong empathic attunement with clear-eyed assessment of structural causes. You feel the suffering of others acutely and also understand why it exists, which means your compassion does not dissipate into sentimentality but directs itself toward the conditions that produce harm.',
    thinkers:'bell hooks · Paul Farmer · Bryan Stevenson',
-   strength:'Sustainable compassion — feeling without burning out, because the feeling is grounded in understanding.',
+   strength:'Sustainable compassion. Feeling without burning out, because the feeling is grounded in understanding.',
    failureMode:'Absorbing others\' pain without adequate self-regulation. The risk is nervous system overload from genuine attunement to suffering.'},
 
   {id:'6E', family:'The Compassionate Collectivist', variant:'The Pacifist Reformer',
    sig:[6,5,5,4,6,4,3,7,7,5,7,3,2],
-   description:'You hold that nonviolence is not merely a tactic but a moral commitment — that the means of change must be consistent with the ends desired. You believe genuine transformation requires bringing people with you rather than defeating them, and that violence corrupts both the cause and the person who employs it.',
+   tagline:'How you win matters to you as much as winning, because the means become the world.',
+   cardTagline:'The means become the ends.\nSo you choose them carefully.',
+   whoYouAre:'You hold nonviolence as a conviction, not a tactic. Change that is won by force carries the force forward into what comes next, and you refuse that inheritance. You would rather bring people with you than defeat them, because the world you want cannot be built out of enemies.',
+   description:'You hold that nonviolence is not merely a tactic but a moral commitment, and that the means of change must be consistent with the ends desired. You believe genuine transformation requires bringing people with you rather than defeating them, and that violence corrupts both the cause and the person who employs it.',
    thinkers:'Martin Luther King Jr. · Gandhi · Thich Nhat Hanh',
-   strength:'Long-game thinking — you build movements that last because you refuse to compromise the relational fabric.',
+   strength:'Long-game thinking. You build movements that last because you refuse to compromise the relational fabric.',
    failureMode:'Moral purity over effectiveness. Nonviolence can become a constraint that prevents necessary action when lives are at stake.'},
 
   // ── FAMILY 7: THE PRINCIPLED LIBERTARIAN ──
   {id:'7A', family:'The Principled Libertarian', variant:'The Classical Liberal',
    sig:[6,5,6,4,5,5,5,1,2,7,1,4,2],
-   description:'You hold that individual rights are the foundation of any legitimate social order — that persons have claims against collective interference that cannot be overridden by aggregate benefit. Your liberalism is classical: limited government, rule of law, free markets, and strong civil liberties.',
+   tagline:'You watch power the way a smoke detector watches a kitchen.',
+   cardTagline:'Rights are not gifts.\nThey are the foundation.',
+   whoYouAre:'You hold that a person\'s rights are not favours the collective grants but the ground rules any legitimate order must respect. Limited government, rule of law, open markets, strong liberties: not slogans to you, but hard-learned machinery for keeping power in check. You spot concentrated power early, and you distrust it on principle.',
+   description:'You hold that individual rights are the foundation of any legitimate social order, and that persons have claims against collective interference that cannot be overridden by aggregate benefit. Your liberalism is classical: limited government, rule of law, free markets, and strong civil liberties.',
    thinkers:'John Stuart Mill · Friedrich Hayek · Isaiah Berlin',
-   strength:'Institutional vigilance — you see the danger of concentrated power before others do.',
+   strength:'Institutional vigilance. You see the danger of concentrated power before others do.',
    failureMode:'Structural blindness. Classical liberalism can mistake structural advantages for individual merit.'},
 
   {id:'7B', family:'The Principled Libertarian', variant:'The Moral Individualist',
    sig:[6,5,5,4,6,5,5,1,3,7,1,6,2],
-   description:'Your individualism is rooted in a strong essentialist account of human nature — persons have a genuine nature that includes the capacity for rational self-direction which constitutes their dignity. Collectivism violates this dignity not merely as a matter of preference but as a matter of what persons fundamentally are.',
+   tagline:'Your case for freedom starts with what a human being actually is.',
+   cardTagline:'Dignity is not negotiable.\nIt comes with being human.',
+   whoYouAre:'Your individualism goes all the way down. Persons have a real nature, and rational self-direction is the heart of it; that is where dignity comes from, and why coercing someone is not merely inefficient but wrong. You can state exactly why rights matter, from first principles, without borrowing anyone\'s premises.',
+   description:'Your individualism is rooted in a strong essentialist account of human nature. Persons have a genuine nature that includes the capacity for rational self-direction, and that capacity constitutes their dignity. Collectivism violates this dignity not merely as a matter of preference but as a matter of what persons fundamentally are.',
    thinkers:'Ayn Rand · Robert Nozick · John Locke',
-   strength:'Clear moral foundations — you know exactly why individual rights matter and can articulate it precisely.',
+   strength:'Clear moral foundations. You know exactly why individual rights matter and can articulate it precisely.',
    failureMode:'Ideological rigidity. Moral individualism can become impervious to evidence about structural inequality.'},
 
   {id:'7C', family:'The Principled Libertarian', variant:'The Civil Liberties',
    sig:[6,5,5,4,4,3,5,1,4,7,2,4,2],
-   description:'Your libertarianism is most passionate in the domain of civil liberties — freedom of speech, conscience, association, privacy, and bodily autonomy. You hold that the state has an extremely limited mandate to regulate personal behaviour and that expansion of that mandate is always more dangerous than the harms it claims to prevent.',
+   tagline:'You defend the speech you hate, because the alternative is worse.',
+   cardTagline:'Your conscience, your speech.\nThe state stays out.',
+   whoYouAre:'Your libertarianism burns hottest around conscience, speech, privacy, and the body. Every expansion of the state\'s mandate over personal life looks to you more dangerous than whatever it promises to prevent. You will defend liberties for people you deeply disagree with, and you consider that the whole point.',
+   description:'Your libertarianism is most passionate in the domain of civil liberties: freedom of speech, conscience, association, privacy, and bodily autonomy. You hold that the state has an extremely limited mandate to regulate personal behaviour and that expansion of that mandate is always more dangerous than the harms it claims to prevent.',
    thinkers:'John Stuart Mill · Nadine Strossen · Glenn Greenwald',
-   strength:'Defending freedom even when you disagree with its content — principled rather than convenient.',
+   strength:'Defending freedom even when you disagree with its content. Principled rather than convenient.',
    failureMode:'Platforming harm. Defending freedom of speech without adequately accounting for structural power differentials.'},
 
   {id:'7D', family:'The Principled Libertarian', variant:'The Voluntaryist',
    sig:[5,5,5,4,2,3,5,1,3,7,1,5,2],
-   description:'You hold that all legitimate social arrangements must be based on voluntary consent — that no collective has the right to impose arrangements on individuals who have not agreed to them. You are skeptical of the state as an institution, preferring voluntary association, mutual aid, and market coordination over coercive governance.',
+   tagline:'If nobody agreed to it, you are not sure it counts as legitimate.',
+   cardTagline:'Consent or it does not bind.\nNo exceptions for governments.',
+   whoYouAre:'You take one principle seriously enough to follow it everywhere: arrangements bind only the people who agreed to them. Applied honestly, that unsettles most of what states do, and you accept the implication. You put your faith in voluntary association, mutual aid, and trade, the things people build without being forced.',
+   description:'You hold that all legitimate social arrangements must be based on voluntary consent, and that no collective has the right to impose arrangements on individuals who have not agreed to them. You are skeptical of the state as an institution, preferring voluntary association, mutual aid, and market coordination over coercive governance.',
    thinkers:'Murray Rothbard · David Friedman · Lysander Spooner',
-   strength:'Consistency — you apply the consent principle universally rather than selectively.',
+   strength:'Consistency. You apply the consent principle universally rather than selectively.',
    failureMode:'Coordination failure. Voluntary arrangements struggle with large-scale collective action problems like climate change.'},
 
   {id:'7E', family:'The Principled Libertarian', variant:'The Conservative Libertarian',
    sig:[5,5,5,4,5,5,5,1,2,6,1,4,2],
-   description:'You combine libertarian economic and political commitments with conservative values — tradition, community, and the importance of cultural inheritance. You hold that free markets and limited government are best understood as the conditions under which the organic institutions of family, community, and culture can flourish.',
+   tagline:'Freedom, you believe, grows best in soil that took centuries to form.',
+   cardTagline:'Free markets, old roots.\nLiberty needs somewhere to live.',
+   whoYouAre:'You want the state small so that older, warmer things have room: family, congregation, neighbourhood, inherited culture. Markets and limited government are not ends for you but conditions, the cleared ground where organic institutions can grow. You defend both liberty and tradition, and you see no contradiction in that.',
+   description:'You combine libertarian economic and political commitments with conservative values: tradition, community, and the importance of cultural inheritance. You hold that free markets and limited government are best understood as the conditions under which the organic institutions of family, community, and culture can flourish.',
    thinkers:'Edmund Burke · Roger Scruton · Frank Meyer',
    strength:'Grounding freedom in cultural continuity rather than abstract principles.',
    failureMode:'Defending the status quo under the banner of freedom. Conservative libertarianism can legitimise existing inequalities.'},
@@ -6696,70 +7231,100 @@ const ARCHETYPES = [
   // ── FAMILY 8: THE STOIC NATURALIST ──
   {id:'8A', family:'The Stoic Naturalist', variant:'The Classical Stoic',
    sig:[7,6,6,6,5,4,7,3,1,5,5,7,1],
+   tagline:'The world does what it does. Your character is the part you govern.',
+   cardTagline:'Virtue is the only good.\nEverything else is weather.',
+   whoYouAre:'You live by an old and demanding discipline: virtue is the only genuine good, and what you cannot control deserves acceptance, not anguish. You feel things fully, but feeling does not get the final vote; reason does. People around you notice that circumstances change and you, somehow, remain steady.',
    description:'You hold that there is a natural order and that human flourishing consists in living in accordance with it. Your Stoicism is classical: focus on virtue as the only genuine good, accept what you cannot control, and maintain equanimity through the exercise of reason. You are not without emotion but you do not allow emotion to override your reasoned assessment.',
    thinkers:'Marcus Aurelius · Epictetus · Seneca',
-   strength:'Resilience under any conditions — you function well regardless of external circumstances.',
+   strength:'Resilience under any conditions. You function well regardless of external circumstances.',
    failureMode:'Emotional suppression masquerading as equanimity. True Stoicism acknowledges feeling; false Stoicism denies it.'},
 
   {id:'8B', family:'The Stoic Naturalist', variant:'The Modern Stoic',
    sig:[7,6,7,6,3,2,7,3,3,5,6,7,1],
+   tagline:'You kept the practice and returned the metaphysics, and the practice still works.',
+   cardTagline:'Ancient discipline.\nModern, tested, still standing.',
+   whoYouAre:'You run ancient practice on modern foundations. No cosmic reason ordering the universe, just causes and conditions, and a discipline that still works: control what is yours to control, release the rest. Your philosophy is not a shelf of positions but a set of habits you actually use, daily, under pressure.',
    description:'You apply Stoic practice to a fully contemporary naturalist and determinist worldview. The dichotomy of control remains central: focus on what is within your sphere of influence, accept what is not. You do not believe in the logos as a cosmic rational principle, but you find Stoic practice genuinely useful without the metaphysical framework.',
    thinkers:'Ryan Holiday · Massimo Pigliucci · William Irvine',
-   strength:'Practical philosophy — you have integrated your beliefs into daily practice rather than holding them as abstract positions.',
+   strength:'Practical philosophy. You have integrated your beliefs into daily practice rather than holding them as abstract positions.',
    failureMode:'Stoicism as productivity hack. The deep philosophical content can be reduced to morning routines.'},
 
   {id:'8C', family:'The Stoic Naturalist', variant:'The Contemplative',
    sig:[6,5,6,5,4,3,6,3,2,5,6,7,1],
-   description:'Your Stoicism is less about discipline and more about presence — about genuinely inhabiting the life you have rather than the life you imagine. You practise attention to what is, rather than what should be. Your daily practice involves returning again and again to direct experience rather than conceptual overlay.',
+   tagline:'You keep returning to the life you actually have, and finding it enough.',
+   cardTagline:'Not the imagined life.\nThis one, fully inhabited.',
+   whoYouAre:'Your practice is presence more than discipline. You keep returning attention to what is actually here, this task, this person, this hour, rather than the imagined life running in parallel. The gap between what is and what should be is where most suffering lives, and you have learned to visit it less.',
+   description:'Your Stoicism is less about discipline and more about presence, about genuinely inhabiting the life you have rather than the life you imagine. You practise attention to what is, rather than what should be. Your daily practice involves returning again and again to direct experience rather than conceptual overlay.',
    thinkers:'Marcus Aurelius · Thich Nhat Hanh (secular) · Simone Weil (secular)',
-   strength:'Presence — you are actually here, not somewhere else in your mind.',
+   strength:'Presence. You are actually here, not somewhere else in your mind.',
    failureMode:'Withdrawal. The contemplative Stoic can retreat from engagement with realities that require action, not acceptance.'},
 
   {id:'8D', family:'The Stoic Naturalist', variant:'The Resilient Practitioner',
    sig:[7,6,6,6,4,3,7,3,2,5,4,7,1],
-   description:'You have built genuine resilience through philosophical practice rather than through inherited or circumstantial advantage. Your Stoicism is hard-won — you have been tested and the framework held. You distinguish sharply between what is within your control and what is not, and you direct your energy only at the former.',
+   tagline:'Your philosophy has scars. That is how you know it holds.',
+   cardTagline:'Tested by real difficulty.\nThe framework held.',
+   whoYouAre:'Your equanimity was not inherited, it was earned. Life tested you, the framework held, and now you know the difference between philosophy as decoration and philosophy as load-bearing structure. You sort every situation fast: mine to influence, or mine to accept. Then you spend yourself only on the first kind.',
+   description:'You have built genuine resilience through philosophical practice rather than through inherited or circumstantial advantage. Your Stoicism is hard-won. You have been tested and the framework held. You distinguish sharply between what is within your control and what is not, and you direct your energy only at the former.',
    thinkers:'Epictetus · James Stockdale · Viktor Frankl (Stoic mode)',
-   strength:'Antifragility — you become stronger through difficulty rather than merely surviving it.',
-   failureMode:'Applying the framework where acceptance is not appropriate — using Stoic acceptance to avoid addressing injustice that could be changed.'},
+   strength:'Antifragility. You become stronger through difficulty rather than merely surviving it.',
+   failureMode:'Applying the framework where acceptance is not appropriate. Using Stoic acceptance to avoid addressing injustice that could be changed.'},
 
   {id:'8E', family:'The Stoic Naturalist', variant:'The Scientific Buddhist',
    sig:[6,5,6,5,3,2,7,3,2,5,6,7,1],
+   tagline:'You took what was true from two ancient traditions and left the rest at the door.',
+   cardTagline:'Impermanence, attachment, attention.\nNo rebirth required.',
+   whoYouAre:'You found the same discoveries in two old traditions: everything changes, clinging multiplies suffering, and trained attention loosens the grip. You practise them inside a fully natural worldview, no karma ledger, no rebirth. What survives that filtering is, to you, some of the truest ethics humans ever wrote down.',
    description:'You hold a position drawing from both Stoic and Buddhist practice within a secular naturalist framework. The core commitments are shared: impermanence is real, suffering arises from attachment, and the practice of attention reduces unnecessary suffering. You hold no metaphysical commitments about karma but find the ethical content of these traditions genuinely true.',
    thinkers:'Stephen Batchelor · Sam Harris (meditation mode) · Robert Wright',
-   strength:'Cross-tradition synthesis — you draw from the best of multiple wisdom traditions without being bound by any.',
-   failureMode:'Spiritual bypassing — using meditative practice to avoid engaging with structural problems that require action.'},
+   strength:'Cross-tradition synthesis. You draw from the best of multiple wisdom traditions without being bound by any.',
+   failureMode:'Spiritual bypassing. Using meditative practice to avoid engaging with structural problems that require action.'},
 
   // ── FAMILY 9: THE SPIRITUAL NATURALIST ──
   {id:'9A', family:'The Spiritual Naturalist', variant:'The Panpsychist',
    sig:[6,2,5,4,4,4,2,4,4,2,4,5,7],
-   description:'You hold that consciousness is not an emergent property of complex physical systems but a fundamental feature of reality — present to some degree in all matter, not just in brains. This is not a traditional spiritual claim but a metaphysical one: the hard problem of consciousness is genuinely hard, and panpsychism offers a more parsimonious solution.',
+   tagline:'Maybe experience does not emerge from matter. Maybe it was there all along.',
+   cardTagline:'Consciousness goes all the way down.\nBrains just concentrate it.',
+   whoYouAre:'You suspect consciousness is not something brains produce but something reality includes, present in some faint degree everywhere. This is metaphysics for you, not mysticism: the hard problem of experience is genuinely hard, and you would rather widen the picture of matter than pretend the problem away.',
+   description:'You hold that consciousness is not an emergent property of complex physical systems but a fundamental feature of reality, present to some degree in all matter, not just in brains. This is not a traditional spiritual claim but a metaphysical one: the hard problem of consciousness is genuinely hard, and panpsychism offers a more parsimonious solution.',
    thinkers:'David Chalmers · Philip Goff · Alfred North Whitehead',
    strength:'Taking consciousness seriously as a genuine explanatory challenge rather than explaining it away.',
    failureMode:'Combination problem. Panpsychism faces serious difficulties explaining how micro-conscious entities combine into unified conscious experience.'},
 
   {id:'9B', family:'The Spiritual Naturalist', variant:'The Metaphysical Idealist',
    sig:[2,1,2,2,4,6,1,4,4,2,3,5,7],
-   description:'You hold that consciousness, mind, or spirit is primary — that matter is either derived from or dependent upon a deeper mental or spiritual reality. Reality is not the blind machinery of physics but something closer to mind all the way down. This may express as Law of Attraction thinking, idealist philosophy, energy-based spirituality, or the conviction that intention shapes reality in ways science has not yet fully mapped.',
+   tagline:'You suspect the universe is made of something much closer to mind than machine.',
+   cardTagline:'Matter is not the bottom layer.\nMind might be.',
+   whoYouAre:'For you, mind is not a latecomer in a material universe; it is closer to the ground floor of reality itself. Experience, intention, spirit, these strike you as more fundamental than particles, not less. You take seriously what a physics-only picture leaves unexplained, starting with the fact that anything is experienced at all.',
+   description:'You hold that consciousness, mind, or spirit is primary, and that matter is either derived from or dependent upon a deeper mental or spiritual reality. Reality is not the blind machinery of physics but something closer to mind all the way down. This may express as Law of Attraction thinking, idealist philosophy, energy-based spirituality, or the conviction that intention shapes reality in ways science has not yet fully mapped.',
    thinkers:'George Berkeley · Rupert Sheldrake · Amit Goswami',
    strength:'Taking the hard problem of consciousness seriously and refusing to accept a purely materialist account that leaves experience unexplained.',
    failureMode:'Magical thinking. The metaphysical idealist can slide from a philosophically serious position into unfalsifiable claims about reality that serve wish-fulfilment rather than truth.'},
 
   {id:'9C', family:'The Spiritual Naturalist', variant:'The Religious Humanist',
    sig:[4,3,6,3,6,5,3,4,4,2,4,5,7],
-   description:'You hold humanist values within a framework that retains genuine, if reinterpreted, religious commitment. You take the moral and meaning content of religious tradition seriously — as real guides to human flourishing — without requiring literal assent to every metaphysical claim. Religion, for you, is not merely poetry but a tested system of practice and meaning that liberal secular culture has not adequately replaced.',
+   tagline:'You kept the depth of tradition and the honesty of doubt, and made them work together.',
+   cardTagline:'Ancient practice, honest doubt.\nBoth, without apology.',
+   whoYouAre:'You live inside a tradition with your eyes open. Its practices, stories, and moral seriousness are real guides for you, tested across centuries, even where you hold the metaphysics loosely. You have watched secular culture try to replace what religion carries and, in your honest judgment, not quite manage it.',
+   description:'You hold humanist values within a framework that retains genuine, if reinterpreted, religious commitment. You take the moral and meaning content of religious tradition seriously, as real guides to human flourishing, without requiring literal assent to every metaphysical claim. Religion, for you, is not merely poetry but a tested system of practice and meaning that liberal secular culture has not adequately replaced.',
    thinkers:'Alain de Botton · Ronald Dworkin · Rabbi Jonathan Sacks',
-   strength:'Access to depth traditions with epistemic honesty — you draw on millennia of accumulated wisdom without pretending certainty you do not have.',
+   strength:'Access to depth traditions with epistemic honesty. You draw on millennia of accumulated wisdom without pretending certainty you do not have.',
    failureMode:'Selective tradition. The religious humanist can retain the parts of tradition that are comfortable while quietly dropping the demands that are costly.'},
 
   {id:'9D', family:'The Spiritual Naturalist', variant:'The Dharmic Practitioner',
    sig:[5,2,4,3,5,3,2,4,3,1,3,5,7],
-   description:'You hold a position shaped by Buddhist, Hindu, Jain, or related dharmic traditions — in which consciousness is not reducible to matter, moral reality is structured by karma and the conditions of suffering and liberation, and meaning is discovered through disciplined practice rather than either secular construction or divine revelation. You may or may not hold the metaphysical superstructure literally, but the ethical and contemplative core is genuinely yours.',
+   tagline:'Your philosophy is not something you hold. It is something you sit with, daily.',
+   cardTagline:'Truth is found on the cushion.\nAnd carried into the day.',
+   whoYouAre:'Your worldview comes from the dharmic traditions and, more importantly, from practising them. Consciousness is not just chemistry to you, suffering has causes that can be worked with, and meaning is found through discipline rather than declared. Whatever you make of the metaphysics, the practice has proven itself in your life.',
+   description:'You hold a position shaped by Buddhist, Hindu, Jain, or related dharmic traditions, in which consciousness is not reducible to matter, moral reality is structured by karma and the conditions of suffering and liberation, and meaning is discovered through disciplined practice rather than either secular construction or divine revelation. You may or may not hold the metaphysical superstructure literally, but the ethical and contemplative core is genuinely yours.',
    thinkers:'Thich Nhat Hanh · B.R. Ambedkar · Ramana Maharshi',
-   strength:'Integration of ethics, practice, and metaphysics — your philosophy is lived, not merely held.',
+   strength:'Integration of ethics, practice, and metaphysics. Your philosophy is lived, not merely held.',
    failureMode:'Spiritual bypassing. The dharmic practitioner can use practice and non-attachment as reasons to avoid engaging with structural injustice or personal psychological work.'},
 
   {id:'9E', family:'The Spiritual Naturalist', variant:'The Contemplative Agnostic',
    sig:[4,3,4,4,3,4,2,4,4,2,5,5,6],
+   tagline:'"I do not know" is the most honest sentence you own, and you keep it polished.',
+   cardTagline:'The deepest questions stay open.\nYou stay with them.',
+   whoYouAre:'You have earned your uncertainty. The deepest questions about consciousness, meaning, and what reality is made of strike you as genuinely unresolved, and you refuse to fake a confidence you have not found. So you sit with the open questions, patiently, and find something almost devotional in the sitting.',
    description:'You hold genuine and considered uncertainty about most of the deepest metaphysical questions. This is not intellectual timidity but a hard-won epistemic position: the questions about consciousness, meaning, and the nature of reality are genuinely difficult, and the honest answer to most of them is "I do not know." You sit with that uncertainty rather than resolving it prematurely.',
    thinkers:'William James · Thomas Nagel · Simone Weil',
    strength:'Intellectual honesty under social pressure to have confident views.',
@@ -6768,109 +7333,154 @@ const ARCHETYPES = [
   // ── FAMILY 10: THE CONSERVATIVE TRADITIONALIST ──
   {id:'10A', family:'The Conservative Traditionalist', variant:'The Religious Traditionalist',
    sig:[2,3,6,2,7,7,2,4,1,1,2,7,6],
-   description:'You hold that moral and meaning truths are grounded in divine revelation and transmitted through the tradition of a religious community. Your conservatism is inseparable from your faith — you conserve because what you are conserving contains genuine truth and sacred value.',
+   tagline:'You conserve because what you carry is not yours to drop.',
+   cardTagline:'Truth was revealed.\nTradition carries it forward.',
+   whoYouAre:'Your faith and your conservatism are one thing, not two. Moral truth was revealed, a community has carried it faithfully across generations, and you now carry your part. What you protect is not habit or nostalgia; it is truth you believe holds sacred value, entrusted to you before you were born.',
+   description:'You hold that moral and meaning truths are grounded in divine revelation and transmitted through the tradition of a religious community. Your conservatism is inseparable from your faith. You conserve because what you are conserving contains genuine truth and sacred value.',
    thinkers:'Thomas Aquinas · G.K. Chesterton · Roger Scruton (Catholic mode)',
-   strength:'Coherence — your metaphysics, ethics, meaning, and politics form an integrated whole.',
+   strength:'Coherence. Your metaphysics, ethics, meaning, and politics form an integrated whole.',
    failureMode:'Closed epistemology. When revelation is the primary knowledge source, genuine engagement with contrary evidence becomes structurally difficult.'},
 
   {id:'10B', family:'The Conservative Traditionalist', variant:'The Burke',
    sig:[4,4,5,3,6,6,3,4,1,1,2,7,6],
-   description:'Your conservatism is not primarily about religion but about epistemology and institutional wisdom. Organic institutions — developed through centuries of trial and error — contain knowledge that no individual or generation can reconstruct from abstract principles. Reform is necessary but must be incremental, building on what works rather than demolishing it.',
+   tagline:'Before you tear down a fence, you want to know why someone built it.',
+   cardTagline:'Institutions remember.\nWhat no single generation knows.',
+   whoYouAre:'Your conservatism is about knowledge, not nostalgia. Institutions that survived centuries of trial and error hold wisdom no committee could reconstruct from scratch, and you treat them accordingly. You are not against reform. You are against demolition by people who never asked what the building was holding up.',
+   description:'Your conservatism is not primarily about religion but about epistemology and institutional wisdom. Organic institutions, developed through centuries of trial and error, contain knowledge that no individual or generation can reconstruct from abstract principles. Reform is necessary but must be incremental, building on what works rather than demolishing it.',
    thinkers:'Edmund Burke · Roger Scruton · Michael Oakeshott',
-   strength:'Institutional memory — you hold the case for why things are the way they are before agreeing to change them.',
+   strength:'Institutional memory. You hold the case for why things are the way they are before agreeing to change them.',
    failureMode:'Status quo bias. Burkean conservatism can legitimate existing injustices as the products of organic development.'},
 
   {id:'10C', family:'The Conservative Traditionalist', variant:'The Social Conservative',
    sig:[4,4,5,3,7,6,2,4,1,1,2,7,6],
-   description:'Your conservatism is focused on the social institutions — family, community, local governance, civil society — that you hold as the building blocks of a functioning society. You are suspicious of both state power and market atomisation, and you believe strong social fabric requires stable cultural institutions that transmit values across generations.',
+   tagline:'Family, neighbourhood, congregation: the load-bearing walls nobody credits until they crack.',
+   cardTagline:'Between state and market\nstands everything that matters.',
+   whoYouAre:'You defend the middle layer of society: family, neighbourhood, congregation, the institutions that actually raise people. Big government and raw markets both strike you as solvents that dissolve this fabric. A society that stops transmitting values across generations learns too late what those values were holding together.',
+   description:'Your conservatism is focused on the social institutions that you hold as the building blocks of a functioning society: family, community, local governance, civil society. You are suspicious of both state power and market atomisation, and you believe strong social fabric requires stable cultural institutions that transmit values across generations.',
    thinkers:'Robert Nisbet · Yuval Levin · Patrick Deneen',
    strength:'Seeing the social costs of atomisation that both progressive and libertarian thinking can miss.',
    failureMode:'Romanticising the past. The communities social conservatism wants to restore often contained significant coercive elements.'},
 
   {id:'10D', family:'The Conservative Traditionalist', variant:'The Natural Law Conservative',
    sig:[4,4,6,3,7,7,2,4,1,2,2,7,6],
-   description:'You hold that there is a natural moral order — discoverable through reason and embedded in human nature — that precedes and constrains positive law and cultural construction. Certain social institutions are natural in the sense that they correspond to the real nature of human beings, and their dissolution produces genuinely disordered human outcomes.',
+   tagline:'Some things are right by nature, and no vote or fashion changes that.',
+   cardTagline:'The moral order is real.\nLaw answers to it.',
+   whoYouAre:'You believe the moral order is real and prior: written into human nature, readable by reason, and binding on any law or culture built on top of it. Institutions that fit that nature help people flourish; arrangements that fight it produce damage no ideology can explain away. You argue from that ground, calmly.',
+   description:'You hold that there is a natural moral order, discoverable through reason and embedded in human nature, that precedes and constrains positive law and cultural construction. Certain social institutions are natural in the sense that they correspond to the real nature of human beings, and their dissolution produces genuinely disordered human outcomes.',
    thinkers:'Thomas Aquinas · John Finnis · Robert George',
    strength:'Principled justification for social norms that does not depend on tradition alone.',
-   failureMode:'Teleological overspecification from a contested account of human nature — the "natural" often tracks cultural preferences more than biological facts.'},
+   failureMode:'Teleological overspecification from a contested account of human nature. The "natural" often tracks cultural preferences more than biological facts.'},
 
   {id:'10E', family:'The Conservative Traditionalist', variant:'The Communitarian',
    sig:[3,4,5,4,6,5,2,5,1,1,3,7,6],
-   description:'You hold that individuals are constituted by their communities and that the liberal fiction of the self-creating individual misunderstands what persons actually are. You are conservative about community, tradition, and cultural identity — recognising that human beings cannot flourish without embeddedness in particular communities with particular histories.',
+   tagline:'The self-made individual is a story people tell with borrowed words.',
+   cardTagline:'You are made of your people.\nAnd you know it.',
+   whoYouAre:'You understand that persons are grown, not self-assembled. Your language, your standards, your very sense of what a good life looks like came from particular communities with particular histories, and you honour that debt. The unencumbered individual of liberal theory strikes you as an abstraction nobody has ever actually met.',
+   description:'You hold that individuals are constituted by their communities and that the liberal fiction of the self-creating individual misunderstands what persons actually are. You are conservative about community, tradition, and cultural identity, recognising that human beings cannot flourish without embeddedness in particular communities with particular histories.',
    thinkers:'Alasdair MacIntyre · Charles Taylor · Michael Sandel',
-   strength:'Thick account of the self — you take seriously what liberal individualism abstracts away.',
+   strength:'Thick account of the self. You take seriously what liberal individualism abstracts away.',
    failureMode:'Community essentialism. The communitarian can hold communities as more stable and coherent than they actually are.'},
 
   // ── FAMILY 11: THE PRAGMATIC CENTRIST ──
   {id:'11A', family:'The Pragmatic Centrist', variant:'The Epistemic Pragmatist',
    sig:[5,4,5,4,4,3,4,4,4,4,7,4,3],
-   description:'You hold that most strong metaphysical positions are overconfident, and that the honest answer to most deep questions is "genuinely uncertain." You are drawn to pragmatist epistemology — you assess claims by their usefulness and coherence with what you know, not by correspondence to a mind-independent world you cannot access.',
+   tagline:'Most grand positions strike you as confidence wearing a costume.',
+   cardTagline:'Certainty is cheap.\nCalibration is earned.',
+   whoYouAre:'You hold your beliefs at the strength the evidence actually earns, which is usually less than people around you claim for theirs. Deep metaphysical certainty strikes you as overreach in both directions. You judge ideas by whether they work and cohere, and you are rarely wrong about things you cannot know.',
+   description:'You hold that most strong metaphysical positions are overconfident, and that the honest answer to most deep questions is "genuinely uncertain." You are drawn to pragmatist epistemology. You assess claims by their usefulness and coherence with what you know, not by correspondence to a mind-independent world you cannot access.',
    thinkers:'William James · Richard Rorty · Hilary Putnam',
-   strength:'Not being wrong about things you cannot actually know — genuine epistemic calibration.',
+   strength:'Not being wrong about things you cannot actually know. Genuine epistemic calibration.',
    failureMode:'Commitment phobia. Pragmatic centrism can become a way of avoiding the discomfort of being wrong by never fully committing.'},
 
   {id:'11B', family:'The Pragmatic Centrist', variant:'The Evidence-Based Moderate',
    sig:[6,5,6,4,4,3,5,4,4,4,6,4,3],
-   description:'You hold moderate positions not because you are uncommitted but because the evidence supports moderate positions in most domains. You follow the data — on what policies work, what values survive cross-cultural scrutiny, what claims hold up under examination — and the data rarely supports the extremes.',
+   tagline:'You are moderate the way a scientist is moderate: because that is where the data points.',
+   cardTagline:'Not lukewarm. Calibrated.\nThe data rarely favours extremes.',
+   whoYouAre:'Your moderation is a conclusion, not a temperament. On most questions you have actually checked, the evidence lands somewhere between the loud positions, so that is where you stand. People on both sides find you frustratingly persuadable, which is exactly what being persuadable by evidence looks like.',
+   description:'You hold moderate positions not because you are uncommitted but because the evidence supports moderate positions in most domains. You follow the data on what policies work, what values survive cross-cultural scrutiny, and what claims hold up under examination, and the data rarely supports the extremes.',
    thinkers:'Jonathan Haidt · Steven Pinker · David Brooks',
-   strength:'Credibility across ideological lines — you go where the evidence leads rather than where your tribe expects.',
+   strength:'Credibility across ideological lines. You go where the evidence leads rather than where your tribe expects.',
    failureMode:'False balance. Evidence-based moderation can create artificial symmetry between positions not equally supported.'},
 
   {id:'11C', family:'The Pragmatic Centrist', variant:'The Institutional Liberal',
    sig:[6,5,6,4,5,4,4,5,5,4,7,4,3],
-   description:'You hold that liberal democratic institutions — rule of law, separation of powers, free speech, open elections — are the best available mechanisms for managing human disagreement and approximating justice. You care about the process more than any particular outcome and are deeply worried about anything that undermines institutional integrity.',
+   tagline:'You guard the referee, because every game depends on there being one.',
+   cardTagline:'Outcomes come and go.\nInstitutions keep the peace.',
+   whoYouAre:'You care most about the machinery that lets people disagree without destroying each other: rule of law, fair elections, free speech, divided power. Particular outcomes matter less to you than whether the process stays trustworthy. When others cheer a shortcut their side just took, you are quietly counting the cost.',
+   description:'You hold that liberal democratic institutions, including rule of law, separation of powers, free speech, and open elections, are the best available mechanisms for managing human disagreement and approximating justice. You care about the process more than any particular outcome and are deeply worried about anything that undermines institutional integrity.',
    thinkers:'Isaiah Berlin · Karl Popper · Francis Fukuyama',
-   strength:'Long-horizon thinking — you protect institutions that provide stability over generations.',
+   strength:'Long-horizon thinking. You protect institutions that provide stability over generations.',
    failureMode:'Process worship. Institutional liberalism can prioritise procedural legitimacy over substantive justice.'},
 
   {id:'11D', family:'The Pragmatic Centrist', variant:'The Reflective Traditionalist',
    sig:[5,4,5,3,5,5,4,4,3,4,6,4,3],
+   tagline:'You keep what has proven itself and revise what has failed, one honest case at a time.',
+   cardTagline:'Tradition gets a vote.\nEvidence gets a veto.',
+   whoYouAre:'You give inherited culture real weight without giving it the last word. Traditions that still serve people earn your defence; traditions that demonstrably fail earn revision, carefully. Reactionaries find you too flexible and progressives find you too attached, which tells you that you are standing roughly where you intend to.',
    description:'You hold traditional values and inherited culture as genuinely important while remaining open to revision where they demonstrably fail. You are neither reactionary nor progressive in the sense of treating tradition as mere prejudice. Your pragmatism is about holding tradition and reform in productive tension.',
    thinkers:'Isaiah Berlin · Anthony Giddens · Michael Walzer',
-   strength:'Bridging the tradition-reform gap — you can have genuine conversations with people on both sides.',
+   strength:'Bridging the tradition-reform gap. You can have genuine conversations with people on both sides.',
    failureMode:'Incoherence. Holding tradition and reform in tension without explicit principles for adjudicating between them can produce inconsistent decisions.'},
 
   {id:'11E', family:'The Pragmatic Centrist', variant:'The Problem Solver',
    sig:[6,5,4,4,3,3,5,4,4,4,6,4,3],
+   tagline:'While the panel debates frameworks, you are already sketching the fix.',
+   cardTagline:'Less ideology.\nMore working solutions.',
+   whoYouAre:'You come to every question asking what would actually help. Theories interest you as toolkits, not team jerseys, and you will work with anyone who genuinely wants the problem solved. Ambiguity does not slow you down; you prototype, test, adjust. Arguments about labels bore you once real options are on the table.',
    description:'Your primary philosophical orientation is practical problem-solving rather than theoretical commitment. You bring strong empirical thinking, high tolerance for ambiguity, and genuine curiosity to every question. You are willing to work with people across the ideological spectrum if they are genuinely interested in solving problems rather than winning arguments.',
    thinkers:'John Dewey · Amartya Sen · Elinor Ostrom',
-   strength:'Getting things done across ideological lines — you find the practical overlap between competing frameworks.',
+   strength:'Getting things done across ideological lines. You find the practical overlap between competing frameworks.',
    failureMode:'Technocratic naïveté. Problem solvers can underestimate how much of what looks like a technical problem is actually a power problem.'},
 
   // ── FAMILY 12: THE NIHILIST REDUCTIONIST ──
   {id:'12A', family:'The Nihilist Reductionist', variant:'The Honest Nihilist',
    sig:[7,7,5,6,1,1,7,2,4,3,2,2,1],
-   description:'You hold that nothing matters in any cosmic or objective sense, and you have chosen to be honest about this rather than reaching for constructions that paper over the void. You do not experience this as unbearable — it is simply the truth as you understand it. You have looked at the nothing and found it habitable.',
+   tagline:'You looked at the void everyone else decorates, and moved in.',
+   cardTagline:'Nothing matters cosmically.\nYou said it out loud.',
+   whoYouAre:'You concluded that nothing matters in any cosmic sense, and then did the rare thing: you stayed honest about it. No borrowed consolations, no decorative meaning draped over the void. What surprises people is that you are fine. You looked at the nothing directly and found you could live there.',
+   description:'You hold that nothing matters in any cosmic or objective sense, and you have chosen to be honest about this rather than reaching for constructions that paper over the void. You do not experience this as unbearable. It is simply the truth as you understand it. You have looked at the nothing and found it habitable.',
    thinkers:'Friedrich Nietzsche (early) · Emil Cioran · David Benatar',
-   strength:'Unsentimental clarity — you see the world without the consolations that others require.',
+   strength:'Unsentimental clarity. You see the world without the consolations that others require.',
    failureMode:'Affective numbing. The honest nihilist can cut off genuine feeling in the name of intellectual consistency.'},
 
   {id:'12B', family:'The Nihilist Reductionist', variant:'The Error Theorist',
    sig:[7,7,6,5,1,2,7,1,4,3,2,2,1],
-   description:'You hold that moral claims are systematically false — not merely subjective, but actually false, because they presuppose mind-independent moral facts that do not exist. When people say "torturing children is wrong" they are making a claim that would be true only if objective moral facts existed. No such facts exist, so the claim is false.',
+   tagline:'Every moral sentence humanity has uttered shares, on your view, one quiet flaw.',
+   cardTagline:'Moral claims presuppose moral facts.\nThere are none.',
+   whoYouAre:'You hold the most precise form of moral skepticism there is: moral claims are not just opinions, they are false, because they assume objective moral facts that do not exist. You followed a rigorous argument to a conclusion most people refuse to even test, and you had the nerve to accept it.',
+   description:'You hold that moral claims are systematically false. Not merely subjective, but actually false, because they presuppose mind-independent moral facts that do not exist. When people say "torturing children is wrong" they are making a claim that would be true only if objective moral facts existed. No such facts exist, so the claim is false.',
    thinkers:'J.L. Mackie · Richard Joyce · Stefan Olsson',
    strength:'Following the argument to its conclusion with intellectual courage.',
    failureMode:'Moral disengagement. The error theorist can use their position to justify disengagement from ethical commitments they find inconvenient.'},
 
   {id:'12C', family:'The Nihilist Reductionist', variant:'The Eliminativist',
    sig:[7,7,7,6,1,1,7,2,4,3,2,1,1],
-   description:'You hold that folk psychological categories — belief, desire, intention, meaning, the self — are theoretical posits of a failed folk theory that will eventually be replaced by mature neuroscience. These are not real entities but approximations. There are neurons and their states; there is no "self" that has them.',
+   tagline:'Beliefs, desires, the self: in your view, drafts awaiting neuroscience\'s final edit.',
+   cardTagline:'There are neurons and their states.\nThe rest is folklore.',
+   whoYouAre:'You take the hardest line in the room: belief, desire, meaning, even the self are categories from a folk theory that neuroscience will eventually retire. Not redescribe, retire. Where others soften the picture to keep it livable, you keep the picture exact and let livability fend for itself.',
+   description:'You hold that folk psychological categories such as belief, desire, intention, meaning, and the self are theoretical posits of a failed folk theory that will eventually be replaced by mature neuroscience. These are not real entities but approximations. There are neurons and their states; there is no "self" that has them.',
    thinkers:'Paul Churchland · Patricia Churchland · Alex Rosenberg',
-   strength:'Maximum scientific coherence — no theoretical entities beyond what neuroscience warrants.',
+   strength:'Maximum scientific coherence. No theoretical entities beyond what neuroscience warrants.',
    failureMode:'Performative self-contradiction. The eliminativist who uses beliefs and reasons to argue against beliefs and reasons faces a well-known performative challenge.'},
 
   {id:'12D', family:'The Nihilist Reductionist', variant:'The Pessimist',
    sig:[7,5,4,7,2,1,7,2,3,3,2,2,1],
-   description:'You hold not only that the universe has no purpose but that existence, on balance, involves more suffering than flourishing — and that this is a structural fact about conscious life rather than a correctable condition. Your pessimism is not mood but metaphysics. You have thought this through and find it honest.',
+   tagline:'You ran the ledger on existence and refused to cook the books.',
+   cardTagline:'Suffering outweighs flourishing.\nYou did the accounting.',
+   whoYouAre:'Your pessimism is a position, not a mood. You have weighed conscious existence and found the suffering structurally heavier than the flourishing, not as a phase to outgrow but as an honest reading of the ledger. You respect thinkers who did that arithmetic without flinching, and you hold yourself to the same standard.',
+   description:'You hold not only that the universe has no purpose but that existence, on balance, involves more suffering than flourishing, and that this is a structural fact about conscious life rather than a correctable condition. Your pessimism is not mood but metaphysics. You have thought this through and find it honest.',
    thinkers:'Arthur Schopenhauer · David Benatar · Thomas Ligotti',
    strength:'Honest accounting of suffering that optimistic frameworks systematically undercount.',
    failureMode:'Paralysis or contagion. Pessimism as a metaphysical position is coherent; pessimism as a social orientation tends to drain the people around you.'},
 
   {id:'12E', family:'The Nihilist Reductionist', variant:'The Functional Nihilist',
    sig:[7,7,6,6,2,2,7,2,4,4,3,2,1],
-   description:'You hold nihilist positions at the metaphysical and metaethical level while continuing to function fully in practical life — not through self-deception but through a clear-eyed acknowledgment that caring, valuing, and acting are features of your psychology that do not require cosmic grounding to be real. The positions are correct; life continues anyway.',
+   tagline:'Nothing matters cosmically, and you still showed up early with coffee.',
+   cardTagline:'The void checked out.\nLife continues anyway.',
+   whoYouAre:'You accept the bleakest conclusions at the level of theory and live a full life anyway, with no self-deception involved. Caring, loving, building, these are facts of your psychology, and they never needed cosmic backing to be real. The universe offers no meaning; your mornings, somehow, still have some.',
+   description:'You hold nihilist positions at the metaphysical and metaethical level while continuing to function fully in practical life. Not through self-deception but through a clear-eyed acknowledgment that caring, valuing, and acting are features of your psychology that do not require cosmic grounding to be real. The positions are correct; life continues anyway.',
    thinkers:'Alex Rosenberg · Richard Rorty (anti-metaphysical) · Nietzsche (post-nihilism)',
-   strength:'The most psychologically stable nihilist type — you have integrated the positions without requiring them to produce paralysis.',
+   strength:'The most psychologically stable nihilist type. You have integrated the positions without requiring them to produce paralysis.',
    failureMode:'Compartmentalisation. Holding nihilism intellectually while caring functionally can become a way of avoiding the work of integrating the two.'},
 ];
 
@@ -7856,6 +8466,38 @@ function skipEmailCapture() {
 // ══════════════════════════════════════════
 // GENERATE REPORT
 // ══════════════════════════════════════════
+// ── Report output validator + provenance hash (Phase 8, C1/D47) ──
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// The no-dash rule was previously enforced only by prompt instruction.
+// This strips any em/en dash the model emits anyway: digit ranges get a
+// hyphen, prose dashes become a comma pause.
+function cleanAIText(s) {
+  if (typeof s !== 'string') return s;
+  return s
+    .replace(/(\d)\s*[—–]\s*(\d)/g, '$1-$2')
+    .replace(/\s*[—–]\s*/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function validateReportPayload(obj) {
+  const walk = v => {
+    if (typeof v === 'string') return cleanAIText(v);
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') {
+      const out = {};
+      for (const k of Object.keys(v)) out[k] = walk(v[k]);
+      return out;
+    }
+    return v;
+  };
+  return walk(obj);
+}
+
 async function generateReport() {
   show('screen-generating');
 
@@ -7880,7 +8522,7 @@ async function generateReport() {
   const fingerprintSummary = fingerprint.map(f => {
     const meta = AXIS_META[f.axis];
     const pole = f.direction === 'right' ? meta.poleR : meta.poleL;
-    return `${meta ? meta.label : f.axis}: ${f.score.toFixed(1)}/7 — ${pole}`;
+    return `${meta ? meta.label : f.axis}: ${f.score.toFixed(1)}/7 (${pole})`;
   }).join(', ');
 
   const contradictionSummary = contradictions.length > 0
@@ -7888,23 +8530,12 @@ async function generateReport() {
     : 'None';
 
   const liminalNote = archetypeResult.isLiminal && archetypeResult.secondary
-    ? `Liminal — sits between ${arch.family}/${arch.variant} and ${archetypeResult.secondary.family}/${archetypeResult.secondary.variant}.`
+    ? `Liminal: sits between ${arch.family}/${arch.variant} and ${archetypeResult.secondary.family}/${archetypeResult.secondary.variant}.`
     : '';
 
-  // OCEAN — O, C, A inferred from philosophical axes; E and N directly measured
-  const getScore = k => scores[k] || 4;
-  const oceanO = ((getScore('epistemic_humility') + getScore('uncertainty') + getScore('progress')
-                   + (getScore('epistemic_method') > 4 ? getScore('epistemic_method') : 8 - getScore('epistemic_method'))) / 4).toFixed(1);
-  const oceanC = ((getScore('temporal_orientation') + (8 - getScore('responsibility'))
-                   + getScore('authority')) / 3).toFixed(1);
-  const oceanA = ((getScore('moral_scope') + getScore('animal_ethics') + getScore('society')
-                   + getScore('ethics')) / 4).toFixed(1);
-  // E and N: directly measured if questions answered, otherwise mark as not-measured
-  const eRaw = scores['extraversion'];
-  const nRaw = scores['neuroticism'];
-  const oceanE = eRaw !== undefined ? parseFloat(eRaw).toFixed(1) : null;
-  const oceanN = nRaw !== undefined ? parseFloat(nRaw).toFixed(1) : null;
-  const oceanSummary = `O(Openness):${oceanO}/7 C(Conscientiousness):${oceanC}/7 A(Agreeableness):${oceanA}/7 E(Extraversion):${oceanE !== null ? oceanE+'/7' : 'not-measured'} N(Stability):${oceanN !== null ? oceanN+'/7' : 'not-measured'}`;
+  // OCEAN block removed from the prompt (Phase 8, C1): O/C/A were inferred by
+  // unvalidated arithmetic and E/N are not measured. The instrument makes no
+  // Big Five claims until a validated module exists.
 
   const userName = state.userName || 'this person';
 
@@ -7951,54 +8582,71 @@ async function generateReport() {
 - animal_ethics 1=human interests far outweigh animal, 7=animal suffering matters equally
 - progress 1=pessimist about human progress, 7=optimist`;
 
-  // ── CALL 1: Core identity, tagline, alignment, patterns, growth ──
+  // ── CALL 1: Identity + alignment only. Card text, tagline, patterns, and
+  // growth are data-driven since Phase 8 (C1) and never touch the API. ──
   const prompt1 = `You are writing a philosophical profile for ${userName}. Make them feel genuinely seen.
 
 COMPLETE AXIS SCORES (1=left pole, 7=right pole):
 ${axisDump}
 
 TOP 5 AXES: ${fingerprintSummary}
-ARCHETYPE: ${arch.family} — ${arch.variant}
+ARCHETYPE: ${arch.family} / ${arch.variant}
 CONTRADICTIONS: ${contradictionSummary}
-OCEAN INFERRED: ${oceanSummary}
 ${liminalNote}
 
 AXIS REFERENCE:
 ${axisRef}
 
 PATTERN NOTES:
-- meaning ≤2 AND meaning_practice ≤3: nihilism in practice
-- meaning ≤3 AND meaning_practice ≥5: absurdism (Camus — meaning constructed but committed)
-- self ≤2 AND determinism ≥5 AND meaning ≤3: existentialist tension
+- meaning <=2 AND meaning_practice <=3: nihilism in practice
+- meaning <=3 AND meaning_practice >=5: absurdism (Camus: meaning constructed but committed)
+- self <=2 AND determinism >=5 AND meaning <=3: existentialist tension
 - Name these as how they FEEL, not philosophical labels
 
 WRITING RULES:
 1. No jargon, no axis names, no scores in output
 2. No careers, famous people, films, music, books
 3. Do not repeat archetype name or variant
-4. Write as if describing someone you know extremely well — use "you" throughout
-5. "Holy shit it knows me" test — every paragraph names something the person recognises that most wouldn't
+4. Write as if describing someone you know extremely well. Use "you" throughout.
+5. The test is recognition: every paragraph names something the person recognises that most people would not have seen.
 6. Cover HOW THEY THINK, HOW THEY FEEL ABOUT THE WORLD, HOW THEY DECIDE, HOW THEY RELATE, WHAT DRIVES AND DRAINS THEM
 7. No em dashes anywhere. Use but, and, so, because instead.
 8. No colons introducing lists in narrative text. No bullet points.
 
-Return ONLY valid JSON — no markdown fences, no preamble:
-{"archetypeName":"${arch.family}","archetypeVariant":"${arch.variant}","tagline":"One sharp sentence capturing the defining quality of this specific score pattern — written like a line from a novel, not a label. No em dashes.","cardTagline":"Two punchy lines max 8 words each. The core tension or paradox of this exact profile. No em dashes.","cardWhoYouAre":"HARD LIMIT: maximum 55 words. Do not exceed 55 words under any circumstances. Second person (you). Plain language. Who this person actually is: how they think, what drives them, what they notice, how they move through the world. Complete flowing paragraph that ends on a complete sentence.","identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world — what filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason — their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape — not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system — name what it feels like from the inside. P5 (2 sentences): What this person was built for — conditions where they come alive — and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile — pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide — what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}],"patterns":[{"type":"positive","label":"Core Superpower","text":"2 sentences — the specific capability that flows from the intersection of their top 2-3 axes."},{"type":"negative","label":"Primary Failure Mode","text":"2 sentences — the specific way this exact score pattern tends to fail."}],"growth":["1 concrete sentence: most important skill to build given weakest axis or live contradiction.","1 concrete sentence: the relationship pattern to interrupt — name it specifically.","1 concrete sentence: the blind spot this score pattern reliably produces — name the domain and why they miss it."]}`;
+Return ONLY valid JSON, with no markdown fences and no preamble:
+{"identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world? What filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason. Their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape. Not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system. Name what it feels like from the inside. P5 (2 sentences): What this person was built for, the conditions where they come alive, and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile: pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide: what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}]}`;
 
   let report1;
   try {
-    const res1 = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 2200, email: currentUser?.email || state.captureData?.email || '' })
-    });
-    if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
-    const text1 = await res1.text();
-    if (text1.trim().startsWith('<!')) throw new Error('Call 1 returned HTML (timeout/server error)');
-    const data1 = JSON.parse(text1);
-    const raw1 = data1.content?.[0]?.text || '';
-    const clean1 = raw1.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
-    report1 = JSON.parse(clean1);
+    // One automatic retry on parse/schema failure before surfacing the error (C1 validator spec)
+    let lastErr;
+    for (let attempt = 0; attempt < 2 && !report1; attempt++) {
+      try {
+        const res1 = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 1500, email: currentUser?.email || state.captureData?.email || '' })
+        });
+        if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
+        const text1 = await res1.text();
+        if (text1.trim().startsWith('<!')) throw new Error('Call 1 returned HTML (timeout/server error)');
+        const data1 = JSON.parse(text1);
+        const raw1 = data1.content?.[0]?.text || '';
+        const clean1 = raw1.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
+        const parsed = JSON.parse(clean1);
+        if (typeof parsed.identity !== 'string' || !parsed.identity.trim() ||
+            !Array.isArray(parsed.alignment) || parsed.alignment.length === 0) {
+          throw new Error('Call 1 returned incomplete report structure');
+        }
+        report1 = validateReportPayload(parsed);
+      } catch(err) {
+        lastErr = err;
+        const msg = err.message || '';
+        // HTTP-level failures (auth, rate limit) will not improve on retry
+        if (/403|429|401/.test(msg)) throw err;
+      }
+    }
+    if (!report1) throw lastErr;
   } catch(e) {
     const msg = e.message || '';
     const userMsg = msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'
@@ -8021,7 +8669,7 @@ Return ONLY valid JSON — no markdown fences, no preamble:
   const prompt2 = `You are writing the "world lenses" section of a philosophical profile for ${userName}.
 
 AXIS SCORES: ${axisDump}
-ARCHETYPE: ${arch.family} — ${arch.variant}
+ARCHETYPE: ${arch.family} / ${arch.variant}
 
 AXIS REFERENCE:
 ${axisRef}
@@ -8029,7 +8677,7 @@ ${axisRef}
 Write 5 lenses showing how this person sees different dimensions of existence.
 No jargon. No axis names in output. No em dashes. Write like a thoughtful friend.
 
-Return ONLY valid JSON — no markdown fences:
+Return ONLY valid JSON, with no markdown fences:
 {"world":[{"lens":"The Self","icon":"mirror","view":"2-3 sentences on how this person sees their own identity, agency, and inner life. Draw from self, identity, determinism, responsibility scores. What does it feel like to be them on the inside?","shows_up":"2-3 sentences on how this self-view shows up in actual behaviour and patterns.","prompt":"One reflective question they can sit with this week. Concrete, not abstract. No em dashes."},{"lens":"Other People","icon":"people","view":"2-3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, social_ontology.","shows_up":"2-3 sentences on how this plays out. What are they good at in relationships? What is hard?","prompt":"One reflective question about a specific relationship or interaction. Honest and concrete."},{"lens":"Relationships","icon":"connect","view":"2-3 sentences on how this person approaches connection and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, society.","shows_up":"2-3 sentences on what this looks like in practice. What patterns repeat?","prompt":"One reflective question about what they might be asking from others that they have not said out loud."},{"lens":"Society","icon":"city","view":"2-3 sentences on how this person sees society and their place in the collective. Draw from society, politics, justice, authority, economics, responsibility.","shows_up":"2-3 sentences on how this shapes their day to day. What do they notice, feel pulled toward?","prompt":"One reflective question about their actual relationship to the collective right now."},{"lens":"Life and Existence","icon":"horizon","view":"2-3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, progress.","shows_up":"2-3 sentences on how this shows up in the texture of their actual days.","prompt":"One honest question about where they are right now in their relationship with their own existence. No em dashes."}]}`;
 
   let report2;
@@ -8045,14 +8693,41 @@ Return ONLY valid JSON — no markdown fences:
     const data2 = JSON.parse(text2);
     const raw2 = data2.content?.[0]?.text || '';
     const clean2 = raw2.replace(/^```json\s*/,'').replace(/```\s*$/,'').trim();
-    report2 = JSON.parse(clean2);
+    report2 = validateReportPayload(JSON.parse(clean2));
   } catch(e) {
     // Call 2 failure is non-fatal — render with world section empty
     report2 = { world: [] };
   }
 
-  // Merge both responses
-  const report = { ...report1, world: report2.world || [] };
+  // Provenance hash (D47): the exact prompt pair with per-respondent data
+  // substituted out, so identical pipelines hash identically across users.
+  const promptHash = await sha256Hex(
+    [prompt1, prompt2].join('\n')
+      .split(axisDump).join('{axes}')
+      .split(fingerprintSummary).join('{fingerprint}')
+      .split(contradictionSummary).join('{contradictions}')
+      .split(liminalNote || ' ').join('{liminal}')
+      .split(arch.family).join('{family}')
+      .split(arch.variant).join('{variant}')
+      .split(userName).join('{name}')
+  );
+
+  // Merge: AI supplies identity, alignment, world. Everything else is
+  // data-driven from the archetype entry and the growth-edge library (C1).
+  const report = {
+    ...report1,
+    archetypeName: arch.family,
+    archetypeVariant: arch.variant,
+    tagline: arch.tagline,
+    cardTagline: arch.cardTagline,
+    cardWhoYouAre: arch.whoYouAre,
+    patterns: [
+      {type:'positive', label:'Core Superpower', text: arch.strength},
+      {type:'negative', label:'Primary Failure Mode', text: arch.failureMode},
+    ],
+    growth: selectGrowthEdges(scores, contradictions),
+    world: report2.world || [],
+  };
 
   // Final step done
     setTimeout(() => {
@@ -8106,6 +8781,11 @@ Return ONLY valid JSON — no markdown fences:
           question_count: 160,
           responses: responsesPayload,
           report_json: report,
+          report_version: REPORT_VERSION,
+          prompt_hash: promptHash,
+          model: 'claude-sonnet-5',
+          temperature: 0.6,
+          generated_at: new Date().toISOString(),
         };
         saveToSupabase(payload).then(result => {
           const completionId = result && result.completion_id;
@@ -9391,12 +10071,20 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   }
 
   // ── GROWTH ──
+  // Library entries are {title, text, practice} objects (Phase 8);
+  // pre-Phase-8 reports stored plain strings — both render.
   const growEl = document.getElementById('report-growth');
   if (growEl && report.growth) {
     growEl.innerHTML = report.growth.map((g,i) =>
       `<div class="growth-item">
         <div class="growth-num">0${i+1}</div>
-        <div class="growth-text">${g}</div>
+        <div class="growth-text">${
+          (g && typeof g === 'object')
+            ? `<div style="font-weight:600;color:var(--text);margin-bottom:6px;">${g.title || ''}</div>
+               <div>${g.text || ''}</div>
+               ${g.practice ? `<div style="margin-top:10px;font-size:14px;color:var(--purple2);"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Try this</span><br>${g.practice}</div>` : ''}`
+            : g
+        }</div>
       </div>`
     ).join('');
   }
