@@ -98,7 +98,7 @@ export default async function handler(req, res) {
   <div style="margin-bottom:24px;padding:16px 20px;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.25);border-radius:8px;">
     <div style="font-family:monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;margin-bottom:8px;">Your shareable report link</div>
     <a href="${shareUrl}" style="font-family:monospace;font-size:12px;color:#e8c97a;word-break:break-all;text-decoration:none;">${shareUrl}</a>
-    <p style="color:#a09cb8;font-size:12px;margin-top:8px;margin-bottom:0;">Share this link with anyone. Your full report stays available at this URL.</p>
+    <p style="color:#a09cb8;font-size:12px;margin-top:8px;margin-bottom:0;">Anyone with this link can view your full report, including your scores and archetype, without signing in. Only share it with people you trust.</p>
   </div>
   ` : ''}
 

@@ -208,7 +208,8 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta property="og:title" content="${name}'s Phil OS Report — ${archetype}"/>
+<meta property="og:title" content="${name}'s Phil OS Report, ${archetype}"/>
+<meta name="robots" content="noindex, nofollow"/>
 <meta property="og:description" content="${tagline}"/>
 <meta property="og:url" content="${shareUrl}"/>
 <title>${name} — Phil OS Report</title>
