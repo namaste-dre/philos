@@ -3581,6 +3581,17 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         </div>
         <div id="acct-research-status" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;"></div>
       </div>
+      <div>
+        <div class="intake-section-label">Marketing Emails</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;">
+          <div style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);line-height:1.5;">Receive occasional emails about new features and Phil OS updates. Off by default, change anytime.</div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+            <input type="checkbox" id="acct-marketing-toggle" onchange="toggleMarketingConsent(this.checked)" style="opacity:0;width:0;height:0;">
+            <span id="acct-marketing-toggle-track" style="position:absolute;inset:0;background:var(--border2);border-radius:24px;transition:0.2s;cursor:pointer;"></span>
+          </label>
+        </div>
+        <div id="acct-marketing-status" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;"></div>
+      </div>
     </div>
 
     <button onclick="saveAccountChanges()" id="acct-save-btn" style="width:100%;background:var(--accent);border:none;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#08061a;cursor:pointer;">
@@ -3749,6 +3760,10 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">I agree to the processing of my philosophical profile data by The Life PM. I can withdraw consent and delete my data at any time in Settings.</div>
     </div>
     <div id="ob-gdpr-error" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--danger);margin-bottom:10px;">You must agree to continue.</div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;">
+      <input type="checkbox" id="ob-marketing" style="width:16px;height:16px;flex-shrink:0;margin-top:3px;accent-color:var(--accent);cursor:pointer;"/>
+      <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">Optional: send me occasional emails about new features and Phil OS updates. You can change this anytime in Settings.</div>
+    </div>
     <button class="auth-btn-primary" id="ob-submit-btn" onclick="submitOnboarding()">Let's go →</button>
   </div>
 </div>
@@ -7710,7 +7725,8 @@ function renderShareUrl(url) {
     + '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;flex-shrink:0;">Your shareable link</div>'
     + '<a href="' + url + '" target="_blank" style="font-family:IBM Plex Mono,monospace;font-size:12px;color:#e8c97a;word-break:break-all;flex:1;text-decoration:none;">' + url + '</a>'
     + '<button onclick="navigator.clipboard.writeText(encodeURI(this.dataset.url)).then(()=>{this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',2000)})" data-url="' + url + '" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.35);color:#c9a96e;font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:1px;padding:7px 16px;border-radius:6px;cursor:pointer;flex-shrink:0;">Copy</button>'
-    + '</div>';
+    + '</div>'
+    + '<div style="width:100%;margin-top:8px;font-family:IBM Plex Sans,sans-serif;font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5;">Anyone with this link can view your full report, including your scores and archetype, without signing in. Only share it with people you trust.</div>';
 
   // Insert at top of report body
   const reportBody = document.querySelector('.report-body');
@@ -10993,6 +11009,7 @@ async function submitOnboarding() {
   const age     = isNaN(ageRaw) ? null : ageRaw;
   const country = document.getElementById('ob-country')?.value || '';
   const gdpr    = document.getElementById('ob-gdpr')?.checked;
+  const marketing = document.getElementById('ob-marketing')?.checked || false;
   const msgEl   = document.getElementById('onboarding-msg');
   const errEl   = document.getElementById('ob-gdpr-error');
   const btn     = document.getElementById('ob-submit-btn');
@@ -11004,14 +11021,69 @@ async function submitOnboarding() {
   const pronouns = (typeof PRONOUN_MAP !== 'undefined' && PRONOUN_MAP[gender]) ? PRONOUN_MAP[gender] : { subject:'they', object:'them', possessive:'their', reflexive:'themselves' };
   state.userName=name; state.userGender=gender; state.userAge=age; state.userCountry=country; state.userPronouns=pronouns;
   try { await supa.auth.updateUser({ data: { given_name: name, full_name: name } }); } catch(e) {}
-  const saveError = await upsertProfile({ first_name:name, gender, age, country, gdpr_consent:true, consented_at:new Date().toISOString(), marketing_consent:true });
-  if (btn) { btn.disabled = false; btn.textContent = 'Continue'; }
+
+  // Non-consent profile fields only. gdpr_consent, consented_at, and
+  // marketing_consent are owned exclusively by the canonical /api/consent
+  // path below - upsertProfile() no longer touches them.
+  const saveError = await upsertProfile({ first_name:name, gender, age, country });
   if (saveError) {
-    if (msgEl) { msgEl.textContent = 'Could not save — check your connection and try again.'; msgEl.style.display = 'block'; }
-    return; // keep modal open — do NOT let this silently look done when it isn't
+    if (btn) { btn.disabled = false; btn.textContent = 'Continue'; }
+    if (msgEl) { msgEl.textContent = 'Could not save, check your connection and try again.'; msgEl.style.display = 'block'; }
+    return; // keep modal open, do NOT let this silently look done when it isn't
   }
+
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Continue'; }
+    if (msgEl) { msgEl.textContent = 'Session expired, please sign in again.'; msgEl.style.display = 'block'; }
+    return;
+  }
+
+  const gdprResult = await recordConsent(session, {
+    consentType: 'gdpr',
+    granted: true,
+    consentVersion: 'v1-2026-07',
+    source: 'onboarding',
+    textSnapshot: document.querySelector('#onboarding-modal [style*="line-height:1.55"]')?.textContent || null,
+  });
+  if (btn) { btn.disabled = false; btn.textContent = 'Continue'; }
+  if (!gdprResult.ok) {
+    if (msgEl) { msgEl.textContent = 'Could not record consent, check your connection and try again.'; msgEl.style.display = 'block'; }
+    return; // keep modal open - required consent did not actually record
+  }
+
+  // Marketing is optional - do not block onboarding on this one failing,
+  // but do not silently drop it either.
+  const marketingResult = await recordConsent(session, {
+    consentType: 'marketing',
+    granted: marketing,
+    consentVersion: 'v1-2026-07',
+    source: 'onboarding',
+    textSnapshot: document.getElementById('ob-marketing')?.parentElement?.textContent?.trim() || null,
+  });
+  if (!marketingResult.ok) console.warn('[Consent] Marketing preference not recorded:', marketingResult.error);
+
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.style.display = 'none';
+}
+
+// Canonical consent mutation - always goes through /api/consent, which
+// updates profiles and inserts into consent_log as one server-side
+// transaction (set_consent RPC). Never write gdpr_consent or
+// marketing_consent directly from the client.
+async function recordConsent(session, { consentType, granted, consentVersion, source, textSnapshot }) {
+  try {
+    const res = await fetch('/api/consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ consentType, granted, consentVersion, source, textSnapshot }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) return { ok: false, error: data.error || ('HTTP ' + res.status) };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
 }
 
 function skipOnboarding() {
@@ -11034,7 +11106,7 @@ async function showAccountScreen() {
   // Load existing profile
   const { data: profile } = await supa
     .from('profiles')
-    .select('first_name,gender,age,country,gdpr_consent,consented_at,research_consent')
+    .select('first_name,gender,age,country,gdpr_consent,consented_at,research_consent,marketing_consent')
     .eq('id', currentUser.id)
     .maybeSingle();
   if (profile) {
@@ -11054,6 +11126,11 @@ async function showAccountScreen() {
     researchToggle.checked = !!(profile && profile.research_consent);
     syncResearchToggleVisual();
   }
+  const marketingToggle = document.getElementById('acct-marketing-toggle');
+  if (marketingToggle) {
+    marketingToggle.checked = !!(profile && profile.marketing_consent);
+    syncMarketingToggleVisual();
+  }
 }
 
 function syncResearchToggleVisual() {
@@ -11061,6 +11138,49 @@ function syncResearchToggleVisual() {
   const track  = document.getElementById('acct-research-toggle-track');
   if (!toggle || !track) return;
   track.style.background = toggle.checked ? 'var(--accent)' : 'var(--border2)';
+}
+
+function syncMarketingToggleVisual() {
+  const toggle = document.getElementById('acct-marketing-toggle');
+  const track  = document.getElementById('acct-marketing-toggle-track');
+  if (!toggle || !track) return;
+  track.style.background = toggle.checked ? 'var(--accent)' : 'var(--border2)';
+}
+
+async function toggleMarketingConsent(optIn) {
+  const statusEl = document.getElementById('acct-marketing-status');
+  const toggle   = document.getElementById('acct-marketing-toggle');
+  syncMarketingToggleVisual();
+  if (statusEl) statusEl.textContent = 'Saving…';
+  if (!currentUser) { if (statusEl) statusEl.textContent = 'Session expired, please sign in again.'; return; }
+
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session) { if (statusEl) statusEl.textContent = 'Session expired, please sign in again.'; return; }
+
+    // Single canonical call - updates profiles.marketing_consent and inserts
+    // the consent_log row as one server-side transaction. No direct client
+    // write to profiles happens here anymore.
+    const result = await recordConsent(session, {
+      consentType: 'marketing',
+      granted: optIn,
+      consentVersion: 'v1-2026-07',
+      source: 'settings',
+      textSnapshot: document.getElementById('acct-marketing-toggle')?.closest('div')?.querySelector('div')?.textContent || null,
+    });
+
+    if (result.ok) {
+      if (statusEl) statusEl.textContent = optIn ? 'Receiving marketing emails.' : 'Not receiving marketing emails.';
+    } else {
+      if (toggle) toggle.checked = !optIn;
+      syncMarketingToggleVisual();
+      if (statusEl) statusEl.textContent = result.error || 'Could not save, please try again.';
+    }
+  } catch (e) {
+    if (toggle) toggle.checked = !optIn;
+    syncMarketingToggleVisual();
+    if (statusEl) statusEl.textContent = 'Could not save, please try again.';
+  }
 }
 
 async function toggleResearchConsent(optIn) {
@@ -11167,17 +11287,18 @@ async function confirmDeleteAccount() {
   }
 }
 
+// Non-consent profile fields only. gdpr_consent, consented_at, and
+// marketing_consent are owned exclusively by the canonical /api/consent
+// path (recordConsent()) - this function must never touch them, or state
+// and consent_log history can diverge again.
 async function upsertProfile(data) {
   if (!currentUser) return 'not signed in';
   const { error } = await supa.from('profiles').upsert({
     id:                currentUser.id,
-    first_name:        data.first_name        || null,
-    gender:            data.gender            || null,
-    age:               data.age               || null,
-    country:           data.country           || null,
-    gdpr_consent:      data.gdpr_consent      || false,
-    consented_at:      data.consented_at      || new Date().toISOString(),
-    marketing_consent: data.marketing_consent || false,
+    first_name:        data.first_name || null,
+    gender:            data.gender     || null,
+    age:               data.age        || null,
+    country:           data.country    || null,
   }, { onConflict: 'id' });
   if (error) { console.error('Profile upsert failed:', error.message); return error.message; }
   return null;
