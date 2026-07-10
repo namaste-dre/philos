@@ -69,7 +69,7 @@ Hosting:       Vercel (auto-deploy from main branch)
 | Hard-written archetype texts (60) + growth-edge library (64 axis + 42 contradiction entries) | ⚠️ Built and verified (D93), in local commit `0d7efd9`, awaiting Andre's push |
 | Email capture + Supabase | ✅ Working |
 | Auth (Google SSO + email/password), **required before assessment access** | ✅ Live (D72 - route guard confirmed live since 2026-05-31, not a new restriction) |
-| Question explanations (all 160, neutrality-audited) | ✅ Live |
+| Question explanations (all 160, neutrality-audited) | ✅ Live at college reading level; **10c rewrite to FK <= 8 done (D95), in local commit `4cc13f8`, awaiting push** |
 | Answer-order pinning (27 synthesis options) | ✅ Live |
 | Shareable card (1080×1920, 9:16 story format) | ✅ Working |
 | Custom domain (phil-os.thelifepm.com) | ✅ Live |
@@ -133,8 +133,8 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 
 ## NEXT PRIORITIES (as of 2026-07-10)
 
-0. **Andre: review and push local commit `0d7efd9` (Phase 8, D93)** - single commit, 6 files, fully verified. Then one QA-mode report generation to confirm r2 metadata + growth rendering.
-0b. **Fable's remaining window, governed by D86** - Phase 8 is done (D93/D94). Next: 10c (160 hover explanations), then scoped-down Phase 15, then 10g/10f boundaries. 10i and 10h-dropdown are Sonnet's, not Fable's.
+0. **Andre: review and push local commits `0d7efd9` + `c5acf7c` + `4cc13f8` (Phase 8 + docs + 10c, D93-D95)** - fully verified, one deploy covers both batches. Then one QA-mode report generation to confirm r2 metadata + growth rendering.
+0b. **Fable's remaining window, governed by D86** - Phase 8 (D93/D94) and 10c (D95) are done. Next: scoped-down Phase 15 re-audit (capped 15-20% of capacity), then 10g report depth, then 10f positioning/claims boundaries. 10i and 10h-dropdown are Sonnet's, not Fable's.
 1. Step 4 of the consent sequence - unified onboarding/re-consent UI (collapse the 4 consent surfaces, delete dead consent-gate code, split age confirmation from assessment consent, build a real withdraw action, version-gate existing users).
 2. Step 5 - age enforcement (real server-side validation, not just the HTML min attribute).
 3. Step 6 - regression tests across the full consent flow.
