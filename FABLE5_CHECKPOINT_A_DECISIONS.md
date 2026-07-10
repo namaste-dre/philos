@@ -56,7 +56,8 @@ Hard-write per variant (60): card "Who You Are" + tagline. Curated library with 
 **D4. Reword "Your data is never sold or shared"** -> "never sold; shared for scientific research only in de-identified form and only if you opt in." (Current text conflicts with your research program.)
 **D5. Research-use opt-in (your new requirement).** Separate default-OFF toggle, changeable in Settings anytime: de-identified scores/archetype/age/gender/country to accredited researchers, never name or email. Stored with own timestamp + version; `research_profiles` table is the vehicle. Art. 89 safeguards documented.
 **D6. Name minimization.** Stop sending real first names to the Anthropic API; placeholder token, substitute client-side.
-**Recommend: approve all six; D1 + D2 before any marketing push.**
+**SUPERSEDED 2026-07-07 - see Decisions Log D76 and D85. Do not implement D6 as written.** Andre reviewed this directly and ruled the opposite: first-name personalization to Anthropic is an intentional, disclosed product decision, not a leak, and must NOT be removed. If Phase 8's report-prompt rewrite touches personalization, it must preserve real first-name usage, not substitute a placeholder token.
+**Recommend: approve D1-D5; D6 is reversed, D1 + D2 before any marketing push.**
 
 ## E. Still owed to you / pending inputs
 

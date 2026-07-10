@@ -4,6 +4,24 @@ _Compiled from Andre's full dictation, 2026-07-06. Reordered into an executable 
 
 ---
 
+## READ THIS FIRST - 2026-07-10, Andre's reallocation ruling for Fable's final 2 days
+
+Andre is back from 3 days away and has ruled on how to spend Fable's remaining capacity (roughly 2 days of quota left). This supersedes prior sequencing where it conflicts. Full ruling logged as Decisions Log D86.
+
+**Priority order:**
+1. **Phase 8** - all archetype-variant texts, growth-edge entries, C01b reframe text, report prompt rewrite. Highest priority, spend the most capacity here.
+2. **10c** - all 160 hover-explanation rewrites.
+3. **Phase 15 re-audit - SCOPED DOWN, cap at roughly 15-20% of remaining capacity.** Do not rerun the full original audit structure. Re-grade only the areas that materially changed since the original audit (the Phase 7 question-bank rewrite, and whatever Phase 8/10c produce). Identify launch blockers, unresolved high-risk findings, and inconsistencies introduced during implementation. That is the entire deliverable for this phase in this window - not a from-scratch A-F re-grade of everything.
+4. **10f/10g** - report-section content depth (10g) takes priority over landing-page copy (10f). For 10f specifically, Fable's job is limited to defining the product-positioning and claims boundaries (what can be claimed, what can't, how to position against the personality-test category); Sonnet 5 implements and mechanically polishes the actual landing-page copy from that.
+
+**Reassigned OFF Fable's list, to Sonnet 5:** 10i (mobile sign-in graphics glitch) and 10h (profile-dropdown scroll bug). These were originally reserved for Fable because they need a live-device repro session, not because they involve psychometric or philosophical judgment. Andre's ruling: needing a live repro is not itself a reason to route a plain engineering defect to Fable. If Sonnet's investigation of either bug turns up a genuine construct-validity or neutrality issue hiding inside it, escalate back to Fable at that point - otherwise these are Sonnet's to fix end to end.
+
+**Critical correction before starting Phase 8:** `FABLE5_CHECKPOINT_A_DECISIONS.md`'s D6 ("stop sending real first names to Anthropic, use a placeholder token") is **superseded, do not implement it**. Andre reviewed this directly on 2026-07-07 and ruled the opposite - first-name personalization to Anthropic is intentional and disclosed, not a leak (Decisions Log D76, correction logged as D85). If Phase 8's report-prompt rewrite touches personalization, it must preserve real first-name usage.
+
+**Methodology requirement for all content generation in this window (Phase 8, 10c, and any of 10f/10g Fable writes):** do not generate a full batch directly from a single pass. First define the governing rubric and consistency rules for that batch (tone, structure, neutrality checks, length constraints, whatever applies). Then generate the material against that rubric. Then run a dedicated cross-archetype and cross-axis consistency pass before calling the batch done. This is now a hard requirement, not a suggestion.
+
+---
+
 ## READ THESE TWO DOCUMENTS BEFORE STARTING ANY PHASE
 
 Between this plan being written and Fable's session starting, Andre had Sonnet 5 do a pre-audit pass: fix everything fixable with full confidence (pure engineering, zero psychometric/philosophical judgment), and run a fact-finding sweep across the rest of this plan so Fable isn't spending tokens re-deriving ground truth from an 11,896-line single-file app. Both documents live next to this one in `C:\philos\`:

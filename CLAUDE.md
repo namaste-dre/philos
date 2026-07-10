@@ -1,17 +1,28 @@
-﻿# Phil OS - Claude Code Context
-_Instrument v3 | 32 axes | 160 questions | 60 archetypes | Live at phil-os.thelifepm.com_
+# Phil OS - Claude Code Context
+_Instrument v4 | 32 axes | 160 questions | 60 archetypes | Live at phil-os.thelifepm.com_
 
 ---
 
 ## SESSION START
 
-0. **CRITICAL - READ THIS FIRST (2026-07-06, latest): Phase 7 is mid-execution, PAUSED, uncommitted.** Fable authored and logged the full Phase 7 batch (Decisions Log D65) then ran out of credits before its own mandatory verification pass. Andre gave Sonnet an explicit, scoped, one-time override of [[Phil OS - Instrument Governance]] §6 (D66) to finish verification only (not new authorship) - see D67 for the full item-by-item verification record (Blocks 1-12, all passed, several flagged-but-approved wording/construct notes for the later full audit) and **D68 for the exact pause state**. Bottom line: **`C:\philos\index.html` has a large uncommitted working-tree diff right now** (Fable's Phase 7 content changes + Sonnet's dev-panel/INSTRUMENT_VERSION fixes) - do not discard it, do not commit/push/deploy it yet. **The one thing left before it can ship: a read-only 60-prototype archetype-reachability detection/reporting harness** (checking whether the "1E gap" P3-7 flagged actually closed) - none exists yet, build it fresh, report findings only, do not patch based on it without a review step. Once that passes, get Andre's review of the full batch summary before any push, per D65's own closing instruction. Phase 11 (DB/infra) M1-M5 are separately complete and already live - see below. Sonnet 6B run and Phase 11 M6 remain, Andre triggers both.
+0. **CRITICAL - READ THIS FIRST (2026-07-07, Andre away 3 days, resume here).** Full state below is written to be self-sufficient - do not assume anything not stated here.
+
+   **Shipped and live, nothing pending:** Phase 11 M1-M5 (DB hardening, consent/research schema, real account deletion, real research opt-in, completions/account_completions merge - Decisions Log D56-D71). Phase 7 question-bank rewrite to instrument v4, verified via 12 review blocks plus a from-scratch 60-prototype reachability harness that found and fixed a real archetype-collision bug (D65-D71). A QA version-display feature (Settings footer + dev panel showing live instrument version and build commit hash, wired to Vercel's runtime env vars - D-series entries around 2026-07-07). A correction that anonymous-respondent autosave is **not** a gap - account-before-assessment is confirmed intentional product behavior, live since 2026-05-31, and `anon_progress`/`/api/progress` are intentionally unwired reserved infrastructure, not pending work (D72-D75).
+
+   **In progress, exact pending state - a compliance/D2 privacy pass (D76-D84):** Detection complete (Anthropic payload, age fields, consent flow, retention behavior, share-link UI, processor references all directly verified against live code/database). **Two code patches are drafted and shown to Andre but NOT YET APPLIED:** (1) an 18+ age gate + expanded consent-checkbox wording, touching `submitOnboarding()` - explicitly held for Andre's go per his own instruction that onboarding/auth-adjacent changes need sign-off first (D78/D80); (2) a share-link privacy warning (static text only, assessed safe, just not yet added - D82). **The very next question to ask Andre on resume: "Do you want to apply the 18+ age-gate + consent-wording patch as drafted, or adjust the wording first?"** Three new vault docs exist for this work: [[Phil OS - D2 Privacy Notice Draft]], [[Phil OS - Processor Register]], [[Phil OS - Compliance Program (DPIA, Terms, User Rights, Security Baseline)]] - all explicitly marked draft, none legally reviewed, none published.
+
+   **Known gap, not yet fixed:** marketing consent is not actually separate from core consent - `submitOnboarding()` hardcodes `marketing_consent: true` on every signup with no distinct checkbox (D79). Needs its own future pass (real UI change, bigger than the current batch).
+
+   **Still open, unrelated to the above:** Phase 11 M6 (analytics retirement, gated on PostHog going live), the leaked-password Supabase dashboard toggle (Andre's action), Sonnet 6B brief items 3-9 (Andre triggers), and all of Fable's remaining track (Phase 8 content, Phase 10c explanations, Phase 15 re-audit, the two repro-required mobile bugs - all gated on Fable's credits). The S5/S6 card/UX work is explicitly deferred to its own dedicated session per Andre's earlier call tonight - do not start it opportunistically.
+
+   Read [[Phil OS - Decisions Log]] entries D56 through D84 for the full dated record behind all of the above - this summary is a pointer, not a replacement for it.
+
 1. Read the full Project Instructions in `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\PHIL OS - Claude Project Instructions v3.0.md` _(path corrected 2026-07-06: the file moved out of the Inbox. Warning: that note is truncated mid-table and its current-state figures are stale - treat this CLAUDE.md as the more current source until it is rebuilt.)_
 2. Read `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md` - open items section
 3. Check `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Decisions Log.md` before touching anything locked
 4. Orient to current state from the Master Index before building
 
-_(Note: the paths above use plain hyphens, not em dashes - the actual filenames on disk use hyphens. This file previously had em dashes in these specific paths, which never matched the real filenames; fixed 2026-07-06.)_
+_(Note: the paths above use plain hyphens, not em dashes - the actual filenames on disk use hyphens.)_
 
 ---
 
@@ -40,47 +51,54 @@ Hosting:       Vercel (auto-deploy from main branch)
 
 ---
 
-## CURRENT STATE (as of 2026-07-06)
+## CURRENT STATE (as of 2026-07-07)
 
 | Component | Status |
 |---|---|
-| 160 questions, 32 axes, 5 items/axis | ✅ Complete |
-| 60 archetypes (12 families × 5 variants) | ✅ Complete |
+| 160 questions, 32 axes, 5 items/axis, instrument **v4** | ✅ Complete and live (Phase 7, D65-D71) |
+| 60 archetypes (12 families × 5 variants) | ✅ Complete - all 60 verified to recover themselves under a from-scratch reachability harness (D69-D71) |
 | Archetype engine (13-axis Euclidean distance) | ✅ Complete |
-| Contradiction engine (exactly 42 real rules: 11 A, 22 B, 9 C. Phantom-comma bug fixed. **C01b fully reframed per D44 (D57)** - examination framing, libertarian retributivism named coherent. D44 is closed.) | ✅ Live except D57 reframe (local, awaiting push) |
-| Liminality (D41/D57): **family-level** - gap to best variant of nearest OTHER family, threshold 1.0. Prototype false-positives 58/60 -> 10/60; secondary always cross-family. Recalibrate at N=100+. | ⚠️ Implemented + validated locally, awaiting push |
-| AI report (claude-sonnet-5, 2-call split - model verified in live `api/generate.js`/`api/chat.js` 2026-07-06; the sonnet-4-6 listed here before was stale, and the 4-6 to 5 migration was never logged in the vault) | ✅ Working |
+| Contradiction engine (exactly 42 rules: 11 A, 22 B, 9 C) | ✅ Live. C01b reframed per D44/D57 (examination framing, libertarian retributivism named coherent) |
+| Liminality (D41/D57): family-level, threshold 1.0 | ✅ Live |
+| Reversed-item keying (D40): Likert-only, both directions covered per axis where 2+ Likerts exist - 36 reversed flags total, uneven by design, not the old uniform-2 assumption | ✅ Live, dev-panel integrity check updated to match |
+| AI report (claude-sonnet-5, 2-call split) | ✅ Working. First name + full axis/archetype/fingerprint/contradiction profile sent to Anthropic - confirmed **intentional** product decision (D76), not a leak |
 | Email capture + Supabase | ✅ Working |
-| Auth (Google SSO + email/password) | ✅ Live |
+| Auth (Google SSO + email/password), **required before assessment access** | ✅ Live (D72 - route guard confirmed live since 2026-05-31, not a new restriction) |
 | Question explanations (all 160, neutrality-audited) | ✅ Live |
 | Answer-order pinning (27 synthesis options) | ✅ Live |
-| Shareable card (1080×1920, 9:16 story format - verified in live render code 2026-07-06; the 1080×2160 previously listed here and locked in Decisions Log P7 is stale, P7 needs a dated correction entry) | ✅ Working |
+| Shareable card (1080×1920, 9:16 story format) | ✅ Working |
 | Custom domain (phil-os.thelifepm.com) | ✅ Live |
+| QA version display (Settings footer + dev panel, live commit hash via Vercel env vars) | ✅ Live |
+| Phase 11 database re-architecture (M1-M5) | ✅ Executed and verified live. M6 (analytics retirement) gated on PostHog going live |
+| Real account deletion, real research opt-in | ✅ Live and verified end-to-end (D62) |
+| D2 privacy notice, processor register, DPIA outline | ⚠️ Drafted 2026-07-07, **not published, not legally reviewed** - see [[Phil OS - D2 Privacy Notice Draft]] |
+| 18+ age gate | ⚠️ **Decided, NOT implemented** - still 13+ soft field, no confirmation checkbox. Patch drafted, awaiting Andre's go (D78) |
+| Marketing consent separation | ❌ Not implemented - hardcoded `true` on signup, no real opt-in checkbox (D79) |
+| Share-link privacy warning | ⚠️ Drafted, not yet added to the UI (D82) |
 | Free tier gating | ❌ Not built |
 | Stripe payment | ❌ Locked until herbeoordeling |
 | Sketch illustrations | ⚠️ 1/32 done (naturalism.png) |
-| Full systematic end-to-end test | ❌ Not yet run |
-| `t2m02` / `t3so04` rewrites | ✅ Live 2026-07-06 (D9 stems + matching explanation updates, verified serving in production) |
-| Sonnet 5 pre-audit fixes (resume-shuffle bug, Conviction Strength rename, card footer, fingerprint labels, 34-to-32 typo, nav placement) | ✅ Pushed and live 2026-07-06 |
-| Fable 5 A-Z audit | ✅ Audit stage complete; **Checkpoint A RULED (D40-D53), B batch LIVE, identity ruled (D52), governance doc standing (D50/D53)**. Phase 7 unblocked. Open: Phase 11 DB doc, Sonnet 6B run |
+| Full systematic end-to-end test (all 160 questions) | ⚠️ Partial coverage only (one real beta completion, one self-test, one Sonnet-driven full retake for M5 validation) - not a dedicated systematic pass |
 
 ---
 
 ## TECHNICAL STACK
 
-**Env vars (Vercel):** `ANTHROPIC_API_KEY` · `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` · `RESEND_API_KEY`
+**Env vars (Vercel):** `ANTHROPIC_API_KEY` · `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` · `RESEND_API_KEY` · `RESEARCH_KEY_PEPPER`
 
-**Critical syntax rule:** Apostrophes in JS single-quoted strings crash the app. Always double-quote strings containing apostrophes.
+**Critical syntax rule:** Apostrophes in JS single-quoted strings crash the app. Always double-quote or escape (`\'`) strings containing apostrophes - caught live during this session's D2 work (2026-07-07).
 
 **Reversed scoring:** `ans = q.reversed ? (8 - rawAns) : rawAns` in `computeScores()`
 
 **QA pre-fill:** `rawTarget = q.reversed ? (8 - target) : target`
 
+**Instrument version:** single source of truth is the `INSTRUMENT_VERSION` constant near the top of `index.html`'s script (added 2026-07-07 to stop the version drifting across multiple hardcoded strings - it had drifted to 4 different places before this fix).
+
 ---
 
 ## THE 32 AXES
 
-Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis. _(Reversed items: the "2 reversed (40%)" previously stated here is stale - live bank is 52/160 = 32.5% aggregate, 1-4 per axis. See PSYCHOMETRIC STANDARDS below and Decisions Log D30; resolution deferred to the Fable 5 audit.)_
+Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 
 **T1 Foundations (weight 1.5):** naturalism · physicalism · realism · determinism · moral_ground · meaning
 
@@ -94,25 +112,32 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis. _(Reversed items: the
 
 ---
 
-## SUPABASE SCHEMA (v3)
+## SUPABASE SCHEMA (current, post-Phase 11 M5)
 
-**completions:** id · first_name · email · country · gdpr_consent · consented_at · archetype_family · archetype_variant · scores (jsonb) · fingerprint (jsonb) · contradictions_count · completed_at · source · qa_mode · report_json (jsonb) · instrument_version · axis_count · question_count
+**completions:** id · user_id (nullable FK, added M5) · first_name · email · country · gdpr_consent · consented_at · archetype_family · archetype_variant · scores (jsonb) · fingerprint (jsonb) · contradictions_count · completed_at · source · qa_mode · report_json (jsonb) · instrument_version · axis_count · question_count · report_version · prompt_hash · model · temperature · generated_at
 
-**responses:** id · completion_id · question_id · question_text · axis · tier · question_type · answer_value · answer_text · reversed · scored_value · weight · instrument_version · dev_flag · dev_note
+**responses:** id · completion_id (FK, ON DELETE CASCADE) · question_id · question_text · axis · tier · question_type · answer_value · answer_text · reversed · scored_value · weight · instrument_version · dev_flag · dev_note
 
-**Also:** assessment_progress · account_completions · profiles · rate_limits · research_profiles · analytics_events
+**Also:** assessment_progress · anon_progress (unwired, reserved - D75) · consent_log · profiles · rate_limits · research_profiles · analytics_events (pending retirement, M6)
+
+**`account_completions` is now a read-only compatibility view** (real table renamed to `account_completions_deprecated_20260706`) - kept through the stabilization period, not dropped yet, per Andre's explicit call.
 
 ---
 
-## NEXT PRIORITIES
+## NEXT PRIORITIES (as of 2026-07-07)
 
-0. **Phase 11: M1-M5 EXECUTED AND VERIFIED 2026-07-06 (D56/D59/D60/D62/D63/D64).** M1-M4 per prior entries (DB hardening, additive consent/research/progress schema, real account deletion + research opt-in, all verified live). **M5 (D63/D64): completions/account_completions merged** - Option B (insert-many, attributed by `user_id`) chosen over upsert after Andre flagged that upsert-on-retake conflicted with B3's retake-history feature; `account_completions` renamed to `account_completions_deprecated_20260706` and replaced with a read-only compatibility view (kept in place through the full stabilization period, not removed after first pass, per Andre's explicit call); every "latest completion" query uses fully deterministic ordering (`completed_at DESC, generated_at DESC, id DESC`). **Live UI validation passed** (Sonnet drove Andre's real browser session directly): full 160-question retake, zero console errors, dashboard correctly shows the new completion as latest, old completion preserved as history (2 rows now on the test account). **Two real bugs found and fixed during that validation:** research-consent toggle double-fire (redundant onclick alongside native label-click delegation - fixed, reverified single-fire), and `confirmRetake()` still deleting through the now-read-only `account_completions` view (silently failing every time - fixed, no longer needed under insert-many). RESEARCH_KEY_PEPPER is set in Vercel, confirmed live. **Anonymous-respondent autosave: superseded 2026-07-07 (D72/D75), not a gap.** Account-before-assessment is confirmed as the current intentional product behavior (route guard live since 2026-05-31) - there is no anonymous assessment flow to build autosave for. `anon_progress`/`/api/progress` remain as intentionally unwired reserved infrastructure; wiring them would require a new explicit decision to re-enable anonymous assessment-taking, not a completion of existing work. M6 remains, needs its own explicit go per D56. **D61: Andre amended ground rule 7 - Sonnet now pushes to GitHub and Vercel auto-deploys directly for Phil OS** (matches the Dutch OS workflow); every other governance rule (per-batch approval before writing, dash scans, node --check, one-strike UI protocol) stands unchanged. Andre still owes: leaked-password toggle (Dashboard > Auth > Passwords), and review of the draft D2 privacy notice (not yet drafted). Phase 11 doc: vault 776 `Phil OS - Database Target Architecture (Phase 11)`. **Sonnet 5 sessions: your task list is the vault doc `Phil OS - Sonnet 5 Handover Brief` (776) - read it FIRST; it carries the UI one-strike protocol and the explicit-batch-approval rule.** **Fable sessions: Phase 7 rewrite is next** (against `FABLE5_PSYCHOMETRIC_STANDARD.md` + D45 scope, governed by [[Phil OS - Instrument Governance]]), then Phase 8 content, Phase 15 re-audit, and the two repro-required bugs (10i mobile sign-in, 10h dropdown - with Andre on a live device). Sonnet 6B brief (items 3-9) runs whenever Andre triggers it (i18n decision waits on it).
-1. Full systematic end-to-end test of all 160 questions
-2. Data-loss architecture fix for QA flags/responses
-3. Free tier gating + D49's D1-D3 (account deletion, privacy notice, consent upgrade) - all block any marketing push
-4. PhD endorsement outreach
-5. Remaining 31 sketch illustrations
-6. Monetise - post-herbeoordeling
+0. **Resume the compliance/D2 pass first** - ask Andre whether to apply the drafted 18+ age-gate + consent-wording patch (D78/D80), or adjust wording. Once resolved, the share-link warning (D82) is a small, ready, low-risk follow-on.
+1. Marketing-consent separation (D79) - real UI work, not yet scheduled.
+2. Phase 11 M6 (analytics_events retirement) - gated on PostHog going live, needs its own explicit go per D56.
+3. Leaked-password protection toggle - Andre's action, Supabase dashboard.
+4. Sonnet 6B brief (items 3-9) - whenever Andre triggers it.
+5. Fable's track: Phase 7 rewrite is done - next is Phase 8 content, then Phase 10c explanations, Phase 15 re-audit, and the two repro-required bugs (10i mobile sign-in, 10h dropdown - live device with Andre). All gated on Fable's credits.
+6. S5/S6 card and UX-mechanical work - explicitly deferred to its own dedicated session (Andre's call).
+7. Full systematic end-to-end test of all 160 questions (dedicated pass, not incidental).
+8. Free tier gating - before any marketing push (also blocked on the compliance pass above).
+9. PhD endorsement outreach.
+10. Remaining 31 sketch illustrations.
+11. Monetise - post-herbeoordeling.
 
 ---
 
@@ -122,19 +147,17 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis. _(Reversed items: the
 - Reversed items: agreeing = poleL = score 1 after 8 − raw
 - α target per axis: ≥ 0.70 (needs 300+ completions)
 - Option score range: max ≥ 5 (right pole), min ≤ 3 (left pole) on every tradeoff/scenario
-- Normalisation: 5 items/axis, 2 reversed (40%), identical across all 32 axes **- flagged 2026-07-06 (see Decisions Log D30): this does not match the live question bank.** Direct parse shows 52/160 = 32.5% reversed in aggregate, but per-axis counts actually range 1-4 (20%-80%), not a uniform 2. Not corrected here - deferred to the Fable 5 psychometric audit to judge and resolve.
+- Normalisation (current, per D40, live as of Phase 7/instrument v4): 5 items/axis, **reversed flag is Likert-only**, both directions covered per axis wherever it has 2+ Likert items - 36 reversed flags total, distribution intentionally uneven across axes (not a uniform 2/axis). Dev-panel integrity check verifies this directly against the live question bank, not a hardcoded count.
 
 ---
 
 ## LOCKED DECISIONS - DO NOT RE-LITIGATE
 
-32 axes · 5 items/axis · 2 reversed/axis (40%) _(flagged 2026-07-06: this specific lock never matched reality - the uniform 64-flag state of 2026-05-26 included 15 wrong flags removed as scoring bugs on 2026-06-20 (D6); live distribution is uneven, resolution pending the Fable 5 audit per D30)_ · 160 questions · 60 archetypes · 13-axis engine · 1-7 Likert · Instrument v3 · 3-tier contradiction system · graduated strength · liminal threshold 1.0 · email hard gate · GDPR required · no monetisation until herbeoordeling · Supabase for data · Vercel hosting · Question explanations: neutrality-audited, gated by kill switch + per-user setting · Two-app model rejected
+32 axes · 5 items/axis · reversed-item keying is Likert-only per D40 (supersedes the old uniform "2 reversed/axis" A7 lock) · 160 questions · 60 archetypes · 13-axis engine · 1-7 Likert · **Instrument v4** · 3-tier contradiction system (42 rules, 11A/22B/9C) · graduated strength · liminal threshold 1.0, family-level · **account required before assessment access** (D72, supersedes the older "email hard gate at the end" framing) · GDPR consent before report · **18+ minimum age decided for launch, not yet implemented in code** (D78) · no monetisation until herbeoordeling · Supabase for data · Vercel hosting, Sonnet pushes directly (D61) · Question explanations: neutrality-audited, gated by kill switch + per-user setting · Two-app model rejected · First-name personalization to Anthropic is intentional, not a leak (D76) · "Fingerprint" described as "profile summary" in privacy/legal copy specifically, not a UI rename (D77)
 
 ---
 
 ## VAULT DOCUMENTS
-
-_(Paths corrected 2026-07-06: actual filenames on disk use plain hyphens, not em dashes - this section previously had em dashes that never matched the real filenames.)_
 
 ```
 C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
@@ -142,19 +165,24 @@ C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
 │   └── Phil OS - Product Snapshot.md
 ├── 772 - Architecture and Build\
 │   ├── Phil OS - Architecture and Axis Map.md  <- source of truth on axes
-│   └── Phil OS - Question Bank v3.md           <- canonical questions
+│   └── Phil OS - Question Bank v3.md           <- canonical questions (content is v4-current despite the v3 filename)
 ├── 776 - Build Log and Decisions\
 │   ├── Phil OS - Build Log.md                  <- open items + session log
-│   ├── Phil OS - Decisions Log.md              <- every locked decision
-│   ├── Phil OS - Scoring and Archetype Logic.md <- corrected 2026-07-06: this lives in 776, not 772 as previously listed here
-│   ├── Phil OS - Full Psychometric and Philosophical Audit v3.md
-│   ├── Phil OS - Psychometric Validity Audit.md and v2 Post-Fix
+│   ├── Phil OS - Decisions Log.md              <- every locked decision, D1 through D84+
+│   ├── Phil OS - Scoring and Archetype Logic.md
+│   ├── Phil OS - Instrument Governance.md      <- standing change-approval rules for the measurement core
+│   ├── Phil OS - Database Target Architecture (Phase 11).md
+│   ├── Phil OS - Sonnet 5 Handover Brief.md    <- Sonnet task list and ground rules
+│   ├── Phil OS - D2 Privacy Notice Draft.md    <- NEW 2026-07-07, draft, not published
+│   ├── Phil OS - Processor Register.md         <- NEW 2026-07-07, draft tracking table
+│   ├── Phil OS - Compliance Program (DPIA, Terms, User Rights, Security Baseline).md  <- NEW 2026-07-07, draft
+│   ├── Phil OS - Full Psychometric and Philosophical Audit v4.md
 │   ├── Phil OS - Item Analysis and Question Standards.md
-│   └── Phil OS - Council Analysis Summary.md   <- substantial prior audit history, not all captured above - browse the full folder
+│   └── Phil OS - Council Analysis Summary.md
 └── Phil OS - Master Index.md
 ```
 
-**In `C:\philos\` itself (this repo, not the vault):** `FABLE5_AUDIT_PLAN.md`, `FABLE5_FACT_FINDING.md`, `SONNET5_FIXES_LOG_2026-07-06.md` - the current top-priority work, see NEXT PRIORITIES above.
+**In `C:\philos\` itself (this repo, not the vault):** `FABLE5_AUDIT_PLAN.md`, `FABLE5_FACT_FINDING.md`, `FABLE5_PSYCHOMETRIC_STANDARD.md`, `SONNET5_FIXES_LOG_2026-07-06.md`.
 
 ---
 
@@ -165,7 +193,7 @@ C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
 - Fix errors silently and note what was fixed
 - Match existing code style exactly
 - Never deliver unvalidated code
-- Every session end: update Build Log + Decisions Log + Logic Log
+- Every session end: update Build Log + Decisions Log + Master Index + this file
 
 ## NEVER DO
 
@@ -174,6 +202,7 @@ C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\
 - Build free tier gating or Stripe before herbeoordeling resolves
 - Deliver unvalidated code
 - Skip end-of-session vault doc updates
+- Apply onboarding/auth-adjacent code changes without Andre's explicit go, even if the change looks small
 
 ---
 
@@ -197,22 +226,22 @@ On **WIA benefit (WGA-LAU)** - cannot earn KVK income until herbeoordeling resol
 
 1. **Never state a fact you are not certain of.** If you don't know an exact path, method name, or field - say so and check the live file.
 2. **Never invent code paths, function names, or data contract fields.** Verify against the project docs first.
-3. **Validate every file before delivering** - st.parse() for Python, 
-ode --check for JS, json.loads() for configs.
+3. **Validate every file before delivering** - `node --check` for JS, appropriate parser for other formats.
 4. **Three confidence tiers:**
    - ✅ **VERIFIED** - confirmed from a file read this session
    - 🔍 **RESEARCHED** - from official documentation checked this session
    - ⚠️ **INFERRED** - logical deduction - always flag, never state as fact
 5. Fix errors silently and note what was fixed.
 6. **Never agree with something wrong to avoid friction.**
+
 ---
 
 ## END OF SESSION - MANDATORY
 
-1. Build Log: C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md
-2. Decisions Log (all new, dated): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Decisions Log.md
-3. Scoring/logic changes: C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Scoring and Archetype Logic.md _(corrected 2026-07-06: there is no separate "Logic Log.md" file - confirmed via a vault-wide search, no such file exists anywhere in the Phil OS folder. Scoring/logic changes go in this file instead. This item previously pointed to a file that never existed.)_
-4. Master Index (if build state changed): C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\Phil OS - Master Index.md
+1. Build Log: `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md`
+2. Decisions Log (all new, dated): `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Decisions Log.md`
+3. Scoring/logic changes: `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Scoring and Archetype Logic.md`
+4. Master Index (if build state changed): `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\Phil OS - Master Index.md`
 5. Update this CLAUDE.md - current state table and next priorities
 
 Session summary: DECISIONS MADE / TASKS COMPLETED / NEW TASKS / VERSION
