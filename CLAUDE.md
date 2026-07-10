@@ -51,7 +51,7 @@ Stack:         Single index.html (vanilla JS) + /api/ serverless functions
 Hosting:       Vercel (auto-deploy from main branch)
 ```
 
-**Deploy:** Edit `index.html`/`api/*` locally → validate (`node --check`, dash scan) → push to `main` → Vercel auto-deploys. Per D61 (2026-07-06), Sonnet sessions push directly for Phil OS (same workflow as Dutch OS) after Andre's explicit per-batch go; no separate GitHub Desktop hand-off required.
+**Deploy:** Edit `index.html`/`api/*` locally → validate (`node --check`, dash scan) → push to `main` → Vercel auto-deploys. Per D61 (2026-07-06), Sonnet sessions push directly for Phil OS (same workflow as Dutch OS) after Andre's explicit per-batch go. Per D98 (2026-07-10), Fable pushes directly too; review control is the 6-eyes setup (Andre + GPT review everything Fable ships).
 
 ---
 
@@ -133,7 +133,7 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 
 ## NEXT PRIORITIES (as of 2026-07-10)
 
-0. **Andre: review and push local commits `0d7efd9` through `1ffc8bb` (Phase 8 + 10c + Phase 15 + 10f docs, D93-D97)** - fully verified, one deploy covers everything. Then one QA-mode report generation to confirm r2 metadata + growth rendering.
+0. **DEPLOYED 2026-07-10: commits `0d7efd9` through `3406793` (Phase 8 + 10c + Phase 15 + 10f, D93-D98) are live in production** (deployment `dpl_9Y189DwnSSZFtwHFYmNyFTteKoJW`, verified via /api/version and live-HTML content check). Next verification: one QA-mode report generation to confirm r2 metadata columns populate and growth edges render on all three surfaces. Per D98, Fable pushes directly now (same as Sonnet under D61); GPT independently reviews everything Fable ships.
 0b. **Fable's remaining window, governed by D86** - Phase 8 (D93/D94), 10c (D95), scoped Phase 15 (D96), and 10f boundaries (D97) are done. Sole remaining Fable item: 10g report-section content depth. Sonnet: implement landing copy inside `FABLE5_10F_CLAIMS_BOUNDARIES.md`. 10i and 10h-dropdown are Sonnet's, not Fable's.
 1. Step 4 of the consent sequence - unified onboarding/re-consent UI (collapse the 4 consent surfaces, delete dead consent-gate code, split age confirmation from assessment consent, build a real withdraw action, version-gate existing users).
 2. Step 5 - age enforcement (real server-side validation, not just the HTML min attribute).
