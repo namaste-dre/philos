@@ -17,7 +17,9 @@ _Instrument v4 | 32 axes | 160 questions | 60 archetypes | Live at phil-os.theli
 
    **Still open, unrelated to the above:** Phase 11 M6 (analytics retirement, gated on PostHog going live), the leaked-password Supabase dashboard toggle (Andre's action), backfilling the 6 pre-2026-07-10 Supabase migrations. **Fable's final 2 days of capacity are governed by D86** - Phase 8 first, then 10c, then a scoped-down Phase 15, then 10f/10g; 10i and 10h-dropdown are reassigned to Sonnet, not Fable's anymore. The S5/S6 card/UX work stays deferred to its own dedicated session.
 
-   Read [[Phil OS - Decisions Log]] entries D56 through D92 for the full dated record behind all of the above - this summary is a pointer, not a replacement for it.
+   **PHASE 8 IS EXECUTED (2026-07-10, Fable, D93/D94) and sitting in local commit `0d7efd9`, NOT pushed.** Andre reviews and pushes; Vercel deploys on push. Contents: hard-written variant texts on all 60 archetypes (tagline/cardTagline/whoYouAre + de-dashed description/strength/failureMode), growth-edge curated library (64 axis + 42 contradiction entries, deterministic selection, no AI), report prompts cut to identity+alignment+world (first names preserved per D76), output validator, temperature 0.6 server-side, report pipeline version r2 with D47 metadata finally wired (the columns existed since M5 but capture.js never whitelisted them). Rubric and consistency-pass evidence: `FABLE5_PHASE8_RUBRIC.md`. After deploy, run one QA-mode report to confirm the r2 metadata columns populate and growth edges render in-app, on the share page, and in the email. Fable's next work item is 10c.
+
+   Read [[Phil OS - Decisions Log]] entries D56 through D94 for the full dated record behind all of the above - this summary is a pointer, not a replacement for it.
 
 1. Read the full Project Instructions in `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\PHIL OS - Claude Project Instructions v3.0.md` _(path corrected 2026-07-06: the file moved out of the Inbox. Warning: that note is truncated mid-table and its current-state figures are stale - treat this CLAUDE.md as the more current source until it is rebuilt.)_
 2. Read `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md` - open items section
@@ -63,7 +65,8 @@ Hosting:       Vercel (auto-deploy from main branch)
 | Contradiction engine (exactly 42 rules: 11 A, 22 B, 9 C) | ✅ Live. C01b reframed per D44/D57 (examination framing, libertarian retributivism named coherent) |
 | Liminality (D41/D57): family-level, threshold 1.0 | ✅ Live |
 | Reversed-item keying (D40): Likert-only, both directions covered per axis where 2+ Likerts exist - 36 reversed flags total, uneven by design, not the old uniform-2 assumption | ✅ Live, dev-panel integrity check updated to match |
-| AI report (claude-sonnet-5, 2-call split) | ✅ Working. First name + full axis/archetype/fingerprint/contradiction profile sent to Anthropic - confirmed **intentional** product decision (D76), not a leak |
+| AI report (claude-sonnet-5, 2-call split) | ✅ Working. **Pipeline r2 committed locally, not yet deployed (D93):** AI writes identity + alignment + world lenses only; card text, patterns, growth are data-driven; validator + temp 0.6; OCEAN dropped from prompt (D94). First name + axis/archetype/fingerprint/contradiction profile sent to Anthropic - confirmed **intentional** (D76), not a leak |
+| Hard-written archetype texts (60) + growth-edge library (64 axis + 42 contradiction entries) | ⚠️ Built and verified (D93), in local commit `0d7efd9`, awaiting Andre's push |
 | Email capture + Supabase | ✅ Working |
 | Auth (Google SSO + email/password), **required before assessment access** | ✅ Live (D72 - route guard confirmed live since 2026-05-31, not a new restriction) |
 | Question explanations (all 160, neutrality-audited) | ✅ Live |
@@ -130,7 +133,8 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 
 ## NEXT PRIORITIES (as of 2026-07-10)
 
-0. **Fable's 2 remaining days, governed by D86** - see [[Phil OS - Fable Handover 2026-07-10]] for the full task list: Phase 8 first, then 10c, then a scoped-down Phase 15, then 10f/10g. 10i and 10h-dropdown are Sonnet's now, not Fable's.
+0. **Andre: review and push local commit `0d7efd9` (Phase 8, D93)** - single commit, 6 files, fully verified. Then one QA-mode report generation to confirm r2 metadata + growth rendering.
+0b. **Fable's remaining window, governed by D86** - Phase 8 is done (D93/D94). Next: 10c (160 hover explanations), then scoped-down Phase 15, then 10g/10f boundaries. 10i and 10h-dropdown are Sonnet's, not Fable's.
 1. Step 4 of the consent sequence - unified onboarding/re-consent UI (collapse the 4 consent surfaces, delete dead consent-gate code, split age confirmation from assessment consent, build a real withdraw action, version-gate existing users).
 2. Step 5 - age enforcement (real server-side validation, not just the HTML min attribute).
 3. Step 6 - regression tests across the full consent flow.
