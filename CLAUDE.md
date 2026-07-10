@@ -5,17 +5,19 @@ _Instrument v4 | 32 axes | 160 questions | 60 archetypes | Live at phil-os.theli
 
 ## SESSION START
 
-0. **CRITICAL - READ THIS FIRST (2026-07-07, Andre away 3 days, resume here).** Full state below is written to be self-sufficient - do not assume anything not stated here.
+0. **CRITICAL - READ THIS FIRST (2026-07-10, Fable has 2 days of capacity left, resume here).** For Fable specifically, go straight to the vault note [[Phil OS - Fable Handover 2026-07-10]] before reading anything else in this file. Full state below is written to be self-sufficient - do not assume anything not stated here.
 
    **Shipped and live, nothing pending:** Phase 11 M1-M5 (DB hardening, consent/research schema, real account deletion, real research opt-in, completions/account_completions merge - Decisions Log D56-D71). Phase 7 question-bank rewrite to instrument v4, verified via 12 review blocks plus a from-scratch 60-prototype reachability harness that found and fixed a real archetype-collision bug (D65-D71). A QA version-display feature (Settings footer + dev panel showing live instrument version and build commit hash, wired to Vercel's runtime env vars - D-series entries around 2026-07-07). A correction that anonymous-respondent autosave is **not** a gap - account-before-assessment is confirmed intentional product behavior, live since 2026-05-31, and `anon_progress`/`/api/progress` are intentionally unwired reserved infrastructure, not pending work (D72-D75).
 
-   **In progress, exact pending state - a compliance/D2 privacy pass (D76-D84):** Detection complete (Anthropic payload, age fields, consent flow, retention behavior, share-link UI, processor references all directly verified against live code/database). **Two code patches are drafted and shown to Andre but NOT YET APPLIED:** (1) an 18+ age gate + expanded consent-checkbox wording, touching `submitOnboarding()` - explicitly held for Andre's go per his own instruction that onboarding/auth-adjacent changes need sign-off first (D78/D80); (2) a share-link privacy warning (static text only, assessed safe, just not yet added - D82). **The very next question to ask Andre on resume: "Do you want to apply the 18+ age-gate + consent-wording patch as drafted, or adjust the wording first?"** Three new vault docs exist for this work: [[Phil OS - D2 Privacy Notice Draft]], [[Phil OS - Processor Register]], [[Phil OS - Compliance Program (DPIA, Terms, User Rights, Security Baseline)]] - all explicitly marked draft, none legally reviewed, none published.
+   **Shipped and live, nothing pending:** Phase 11 M1-M5, Phase 7 question-bank rewrite to instrument v4 (D65-D71), the QA version-display feature, the anonymous-assessment correction (D72-D75). **The full compliance/consent architecture repair is now shipped, not just drafted (D79, D82, D85-D92):** D82's share-link privacy warning is live on both the in-app report and the confirmation email; the share page is now noindex/nofollow; marketing consent is a real, separate, default-off control, no longer hardcoded true (D79); a canonical consent transaction path exists (`api/consent.js` calling a Postgres RPC, `set_consent`, updating `profiles` and inserting into `consent_log` inside one transaction - verified live against the real database that a failure rolls back both halves); `profiles.gdpr_consent_version` exists for future re-consent gating. Supabase migrations are now tracked in the repo (`supabase/migrations/`) - a real gap that existed for all 7 migrations to date, the 6 pre-2026-07-10 ones still need backfilling.
 
-   **Known gap, not yet fixed:** marketing consent is not actually separate from core consent - `submitOnboarding()` hardcodes `marketing_consent: true` on every signup with no distinct checkbox (D79). Needs its own future pass (real UI change, bigger than the current batch).
+   **Still open, real next steps in the consent sequence:** Step 4 (unified onboarding/re-consent UI), Step 5 (18+ age enforcement with real server-side validation), Step 6 (regression tests across the full flow).
 
-   **Still open, unrelated to the above:** Phase 11 M6 (analytics retirement, gated on PostHog going live), the leaked-password Supabase dashboard toggle (Andre's action), Sonnet 6B brief items 3-9 (Andre triggers), and all of Fable's remaining track (Phase 8 content, Phase 10c explanations, Phase 15 re-audit, the two repro-required mobile bugs - all gated on Fable's credits). The S5/S6 card/UX work is explicitly deferred to its own dedicated session per Andre's earlier call tonight - do not start it opportunistically.
+   **Spun off as separate tracked background tasks, not blocking:** "Step 2R - migrate research consent to canonical consent path" (task_4db2e489) and "Fix mislabeled Copy profile link button" (task_542b4d11).
 
-   Read [[Phil OS - Decisions Log]] entries D56 through D84 for the full dated record behind all of the above - this summary is a pointer, not a replacement for it.
+   **Still open, unrelated to the above:** Phase 11 M6 (analytics retirement, gated on PostHog going live), the leaked-password Supabase dashboard toggle (Andre's action), backfilling the 6 pre-2026-07-10 Supabase migrations. **Fable's final 2 days of capacity are governed by D86** - Phase 8 first, then 10c, then a scoped-down Phase 15, then 10f/10g; 10i and 10h-dropdown are reassigned to Sonnet, not Fable's anymore. The S5/S6 card/UX work stays deferred to its own dedicated session.
+
+   Read [[Phil OS - Decisions Log]] entries D56 through D92 for the full dated record behind all of the above - this summary is a pointer, not a replacement for it.
 
 1. Read the full Project Instructions in `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\PHIL OS - Claude Project Instructions v3.0.md` _(path corrected 2026-07-06: the file moved out of the Inbox. Warning: that note is truncated mid-table and its current-state figures are stale - treat this CLAUDE.md as the more current source until it is rebuilt.)_
 2. Read `C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\776 - Build Log and Decisions\Phil OS - Build Log.md` - open items section
@@ -51,7 +53,7 @@ Hosting:       Vercel (auto-deploy from main branch)
 
 ---
 
-## CURRENT STATE (as of 2026-07-07)
+## CURRENT STATE (as of 2026-07-10)
 
 | Component | Status |
 |---|---|
@@ -71,10 +73,12 @@ Hosting:       Vercel (auto-deploy from main branch)
 | QA version display (Settings footer + dev panel, live commit hash via Vercel env vars) | ✅ Live |
 | Phase 11 database re-architecture (M1-M5) | ✅ Executed and verified live. M6 (analytics retirement) gated on PostHog going live |
 | Real account deletion, real research opt-in | ✅ Live and verified end-to-end (D62) |
-| D2 privacy notice, processor register, DPIA outline | ⚠️ Drafted 2026-07-07, **not published, not legally reviewed** - see [[Phil OS - D2 Privacy Notice Draft]] |
-| 18+ age gate | ⚠️ **Decided, NOT implemented** - still 13+ soft field, no confirmation checkbox. Patch drafted, awaiting Andre's go (D78) |
-| Marketing consent separation | ❌ Not implemented - hardcoded `true` on signup, no real opt-in checkbox (D79) |
-| Share-link privacy warning | ⚠️ Drafted, not yet added to the UI (D82) |
+| D2 privacy notice, processor register, DPIA outline | ⚠️ Drafted, **not published, not legally reviewed** - see [[Phil OS - D2 Privacy Notice Draft]] |
+| 18+ age gate | ⚠️ **Decided, NOT implemented** - still 13+ soft field, no confirmation checkbox. This is Step 5 of the consent sequence (D78) |
+| Marketing consent separation | ✅ Live - real, separate, default-off checkbox/toggle, own consent_log trail (D79/D88) |
+| Share-link privacy warning | ✅ Live on both the in-app report and the confirmation email (D82/D87). Share page also now noindex/nofollow. |
+| Canonical consent transaction path | ✅ Live - `set_consent` RPC updates profiles + consent_log atomically, verified against the real database (D89) |
+| Supabase migrations tracked in repo | ⚠️ Started 2026-07-10 - 2 of 7 migrations now in git, 6 older ones need backfilling |
 | Free tier gating | ❌ Not built |
 | Stripe payment | ❌ Locked until herbeoordeling |
 | Sketch illustrations | ⚠️ 1/32 done (naturalism.png) |
@@ -124,20 +128,24 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 
 ---
 
-## NEXT PRIORITIES (as of 2026-07-07)
+## NEXT PRIORITIES (as of 2026-07-10)
 
-0. **Resume the compliance/D2 pass first** - ask Andre whether to apply the drafted 18+ age-gate + consent-wording patch (D78/D80), or adjust wording. Once resolved, the share-link warning (D82) is a small, ready, low-risk follow-on.
-1. Marketing-consent separation (D79) - real UI work, not yet scheduled.
-2. Phase 11 M6 (analytics_events retirement) - gated on PostHog going live, needs its own explicit go per D56.
-3. Leaked-password protection toggle - Andre's action, Supabase dashboard.
-4. Sonnet 6B brief (items 3-9) - whenever Andre triggers it.
-5. Fable's track: Phase 7 rewrite is done - next is Phase 8 content, then Phase 10c explanations, Phase 15 re-audit, and the two repro-required bugs (10i mobile sign-in, 10h dropdown - live device with Andre). All gated on Fable's credits.
-6. S5/S6 card and UX-mechanical work - explicitly deferred to its own dedicated session (Andre's call).
-7. Full systematic end-to-end test of all 160 questions (dedicated pass, not incidental).
-8. Free tier gating - before any marketing push (also blocked on the compliance pass above).
-9. PhD endorsement outreach.
-10. Remaining 31 sketch illustrations.
-11. Monetise - post-herbeoordeling.
+0. **Fable's 2 remaining days, governed by D86** - see [[Phil OS - Fable Handover 2026-07-10]] for the full task list: Phase 8 first, then 10c, then a scoped-down Phase 15, then 10f/10g. 10i and 10h-dropdown are Sonnet's now, not Fable's.
+1. Step 4 of the consent sequence - unified onboarding/re-consent UI (collapse the 4 consent surfaces, delete dead consent-gate code, split age confirmation from assessment consent, build a real withdraw action, version-gate existing users).
+2. Step 5 - age enforcement (real server-side validation, not just the HTML min attribute).
+3. Step 6 - regression tests across the full consent flow.
+4. Step 2R - research consent onto the canonical path (task_4db2e489).
+5. Copy-profile-link mislabeling fix (task_542b4d11).
+6. Backfill the 6 pre-2026-07-10 Supabase migrations into the repo.
+7. Phase 11 M6 (analytics_events retirement) - gated on PostHog going live.
+8. Leaked-password protection toggle - Andre's action, Supabase dashboard.
+9. Sonnet 6B brief (items 3-9) - whenever Andre triggers it.
+10. S5/S6 card and UX-mechanical work - its own dedicated session.
+11. Full systematic end-to-end test of all 160 questions.
+12. Free tier gating - before any marketing push.
+13. PhD endorsement outreach.
+14. Remaining 31 sketch illustrations.
+15. Monetise - post-herbeoordeling.
 
 ---
 
@@ -152,6 +160,9 @@ Scoring: 1 = poleL, 7 = poleR, 4 = midpoint. 5 items/axis.
 ---
 
 ## LOCKED DECISIONS - DO NOT RE-LITIGATE
+
+Consent architecture (D85-D92, 2026-07-10): canonical transactional consent path (set_consent RPC, gdpr + marketing only for now), marketing consent separated and default-off, gdpr_consent_version added, D6 in the old Fable checkpoint doc superseded (do not implement it - first-name personalization stays).
+
 
 32 axes · 5 items/axis · reversed-item keying is Likert-only per D40 (supersedes the old uniform "2 reversed/axis" A7 lock) · 160 questions · 60 archetypes · 13-axis engine · 1-7 Likert · **Instrument v4** · 3-tier contradiction system (42 rules, 11A/22B/9C) · graduated strength · liminal threshold 1.0, family-level · **account required before assessment access** (D72, supersedes the older "email hard gate at the end" framing) · GDPR consent before report · **18+ minimum age decided for launch, not yet implemented in code** (D78) · no monetisation until herbeoordeling · Supabase for data · Vercel hosting, Sonnet pushes directly (D61) · Question explanations: neutrality-audited, gated by kill switch + per-user setting · Two-app model rejected · First-name personalization to Anthropic is intentional, not a leak (D76) · "Fingerprint" described as "profile summary" in privacy/legal copy specifically, not a UI rename (D77)
 
