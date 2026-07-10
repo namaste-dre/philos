@@ -6296,7 +6296,10 @@ const TIER_GLOW_PALETTES = {
 
 let currentGlowTier = null;
 
-// Sketch images — drop matching PNG into /assets/sketches/ and it appears automatically
+// Sketch images — drop the PNG into /assets/sketches/ AND add its axis name to
+// AXIS_SKETCHES_AVAILABLE below. Unlisted axes are skipped before any request
+// is made, so the 31 not-yet-drawn sketches produce no 404s or console noise.
+const AXIS_SKETCHES_AVAILABLE = new Set(['naturalism']);
 const AXIS_SKETCH_IMAGES = {
   naturalism:           '/assets/sketches/naturalism.png',
   physicalism:          '/assets/sketches/physicalism.png',
@@ -6365,7 +6368,7 @@ function updateQuizBackground(axis, tier) {
 
   // Show sketch image if available
   let sketchEl = document.getElementById('quiz-sketch-img');
-  const imgUrl = AXIS_SKETCH_IMAGES[axis];
+  const imgUrl = AXIS_SKETCHES_AVAILABLE.has(axis) ? AXIS_SKETCH_IMAGES[axis] : null;
   if (imgUrl) {
     if (!sketchEl) {
       sketchEl = document.createElement('div');
@@ -6393,7 +6396,7 @@ function updateQuizBackground(axis, tier) {
       filter: invert(1) opacity(0.12);
       mix-blend-mode: screen;
       transition: opacity 0.6s ease;
-    " onerror="this.parentElement.style.display='none';console.warn('Phil OS: sketch not found —', '${imgUrl}')"/>`;
+    " onerror="this.parentElement.style.display='none';console.warn('Phil OS: sketch not found:', '${imgUrl}')"/>`;
     sketchEl.style.display = 'flex';
   } else if (sketchEl) {
     sketchEl.style.display = 'none';
@@ -8784,7 +8787,7 @@ Return ONLY valid JSON, with no markdown fences:
           report_version: REPORT_VERSION,
           prompt_hash: promptHash,
           model: 'claude-sonnet-5',
-          temperature: 0.6,
+          temperature: null,
           generated_at: new Date().toISOString(),
         };
         saveToSupabase(payload).then(result => {
