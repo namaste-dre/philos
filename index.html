@@ -2636,7 +2636,7 @@ select.modal-input option { background: #12101e; }
   border-radius: 8px;
   padding: 12px 14px;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text);
   outline: none;
   transition: border-color 0.2s;
@@ -2644,6 +2644,14 @@ select.modal-input option { background: #12101e; }
 }
 .auth-input:focus {
   border-color: var(--purple);
+}
+/* Prevent iOS Safari from auto-zooming the viewport when a text field is
+   focused: any input under 16px triggers it. Applies to real text-entry
+   controls only (range/checkbox/radio are exempt and never zoom). */
+@media (max-width: 767px) {
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="search"], input[type="tel"],
+  input[type="url"], textarea, select { font-size: 16px; }
 }
 .auth-error {
   font-family: 'IBM Plex Sans', sans-serif;
@@ -5496,8 +5504,8 @@ const QUESTIONS = [
 const QUESTION_EXPLANATIONS_ENABLED = true;
 
 const QUESTION_EXPLANATIONS = {
-  "t1n03": "A friend tells you about a spiritual moment that felt bigger than the physical world to them. The question asks how you would honestly react to their story. It is about your response to them, not about whether such things are real in general.",
-  "t1n04": "Some things have no known cause yet. This asks how you treat them. One view says science just has not found the natural cause so far. Another view says some things may truly come from beyond nature.",
+  "t1n03": "A friend tells you about a spiritual moment that felt bigger than the physical world to them. The question asks how you would honestly react to their story. It asks what you make of their experience, not whether such things are real in general.",
+  "t1n04": "Some things have no known cause. This asks how you treat them. One view says science has not found the natural cause. Another view says some things may come from beyond nature.",
   "t1n04b": "This asks about the mind. Could a physical brain, on its own, produce all of your inner life? Or is there a part, call it a soul or a spirit, that no brain could produce by itself?",
   "t1n05": "This asks what you think everything is ultimately made of. Just matter and energy? Something more than that? Or does the question feel truly open to you?",
   "t1n06": "Imagine a result that keeps breaking the known laws of physics. It happens across thousands of careful tests. The question asks what you would conclude from that, not what you believe right now.",
@@ -5518,7 +5526,7 @@ const QUESTION_EXPLANATIONS = {
   "t1p05": "Brain activity somehow feels like something from the inside. This asks what you make of that. Is the feeling physical at its core, something beyond the physical, or a question we cannot settle yet?",
   "t2k01": "This asks how people best reach truth about the world. It measures the weight you give to looking, testing, and following evidence, compared with other paths people use.",
   "t2k02": "Your gut says one thing is true. Careful studies keep saying the opposite. The question asks which way you would lean when those two clash directly.",
-  "t2k03": "A practice is old, loved, and found in many cultures. Careful studies find it works no better than a placebo. A placebo effect means people feel better because they expect to, not because the practice itself does anything. The question asks how you weigh the studies against the practice's long history and deep meaning.",
+  "t2k03": "A practice is old, loved, and found in many cultures. Studies find it works no better than a placebo. A placebo effect means people feel better because they expect to, not because the practice itself does anything. The question asks how you weigh the studies against the practice's long history and deep meaning.",
   "t2k04": "Revelation means truth given directly, not found by testing. Some hold that certain real truths can only be reached that way. On this view, evidence alone could never get there, however careful it is. This asks whether you agree.",
   "t2k05": "This asks when it is honest to commit to a belief. Wait until the evidence is strong, even on questions that matter deeply? Commit sooner, because some questions cannot wait? Or should the proof needed depend on what is at stake?",
   "t2m02": "Imagine every human is gone, so no one is left to judge anything. A creature that can suffer is still being tortured somewhere. The question asks whether that would still be wrong. It tests whether wrongness exists on its own, or needs a judge in order to exist.",
@@ -5547,12 +5555,12 @@ const QUESTION_EXPLANATIONS = {
   "t3e06": "This asks whether some acts are simply off limits, no matter what they would achieve. On that view, certain duties hold even when breaking them would prevent a greater harm.",
   "t3e02b": "This asks what finally makes a choice right. Is it the results it produces for everyone affected? The statement says yes, even when getting the best results means breaking a rule or a promise.",
   "t3r01": "Looking at all of history, has organised religion done more good than harm? The question wants your overall judgment of the whole record. It is not about any one faith or current event.",
-  "t3r02": "Someone supports a public policy, and their main stated reason is their personal faith. The policy affects people who may not share that faith. The question asks how you honestly respond to that use of faith in public debate. It is not about religious belief itself.",
+  "t3r02": "Someone supports a public policy, and their main stated reason is their personal faith. The policy affects other people too. The question asks how you honestly respond to that use of faith in public debate. It is not about religious belief itself.",
   "t3r03": "Parents raise their child strictly inside their religious tradition. The child learns the teachings as settled truth and is discouraged from doubting. There is no physical harm. The question asks how you weigh the possible effects on the child against the parents' right to pass on their beliefs.",
   "t3r05": "Someone is grieving a devastating loss. Religious belief gives them real comfort and community. The question asks how you weigh that comfort, and whether the truth of the belief matters to how you judge it.",
   "t3r06": "This asks a forward-looking question. Taken as a whole, would the world be better off if people moved away from religious belief? It is about religion overall, not any one faith or claim.",
   "t3p01": "Groups in society differ widely in wealth, health, and opportunity. This asks about your first instinct when you see those gaps. Do you first look to the system around people, to the people themselves, or to how the two interact?",
-  "t3p02": "A billionaire earned their fortune through real innovation and hard work. They now hold more wealth than the bottom 40 percent of their country combined. The question asks how you weigh the fair way the money was made against the sheer size of the gap.",
+  "t3p02": "A billionaire earned their fortune through real innovation and hard work. They now hold more wealth than the bottom 40 percent of their country combined. The question asks how you weigh how the money was made against the size of the gap.",
   "t3p03": "This compares two paths to a better society. One lets people keep what they earn and spend it freely. The other uses programs that move wealth to where the need is. The statement claims the first path works out better overall.",
   "t3p04": "This asks whether very large wealth gaps shrink freedom itself. The idea being tested is that concentrated money can become power over how other people get to live.",
   "t3p05": "A policy would make life much better for the poorest 30 percent. Paying for it means much higher taxes on the richest 5 percent. The question asks where you land on that exact trade.",
@@ -5569,7 +5577,7 @@ const QUESTION_EXPLANATIONS = {
   "t3mp02": "A close friend is in crisis. Nothing feels worth doing to them. The question asks what you think is the most honest and useful thing to say to them. It is about your real response to a person in pain, not a statement of theory.",
   "t3mp03": "Suppose the universe has no built-in meaning. This asks what the honest response would be. The statement says: build meaning anyway, and commit fully rather than pull back.",
   "t3mp04": "In an old Greek myth, Sisyphus must push a rock up a hill forever. It rolls back down every time. No purpose, no finish line. Some thinkers claim he could still be happy. The question asks how that claim strikes you.",
-  "t3mp03b": "There are two responses to a felt lack of meaning. Stay with the emptiness honestly, without rushing to fill it. Or actively build meaning to feel better. This asks which response you think takes more courage.",
+  "t3mp03b": "There are two responses to a felt lack of meaning. Stay with the lack without rushing to fill it. Or actively build meaning and commit to it. The statement claims the first takes more courage, and this asks how much you agree.",
   "t3mp05": "Imagine a pill that would make your life feel deeply meaningful forever, no matter what you actually do with your life. The question asks whether you would take it. It tests whether felt meaning is enough, or whether meaning has to be earned or real.",
   "t3so01": "This asks what makes a society work best. More individual freedom and less interference? Strong shared investment and safety nets? Or some balance of the two?",
   "t3so03": "This asks what freedom really requires. The statement says no one is truly free without the basics. Things like schooling, health care, safety, and a real chance in life. And it says society must provide them.",
@@ -5578,7 +5586,7 @@ const QUESTION_EXPLANATIONS = {
   "t3so05b": "This asks how to judge a society. The statement says the measure is how it treats its weakest members, even when caring for them limits what everyone else keeps.",
   "t3resp01": "Two people have the same talent but start life in very different circumstances. By 40, their outcomes are far apart. The question asks what you think best explains that gap.",
   "t3resp02": "Someone keeps failing in life. This asks what usually explains that best. The statement points to circumstances, such as poverty, health, upbringing, and plain luck, rather than the person's choices.",
-  "t3resp03": "This asks what personal responsibility really is underneath. A useful idea whether or not it holds up? Something fully real? Real but smaller than we assume? Or an idea that does not fit how choices are actually caused?",
+  "t3resp03": "This asks what personal responsibility really is underneath. A useful idea whether or not it holds up? Something fully real? Real but smaller than we assume? Or, on one view, an idea that mistakes where choices come from?",
   "t3resp04": "A person with severe untreated depression stops going to work and loses their job. The question asks how responsible they are for that outcome, in this specific case.",
   "t3resp05": "This asks what shapes how lives turn out. The statement says personal choices matter more than circumstances, so success and failure mainly reflect what people chose.",
   "t3id01": "This asks how to best describe your core self. A stable essence that holds steady across situations? Something largely shaped by culture and experience? Or a combination of the two?",
@@ -5603,8 +5611,8 @@ const QUESTION_EXPLANATIONS = {
   "t3mind04": "Panpsychism is defined in the question itself. It is the idea that all matter has some simple form of consciousness, not just brains. This asks how believable you find that idea. It is one answer to why physical processes feel like anything.",
   "t3mind03b": "Brain activity feels like something from the inside. The statement calls that a real puzzle, and claims brain science alone will never fully solve it. The question is whether you agree.",
   "t3mind05": "Imagine a computer that perfectly copies everything your brain does. The question asks about the copy's inner life. Would it truly feel like being you? Or would it only act like you, with nothing felt inside?",
-  "t3an01": "There are two ways animal pain could matter. Only because of what it costs us, or because the animal's own suffering counts in itself. The statement asks about the second, stronger claim.",
-  "t3an02": "Plant-based options exist, and factory farms still produce most meat. This asks how you judge eating that meat. The range runs from a serious ethical problem at massive scale to a personal choice with no real ethical weight.",
+  "t3an01": "There are two ways animal pain could matter. Only because of what it costs us, or because the animal's own suffering counts in itself. The statement asks about the second, broader claim.",
+  "t3an02": "Plant-based options exist, and factory farms produce most meat today. This asks how you judge eating that meat. The range runs from a serious ethical problem at massive scale to a legitimate personal choice.",
   "t3an03": "A medical experiment could save thousands of human lives. To work, it must cause serious suffering to 200 chimpanzees. The question asks how you weigh those two outcomes against each other.",
   "t3an05": "There are two claims here. The weaker one says human lives simply count for more. The stronger one says human lives carry a different kind of moral weight, not just a bigger amount. The statement asks about the stronger claim.",
   "t3an02b": "Humans differ from animals in many ways. Do those differences matter morally? The statement says yes, enough that human interests should nearly always come first in a clash.",
@@ -6480,11 +6488,11 @@ const GROWTH_EDGES_AXIS = {
   },
   determinism: {
     L: {title:'Seeing the weight of circumstance',
-        text:'A strong sense of free agency is energising, and it can make other people\'s failures look like pure choice. Circumstance, biology, and luck do heavy lifting in every life, including yours. Genuine freedom is easiest to believe in from inside a life where it was affordable.',
-        practice:'When you next judge someone\'s bad decision, list three circumstances that made that decision cheaper for them than it would be for you.'},
+        text:'A strong sense of free agency is energising, and it can make other people\'s failures look like pure choice. Circumstance, biology, and luck do heavy lifting in every life, including yours. Holding onto agency is strongest when it still leaves room for how much was outside anyone\'s hands.',
+        practice:'When you next judge someone\'s bad decision, name three circumstances that shaped it as much as their choice did.'},
     R: {title:'Living what you know',
         text:'Seeing behaviour as caused gives you rare compassion, and it can sit awkwardly with the resentment, pride, and blame you still actually feel. The edge is integration: a determinism held in the head but not the nervous system becomes a lecture, not a life.',
-        practice:'Next time you feel resentment toward someone, apply your own causal analysis to them in real time and notice what shifts.'},
+        practice:'Next time someone lets you down, hold them to one clear, real expectation anyway, and notice that treating them as capable of choice is part of how people change.'},
   },
   moral_ground: {
     L: {title:'Anchoring without bedrock',
@@ -6499,8 +6507,8 @@ const GROWTH_EDGES_AXIS = {
         text:'Constructed meaning is honest, and it is also maintenance-heavy. What you build can be unbuilt by grief, failure, or plain exhaustion, and there is no cosmic warranty behind it. People who know their meaning is chosen need practices that renew the choosing.',
         practice:'Identify which single project or person currently carries most of your sense of meaning, and invest this month in a second source.'},
     R: {title:'Meeting the unconvinced',
-        text:'Experiencing meaning as real and discovered gives your life unusual solidity. The edge is translation: people who have not found what you found are not necessarily failing to look. Your view is strongest when it can honour a seeker\'s empty-handedness without condescension.',
-        practice:'Ask someone who sees meaning as invented how they sustain commitment, and look for what your framework can learn from theirs.'},
+        text:'Meaning that feels real and discovered gives your life unusual solidity. The edge is translation: people who have not found what you found are not necessarily failing to look. Your view is strongest when it can honour a seeker\'s empty-handedness without condescension.',
+        practice:'Notice one time this month when meaning arrived without being built, and let yourself receive it rather than explain it.'},
   },
   teleology: {
     L: {title:'Purposelessness without drift',
@@ -6560,7 +6568,7 @@ const GROWTH_EDGES_AXIS = {
   },
   knowledge: {
     L: {title:'Cross-checking the inner compass',
-        text:'Intuition and revelation deliver knowledge with a felt certainty that reasoning rarely matches. The edge is that felt certainty is exactly what error feels like from the inside, too. The compass may be sound; it still deserves a second instrument beside it.',
+        text:'Intuition and revelation reach conclusions that slow reasoning often confirms later, and they move you when the case is real but not yet sayable. The edge is calibration: felt certainty is also what error feels like from the inside, so a compass that is often sound still deserves a second instrument beside it.',
         practice:'Next time an intuition arrives with total certainty, write it down and check it against outcomes a month later.'},
     R: {title:'Knowing what evidence cannot say',
         text:'Requiring evidence keeps your beliefs clean. The edge is scope: whole categories of human knowing, what a friendship is worth, whether to forgive, arrive without anything resembling data. Treating those as lesser knowledge does not make you rigorous; it makes you partially informed.',
@@ -6568,10 +6576,10 @@ const GROWTH_EDGES_AXIS = {
   },
   science: {
     L: {title:'Separating the method from the institutions',
-        text:'Skepticism toward scientific consensus keeps you immune to fashionable certainty, which has real value. The edge is the difference between doubting institutions and doubting the method: peer-reviewed convergence across rival teams is not a press release. Discounting both together throws away the most error-corrected knowledge humans produce.',
+        text:'Skepticism toward scientific consensus keeps you immune to fashionable certainty, and now and then a determined doubter turns out to have been right early. The edge is the difference between doubting institutions and doubting the method: peer-reviewed convergence across rival teams is not a press release. The sharpest skeptics separate the two rather than discounting both at once.',
         practice:'Pick one consensus you doubt and read how the evidence was actually gathered before renewing the doubt.'},
     R: {title:'Trusting without outsourcing',
-        text:'Trusting scientific consensus is usually the rational bet. The edge is where trust becomes outsourcing: "studies show" can end thinking rather than inform it, and consensus positions do get overturned by better data. The method deserves your trust precisely because it expects you to stay awake.',
+        text:'Trusting scientific consensus lets you build on humanity\'s most error-corrected knowledge. The edge is where trust becomes outsourcing: "studies show" can end thinking rather than inform it, and consensus positions do get overturned by better data. The method deserves your trust precisely because it expects you to stay awake.',
         practice:'For one claim you repeat with "the science says," go find the actual strength of the underlying evidence.'},
   },
   freewill_practice: {
@@ -6672,10 +6680,10 @@ const GROWTH_EDGES_AXIS = {
   },
   economics: {
     L: {title:'Walking the market\'s edges',
-        text:'Trusting markets respects the information in prices and the dignity in exchange. The edge is the map\'s margins: real markets run on power differentials, inherited positions, and costs dumped on people outside the transaction. Market confidence is strongest in those who know exactly where markets fail.',
+        text:'Trusting markets respects the information in prices and the dignity in exchange. The edge is the map\'s margins: real markets can conceal power differentials, inherited positions, and costs pushed onto people outside the transaction. Market confidence is strongest in those who know exactly where markets fail.',
         practice:'Pick one market outcome you consider fair and trace what each party\'s alternatives were when they agreed to it.'},
     R: {title:'Following the redistribution home',
-        text:'Caring about distribution takes seriously that starting points are unearned. The edge is follow-through: transfers are administered by institutions with their own frictions and failures, and intentions do not audit outcomes. The strongest redistributive case tracks whether the money arrived and what it built.',
+        text:'Caring about distribution takes seriously how much of any starting point was unearned. The edge is more than administration: transfers can dull incentives, strain desert, and create dependence, and intentions do not audit outcomes. The strongest redistributive case faces those costs and still tracks whether the money arrived and what it built.',
         practice:'For one transfer programme you support, find out what fraction actually reaches its targets and what it changed.'},
   },
   uncertainty: {
@@ -6696,18 +6704,18 @@ const GROWTH_EDGES_AXIS = {
   },
   animal_ethics: {
     L: {title:'Visiting the actual facts',
-        text:'Prioritising human interests reflects real asymmetries in obligation and understanding. The edge is distance: the systems your priorities license operate out of sight, at a scale few people have actually confronted. A boundary held with full knowledge of what happens across it carries more moral weight than one held at a distance.',
-        practice:'Spend twenty minutes learning what standard practice actually involves for one animal product you use, then re-decide your view with the facts in the room.'},
+        text:'Prioritising human interests reflects real asymmetries in obligation and understanding, and it is a defensible place to stand. The edge is distance: the systems your priorities license operate out of sight, and a boundary is firmer when it is drawn with full knowledge of what happens across it than without.',
+        practice:'Spend twenty minutes learning what standard practice actually involves for one animal product you use, then write down where you draw your line and why it holds.'},
     R: {title:'Working the human interface',
         text:'Weighing animal suffering seriously is rigorous compassion. The edge is the interface: the change you want runs through humans, whose habits, cultures, and livelihoods are woven into the systems you oppose. Contempt for the unconverted is emotionally clean and strategically expensive.',
-        practice:'In your next conversation about animal ethics, aim only to be understood, not to win, and watch what changes.'},
+        practice:'Name one human cost of the change you want that you take seriously, and sit with how you weigh it against the animal suffering that moves you.'},
   },
   progress: {
     L: {title:'Keeping score of the wins',
         text:'Pessimism sees the failures optimists explain away, which makes you a valuable early-warning system. The edge is the scoreboard: some things have genuinely improved, and a model that cannot register wins misreads reality in its own direction. Accurate pessimism is powerful; reflexive pessimism is just a different bias.',
         practice:'Find one metric of human welfare that has objectively improved in your lifetime and let the fact fully land.'},
     R: {title:'Reading the regressions',
-        text:'Optimism about progress is motivating and, on many long curves, well supported. The edge is the exceptions: progress has reversed before, locally and catastrophically, and confidence in the curve can numb you to the early signs of a bend. The best optimists keep a pessimist\'s watchlist.',
+        text:'Optimism about progress is motivating, and the long record gives it real material to point to. The edge is the exceptions: progress has reversed before, locally and catastrophically, and confidence in the curve can numb you to the early signs of a bend. Accurate optimism is powerful; reflexive optimism is just a different bias.',
         practice:'Name the one regression you think most plausible in the next decade and identify what early evidence of it would look like.'},
   },
 };
@@ -6750,8 +6758,8 @@ const GROWTH_EDGES_CONTRA = {
         text:'You hold a strictly natural world that nonetheless contains real, discoverable meaning, which is a defensible but demanding combination. The work is stating where mind-independent meaning lives in a purely physical universe, because that account is currently owed and unpaid.',
         practice:'Write three sentences on what makes meaning real on your view, using only resources your naturalism permits.'},
   C08b: {title:'Asking your cosmos for more',
-        text:'Your world includes more than the physical, yet meaning has come up empty for you, which is an unusual and interesting position. A transcendent order that provides no meaning is worth interrogating: either it offers something you have not collected, or your metaphysics is more decorative than operational.',
-        practice:'Ask yourself what your supernatural commitments actually change about how you live, and write the honest answer down.'},
+        text:'Your world includes more than the physical, yet meaning has come up empty for you, which is an unusual and genuinely interesting position. It is worth asking what your non-natural commitments consist in, and whether meaning is among the things they are meant to touch. Some coherent worldviews hold exactly this.',
+        practice:'Write down what your supernatural commitments actually consist in, and whether meaning is one of the things they bear on for you.'},
   C09: {title:'Funding your structural politics',
         text:'You want collective solutions and free-market economics, and the pairing is worth a design check: collective goals typically need funding and coordination mechanisms your economics may not want to authorise. Some serious positions thread this needle deliberately. Confirm yours is one of them.',
         practice:'Pick one structural outcome you want and sketch how it gets funded and enforced within the market arrangements you prefer.'},
@@ -6771,8 +6779,8 @@ const GROWTH_EDGES_CONTRA = {
         text:'You hold reality as firmly mind-independent while holding identity as constructed, which is coherent and worth examining once: if construction runs deep enough to build selves, why does it stop before the world? The boundary you draw between hard facts and made selves is philosophically interesting and yours to articulate.',
         practice:'Write down where construction stops on your view, and keep the sentence for the next time either commitment is challenged.'},
   C12b: {title:'Examining your fixed point',
-        text:'You treat most knowledge as constructed while treating your own identity as fixed essence, making yourself the one solid object in a fluid world. This is worth one honest look, not because it is wrong, but because the exemption is doing quiet work in how you handle challenges to who you are.',
-        practice:'Ask which parts of your fixed identity have actually changed in ten years, and what that does to the fixedness.'},
+        text:'You treat most knowledge as constructed while treating your own identity as fixed essence, making yourself the one solid object in a fluid world. This is worth one look, not because it is wrong, but because the boundary you draw there shapes how you handle challenges to who you are.',
+        practice:'Name what the fixed core of your identity actually consists of, and how you know it runs deeper than the things you take to be constructed.'},
   C13: {title:'Deciding what consciousness is made of',
         text:'You hold that everything is physical except, apparently, consciousness, and that exception is load-bearing: it either breaks your physicalism or your view of mind. This is the hard problem living in your own profile, and engaging it directly would resolve real downstream views.',
         practice:'Read one accessible treatment of the hard problem of consciousness and decide which of your two commitments bends.'},
@@ -6834,7 +6842,7 @@ const GROWTH_EDGES_CONTRA = {
         text:'You doubt objective moral facts while holding firm moral rules, which usually means the rules are doing practical work: coordination, identity, protection of what you love. That is a real justification, different from the metaphysical one. Knowing which foundation your rules stand on makes them easier to defend.',
         practice:'Pick your firmest rule and write down what actually happens, to you and others, if it is broken. That is your foundation.'},
   C28: {title:'Examining the authored essence',
-        text:'You feel radically free while sensing a fixed core self, and the combination points at one of philosophy\'s oldest questions: whether authorship expresses a nature or creates one. Sartre and Aristotle split exactly here. You are in good company either way, and picking a side would sharpen your self-understanding.',
+        text:'You feel radically free while sensing a fixed core self, and the combination points at one of philosophy\'s oldest questions: whether authorship expresses a nature or creates one. Sartre and Aristotle split exactly here. You are in good company either way, and naming where you stand between them would sharpen your self-understanding.',
         practice:'Recall your biggest life choice and ask honestly: did it reveal who you were, or decide it? Sit with whichever answer came.'},
   C41: {title:'Fitting real meaning into physical stuff',
         text:'For you everything is physical and meaning is fully real, leaving meaning either a physical fact, a strange one, or an exception to your physicalism. Naturalist meaning realism can be built, but it must be built; it does not come assembled.',
@@ -7298,10 +7306,10 @@ const ARCHETYPES = [
    tagline:'You suspect the universe is made of something much closer to mind than machine.',
    cardTagline:'Matter is not the bottom layer.\nMind might be.',
    whoYouAre:'For you, mind is not a latecomer in a material universe; it is closer to the ground floor of reality itself. Experience, intention, spirit, these strike you as more fundamental than particles, not less. You take seriously what a physics-only picture leaves unexplained, starting with the fact that anything is experienced at all.',
-   description:'You hold that consciousness, mind, or spirit is primary, and that matter is either derived from or dependent upon a deeper mental or spiritual reality. Reality is not the blind machinery of physics but something closer to mind all the way down. This may express as Law of Attraction thinking, idealist philosophy, energy-based spirituality, or the conviction that intention shapes reality in ways science has not yet fully mapped.',
-   thinkers:'George Berkeley · Rupert Sheldrake · Amit Goswami',
+   description:'You hold that consciousness, mind, or spirit is primary, and that matter is either derived from or dependent upon a deeper mental or spiritual reality. Reality is not the blind machinery of physics but something closer to mind all the way down. This may express as classical idealist philosophy, panpsychist or non-dual views, or the conviction that mind and intention are more woven into reality than a physics-only picture allows.',
+   thinkers:'George Berkeley · Bernardo Kastrup · Adi Shankara',
    strength:'Taking the hard problem of consciousness seriously and refusing to accept a purely materialist account that leaves experience unexplained.',
-   failureMode:'Magical thinking. The metaphysical idealist can slide from a philosophically serious position into unfalsifiable claims about reality that serve wish-fulfilment rather than truth.'},
+   failureMode:'Unfalsifiability. The position is strongest as a sharp claim, and weakest when it retreats from every counter-argument into statements about reality that cannot be tested.'},
 
   {id:'9C', family:'The Spiritual Naturalist', variant:'The Religious Humanist',
    sig:[4,3,6,3,6,5,3,4,4,2,4,5,7],
@@ -7341,8 +7349,8 @@ const ARCHETYPES = [
    whoYouAre:'Your faith and your conservatism are one thing, not two. Moral truth was revealed, a community has carried it faithfully across generations, and you now carry your part. What you protect is not habit or nostalgia; it is truth you believe holds sacred value, entrusted to you before you were born.',
    description:'You hold that moral and meaning truths are grounded in divine revelation and transmitted through the tradition of a religious community. Your conservatism is inseparable from your faith. You conserve because what you are conserving contains genuine truth and sacred value.',
    thinkers:'Thomas Aquinas · G.K. Chesterton · Roger Scruton (Catholic mode)',
-   strength:'Coherence. Your metaphysics, ethics, meaning, and politics form an integrated whole.',
-   failureMode:'Closed epistemology. When revelation is the primary knowledge source, genuine engagement with contrary evidence becomes structurally difficult.'},
+   strength:'Integrity of the whole. Your metaphysics, ethics, meaning, and politics form one piece, and you hold them with a fidelity most people never manage.',
+   failureMode:'Closed epistemology. When revelation is the primary knowledge source, genuine engagement with contrary evidence can become difficult to sustain.'},
 
   {id:'10B', family:'The Conservative Traditionalist', variant:'The Burke',
    sig:[4,4,5,3,6,6,3,4,1,1,2,7,6],
@@ -7351,7 +7359,7 @@ const ARCHETYPES = [
    whoYouAre:'Your conservatism is about knowledge, not nostalgia. Institutions that survived centuries of trial and error hold wisdom no committee could reconstruct from scratch, and you treat them accordingly. You are not against reform. You are against demolition by people who never asked what the building was holding up.',
    description:'Your conservatism is not primarily about religion but about epistemology and institutional wisdom. Organic institutions, developed through centuries of trial and error, contain knowledge that no individual or generation can reconstruct from abstract principles. Reform is necessary but must be incremental, building on what works rather than demolishing it.',
    thinkers:'Edmund Burke · Roger Scruton · Michael Oakeshott',
-   strength:'Institutional memory. You hold the case for why things are the way they are before agreeing to change them.',
+   strength:'Institutional memory, and the patience to use it. You insist on understanding why things are the way they are before agreeing to change them.',
    failureMode:'Status quo bias. Burkean conservatism can legitimate existing injustices as the products of organic development.'},
 
   {id:'10C', family:'The Conservative Traditionalist', variant:'The Social Conservative',
@@ -7361,8 +7369,8 @@ const ARCHETYPES = [
    whoYouAre:'You defend the middle layer of society: family, neighbourhood, congregation, the institutions that actually raise people. Big government and raw markets both strike you as solvents that dissolve this fabric. A society that stops transmitting values across generations learns too late what those values were holding together.',
    description:'Your conservatism is focused on the social institutions that you hold as the building blocks of a functioning society: family, community, local governance, civil society. You are suspicious of both state power and market atomisation, and you believe strong social fabric requires stable cultural institutions that transmit values across generations.',
    thinkers:'Robert Nisbet · Yuval Levin · Patrick Deneen',
-   strength:'Seeing the social costs of atomisation that both progressive and libertarian thinking can miss.',
-   failureMode:'Romanticising the past. The communities social conservatism wants to restore often contained significant coercive elements.'},
+   strength:'Loyalty to the middle layer. You see the social costs of atomisation that both progressive and libertarian thinking can miss.',
+   failureMode:'Romanticising the past. It is easy to hold the communities you want to restore as warmer than they were, forgetting the coercion some of them also carried.'},
 
   {id:'10D', family:'The Conservative Traditionalist', variant:'The Natural Law Conservative',
    sig:[4,4,6,3,7,7,2,4,1,2,2,7,6],
@@ -7371,8 +7379,8 @@ const ARCHETYPES = [
    whoYouAre:'You believe the moral order is real and prior: written into human nature, readable by reason, and binding on any law or culture built on top of it. Institutions that fit that nature help people flourish; arrangements that fight it produce damage no ideology can explain away. You argue from that ground, calmly.',
    description:'You hold that there is a natural moral order, discoverable through reason and embedded in human nature, that precedes and constrains positive law and cultural construction. Certain social institutions are natural in the sense that they correspond to the real nature of human beings, and their dissolution produces genuinely disordered human outcomes.',
    thinkers:'Thomas Aquinas · John Finnis · Robert George',
-   strength:'Principled justification for social norms that does not depend on tradition alone.',
-   failureMode:'Teleological overspecification from a contested account of human nature. The "natural" often tracks cultural preferences more than biological facts.'},
+   strength:'Principled clarity. You can justify social norms from reason and nature, not tradition alone, and you argue from that ground calmly.',
+   failureMode:'Teleological overspecification. It is easy to draw more specific moral conclusions from human nature than the account can bear, and to read cultural preference as nature.'},
 
   {id:'10E', family:'The Conservative Traditionalist', variant:'The Communitarian',
    sig:[3,4,5,4,6,5,2,5,1,1,3,7,6],
@@ -7381,7 +7389,7 @@ const ARCHETYPES = [
    whoYouAre:'You understand that persons are grown, not self-assembled. Your language, your standards, your very sense of what a good life looks like came from particular communities with particular histories, and you honour that debt. The unencumbered individual of liberal theory strikes you as an abstraction nobody has ever actually met.',
    description:'You hold that individuals are constituted by their communities and that the liberal fiction of the self-creating individual misunderstands what persons actually are. You are conservative about community, tradition, and cultural identity, recognising that human beings cannot flourish without embeddedness in particular communities with particular histories.',
    thinkers:'Alasdair MacIntyre · Charles Taylor · Michael Sandel',
-   strength:'Thick account of the self. You take seriously what liberal individualism abstracts away.',
+   strength:'Thick account of the self, held with gratitude. You take seriously what liberal individualism abstracts away, and you honour the debt.',
    failureMode:'Community essentialism. The communitarian can hold communities as more stable and coherent than they actually are.'},
 
   // ── FAMILY 11: THE PRAGMATIC CENTRIST ──
@@ -7451,7 +7459,7 @@ const ARCHETYPES = [
    tagline:'Every moral sentence humanity has uttered shares, on your view, one quiet flaw.',
    cardTagline:'Moral claims presuppose moral facts.\nThere are none.',
    whoYouAre:'You hold the most precise form of moral skepticism there is: moral claims are not just opinions, they are false, because they assume objective moral facts that do not exist. You followed a rigorous argument to a conclusion most people refuse to even test, and you had the nerve to accept it.',
-   description:'You hold that moral claims are systematically false. Not merely subjective, but actually false, because they presuppose mind-independent moral facts that do not exist. When people say "torturing children is wrong" they are making a claim that would be true only if objective moral facts existed. No such facts exist, so the claim is false.',
+   description:'You hold that moral claims are systematically false. Not merely subjective, but actually false, because they presuppose mind-independent moral facts that do not exist. When people say "torturing children is wrong" they are making a claim that would be true only if objective moral facts existed. On your view no such facts exist, so the claim comes out false.',
    thinkers:'J.L. Mackie · Richard Joyce · Stefan Olsson',
    strength:'Following the argument to its conclusion with intellectual courage.',
    failureMode:'Moral disengagement. The error theorist can use their position to justify disengagement from ethical commitments they find inconvenient.'},
@@ -7847,7 +7855,7 @@ const CONTRADICTIONS = [
    a:'moral_scope', b:'animal_ethics',
    check:(ms,ae) => ms <= 2.5 && ae >= 5.5,
    title:'Human-Priority Moral Scope + High Animal Ethics Weight',
-   text:'You hold that the moral circle is primarily or exclusively human — that human interests substantially outweigh non-human interests — yet assign high moral weight to animal ethics, treating animal suffering as carrying genuine moral force. These cannot both be fully true simultaneously. High animal ethics weighting is precisely a claim about the moral scope of your ethical framework — that animals are serious moral patients within it. Human-priority moral scope is a claim that they are not, or not seriously. The position requires resolution: either animal suffering has genuine moral weight comparable to human suffering (which expands your scope beyond humans), or human-priority scope is your actual position (which should reduce your animal ethics weighting).',
+   text:'You hold that the moral circle is primarily or exclusively human — that human interests substantially outweigh non-human interests — yet assign high moral weight to animal ethics, treating animal suffering as carrying genuine moral force. These can sit together, but only under real pressure. High animal ethics weighting is a claim that animals are serious moral patients within your framework; human-priority scope is a claim that they matter far less. The pairing is coherent if one principle grounds it, that suffering counts wherever it occurs, weighted by degree, and the live question is whether you apply that principle consistently or whether one of the two commitments is really doing the work.',
    questions:[
      'What is it about animals that makes their suffering carry moral weight — and does that same feature not apply across your moral scope?',
      'Can you articulate a principled reason why human interests take priority that does not also justify ignoring animal suffering entirely?',
@@ -8606,7 +8614,7 @@ async function generateReport() {
 
   // ── CALL 1: Identity + alignment only. Card text, tagline, patterns, and
   // growth are data-driven since Phase 8 (C1) and never touch the API. ──
-  const prompt1 = `You are writing a philosophical profile for ${userName}. Make them feel genuinely seen.
+  const prompt1 = `You are writing a philosophical profile for ${userName}. Make them feel accurately described, in a way they recognise.
 
 COMPLETE AXIS SCORES (1=left pole, 7=right pole):
 ${axisDump}
@@ -8629,14 +8637,15 @@ WRITING RULES:
 1. No jargon, no axis names, no scores in output
 2. No careers, famous people, films, music, books
 3. Do not repeat archetype name or variant
-4. Write as if describing someone you know extremely well. Use "you" throughout.
-5. The test is recognition: every paragraph names something the person recognises that most people would not have seen.
-6. Cover HOW THEY THINK, HOW THEY FEEL ABOUT THE WORLD, HOW THEY DECIDE, HOW THEY RELATE, WHAT DRIVES AND DRAINS THEM
-7. No em dashes anywhere. Use but, and, so, because instead.
-8. No colons introducing lists in narrative text. No bullet points.
+4. Write warmly and directly in second person, using "you" throughout. Claim only what their answers support.
+5. The test is recognition: name the implications of their own answers back to them, more clearly than they would have put it themselves.
+6. Cover how they think, how they feel about the world, how they decide, and what their answers suggest energises or drains them.
+7. GROUNDING: every claim must trace back to the scores above. For anything about behaviour or feeling, stay tentative ("tends to", "likely", "your answers suggest"). Never invent specific incidents, habits, relationships, or what other people (friends, colleagues, family) notice or say about them.
+8. No em dashes anywhere. Use but, and, so, because instead.
+9. No colons introducing lists in narrative text. No bullet points.
 
 Return ONLY valid JSON, with no markdown fences and no preamble:
-{"identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world? What filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason. Their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape. Not abstract beliefs but how it actually shows up: what makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system. Name what it feels like from the inside. P5 (2 sentences): What this person was built for, the conditions where they come alive, and what quietly exhausts them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile: pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this person needs and what they fail to offer without noticing."},{"label":"Decisions","text":"2 sentences on how they actually decide: what they optimise for, what they systematically underweight."},{"label":"Conflict","text":"2 sentences on what triggers this person in conflict and what their instinctive exit looks like."}]}`;
+{"identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences): How does this person experience the world? What filter does everything pass through, what do they see that most people miss? Start with a specific observation. P2 (3 sentences): How they think and reason. Their relationship with certainty, evidence, authority, their own conclusions. P3 (3 sentences): Their moral and meaning landscape. Not abstract beliefs but how it is likely to show up: what their answers suggest makes them angry, what they feel responsible for. P4 (2 sentences): The central tension in their operating system. Name what this tension is likely to feel like from the inside. P5 (2 sentences): The conditions their answers suggest they come alive in, and the ones likely to quietly exhaust them.","alignment":[{"label":"Work","text":"2 sentences on structural conditions that fit or drain this profile: pace, autonomy, ambiguity, stakes."},{"label":"Relationships","text":"2 sentences on what this profile suggests they need and what they may under-offer without noticing."},{"label":"Decisions","text":"2 sentences on how their answers suggest they decide: what they optimise for, what they may tend to underweight."},{"label":"Conflict","text":"2 sentences on what their answers suggest they find triggering in conflict and the exit they may reach for."}]}`;
 
   let report1;
   try {
@@ -8697,10 +8706,11 @@ AXIS REFERENCE:
 ${axisRef}
 
 Write 5 lenses showing how this person sees different dimensions of existence.
-No jargon. No axis names in output. No em dashes. Write like a thoughtful friend.
+No jargon. No axis names in output. No em dashes. Write like a thoughtful friend, in second person using "you" throughout.
+GROUNDING: base every statement on the scores above. For anything about behaviour or feeling, stay tentative ("tends to", "likely", "your answers suggest"). Never invent specific incidents, habits, or what other people notice or say about them.
 
 Return ONLY valid JSON, with no markdown fences:
-{"world":[{"lens":"The Self","icon":"mirror","view":"2-3 sentences on how this person sees their own identity, agency, and inner life. Draw from self, identity, determinism, responsibility scores. What does it feel like to be them on the inside?","shows_up":"2-3 sentences on how this self-view shows up in actual behaviour and patterns.","prompt":"One reflective question they can sit with this week. Concrete, not abstract. No em dashes."},{"lens":"Other People","icon":"people","view":"2-3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, social_ontology.","shows_up":"2-3 sentences on how this plays out. What are they good at in relationships? What is hard?","prompt":"One reflective question about a specific relationship or interaction. Honest and concrete."},{"lens":"Relationships","icon":"connect","view":"2-3 sentences on how this person approaches connection and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, society.","shows_up":"2-3 sentences on what this looks like in practice. What patterns repeat?","prompt":"One reflective question about what they might be asking from others that they have not said out loud."},{"lens":"Society","icon":"city","view":"2-3 sentences on how this person sees society and their place in the collective. Draw from society, politics, justice, authority, economics, responsibility.","shows_up":"2-3 sentences on how this shapes their day to day. What do they notice, feel pulled toward?","prompt":"One reflective question about their actual relationship to the collective right now."},{"lens":"Life and Existence","icon":"horizon","view":"2-3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, progress.","shows_up":"2-3 sentences on how this shows up in the texture of their actual days.","prompt":"One honest question about where they are right now in their relationship with their own existence. No em dashes."}]}`;
+{"world":[{"lens":"The Self","icon":"mirror","view":"2-3 sentences on how this person sees their own identity, agency, and inner life. Draw from self, identity, determinism, responsibility scores. What does it feel like to be them on the inside?","shows_up":"2-3 sentences on how this self-view is likely to show up in how you move through the world.","prompt":"One reflective question they can sit with this week. Concrete, not abstract. No em dashes."},{"lens":"Other People","icon":"people","view":"2-3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, social_ontology.","shows_up":"2-3 sentences on how this plays out. What are they good at in relationships? What is hard?","prompt":"One reflective question about a specific relationship or interaction. Honest and concrete."},{"lens":"Relationships","icon":"connect","view":"2-3 sentences on how this person approaches connection and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, society.","shows_up":"2-3 sentences on how this tends to look in practice.","prompt":"One reflective question about what they might be asking from others that they have not said out loud."},{"lens":"Society","icon":"city","view":"2-3 sentences on how this person sees society and their place in the collective. Draw from society, politics, justice, authority, economics, responsibility.","shows_up":"2-3 sentences on how this tends to shape their day to day.","prompt":"One reflective question about their actual relationship to the collective right now."},{"lens":"Life and Existence","icon":"horizon","view":"2-3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, progress.","shows_up":"2-3 sentences on how this is likely to show up in the texture of their days.","prompt":"One honest question about where they are right now in their relationship with their own existence. No em dashes."}]}`;
 
   let report2;
   try {
