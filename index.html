@@ -992,8 +992,10 @@ body::after {
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  background: rgba(8,6,26,0.55);
-  backdrop-filter: blur(12px);
+  /* Transparent on desktop: the sidebar sits beside content, nothing scrolls
+     under it, so a 0.55 slab only created a vertical pane seam. The mobile
+     tab-bar variant keeps its glass because content scrolls beneath it. */
+  background: transparent;
   -webkit-backdrop-filter: blur(12px);
   scrollbar-width: none;
   z-index: 10;
@@ -1066,7 +1068,7 @@ body::after {
   min-width: 0;
 }
 /* Each section panel */
-.rs { display: none; padding: 44px 52px 100px; background: rgba(8,6,26,0.82); }
+.rs { display: none; padding: 44px 52px 100px; background: transparent; }
 .rs.active { display: block; }
 .rs-header {
   margin-bottom: 36px;
@@ -1138,30 +1140,14 @@ body::after {
 /* REPORT HEADER — dramatic cinematic hero */
 .report-header {
   position: relative;
-  overflow: hidden;
   padding: 80px 28px 64px;
   text-align: center;
-  background: rgba(8,6,26,0.88);
+  /* No region background: the hero floats on the shared fixed atmosphere
+     (#screen-report::before/::after + .report-bg-glow3). A separate 0.88
+     slab plus its own clipped glow field was the main horizontal seam. */
+  background: transparent;
   width: 100%;
   box-sizing: border-box;
-}
-.report-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 90% 70% at 15% -10%, rgba(120,100,255,0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 60% at 85% 110%, rgba(201,169,110,0.09) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(157,147,232,0.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-/* Horizontal rule across top of report header */
-.report-header::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(157,147,232,0.5) 30%, rgba(201,169,110,0.4) 70%, transparent 100%);
 }
 .report-header-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
 .report-eyebrow {
@@ -2730,8 +2716,8 @@ select.modal-input option { background: #12101e; }
   position: fixed;
   top: 0; left: 0; right: 0;
   height: 56px;
-  background: rgba(7,6,26,0.92);
-  backdrop-filter: blur(12px);
+  background: rgba(7,6,26,0.72);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
