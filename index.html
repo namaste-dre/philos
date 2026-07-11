@@ -1450,6 +1450,40 @@ body::after {
   margin-top: 2px;
   letter-spacing: 0.02em;
 }
+/* 10g axis interpretations (D109): progressive disclosure under the bar */
+.axis-insight { margin-top: 4px; }
+.axis-insight summary {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(201,169,110,0.78);
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+.axis-insight summary::-webkit-details-marker { display: none; }
+.axis-insight summary::before {
+  content: '+';
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(201,169,110,0.9);
+  transition: transform 0.15s ease;
+}
+.axis-insight[open] summary::before { content: '\2212'; }
+.axis-insight summary:hover { color: var(--accent); }
+.axis-insight summary:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+.axis-insight p {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text2);
+  margin: 8px 0 6px;
+  max-width: 640px;
+}
 
 /* REPORT BODY */
 .report-body {
@@ -10178,7 +10212,54 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   }
 
   // ── FULL BELIEF MAP ──
-  // Axis interpretation map — shown when score hits threshold
+  // 10g depth (D109): curated three-band interpretations, migrated axis by
+  // axis. Each entry explains what the position means, what it assumes, how
+  // it may shape reasoning (tentative register only), and the nuance that
+  // keeps it from caricature. Bands: L = score <= 3, R = score >= 5, else C.
+  // Axes not yet migrated fall back to the legacy one-line labels below.
+  const AXIS_INSIGHT = {
+    naturalism: {
+      L:'Your answers point toward a reality bigger than physics. On this view, things like God, spirit, or forces beyond nature are not leftovers from a pre-scientific age but real parts of how the world works. People who hold this position usually treat certain experiences, traditions, or arguments as evidence that the physical story is incomplete. Holding it does not mean rejecting science; most people here accept scientific findings and simply deny that science describes everything there is.',
+      C:'You sit between two big pictures of reality. You neither rule out something beyond the natural world nor build your life on it, and you may weigh each claim on its own instead of applying one rule to all of them. Philosophers call this ground contested for a reason: the serious arguments run in both directions. A middle score can mean genuine undecidedness, or a settled view that some questions deserve to stay open.',
+      R:'Your answers point toward naturalism, the view that the natural world is all there is and everything real fits within it in principle. This position usually assumes that the methods that explained storms and cells will eventually cover minds and morals too. It tends to make you ask for public, checkable evidence before accepting a claim. Naturalism is not the view that life is meaningless; it is a claim about what kinds of things exist, not about what matters.'
+    },
+    physicalism: {
+      L:'You hold that the mind is more than the brain. On this view, consciousness, the felt quality of experience, cannot be fully captured by any physical description, however complete. The position often rests on a simple point: you know your own experience more directly than you know anything about matter. It is not anti-science; it claims that science, as a description of the physical, may be describing less than everything.',
+      C:'You are genuinely torn on one of philosophy\'s hardest problems: whether experience is physical. You likely accept that brains and minds move together, while suspecting that the felt side of experience has not yet been accounted for. That is a respectable place to stand; the question is called the hard problem because neither side has closed it. A middle position here often means taking both the science and the mystery seriously.',
+      R:'You hold that the mind is physical: consciousness is something certain arrangements of matter, like brains, do. This assumes reality is made of one kind of stuff, and that mental life will be explained the way life itself was, without a special extra ingredient. It tends to make explanations in terms of brains and mechanisms feel like real answers rather than evasions. Physicalism does not deny that experience is real or that inner life matters; it is a claim about what experience is made of.'
+    },
+    realism: {
+      L:'Your answers lean anti-realist about knowledge. On this view, truth is not a mirror held up to a mind-independent world; it is closer to what survives our best practices of testing, arguing, and using. This assumes we can never step outside our own concepts to compare beliefs with bare reality. It tends to make you notice how history, language, and interest shape what gets counted as known. It is not the claim that anything goes; anti-realists can be strict about evidence, they just tell a different story about what evidence achieves.',
+      C:'You hold a mixed view of what truth is. Some knowledge may strike you as plain fact about the world, and other knowledge as a human construction that happens to work. Many careful thinkers split the difference exactly here, treating physics one way and, say, money or manners another. The middle of this axis is less a fence-sit than a map with different territories on it.',
+      R:'Your answers lean realist about knowledge: there is a way the world is, independent of anyone\'s beliefs, and inquiry can genuinely reach it. This assumes our best methods track reality itself rather than only our conventions. It tends to make disagreement feel resolvable in principle, because there is something to be right about. Realism does not mean certainty; most realists hold that we are often wrong, which is only possible if there is something to be wrong about.'
+    },
+    determinism: {
+      L:'You come down on the side of genuine free will: when you choose, more than one future is really open. This position usually assumes that people are true sources of at least some of their actions, not just links in a causal chain. It tends to make responsibility, credit, and blame feel deeply appropriate. It does not require denying that circumstances shape us; it holds that the shaping is not the whole story.',
+      C:'You sit near the position many philosophers actually defend: our choices are caused, and they are still ours in the sense that matters. On this view, freedom is not a break in causality but a kind of self-direction that caused beings can have. It lets you take circumstances and agency seriously at the same time. The tension you may feel between explaining people and holding them accountable is not confusion; it is the real shape of the problem.',
+      R:'Your pattern lands on determinism: everything that happens, including choices, follows from prior causes, and the ability to have genuinely done otherwise is an illusion. This assumes minds are part of nature and nature runs on cause and effect. It tends to shift attention from blame toward explanation, from what someone deserves toward what produced them. Determinism does not make deliberation pointless; deliberating is one of the causes that determine what you do.'
+    },
+    moral_ground: {
+      L:'Your answers lean moral anti-realist: there are no moral facts written into reality, and values are something humans feel, make, or agree on. This usually assumes that a complete description of the world would not include wrongness among its ingredients. It tends to make you ask who benefits from a rule rather than whether the rule is cosmically correct. Anti-realism is not a licence for cruelty; most anti-realists hold strong commitments and simply give a human rather than metaphysical account of them.',
+      C:'You are undecided or divided on whether morality is discovered or made. You may treat some wrongs as plainly real while suspecting other norms are local custom. That split is common and defensible; where to draw that line is one of the oldest arguments in ethics. A middle score often means your moral confidence outruns your metaphysical confidence, and many philosophers would say that is the honest order.',
+      R:'Your answers lean moral realist: some things are right or wrong independently of what anyone believes, the way facts are facts. This assumes moral claims can be true, not just useful or popular. It tends to give moral disagreement high stakes, because someone can actually be mistaken. Realism does not require claiming to know the moral facts with certainty; it claims there is something there to know.'
+    },
+    meaning: {
+      L:'Your answers point toward constructed meaning: life does not come with a purpose attached, and whatever meaning exists is meaning people make. This assumes the universe itself is silent about what matters, so the authorship falls to us. It tends to make commitment feel like a deliberate act rather than a discovery. This is not the view that nothing matters; it is the view that mattering is something we do.',
+      C:'You sit between finding meaning and making it. Some things may strike you as genuinely mattering on their own, while others matter because you have invested them. Many people live exactly here without contradiction, receiving meaning in some rooms of life and building it in others. The middle of this axis tends to show up as flexibility about where significance comes from.',
+      R:'On this axis you lean toward meaning realism: some things matter in themselves, and purpose is found rather than invented. This usually assumes reality includes more than particles, whether that is God, objective value, or an order that meaning can rest on. It tends to make significance feel like something you can be right or wrong about. This view does not make effort pointless; discovering meaning still takes seeking, it just holds that the seeking has a real object.'
+    },
+    teleology: {
+      L:'You see a universe without built-in direction: things happen because of causes, not for the sake of goals. This assumes that apparent design, from eyes to ecosystems, can be explained by processes with no foresight. It tends to make you suspicious of stories in which events happen for a reason. Denying cosmic direction is not denying human direction; people can have purposes in a universe that has none.',
+      C:'You are between reading direction into reality and reading it out. You may find some purposive language natural, life reaching toward something, without committing to a cosmic plan. Philosophers still argue whether purpose-talk describes reality or just summarises it usefully, so a middle score places you inside a live debate rather than outside it.',
+      R:'On your answers, reality has direction: at least some things are the way they are for the sake of something. This can rest on a purposive source such as God, or on built-in natures that things strive to fulfil. It tends to make the world readable, the way you can read an intention. The view need not be religious; some entirely secular philosophies hold that goals are real features of living systems.'
+    },
+    human_nature: {
+      L:'Your answers lean toward constructed human nature: what people are like comes mostly from culture, history, and circumstance rather than a fixed inner essence. This assumes that much of what looks natural is actually local, because it varies across times and places. It tends to make you hopeful about change, since what was built can be rebuilt. It does not require denying biology; it holds that biology leaves open most of what humans become.',
+      C:'Your picture of human nature is mixed: some things about people strike you as universal, others as products of their world. This is close to where much of the evidence points, with human beings sharing deep commonalities that cultures then shape into very different lives. The middle of this axis is not indecision so much as a both-and answer to a question usually posed as either-or.',
+      R:'Your answers lean toward a universal human nature: beneath cultural differences, people share a core of needs, tendencies, and limits. This assumes that what humans are precedes what societies teach them to be. It tends to make you cautious about projects that require people to become something new, and attentive to what has always been true of us. Holding this view does not make culture trivial; it means culture works on a material that pushes back.'
+    },
+  };
+  // Legacy one-line labels for axes not yet migrated to AXIS_INSIGHT (D109)
   const AXIS_INTERPRETATIONS = {
     determinism: s => {
       if (s >= 6.5) return 'Hard determinist — all behaviour is fully caused';
@@ -10278,11 +10359,19 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     container.innerHTML = axes.map(([axis, meta]) => {
       const score = scores[axis] || 4;
       const pct = Math.round(((score-1)/6)*100);
-      const interpFn = AXIS_INTERPRETATIONS[axis];
-      const interp = interpFn ? interpFn(score) : null;
-      const interpHtml = interp
-        ? `<div class="axis-interpretation">${interp}</div>`
-        : '';
+      // 10g (D109): migrated axes get a three-band interpretation behind a
+      // native <details> disclosure (keyboard accessible for free); the rest
+      // keep the legacy one-line extreme labels until their batch migrates.
+      const insight = AXIS_INSIGHT[axis];
+      let interpHtml = '';
+      if (insight) {
+        const band = score <= 3 ? 'L' : score >= 5 ? 'R' : 'C';
+        interpHtml = `<details class="axis-insight"><summary>What your position means</summary><p>${insight[band]}</p></details>`;
+      } else {
+        const interpFn = AXIS_INTERPRETATIONS[axis];
+        const interp = interpFn ? interpFn(score) : null;
+        if (interp) interpHtml = `<div class="axis-interpretation">${interp}</div>`;
+      }
       return `<div class="axis-row">
         <div class="axis-meta">
           <span class="axis-name">${philTerm(meta.label)}</span>
