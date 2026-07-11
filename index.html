@@ -8355,9 +8355,13 @@ async function saveToSupabase(payload) {
     const completionId = await saveCompletionToAccount(payload);
     if (!completionId) return null; // preserve failure truth - no fabricated id
     try {
+      const { data: { session } } = await supa.auth.getSession();
       await fetch('/api/capture', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({ completion_id: completionId, responses: payload.responses, session_id: payload.session_id }),
       });
     } catch(e) {

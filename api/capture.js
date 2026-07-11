@@ -25,6 +25,23 @@ function pick(obj, allowed) {
   return out;
 }
 
+// Same pattern as api/consent.js's getUser() - verifies a session token
+// against Supabase Auth directly, never trusts a client-asserted identity.
+async function getUser(token) {
+  const url  = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anon || !token) return null;
+  try {
+    const res = await fetch(`${url}/auth/v1/user`, {
+      headers: { 'apikey': anon, 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 async function checkRateLimit(key) {
   const url    = process.env.SUPABASE_URL;
   const secret = process.env.SUPABASE_SERVICE_KEY;
@@ -66,7 +83,7 @@ export default async function handler(req, res) {
   const origin = req.headers['origin'] || '';
   if (origin === ALLOWED_ORIGIN) res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Vary', 'Origin');
 
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -95,7 +112,29 @@ export default async function handler(req, res) {
     // D105: signed-in callers already created the canonical completions row
     // themselves (saveCompletionToAccount) and only need responses attached
     // to it here - never a second completions row for the same generation.
-    let completionId = completion_id || null;
+    // Ownership must be verified server-side (IDOR fix): a client-supplied
+    // completion_id is only honored if the caller's own auth token proves
+    // they own that exact row - share-link IDs are public by design, so
+    // "the ID looks valid" is never sufficient authorization on its own.
+    let completionId = null;
+
+    if (completion_id) {
+      const authHeader = req.headers['authorization'] || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      const user = token ? await getUser(token) : null;
+      if (!user || !user.id) return res.status(401).json({ error: 'Authentication required to attach responses to an existing completion' });
+
+      const ownerCheck = await fetch(
+        `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(completion_id)}&select=user_id`,
+        { headers: svcHeaders },
+      );
+      if (!ownerCheck.ok) return res.status(500).json({ error: 'Ownership check failed' });
+      const ownerRows = await ownerCheck.json();
+      const owner = ownerRows[0];
+      if (!owner || owner.user_id !== user.id) return res.status(403).json({ error: 'Not authorized for this completion' });
+
+      completionId = completion_id;
+    }
 
     if (!completionId) {
       const completionData = pick(body, COMPLETION_COLUMNS);
