@@ -8347,20 +8347,35 @@ function renderShareUrl(url) {
 }
 
 async function saveToSupabase(payload) {
-  // Save to anonymous completions table (existing)
+  // Signed-in users: one canonical authenticated completions row carries the
+  // full report and all r2 metadata (D105). /api/capture is still used, but
+  // only to attach the per-question responses rows to that same id - never
+  // to create a second completions row.
+  if (typeof currentUser !== 'undefined' && currentUser && payload) {
+    const completionId = await saveCompletionToAccount(payload);
+    if (!completionId) return null; // preserve failure truth - no fabricated id
+    try {
+      await fetch('/api/capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completion_id: completionId, responses: payload.responses, session_id: payload.session_id }),
+      });
+    } catch(e) {
+      console.warn('Response-row capture failed silently:', e.message);
+    }
+    return { completion_id: completionId };
+  }
+  // Anonymous users: unchanged, single anonymous capture row.
   try {
     const res = await fetch('/api/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    await res.json();
+    return await res.json();
   } catch(e) {
     console.warn('Data capture failed silently:', e.message);
-  }
-  // Also save an attributed completions row if user is logged in (D58/M5)
-  if (typeof currentUser !== 'undefined' && currentUser && payload) {
-    await saveCompletionToAccount(payload);
+    return null;
   }
 }
 
@@ -12323,13 +12338,16 @@ function showSaveIndicator() {
 // COMPLETION PERSISTENCE
 // ══════════════════════════════════════════
 async function saveCompletionToAccount(payload) {
-  if (!currentUser) return;
+  if (!currentUser) return null;
   try {
     // Insert-many, attributed by user_id (D58/M5) - retakes are preserved as
-    // history instead of overwriting the previous completion.
-    await supa.from('completions').insert({
+    // history instead of overwriting the previous completion. This is the
+    // sole canonical write for signed-in users (D105): carries the full r2
+    // metadata so no separate /api/capture completions row is created.
+    const { data, error } = await supa.from('completions').insert({
       user_id:           currentUser.id,
       email:             currentUser.email,
+      first_name:        payload.first_name || null,
       archetype_family:  payload.archetype_family,
       archetype_variant: payload.archetype_variant,
       scores:            payload.scores,
@@ -12339,15 +12357,27 @@ async function saveCompletionToAccount(payload) {
       instrument_version: payload.instrument_version || INSTRUMENT_VERSION,
       qa_mode:           payload.qa_mode || false,
       completed_at:      new Date().toISOString(),
-    });
+      report_version:    payload.report_version || null,
+      prompt_hash:       payload.prompt_hash || null,
+      model:             payload.model || null,
+      temperature:       payload.temperature ?? null,
+      generated_at:      payload.generated_at || null,
+    }).select('id').single();
+
+    if (error) {
+      console.warn('Account completion save failed:', error.message);
+      return null;
+    }
 
     // Clear progress row — assessment is done
     await supa.from('assessment_progress').delete().eq('user_id', currentUser.id);
     // Update landing CTA to show completed state next time user visits landing
     const savedCompletion = await fetchLatestCompletion();
     updateLandingCTA('completed', savedCompletion);
+    return data ? data.id : null;
   } catch(e) {
     console.warn('Account completion save failed:', e.message);
+    return null;
   }
 }
 

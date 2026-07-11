@@ -83,9 +83,7 @@ export default async function handler(req, res) {
   const rate = await checkRateLimit(`capture:${ip}`);
   if (!rate.allowed) return res.status(429).json({ error: 'Rate limit exceeded' });
 
-  const { responses, session_id } = body;
-  const completionData = pick(body, COMPLETION_COLUMNS);
-  if (Object.keys(completionData).length === 0) return res.status(400).json({ error: 'No valid completion fields provided' });
+  const { responses, session_id, completion_id } = body;
 
   const svcHeaders = {
     'Content-Type':  'application/json',
@@ -94,20 +92,30 @@ export default async function handler(req, res) {
   };
 
   try {
-    const completionResponse = await fetch(`${supabaseUrl}/rest/v1/completions`, {
-      method: 'POST',
-      headers: { ...svcHeaders, 'Prefer': 'return=representation' },
-      body: JSON.stringify(completionData),
-    });
+    // D105: signed-in callers already created the canonical completions row
+    // themselves (saveCompletionToAccount) and only need responses attached
+    // to it here - never a second completions row for the same generation.
+    let completionId = completion_id || null;
 
-    if (!completionResponse.ok) {
-      const text = await completionResponse.text();
-      console.error('Supabase completions error:', text);
-      return res.status(500).json({ ok: false, error: text });
+    if (!completionId) {
+      const completionData = pick(body, COMPLETION_COLUMNS);
+      if (Object.keys(completionData).length === 0) return res.status(400).json({ error: 'No valid completion fields provided' });
+
+      const completionResponse = await fetch(`${supabaseUrl}/rest/v1/completions`, {
+        method: 'POST',
+        headers: { ...svcHeaders, 'Prefer': 'return=representation' },
+        body: JSON.stringify(completionData),
+      });
+
+      if (!completionResponse.ok) {
+        const text = await completionResponse.text();
+        console.error('Supabase completions error:', text);
+        return res.status(500).json({ ok: false, error: text });
+      }
+
+      const completionRows = await completionResponse.json();
+      completionId = completionRows[0]?.id;
     }
-
-    const completionRows = await completionResponse.json();
-    const completionId = completionRows[0]?.id;
 
     let responsesOk = true;
     if (completionId && Array.isArray(responses) && responses.length > 0) {
