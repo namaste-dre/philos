@@ -10491,27 +10491,37 @@ function renderCardToCanvas(container) {
   ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left';
   nameWords.forEach((w, i) => ctx.fillText(w, PAD+36, NAME_Y + i * nameLineH));
 
-  // Archetype icon — centred in right zone, clipped to block so it never bleeds any edge
+  // Archetype icon — adaptive composition rule. The emblem is centred in the
+  // space that ACTUALLY remains between the rendered title block and the
+  // right border (not in a fixed zone sized by the reserved max name width,
+  // which left short names with a dead gap and the emblem hugging the
+  // corner). Vertically it centres on the full header block, and its size
+  // adapts so the halo ring always fits the available space with breathing
+  // room, for the shortest and longest family names alike.
   const archIcon = getArchetypeIcon(cardData.archetypeName);
   if (archIcon && archIcon.draw) {
-    const rightZoneLeft = PAD + 48 + nameMaxW + 16;
-    const rightZoneRight = W - PAD;
-    const iconX = Math.round((rightZoneLeft + rightZoneRight) / 2);
-    const nameBlockTop = y + (THE_Y - y);
-    const nameBlockBot = NAME_Y + (nameWords.length - 1) * nameLineH;
-    const iconCentreY = Math.round((nameBlockTop + nameBlockBot) / 2);
+    ctx.font = `bold ${nameFontSize}px "Playfair Display",serif`;
+    const actualNameW = nameWords.reduce((m,w) => Math.max(m, ctx.measureText(w).width), 0);
+    const zoneLeft  = PAD + 36 + actualNameW + 30;   // clear of the real title edge
+    const zoneRight = W - PAD - 22;                  // inset from the right border
+    const availW = zoneRight - zoneLeft;
+    const availH = B1H - 26;
+    // Visible ring radius is 0.62 * size: fit ring + margin in both axes.
+    const effSize = Math.min(iconSize, (availW - 12) / 1.28, (availH - 8) / 1.28);
+    const iconX = Math.round((zoneLeft + zoneRight) / 2);
+    const iconCentreY = Math.round(y + B1H / 2);
     ctx.save();
     ctx.beginPath();
     ctx.rect(PAD + 3, y + 3, W - PAD*2 - 6, B1H - 6);
     ctx.clip();
-    const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, iconSize*0.85);
+    const ig = ctx.createRadialGradient(iconX, iconCentreY, 0, iconX, iconCentreY, effSize*0.85);
     ig.addColorStop(0,'rgba(157,147,232,0.32)');
     ig.addColorStop(0.5,'rgba(120,100,240,0.12)');
     ig.addColorStop(1,'rgba(157,147,232,0)');
-    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*1.1,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=ig; ctx.beginPath(); ctx.arc(iconX,iconCentreY,effSize*1.1,0,Math.PI*2); ctx.fill();
     ctx.strokeStyle='rgba(157,147,232,0.30)'; ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.arc(iconX,iconCentreY,iconSize*0.62,0,Math.PI*2); ctx.stroke();
-    archIcon.draw(ctx, iconX, iconCentreY, iconSize, 'rgba(215,205,255,0.95)');
+    ctx.beginPath(); ctx.arc(iconX,iconCentreY,effSize*0.62,0,Math.PI*2); ctx.stroke();
+    archIcon.draw(ctx, iconX, iconCentreY, effSize, 'rgba(215,205,255,0.95)');
     ctx.restore();
   }
 
