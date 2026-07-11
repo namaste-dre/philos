@@ -977,24 +977,44 @@ body::after {
 /* ══════════════════════════════════════════
    TABBED REPORT LAYOUT
 ══════════════════════════════════════════ */
+/* One continuous atmosphere behind the whole report. A viewport-fixed field:
+   a linear base so there is never a bare-dark diagonal, plus soft purple and
+   amber corner lighting that fades to transparent (revealing the base, not
+   black). This replaces the old "two corner glow circles over dark body"
+   which left a visible dark diagonal gap between them. */
+.report-canvas-base {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(140% 100% at 8% -5%, rgba(96,74,190,0.50) 0%, rgba(52,40,108,0.30) 35%, rgba(20,16,44,0) 68%),
+    radial-gradient(120% 100% at 105% 108%, rgba(206,150,74,0.26) 0%, rgba(150,96,48,0.10) 38%, rgba(20,16,44,0) 66%),
+    linear-gradient(150deg, #171232 0%, #100c24 50%, #140d20 100%);
+}
 .report-layout {
   display: flex;
   min-height: 100%;
   align-items: flex-start;
-  background: rgba(8,6,26,0.78);
+  /* Transparent: content floats on the shared .report-canvas-base. The old
+     0.78 slab started right below the hero and was the hard horizontal
+     light-to-dark seam. */
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 .report-nav {
   width: 200px;
   flex-shrink: 0;
   padding: 28px 0 60px;
   border-right: 1px solid rgba(255,255,255,0.07);
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  /* Fixed on desktop so the section list is visible immediately and never
+     moves; the content column (hero + active section) scrolls past it. */
+  position: fixed;
+  top: 56px;
+  left: 0;
+  height: calc(100vh - 56px);
   overflow-y: auto;
-  /* Transparent on desktop: the sidebar sits beside content, nothing scrolls
-     under it, so a 0.55 slab only created a vertical pane seam. The mobile
-     tab-bar variant keeps its glass because content scrolls beneath it. */
   background: transparent;
   -webkit-backdrop-filter: blur(12px);
   scrollbar-width: none;
@@ -1140,14 +1160,20 @@ body::after {
 /* REPORT HEADER — dramatic cinematic hero */
 .report-header {
   position: relative;
+  z-index: 1;
   padding: 80px 28px 64px;
   text-align: center;
-  /* No region background: the hero floats on the shared fixed atmosphere
-     (#screen-report::before/::after + .report-bg-glow3). A separate 0.88
-     slab plus its own clipped glow field was the main horizontal seam. */
+  /* No region background: the hero floats on the shared atmosphere canvas. */
   background: transparent;
   width: 100%;
   box-sizing: border-box;
+}
+/* Desktop: fixed nav is out of flow, so push the hero and the content column
+   right by the nav width. Both offset together so the whole right side reads
+   as one scrolling column beside the static section list. */
+@media (min-width: 768px) {
+  .report-header { margin-left: 200px; width: auto; }
+  .report-layout { margin-left: 200px; }
 }
 .report-header-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
 .report-eyebrow {
@@ -4124,6 +4150,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
      SCREEN 4: REPORT
 ══════════════════════════════════════════ -->
 <div id="screen-report" class="screen">
+  <div class="report-canvas-base" aria-hidden="true"></div>
   <div class="report-bg-glow3"></div>
   <div class="report-header">
     <div class="report-header-inner">
