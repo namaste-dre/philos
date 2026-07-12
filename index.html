@@ -8409,37 +8409,60 @@ function renderShareUrl(url) {
   if (reportBody) reportBody.insertBefore(shareBlock, reportBody.firstChild);
 }
 
-async function saveToSupabase(payload) {
-  // Signed-in users: one canonical authenticated completions row carries the
-  // full report and all r2 metadata (D105). /api/capture is still used, but
-  // only to attach the per-question responses rows to that same id - never
-  // to create a second completions row.
+async function saveToSupabase(payload, claimedId) {
+  // Signed-in users: one canonical completions row carries the full report
+  // and all r2 metadata (D105). A1 changed WHEN that row is created - it
+  // already exists (in 'pending' state) from the claim step in
+  // generateReport(), so this finalizes it to 'complete' instead of
+  // inserting a brand-new row. /api/capture is still used only to attach
+  // the per-question responses rows to that same id.
   if (typeof currentUser !== 'undefined' && currentUser && payload) {
-    const completionId = await saveCompletionToAccount(payload);
-    if (!completionId) return null; // preserve failure truth - no fabricated id
-    // A0.2: /api/capture also mints the report-link capability token here,
-    // only because it has just verified (or just established) ownership of
-    // completionId. Without this token the share link is refused - a bare
-    // id is no longer sufficient to view a report.
+    if (!claimedId) return null; // preserve failure truth - no fabricated id
     let reportToken = null;
     try {
       const { data: { session } } = await supa.auth.getSession();
+      const authHeaders = {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+      };
+      const { responses, ...completionFields } = payload;
+
+      const finalizeRes = await fetch('/api/claim-attempt', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ action: 'complete', id: claimedId, ...completionFields }),
+      });
+      const finalizeData = await finalizeRes.json().catch(() => null);
+      if (!finalizeRes.ok || !finalizeData || !finalizeData.ok) {
+        console.warn('Finalize failed:', finalizeRes.status);
+        return null;
+      }
+
+      // Clear progress row - assessment is done. Update landing CTA state.
+      await supa.from('assessment_progress').delete().eq('user_id', currentUser.id);
+      const savedCompletion = await fetchLatestCompletion();
+      updateLandingCTA('completed', savedCompletion);
+
+      // A0.2: /api/capture also mints the report-link capability token here,
+      // only because it has just verified (or just established) ownership of
+      // claimedId. Without this token the share link is refused - a bare id
+      // is no longer sufficient to view a report.
       const capRes = await fetch('/api/capture', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify({ completion_id: completionId, responses: payload.responses, session_id: payload.session_id }),
+        headers: authHeaders,
+        body: JSON.stringify({ completion_id: claimedId, responses: payload.responses, session_id: payload.session_id }),
       });
       const capData = await capRes.json().catch(() => null);
       reportToken = (capData && capData.report_token) || null;
     } catch(e) {
       console.warn('Response-row capture failed silently:', e.message);
     }
-    return { completion_id: completionId, report_token: reportToken };
+    return { completion_id: claimedId, report_token: reportToken };
   }
-  // Anonymous users: unchanged, single anonymous capture row.
+  // Anonymous users: unchanged, single anonymous capture row. A1's attempt
+  // model does not apply here - this path has no session to claim an
+  // attempt under, and remains unreachable in the live UI since the quiz
+  // requires sign-in before it starts (documented at A0.2).
   try {
     const res = await fetch('/api/capture', {
       method: 'POST',
@@ -8592,6 +8615,7 @@ function validateReportPayload(obj) {
 
 async function generateReport() {
   show('screen-generating');
+  ensureAttemptId();
 
   const scores = computeScores();
   const contradictions = detectContradictions(scores);
@@ -8653,6 +8677,66 @@ async function generateReport() {
   };
 
   try {
+  // ── A1 (D110): claim this attempt before any expensive generation work.
+  // The completions row already exists (in 'pending' state) once this
+  // resolves - only the caller that wins the DB-level race proceeds to
+  // call the model; everyone else gets told to wait or gets the stored
+  // result back (deterministic replay), never a duplicate LLM call. ──
+  let claimedId = null;
+  let claimResult = null;
+  try {
+    const { data: { session: claimSession } } = await supa.auth.getSession();
+    if (!claimSession) throw new Error('401 Session expired');
+    const claimRes = await fetch('/api/claim-attempt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${claimSession.access_token}` },
+      body: JSON.stringify({ action: 'claim', attempt_id: state.attemptId, qa_mode: state.qaMode || false }),
+    });
+    if (!claimRes.ok) throw new Error(`Claim HTTP ${claimRes.status}`);
+    claimResult = await claimRes.json();
+  } catch (e) {
+    const msg = e.message || '';
+    const userMsg = msg.includes('401') ? 'Session expired. Please sign in again.' : 'Could not start report generation. Please try again.';
+    document.getElementById('gen-error').innerHTML =
+      `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+        <div>⚠ ${userMsg}</div>
+        <button onclick="generateReport()" style="background:var(--accent);border:none;color:#1a1208;padding:10px 24px;border-radius:50px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;">
+          Try again
+        </button>
+      </div>`;
+    show('screen-generating');
+    return;
+  }
+
+  claimedId = claimResult.id;
+
+  if (claimResult.status === 'complete') {
+    // Deterministic replay (D110): render the stored report directly, no
+    // LLM calls, no duplicate row, no re-sent email/share link (the
+    // original successful run already produced those).
+    setTimeout(() => {
+      steps[steps.length - 1].classList.add('done');
+      setTimeout(() => {
+        renderReport(scores, contradictions, archetypeResult, fingerprint, claimResult.report_json || {});
+        if (state.qaMode) setTimeout(() => renderQAReport(scores, archetypeResult), 500);
+      }, 400);
+    }, delays[delays.length - 1] + 600);
+    return;
+  }
+
+  if (!claimResult.should_generate) {
+    // Another submission of this same attempt is still generating.
+    document.getElementById('gen-error').innerHTML =
+      `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+        <div>⚠ Your report is already being generated. Please wait a moment, then try again.</div>
+        <button onclick="generateReport()" style="background:var(--accent);border:none;color:#1a1208;padding:10px 24px;border-radius:50px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;">
+          Try again
+        </button>
+      </div>`;
+    show('screen-generating');
+    return;
+  }
+
   // ── AXIS REFERENCE (shared between both calls) ──
   const axisRef = `- naturalism 1=supernatural, 7=naturalist
 - physicalism 1=non-physical mind, 7=physical mind
@@ -8756,6 +8840,18 @@ Return ONLY valid JSON, with no markdown fences and no preamble:
     }
     if (!report1) throw lastErr;
   } catch(e) {
+    // A1: release the claim so a retry (same attempt_id) can reclaim it
+    // instead of being stuck 'pending' until the stale-timeout window.
+    if (claimedId) {
+      try {
+        const { data: { session: failSession } } = await supa.auth.getSession();
+        await fetch('/api/claim-attempt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(failSession?.access_token ? { 'Authorization': `Bearer ${failSession.access_token}` } : {}) },
+          body: JSON.stringify({ action: 'fail', id: claimedId }),
+        });
+      } catch (_) {}
+    }
     const msg = e.message || '';
     const userMsg = msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'
       : msg.includes('429') ? 'Rate limit reached. Please wait a few minutes and try again.'
@@ -8898,7 +8994,7 @@ Return ONLY valid JSON, with no markdown fences:
           temperature: null,
           generated_at: new Date().toISOString(),
         };
-        saveToSupabase(payload).then(result => {
+        saveToSupabase(payload, claimedId).then(result => {
           const completionId = result && result.completion_id;
           const reportToken = result && result.report_token;
           const shareUrl = (completionId && reportToken)
@@ -12610,15 +12706,27 @@ function triggerProgressSave() {
   saveDebounceTimer = setTimeout(saveProgress, 2000);
 }
 
+// A1 (D110 (a)): a stable attempt id, minted once per assessment run and
+// reused across refresh/retry/resume - never derived from identity+answers
+// (that would break the intentional-retake requirement). Piggybacks inside
+// the answers jsonb column via __attemptId, same trick already used for
+// __shuffleOrder, so no assessment_progress schema change is needed.
+function ensureAttemptId() {
+  if (!state.attemptId) state.attemptId = crypto.randomUUID();
+  return state.attemptId;
+}
+
 async function saveProgress() {
   if (!currentUser) return;
   try {
+    ensureAttemptId();
     // __shuffleOrder rides inside the existing answers jsonb column (no schema
     // change needed) so a resumed session sees the exact same question order
     // and position it left off at, instead of a freshly re-randomized one.
     // See Decisions Log, exam order must lock at start, only restart reshuffles.
     const answersToSave = Object.assign({}, state.answers, {
       __shuffleOrder: (state.shuffledQuestions || []).map(q => q.id),
+      __attemptId: state.attemptId,
     });
     const { error: saveErr } = await supa.from('assessment_progress').upsert({
       user_id:    currentUser.id,
@@ -12663,8 +12771,14 @@ async function restoreProgress(progress) {
   // fix shipped (no __shuffleOrder present yet).
   const savedAnswers = progress.answers || {};
   const savedOrder = Array.isArray(savedAnswers.__shuffleOrder) ? savedAnswers.__shuffleOrder : null;
+  // A1: reuse the attempt id this session was already saving under, so a
+  // resumed session claims the SAME attempt rather than minting a new one.
+  // Legacy progress rows saved before this shipped have none - a fresh id
+  // is minted on first save via ensureAttemptId(), same as a brand-new run.
+  const savedAttemptId = typeof savedAnswers.__attemptId === 'string' ? savedAnswers.__attemptId : null;
   const restoredAnswers = Object.assign({}, savedAnswers);
   delete restoredAnswers.__shuffleOrder;
+  delete restoredAnswers.__attemptId;
 
   let shuffled;
   if (savedOrder) {
@@ -12693,6 +12807,7 @@ async function restoreProgress(progress) {
     qaFlags:           progress.qa_flags || {},
     displayTextCache:  {},
     captureData:       null,
+    attemptId:         savedAttemptId,
   };
   initGlowSequences();
   tierGlowCounters = { 1: 0, 2: 0, 3: 0 };
@@ -12714,59 +12829,23 @@ function showSaveIndicator() {
 // ══════════════════════════════════════════
 // COMPLETION PERSISTENCE
 // ══════════════════════════════════════════
-async function saveCompletionToAccount(payload) {
-  if (!currentUser) return null;
-  try {
-    // Insert-many, attributed by user_id (D58/M5) - retakes are preserved as
-    // history instead of overwriting the previous completion. This is the
-    // sole canonical write for signed-in users (D105): carries the full r2
-    // metadata so no separate /api/capture completions row is created.
-    const { data, error } = await supa.from('completions').insert({
-      user_id:           currentUser.id,
-      email:             currentUser.email,
-      first_name:        payload.first_name || null,
-      archetype_family:  payload.archetype_family,
-      archetype_variant: payload.archetype_variant,
-      scores:            payload.scores,
-      fingerprint:       payload.fingerprint,
-      contradictions_count: payload.contradictions_count,
-      report_json:       payload.report_json,
-      instrument_version: payload.instrument_version || INSTRUMENT_VERSION,
-      qa_mode:           payload.qa_mode || false,
-      completed_at:      new Date().toISOString(),
-      report_version:    payload.report_version || null,
-      prompt_hash:       payload.prompt_hash || null,
-      model:             payload.model || null,
-      temperature:       payload.temperature ?? null,
-      generated_at:      payload.generated_at || null,
-    }).select('id').single();
-
-    if (error) {
-      console.warn('Account completion save failed:', error.message);
-      return null;
-    }
-
-    // Clear progress row — assessment is done
-    await supa.from('assessment_progress').delete().eq('user_id', currentUser.id);
-    // Update landing CTA to show completed state next time user visits landing
-    const savedCompletion = await fetchLatestCompletion();
-    updateLandingCTA('completed', savedCompletion);
-    return data ? data.id : null;
-  } catch(e) {
-    console.warn('Account completion save failed:', e.message);
-    return null;
-  }
-}
+// A1: the completions row is no longer inserted here - it already exists
+// (claimed 'pending') by the time generation succeeds, and saveToSupabase()
+// finalizes it to 'complete' via /api/claim-attempt. See generateReport()
+// for the claim step and saveToSupabase() for the finalize step.
 
 async function fetchLatestCompletion() {
   if (!currentUser) return null;
   try {
     // Deterministic "latest" - completed_at, then generated_at, then id as a
     // final stable tiebreak so this never depends on implicit ordering.
+    // A1: excludes 'pending'/'failed' attempts - a still-generating or
+    // abandoned claim must never surface as the user's "latest" report.
     const { data } = await supa
       .from('completions')
       .select('*')
       .eq('user_id', currentUser.id)
+      .eq('attempt_status', 'complete')
       .order('completed_at', { ascending: false })
       .order('generated_at', { ascending: false })
       .order('id', { ascending: false })
