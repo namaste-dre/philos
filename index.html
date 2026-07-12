@@ -8711,7 +8711,11 @@ Return ONLY valid JSON, with no markdown fences and no preamble:
         const res1 = await fetch('/api/generate', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ messages: [{role:'user', content: prompt1}], max_tokens: 1500, email: currentUser?.email || state.captureData?.email || '' })
+          body: JSON.stringify({
+            callType: 1,
+            context: { userName, axisDump, fingerprintSummary, contradictionSummary, liminalNote, archFamily: arch.family, archVariant: arch.variant },
+            email: currentUser?.email || state.captureData?.email || '',
+          })
         });
         if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
         const text1 = await res1.text();
@@ -8772,7 +8776,11 @@ Return ONLY valid JSON, with no markdown fences:
     const res2 = await fetch('/api/generate', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ messages: [{role:'user', content: prompt2}], max_tokens: 1800, email: currentUser?.email || state.captureData?.email || '' })
+      body: JSON.stringify({
+        callType: 2,
+        context: { userName, axisDump, archFamily: arch.family, archVariant: arch.variant },
+        email: currentUser?.email || state.captureData?.email || '',
+      })
     });
     if (!res2.ok) throw new Error(`Call 2 HTTP ${res2.status}`);
     const text2 = await res2.text();
