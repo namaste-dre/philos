@@ -10579,6 +10579,107 @@ function buildCardData(scores, archetypeResult, report, fingerprint) {
   }
 }
 
+// ── PHILOSOPHICAL DNA HELIX (card Block 6) ──
+// Pseudo-3D double helix. HONESTY CONTRACT (Andre): the twist is decoration;
+// every data mark lives in a constant-height channel on one shared linear
+// scale. Strands cross in DEPTH (z-order + width/alpha), never pinching the
+// data channel, so relative magnitudes stay comparable and no axis is hidden.
+// Returns per-axis draw geometry so tests can assert linearity.
+function drawDNAHelix(ctx, x, y, w, h, axisScores) {
+  const keys = Object.keys(AXIS_META);
+  const n = keys.length;
+  const innerPad = 30;
+  const x0 = x + innerPad, x1 = x + w - innerPad;
+  const span = x1 - x0;
+  const mid = y + h / 2;
+  const R = h * 0.32;              // data channel half-height (the ruler)
+  const A = h * 0.44;              // strand amplitude, outside the channel
+  const twists = 3;
+  const k = (Math.PI * 2 * twists) / span;
+  const phase0 = Math.PI * 0.32;
+  const step = 4;
+
+  const sYof = (px, s) => mid + A * Math.sin(k * (px - x0) + phase0 + s * Math.PI);
+  const sZof = (px, s) => Math.cos(k * (px - x0) + phase0 + s * Math.PI); // 1 = near viewer
+
+  const STRAND = [
+    { main: (a) => `rgba(201,169,110,${a})`, sheen: (a) => `rgba(255,243,214,${a})` },
+    { main: (a) => `rgba(157,147,232,${a})`, sheen: (a) => `rgba(233,229,255,${a})` }
+  ];
+
+  function strokeStrandPass(s, near) {
+    for (let px = x0; px < x1; px += step) {
+      const px2 = Math.min(px + step, x1);
+      const z = (sZof(px, s) + sZof(px2, s)) / 2;
+      if ((z >= 0) !== near) continue;
+      const depth = (z + 1) / 2;                       // 0 far .. 1 near
+      ctx.lineWidth = 3 + depth * 4.5;
+      ctx.strokeStyle = STRAND[s].main(0.24 + depth * 0.52);
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(px, sYof(px, s));
+      ctx.lineTo(px2, sYof(px2, s));
+      ctx.stroke();
+      if (near && z > 0.35) {                          // metallic highlight line
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = STRAND[s].sheen(0.55 * z);
+        ctx.beginPath();
+        ctx.moveTo(px, sYof(px, s) - 2);
+        ctx.lineTo(px2, sYof(px2, s) - 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // PASS 1: far halves of both strands
+  strokeStrandPass(0, false); strokeStrandPass(1, false);
+
+  // PASS 2: center rail
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x0, mid); ctx.lineTo(x1, mid); ctx.stroke();
+
+  // PASS 3: rung tracks + data segments (constant channel, shared scale)
+  const beads = [];
+  keys.forEach((key, i) => {
+    const px = x0 + (i + 0.5) * (span / n);
+    const sc = axisScores ? (axisScores[key] || 4) : 4;
+    const dev = (sc - 4) / 3;                          // -1 .. 1
+    ctx.strokeStyle = 'rgba(255,255,255,0.09)'; ctx.lineWidth = 2; ctx.lineCap = 'butt';
+    ctx.beginPath(); ctx.moveTo(px, mid - R); ctx.lineTo(px, mid + R); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+    ctx.beginPath(); ctx.moveTo(px - 3, mid - R); ctx.lineTo(px + 3, mid - R); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px - 3, mid + R); ctx.lineTo(px + 3, mid + R); ctx.stroke();
+    const beadY = mid - dev * R;
+    if (Math.abs(dev) > 0.015) {
+      const col = dev >= 0 ? `rgba(172,162,242,${0.62 + Math.abs(dev) * 0.36})`
+                           : `rgba(214,182,124,${0.62 + Math.abs(dev) * 0.36})`;
+      ctx.strokeStyle = col; ctx.lineWidth = 6; ctx.lineCap = 'round';
+      ctx.shadowColor = col; ctx.shadowBlur = 9;
+      ctx.beginPath(); ctx.moveTo(px, mid); ctx.lineTo(px, beadY); ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+    beads.push({ axis: key, x: px, beadY: beadY, dev: dev, trackTop: mid - R, trackBottom: mid + R });
+  });
+
+  // PASS 4: near halves of both strands (interleave in front of some rungs)
+  strokeStrandPass(0, true); strokeStrandPass(1, true);
+
+  // PASS 5: beads always on top - no axis is ever hidden
+  beads.forEach(b => {
+    const neutral = Math.abs(b.dev) <= 0.015;
+    const fill = neutral ? 'rgba(222,216,232,0.85)'
+               : b.dev >= 0 ? 'rgba(197,188,255,0.98)' : 'rgba(236,206,148,0.98)';
+    ctx.shadowColor = fill; ctx.shadowBlur = neutral ? 6 : 16;
+    ctx.fillStyle = fill;
+    ctx.beginPath(); ctx.arc(b.x, b.beadY, neutral ? 4 : 6, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath(); ctx.arc(b.x - 1.5, b.beadY - 1.5, 1.6, 0, Math.PI * 2); ctx.fill();
+  });
+
+  return beads;
+}
+
 function renderCardToCanvas(container) {
   if (!cardData) return;
 
@@ -10950,29 +11051,16 @@ function renderCardToCanvas(container) {
   }
 
   // ══════════════════════════════════════════
-  // BLOCK 6 — PHILOSOPHICAL DNA (32 axes bidirectional bar)
+  // BLOCK 6 — YOUR PHILOSOPHICAL DNA (pseudo-3D double helix, 32 axes)
+  // Honest encoding: constant data channel, shared linear scale; the twist
+  // lives in the strands only. See drawDNAHelix.
   // ══════════════════════════════════════════
-  const B6H = 140;
+  const B6H = 210;
   roundRect(PAD, y, W-PAD*2, B6H, 16, BLOCK4, BORDER, 3);
   ctx.font = '600 13px "IBM Plex Mono",monospace';
   ctx.fillStyle = MUTED; ctx.textAlign='center';
-  ctx.fillText('PHILOSOPHICAL DNA  \u00b7  32 AXES', W/2, y+22);
-  const dnaInnerY = y+30, dnaInnerH = B6H-46;
-  const axKeysD = Object.keys(AXIS_META);
-  const bW6 = (W-PAD*2-48)/axKeysD.length;
-  const midLine = dnaInnerY + dnaInnerH/2;
-  ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD+24,midLine); ctx.lineTo(W-PAD-24,midLine); ctx.stroke();
-  axKeysD.forEach((k,i) => {
-    const sc = cardData.axisScores?(cardData.axisScores[k]||4):4;
-    const dev = (sc-4)/3;
-    const bh6 = Math.max(3, Math.abs(dev)*(dnaInnerH/2-4));
-    const bx6 = PAD+24+i*bW6+0.5;
-    const by6 = dev>=0 ? midLine-bh6 : midLine;
-    const alpha6 = 0.2 + Math.abs(dev)*0.7;
-    ctx.fillStyle = dev>=0 ? `rgba(157,147,232,${alpha6})` : `rgba(201,169,110,${alpha6})`;
-    ctx.fillRect(bx6, by6, bW6-1, bh6);
-  });
+  ctx.fillText('YOUR PHILOSOPHICAL DNA  \u00b7  32 AXES', W/2, y+24);
+  drawDNAHelix(ctx, PAD+8, y+36, W-PAD*2-16, B6H-52, cardData.axisScores);
   y += B6H + 14;
 
   // ══════════════════════════════════════════
@@ -10989,7 +11077,7 @@ function renderCardToCanvas(container) {
   ctx.font = 'bold italic 28px "Playfair Display",serif';
   ctx.fillStyle='#ffffff'; ctx.textAlign='center';
   ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=8;
-  ctx.fillText('What does your worldview say about you?', W/2, y+42); ctx.shadowBlur=0;
+  ctx.fillText('See your philosophical DNA.', W/2, y+42); ctx.shadowBlur=0;
   ctx.font = '500 18px "IBM Plex Mono",monospace';
   ctx.fillStyle='rgba(220,200,255,0.88)';
   ctx.fillText('160 questions \u00b7 32 belief axes \u00b7 your archetype', W/2, y+74);
