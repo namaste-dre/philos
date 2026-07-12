@@ -1,6 +1,22 @@
+import crypto from 'crypto';
+
 export const config = { maxDuration: 60 };
 
 const ALLOWED_ORIGIN  = 'https://phil-os.thelifepm.com';
+
+// A0.2: capability token for /api/report. Minted here only after ownership
+// is verified (or right after a fresh row is created by its own submitter),
+// never on a bare id lookup. Stateless - recomputed identically by
+// report.js from the id alone, no extra column or expiry bookkeeping. This
+// is the "equivalent short-lived proof" mechanism named in the A0.2 brief:
+// report.js is a plain server-rendered navigation with no way to carry a
+// bearer token, so possession of this token (not the bare id) is what
+// proves the viewer was actually handed the link. Revocation/expiry are
+// D-1's public-share feature, explicitly out of scope here.
+function computeReportToken(id) {
+  const secret = process.env.SUPABASE_SERVICE_KEY || '';
+  return crypto.createHmac('sha256', secret).update(`report-token:${id}`).digest('hex').slice(0, 32);
+}
 const RATE_LIMIT      = 20;   // captures per IP per window
 const RATE_WINDOW_HRS = 1;
 
@@ -180,10 +196,18 @@ export default async function handler(req, res) {
       }).catch(e => console.warn('anon_progress cleanup failed:', e.message));
     }
 
-    return res.status(200).json({ ok: true, completion_id: completionId, responses_saved: responsesOk });
+    // A0.2: minted only once ownership is established above (either the
+    // caller just proved they own completionId, or they are the one who
+    // just created it) - never handed out for a bare id lookup.
+    const reportToken = completionId ? computeReportToken(completionId) : null;
+
+    return res.status(200).json({ ok: true, completion_id: completionId, responses_saved: responsesOk, report_token: reportToken });
 
   } catch (e) {
     console.error('Capture error:', e.message);
     return res.status(500).json({ ok: false, error: e.message });
   }
 }
+
+// Exported for containment tests only (A0.2) - not part of the public API surface.
+export const __testables__ = { computeReportToken };

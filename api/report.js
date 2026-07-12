@@ -1,19 +1,118 @@
+import crypto from 'crypto';
+
 export const config = { maxDuration: 60 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const RATE_LIMIT      = 30;   // fetches per IP per window - generous for legitimate refreshes/shares
+const RATE_WINDOW_HRS = 1;
+
+// A0.2 containment: /api/report previously treated bare possession of the
+// completion id (a value logged, emailed, and pasted around) as sufficient
+// authorization. It is now not - a viewer must also present the capability
+// token minted by api/capture.js at completion-ownership time. This is a
+// stateless, non-expiring per-completion token (expiry/revocation belong to
+// the future D-1 public-share feature, not this block); it must be computed
+// identically here and in capture.js.
+function computeReportToken(id) {
+  const secret = process.env.SUPABASE_SERVICE_KEY || '';
+  return crypto.createHmac('sha256', secret).update(`report-token:${id}`).digest('hex').slice(0, 32);
+}
+
+function tokenMatches(provided, expected) {
+  if (typeof provided !== 'string' || provided.length !== expected.length) return false;
+  try {
+    return crypto.timingSafeEqual(Buffer.from(provided, 'utf8'), Buffer.from(expected, 'utf8'));
+  } catch {
+    return false;
+  }
+}
+
+// Fail-closed rate limiter, same pattern as api/generate.js: storage
+// failure or missing config rejects rather than granting unlimited access.
+async function checkRateLimit(key) {
+  const url    = process.env.SUPABASE_URL;
+  const secret = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !secret) return { allowed: false };
+
+  const windowMs = RATE_WINDOW_HRS * 60 * 60 * 1000;
+  const now      = new Date();
+  const headers  = {
+    'apikey':        secret,
+    'Authorization': `Bearer ${secret}`,
+    'Content-Type':  'application/json',
+    'Prefer':        'return=minimal',
+  };
+
+  try {
+    const getRes = await fetch(
+      `${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}&select=calls,window_start`,
+      { headers }
+    );
+    if (!getRes.ok) return { allowed: false };
+    const records = await getRes.json();
+    const record  = Array.isArray(records) ? records[0] : null;
+
+    if (!record) {
+      const createRes = await fetch(`${url}/rest/v1/rate_limits`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ key, calls: 1, window_start: now.toISOString() }),
+      });
+      return { allowed: createRes.ok };
+    }
+
+    const elapsed = now - new Date(record.window_start);
+    if (elapsed > windowMs) {
+      const resetRes = await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ calls: 1, window_start: now.toISOString() }),
+      });
+      return { allowed: resetRes.ok };
+    }
+
+    if (record.calls >= RATE_LIMIT) return { allowed: false };
+
+    const incrementRes = await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+      method: 'PATCH', headers,
+      body: JSON.stringify({ calls: record.calls + 1 }),
+    });
+    return { allowed: incrementRes.ok };
+
+  } catch (e) {
+    console.warn('[report] rate limit check failed:', e.message);
+    return { allowed: false };
+  }
+}
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // A0.2: no CORS grant. This endpoint is viewed via direct navigation, not
+  // cross-origin fetch/XHR - the previous Access-Control-Allow-Origin: '*'
+  // let any site read the private report body via fetch(). Nothing here
+  // needs a cross-origin allowance.
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   if (req.method === 'OPTIONS') return res.status(204).end();
 
-  const { id } = req.query;
-  if (!id) return res.status(400).send(errorPage('No report ID provided.'));
+  // Uniform non-disclosing response for every rejection path below - a
+  // missing id, a malformed id, a missing/wrong token, a nonexistent id,
+  // and someone else's id must all be indistinguishable from each other.
+  const notFound = () => res.status(404).send(errorPage('Report not found.'));
+
+  const { id, t } = req.query;
+  if (!id || typeof id !== 'string' || !UUID_RE.test(id)) return notFound();
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-  if (!supabaseUrl || !supabaseKey) return res.status(500).send(errorPage('Database not configured.'));
+  if (!supabaseUrl || !supabaseKey) return res.status(500).send(errorPage('Something went wrong loading this report.'));
+
+  const expectedToken = computeReportToken(id);
+  if (!tokenMatches(t, expectedToken)) return notFound();
+
+  const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
+  const rate = await checkRateLimit(`report:${ip}`);
+  if (!rate.allowed) return notFound();
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/completions?id=eq.${id}&select=report_json,scores,fingerprint,first_name,archetype_family,archetype_variant,completed_at`,
+      `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&select=report_json,scores,fingerprint,first_name,archetype_family,archetype_variant`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -25,7 +124,7 @@ export default async function handler(req, res) {
     if (!response.ok) return res.status(500).send(errorPage('Could not load report.'));
 
     const rows = await response.json();
-    if (!rows || !rows.length) return res.status(404).send(errorPage('Report not found.'));
+    if (!rows || !rows.length) return notFound();
 
     const c = rows[0];
     const report = c.report_json || {};
@@ -34,7 +133,7 @@ export default async function handler(req, res) {
     const name = c.first_name || 'You';
     const archetype = c.archetype_family || '';
     const variant = c.archetype_variant || '';
-    const shareUrl = `https://phil-os.thelifepm.com/report?id=${id}`;
+    const shareUrl = `https://phil-os.thelifepm.com/report?id=${id}&t=${t}`;
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send(renderReportPage({ c, report, scores, fingerprint, name, archetype, variant, shareUrl }));
@@ -44,6 +143,9 @@ export default async function handler(req, res) {
     return res.status(500).send(errorPage('Something went wrong loading this report.'));
   }
 }
+
+// Exported for containment tests only (A0.2) - not part of the public API surface.
+export const __testables__ = { computeReportToken, tokenMatches, UUID_RE };
 
 function errorPage(msg) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Phil OS</title>

@@ -8417,9 +8417,14 @@ async function saveToSupabase(payload) {
   if (typeof currentUser !== 'undefined' && currentUser && payload) {
     const completionId = await saveCompletionToAccount(payload);
     if (!completionId) return null; // preserve failure truth - no fabricated id
+    // A0.2: /api/capture also mints the report-link capability token here,
+    // only because it has just verified (or just established) ownership of
+    // completionId. Without this token the share link is refused - a bare
+    // id is no longer sufficient to view a report.
+    let reportToken = null;
     try {
       const { data: { session } } = await supa.auth.getSession();
-      await fetch('/api/capture', {
+      const capRes = await fetch('/api/capture', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -8427,10 +8432,12 @@ async function saveToSupabase(payload) {
         },
         body: JSON.stringify({ completion_id: completionId, responses: payload.responses, session_id: payload.session_id }),
       });
+      const capData = await capRes.json().catch(() => null);
+      reportToken = (capData && capData.report_token) || null;
     } catch(e) {
       console.warn('Response-row capture failed silently:', e.message);
     }
-    return { completion_id: completionId };
+    return { completion_id: completionId, report_token: reportToken };
   }
   // Anonymous users: unchanged, single anonymous capture row.
   try {
@@ -8893,8 +8900,9 @@ Return ONLY valid JSON, with no markdown fences:
         };
         saveToSupabase(payload).then(result => {
           const completionId = result && result.completion_id;
-          const shareUrl = completionId
-            ? (window.location.origin + '/report?id=' + completionId)
+          const reportToken = result && result.report_token;
+          const shareUrl = (completionId && reportToken)
+            ? (window.location.origin + '/report?id=' + completionId + '&t=' + reportToken)
             : null;
           // Send report email with share URL
           sendReportEmail(report, fingerprint, archetypeResult, contradictions, shareUrl);
