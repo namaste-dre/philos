@@ -376,6 +376,67 @@ async function run() {
     await handler(req, res);
     ok('rate limit DB error -> fails closed (503)', res.statusCode === 503, res.body);
   }
+  {
+    // No existing record -> code takes the creation POST branch. That POST
+    // returns a non-2xx status without throwing - must still fail closed.
+    let providerCalled = false;
+    global.fetch = async (url, opts) => {
+      const u = String(url);
+      if (u.includes('/auth/v1/user')) return { ok: true, json: async () => VALID_USER };
+      if (u.includes('/rest/v1/rate_limits')) {
+        if (opts.method === 'POST') return { ok: false, status: 500 };
+        return { ok: true, json: async () => ([]) }; // GET: no record
+      }
+      providerCalled = true;
+      return { ok: true, json: async () => ({ content: [{ text: '{}' }] }) };
+    };
+    const req = mockReq({ body: { callType: 1, context: VALID_CONTEXT }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('rate limit creation POST non-2xx -> fails closed (503), no provider call', res.statusCode === 503 && !providerCalled, { status: res.statusCode, providerCalled });
+  }
+  {
+    // Existing record with an expired window -> code takes the reset PATCH
+    // branch. That PATCH returns a non-2xx status without throwing - must
+    // still fail closed.
+    let providerCalled = false;
+    const expiredWindowStart = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+    global.fetch = async (url, opts) => {
+      const u = String(url);
+      if (u.includes('/auth/v1/user')) return { ok: true, json: async () => VALID_USER };
+      if (u.includes('/rest/v1/rate_limits')) {
+        if (opts.method === 'PATCH') return { ok: false, status: 500 };
+        return { ok: true, json: async () => ([{ calls: 3, window_start: expiredWindowStart }]) };
+      }
+      providerCalled = true;
+      return { ok: true, json: async () => ({ content: [{ text: '{}' }] }) };
+    };
+    const req = mockReq({ body: { callType: 1, context: VALID_CONTEXT }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('rate limit expired-window reset PATCH non-2xx -> fails closed (503), no provider call', res.statusCode === 503 && !providerCalled, { status: res.statusCode, providerCalled });
+  }
+  {
+    // Existing record within the window, under the limit -> code takes the
+    // increment PATCH branch. That PATCH returns a non-2xx status without
+    // throwing - must still fail closed.
+    let providerCalled = false;
+    const recentWindowStart = new Date(Date.now() - 60 * 1000).toISOString();
+    global.fetch = async (url, opts) => {
+      const u = String(url);
+      if (u.includes('/auth/v1/user')) return { ok: true, json: async () => VALID_USER };
+      if (u.includes('/rest/v1/rate_limits')) {
+        if (opts.method === 'PATCH') return { ok: false, status: 500 };
+        return { ok: true, json: async () => ([{ calls: 2, window_start: recentWindowStart }]) };
+      }
+      providerCalled = true;
+      return { ok: true, json: async () => ({ content: [{ text: '{}' }] }) };
+    };
+    const req = mockReq({ body: { callType: 1, context: VALID_CONTEXT }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('rate limit increment PATCH non-2xx -> fails closed (503), no provider call', res.statusCode === 503 && !providerCalled, { status: res.statusCode, providerCalled });
+  }
 
   // ---- Non-disclosing errors ----
   {

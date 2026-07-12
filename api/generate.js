@@ -476,19 +476,27 @@ async function checkRateLimit(key) {
     const record  = Array.isArray(records) ? records[0] : null;
 
     if (!record) {
-      await fetch(`${url}/rest/v1/rate_limits`, {
+      const createRes = await fetch(`${url}/rest/v1/rate_limits`, {
         method: 'POST', headers,
         body: JSON.stringify({ key, calls: 1, window_start: now.toISOString() }),
       });
+      if (!createRes.ok) {
+        console.error('[generate] rate limit create failed:', createRes.status);
+        return { allowed: false, reason: 'unavailable' };
+      }
       return { allowed: true, remaining: RATE_LIMIT - 1 };
     }
 
     const elapsed = now - new Date(record.window_start);
     if (elapsed > windowMs) {
-      await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+      const resetRes = await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
         method: 'PATCH', headers,
         body: JSON.stringify({ calls: 1, window_start: now.toISOString() }),
       });
+      if (!resetRes.ok) {
+        console.error('[generate] rate limit window reset failed:', resetRes.status);
+        return { allowed: false, reason: 'unavailable' };
+      }
       return { allowed: true, remaining: RATE_LIMIT - 1 };
     }
 
@@ -497,10 +505,14 @@ async function checkRateLimit(key) {
       return { allowed: false, reason: 'exceeded', remaining: 0, resetAt: resetAt.toISOString() };
     }
 
-    await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+    const incrementRes = await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
       method: 'PATCH', headers,
       body: JSON.stringify({ calls: record.calls + 1 }),
     });
+    if (!incrementRes.ok) {
+      console.error('[generate] rate limit increment failed:', incrementRes.status);
+      return { allowed: false, reason: 'unavailable' };
+    }
     return { allowed: true, remaining: RATE_LIMIT - record.calls - 1 };
 
   } catch (e) {
