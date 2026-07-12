@@ -203,6 +203,9 @@ async function run() {
     await handler(req, res);
     ok('correct (id, token) pair renders the report (200)', res.statusCode === 200, res.statusCode);
     ok('rendered body contains the report content', typeof res.body === 'string' && res.body.includes('The Determined Humanist'));
+    ok('Cache-Control: no-store present on successful response', res.headers['Cache-Control'] === 'no-store', res.headers);
+    ok('Pragma: no-cache present on successful response', res.headers['Pragma'] === 'no-cache', res.headers);
+    ok('Referrer-Policy: no-referrer present on successful response', res.headers['Referrer-Policy'] === 'no-referrer', res.headers);
   }
 
   // ---- 8. Response minimized: completed_at no longer selected/fetched ----

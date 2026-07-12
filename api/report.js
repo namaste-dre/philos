@@ -135,7 +135,13 @@ export default async function handler(req, res) {
     const variant = c.archetype_variant || '';
     const shareUrl = `https://phil-os.thelifepm.com/report?id=${id}&t=${t}`;
 
+    // Targeted repair: this is private report content and the URL itself
+    // carries the capability token - never cache it, and never let it leak
+    // to a third party via the Referer header on an outbound link click.
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Referrer-Policy', 'no-referrer');
     return res.status(200).send(renderReportPage({ c, report, scores, fingerprint, name, archetype, variant, shareUrl }));
 
   } catch (e) {
