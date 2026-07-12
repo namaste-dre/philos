@@ -8632,6 +8632,19 @@ async function generateReport() {
       return `${meta.label}:${score.toFixed(1)} (${pole})`;
     }).filter(Boolean).join(' | ');
 
+  // Data-only payload for /api/generate (A0.1 containment repair): the
+  // server owns every prompt template and renders all prose itself from
+  // these ids/numbers, so no free-form text crosses the wire.
+  const isLiminalForApi = !!(archetypeResult.isLiminal && archetypeResult.secondary);
+  const apiContext = {
+    axisScores:  Object.entries(scores).map(([axis, score]) => ({ axis, score })),
+    archetypeId: arch.id,
+    isLiminal:   isLiminalForApi,
+    secondaryArchetypeId: isLiminalForApi ? archetypeResult.secondary.id : null,
+    contradictions:  contradictions.map(c => ({ id: c.id, strength: c.strength || 0 })),
+    fingerprintAxes: fingerprint.map(f => ({ axis: f.axis, direction: f.direction })),
+  };
+
   try {
   // ── AXIS REFERENCE (shared between both calls) ──
   const axisRef = `- naturalism 1=supernatural, 7=naturalist
@@ -8708,14 +8721,12 @@ Return ONLY valid JSON, with no markdown fences and no preamble:
     let lastErr;
     for (let attempt = 0; attempt < 2 && !report1; attempt++) {
       try {
+        const { data: { session: genSession1 } } = await supa.auth.getSession();
+        if (!genSession1) throw new Error('401 Session expired');
         const res1 = await fetch('/api/generate', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            callType: 1,
-            context: { userName, axisDump, fingerprintSummary, contradictionSummary, liminalNote, archFamily: arch.family, archVariant: arch.variant },
-            email: currentUser?.email || state.captureData?.email || '',
-          })
+          headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${genSession1.access_token}`},
+          body: JSON.stringify({ callType: 1, context: apiContext })
         });
         if (!res1.ok) throw new Error(`Call 1 HTTP ${res1.status}`);
         const text1 = await res1.text();
@@ -8773,14 +8784,12 @@ Return ONLY valid JSON, with no markdown fences:
 
   let report2;
   try {
+    const { data: { session: genSession2 } } = await supa.auth.getSession();
+    if (!genSession2) throw new Error('401 Session expired');
     const res2 = await fetch('/api/generate', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        callType: 2,
-        context: { userName, axisDump, archFamily: arch.family, archVariant: arch.variant },
-        email: currentUser?.email || state.captureData?.email || '',
-      })
+      headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${genSession2.access_token}`},
+      body: JSON.stringify({ callType: 2, context: apiContext })
     });
     if (!res2.ok) throw new Error(`Call 2 HTTP ${res2.status}`);
     const text2 = await res2.text();
