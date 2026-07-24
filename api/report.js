@@ -6,6 +6,29 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const RATE_LIMIT      = 30;   // fetches per IP per window - generous for legitimate refreshes/shares
 const RATE_WINDOW_HRS = 1;
 
+// Problem 3B repair: this page previously showed a hardcoded "Compassionate
+// Collectivist / 12% / 71% / Uncertainty" badge and stat row on every
+// report regardless of the actual archetype. These percentages are the
+// same authoritative population-rarity-by-family values index.html's own
+// RARITY_BY_FAMILY table uses on the in-app Profile screen (showProfile()) -
+// duplicated here only because index.html and this serverless function are
+// separate JS contexts with no shared module today. Keep in sync with
+// index.html's RARITY_BY_FAMILY if either changes.
+const RARITY_BY_FAMILY = {
+  'The Determined Humanist': '4%',
+  'The Structural Reformer': '9%',
+  'The Rational Empiricist': '11%',
+  'The Existential Architect': '8%',
+  'The Moral Realist': '14%',
+  'The Compassionate Collectivist': '12%',
+  'The Principled Libertarian': '7%',
+  'The Stoic Naturalist': '6%',
+  'The Spiritual Naturalist': '13%',
+  'The Conservative Traditionalist': '18%',
+  'The Pragmatic Centrist': '16%',
+  'The Nihilist Reductionist': '2%',
+};
+
 // A0.2 containment: /api/report previously treated bare possession of the
 // completion id (a value logged, emailed, and pasted around) as sufficient
 // authorization. It is now not - a viewer must also present the capability
@@ -112,7 +135,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&select=report_json,scores,fingerprint,first_name,archetype_family,archetype_variant`,
+      `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&select=report_json,scores,fingerprint,first_name,archetype_family,archetype_variant,axis_count,question_count`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -276,6 +299,48 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
   const t2Bars = scoresMap.filter(a => a.tier === 2).map(a => scores[a.key] !== undefined ? axisRow(a.label, scores[a.key], a.poleL, a.poleR, a.color) : '').join('');
   const t3Bars = scoresMap.filter(a => a.tier === 3).map(a => scores[a.key] !== undefined ? axisRow(a.label, scores[a.key], a.poleL, a.poleR, a.color) : '').join('');
 
+  // Problem 3B: derive the header badge/stats from this report's own data
+  // instead of the previous hardcoded values. Same formulas as index.html's
+  // showProfile() (the in-app equivalent view). Anything not computable is
+  // omitted rather than replaced with a placeholder or invented value.
+  const rarityPct = RARITY_BY_FAMILY[archetype] || null;
+
+  const axisKeys = Object.keys(scores);
+  const convictionPct = axisKeys.length
+    ? Math.round((axisKeys.reduce((s, k) => s + Math.abs((scores[k] || 4) - 4), 0) / axisKeys.length) * (100 / 3))
+    : null;
+
+  const topAxisEntry = fingerprint && fingerprint[0];
+  const topAxisMeta = topAxisEntry ? scoresMap.find(a => a.key === topAxisEntry.axis) : null;
+  const dominantAxisLabel = topAxisMeta ? topAxisMeta.label : null;
+
+  const rarityBadgeHtml = rarityPct ? `<div style="display:inline-flex;align-items:center;gap:8px;background:rgba(157,147,232,0.10);border:1px solid rgba(157,147,232,0.28);border-radius:50px;padding:7px 18px;font-family:IBM Plex Mono,monospace;font-size:11px;color:#b8aef5;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:32px;">
+      <div style="width:6px;height:6px;background:#b8aef5;border-radius:50%;animation:pulse 2.5s infinite;"></div>
+      ${archetype} · ${rarityPct} of people
+    </div>` : '';
+
+  const statBoxes = [
+    rarityPct ? { value: rarityPct, label: 'Worldview rarity' } : null,
+    convictionPct !== null ? { value: convictionPct + '%', label: 'Conviction score' } : null,
+    dominantAxisLabel ? { value: dominantAxisLabel, label: 'Dominant axis' } : null,
+  ].filter(Boolean);
+
+  const statsRowHtml = statBoxes.length ? `<div style="display:flex;gap:0;justify-content:center;margin:32px auto 24px;max-width:560px;border:1px solid rgba(157,147,232,0.22);border-radius:12px;">
+      ${statBoxes.map((b, i, arr) => {
+        const isFirst = i === 0, isLast = i === arr.length - 1;
+        const radius = isFirst && isLast ? '12px' : isFirst ? '12px 0 0 12px' : isLast ? '0 12px 12px 0' : '0';
+        const borderRight = isLast ? '' : 'border-right:1px solid rgba(157,147,232,0.22);';
+        return `<div style="flex:1;padding:20px 16px;text-align:center;background:#111028;border-radius:${radius};${borderRight}">
+        <span style="font-family:Playfair Display,serif;font-size:${String(b.value).length > 10 ? '18px' : '26px'};font-weight:700;color:#c9a96e;display:block;margin-bottom:5px;word-break:break-word;">${b.value}</span>
+        <span style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#8c88a0;letter-spacing:0.12em;text-transform:uppercase;">${b.label}</span>
+      </div>`;
+      }).join('')}
+    </div>` : '';
+
+  const instrumentLine = (c.question_count && c.axis_count)
+    ? `${c.question_count} questions · ${c.axis_count} belief axes · your archetype`
+    : 'your archetype';
+
   const alignmentHtml = alignment.map(a => `
     <div style="background:#111028;border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:26px;margin-bottom:14px;">
       <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#c9a96e;margin-bottom:10px;font-weight:600;">${a.label}</div>
@@ -351,24 +416,8 @@ html,body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;
     <div style="font-family:IBM Plex Mono,monospace;font-size:12px;letter-spacing:0.18em;color:#b8aef5;text-transform:uppercase;margin-bottom:20px;">${variant}</div>
     <div style="width:48px;height:2px;background:linear-gradient(90deg,#9d93e8,#c9a96e);margin:0 auto 36px;border-radius:1px;"></div>
     <div style="font-family:Playfair Display,serif;font-style:italic;font-size:clamp(18px,2.5vw,23px);color:#c9a96e;max-width:620px;margin:0 auto 28px;line-height:1.6;">${tagline}</div>
-    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(157,147,232,0.10);border:1px solid rgba(157,147,232,0.28);border-radius:50px;padding:7px 18px;font-family:IBM Plex Mono,monospace;font-size:11px;color:#b8aef5;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:32px;">
-      <div style="width:6px;height:6px;background:#b8aef5;border-radius:50%;animation:pulse 2.5s infinite;"></div>
-      Compassionate Collectivist · 12% of people
-    </div>
-    <div style="display:flex;gap:0;justify-content:center;margin:32px auto 24px;max-width:560px;border:1px solid rgba(157,147,232,0.22);border-radius:12px;">
-      <div style="flex:1;padding:20px 16px;text-align:center;border-right:1px solid rgba(157,147,232,0.22);background:#111028;border-radius:12px 0 0 12px;">
-        <span style="font-family:Playfair Display,serif;font-size:26px;font-weight:700;color:#c9a96e;display:block;margin-bottom:5px;">12%</span>
-        <span style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#8c88a0;letter-spacing:0.12em;text-transform:uppercase;">Worldview rarity</span>
-      </div>
-      <div style="flex:1;padding:20px 16px;text-align:center;border-right:1px solid rgba(157,147,232,0.22);background:#111028;">
-        <span style="font-family:Playfair Display,serif;font-size:26px;font-weight:700;color:#c9a96e;display:block;margin-bottom:5px;">71%</span>
-        <span style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#8c88a0;letter-spacing:0.12em;text-transform:uppercase;">Conviction score</span>
-      </div>
-      <div style="flex:1;padding:20px 16px;text-align:center;background:#111028;border-radius:0 12px 12px 0;">
-        <span style="font-family:Playfair Display,serif;font-size:18px;font-weight:700;color:#c9a96e;display:block;margin-bottom:5px;word-break:break-word;">Uncertainty</span>
-        <span style="font-family:IBM Plex Mono,monospace;font-size:9px;color:#8c88a0;letter-spacing:0.12em;text-transform:uppercase;">Dominant axis</span>
-      </div>
-    </div>
+    ${rarityBadgeHtml}
+    ${statsRowHtml}
     <!-- Share URL -->
     <div style="margin:0 auto 16px;max-width:560px;padding:12px 16px;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.22);border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
       <span style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;flex-shrink:0;">Share</span>
@@ -404,7 +453,7 @@ html,body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;
 <!-- FOOTER -->
 <div style="text-align:center;padding:40px 28px 60px;border-top:1px solid rgba(255,255,255,0.06);">
   <div style="font-family:IBM Plex Mono,monospace;font-size:14px;letter-spacing:4px;color:#8c88a0;">PHIL/OS · thelifepm.com</div>
-  <div style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#8c88a0;margin-top:8px;">156 questions · 34 belief axes · your archetype</div>
+  <div style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#8c88a0;margin-top:8px;">${instrumentLine}</div>
   <div style="margin-top:20px;">
     <a href="https://phil-os.thelifepm.com" style="display:inline-block;background:#c9a96e;color:#08061a;font-family:IBM Plex Mono,monospace;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;border-radius:6px;text-decoration:none;">Take the assessment</a>
   </div>

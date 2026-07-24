@@ -8409,6 +8409,32 @@ function renderShareUrl(url) {
   if (reportBody) reportBody.insertBefore(shareBlock, reportBody.firstChild);
 }
 
+// Problem 3C: get the real share URL for an already-saved completion, for
+// the persistent-retrieval path (revisiting a report via My Account/Profile,
+// not the live post-generation flow which already has the URL in hand).
+// Reuses /api/capture's existing ownership check and stateless
+// computeReportToken() - calling it again with no responses payload just
+// re-verifies ownership and returns the same deterministic token a second
+// time, it does not mint a new one. Never falls back to a guessed URL.
+async function fetchShareUrlForCompletion(completionId) {
+  if (!completionId || !currentUser) return null;
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session?.access_token) return null;
+    const res = await fetch('/api/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ completion_id: completionId }),
+    });
+    const data = await res.json().catch(() => null);
+    if (!data || !data.ok || !data.report_token) return null;
+    return window.location.origin + '/report?id=' + completionId + '&t=' + data.report_token;
+  } catch(e) {
+    console.warn('[Share] Could not retrieve share link:', e.message);
+    return null;
+  }
+}
+
 async function saveToSupabase(payload, claimedId) {
   // Signed-in users: one canonical completions row carries the full report
   // and all r2 metadata (D105). A1 changed WHEN that row is created - it
@@ -8614,6 +8640,12 @@ function validateReportPayload(obj) {
 }
 
 async function generateReport() {
+  // Lyra/Codex review fix: every new generation attempt - fresh, retake,
+  // "Try again", or a deterministic replay of an already-complete attempt -
+  // starts here. Reset the share state up front so the Share button can
+  // never expose a previous report's URL while this one is still resolving;
+  // it stays null (fail-safe) until this attempt's own real URL is known.
+  currentReportShareUrl = null;
   show('screen-generating');
   ensureAttemptId();
 
@@ -8714,6 +8746,12 @@ async function generateReport() {
     // Deterministic replay (D110): render the stored report directly, no
     // LLM calls, no duplicate row, no re-sent email/share link (the
     // original successful run already produced those).
+    // Lyra/Codex review fix: this replays an existing, genuinely complete
+    // attempt (claimedId) - resolve ITS real share URL before rendering,
+    // rather than leaving the null reset above in place. Awaited before the
+    // render timeout chain starts, so it is set well before the Share
+    // button can become visible/clickable.
+    currentReportShareUrl = await fetchShareUrlForCompletion(claimedId);
     setTimeout(() => {
       steps[steps.length - 1].classList.add('done');
       setTimeout(() => {
@@ -9000,6 +9038,7 @@ Return ONLY valid JSON, with no markdown fences:
           const shareUrl = (completionId && reportToken)
             ? (window.location.origin + '/report?id=' + completionId + '&t=' + reportToken)
             : null;
+          currentReportShareUrl = shareUrl;
           // Send report email with share URL
           sendReportEmail(report, fingerprint, archetypeResult, contradictions, shareUrl);
           // Show share URL in report if we have it
@@ -11269,15 +11308,17 @@ function closeShareModal() {
 }
 
 function shareToX() {
+  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
   const text = encodeURIComponent(getShareText());
-  const url  = encodeURIComponent('https://phil-os.thelifepm.com');
+  const url  = encodeURIComponent(currentReportShareUrl);
   window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   closeShareModal();
 }
 
 function shareToReddit() {
+  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
   const title = encodeURIComponent(getShareText());
-  const url   = encodeURIComponent('https://phil-os.thelifepm.com');
+  const url   = encodeURIComponent(currentReportShareUrl);
   window.open(`https://reddit.com/submit?title=${title}&url=${url}`, '_blank');
   closeShareModal();
 }
@@ -11288,6 +11329,7 @@ function downloadForSocial() {
 }
 
 async function shareNative() {
+  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
   const canvas = getCardCanvas();
   if (!canvas || !navigator.share) return;
   try {
@@ -11295,7 +11337,7 @@ async function shareNative() {
     const name = (state.userName || 'my').replace(/\s+/g,'-').toLowerCase();
     const archSlug = (cardData?.archetypeName || 'phil-os').replace(/\s+/g,'-').toLowerCase();
     const file = new File([blob], `${name}-${archSlug}-philos.png`, { type: 'image/png' });
-    const shareData = { title: 'Phil OS', text: getShareText(), url: 'https://phil-os.thelifepm.com' };
+    const shareData = { title: 'Phil OS', text: getShareText(), url: currentReportShareUrl };
     if (navigator.canShare?.({ files: [file] })) shareData.files = [file];
     await navigator.share(shareData);
     closeShareModal();
@@ -11358,7 +11400,8 @@ async function submitConsentGate() {
 }
 
 async function copyProfileLink() {
-  const url = 'https://phil-os.thelifepm.com';
+  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
+  const url = currentReportShareUrl;
   try {
     await navigator.clipboard.writeText(url);
     const label = document.getElementById('copy-link-label');
@@ -11982,6 +12025,12 @@ const supa = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 let currentUser = null;
 
+// Problem 3A/3C repair: the share URL of whatever report is currently on
+// screen (live generation or a revisited saved report). Every share control
+// reads from this single value instead of each hardcoding its own guess -
+// null means "not known yet", never "fall back to the homepage".
+let currentReportShareUrl = null;
+
 // ── Boot: check session on load ──
 let _consentGatePassed = false; // module-level: survives onAuthReady re-entry
 
@@ -12060,6 +12109,11 @@ async function onAuthReady() {
       const fp             = completion.fingerprint || [];
       const archetypeResult = computeArchetype(scores);
       const contradictions  = detectContradictions(scores);
+      // Lyra/Codex review fix: this is a revisited-report render (same
+      // category as showProfile()'s persistent-retrieval path) - resolve
+      // this completion's own real share URL rather than leaving whatever
+      // currentReportShareUrl already held.
+      currentReportShareUrl = await fetchShareUrlForCompletion(completion.id);
       renderReport(scores, contradictions, archetypeResult, fp, completion.report_json);
     } catch(e) {
       console.warn('Could not pre-render report:', e.message);
@@ -12945,6 +12999,11 @@ async function showProfile() {
     }
     return;
   }
+
+  // Problem 3C: this is the persistent-retrieval path (revisiting a saved
+  // report, not the live post-generation flow). Resolve the real share URL
+  // before the Share button becomes clickable, so it's never wrong/missing.
+  currentReportShareUrl = await fetchShareUrlForCompletion(completion.id);
 
   // Populate profile screen
   const family  = completion.archetype_family  || '—';
