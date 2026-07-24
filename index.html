@@ -3039,6 +3039,31 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+
+/* Five-lens landing cards: flexbox (not auto-fit grid) so an incomplete
+   last row centers itself instead of stretching edge-to-edge or leaving
+   an orphan card. Container max-widths are sized to hold exactly 3 cards
+   desktop / 2 tablet / 1 mobile before wrapping. */
+.lens-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.lens-card {
+  flex: 1 1 300px;
+  max-width: 320px;
+}
+@media (max-width: 767px) {
+  .lens-grid { max-width: 660px; }
+  .lens-card { flex: 1 1 280px; max-width: 320px; }
+}
+@media (max-width: 480px) {
+  .lens-grid { max-width: 100%; }
+  .lens-card { flex: 1 1 100%; max-width: 420px; }
+}
 </style>
 </head>
 <body>
@@ -3195,33 +3220,33 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         <p style="font-family:'IBM Plex Sans',sans-serif;font-size:16px;color:var(--text2);max-width:580px;margin:0 auto;line-height:1.75;">Your philosophy doesn't stay in your head. It determines how you interpret every relationship, institution, and moment of your life. Phil OS maps all five lenses at once.</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:20px;">
+      <div class="lens-grid">
 
-        <div style="background:rgba(157,147,232,0.06);border:1px solid rgba(157,147,232,0.18);border-radius:16px;padding:28px 24px;">
+        <div class="lens-card" style="background:rgba(157,147,232,0.06);border:1px solid rgba(157,147,232,0.18);border-radius:16px;padding:28px 24px;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(157,147,232,0.7);margin-bottom:14px;">Lens 01</div>
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">The Self</div>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether you are the author of your life or a product of forces beyond you. How much you hold yourself responsible. Whether your identity is fixed or constructed. These beliefs shape every decision you make about your own path.</p>
         </div>
 
-        <div style="background:rgba(91,191,148,0.06);border:1px solid rgba(91,191,148,0.18);border-radius:16px;padding:28px 24px;">
+        <div class="lens-card" style="background:rgba(91,191,148,0.06);border:1px solid rgba(91,191,148,0.18);border-radius:16px;padding:28px 24px;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(91,191,148,0.7);margin-bottom:14px;">Lens 02</div>
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">Other People</div>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether people deserve blame or understanding. How you explain bad behaviour — character or circumstance. The moral weight you extend to strangers, enemies, and people unlike you. This is the engine of every conflict and every connection.</p>
         </div>
 
-        <div style="background:rgba(232,200,122,0.06);border:1px solid rgba(232,200,122,0.18);border-radius:16px;padding:28px 24px;">
+        <div class="lens-card" style="background:rgba(232,200,122,0.06);border:1px solid rgba(232,200,122,0.18);border-radius:16px;padding:28px 24px;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(232,200,122,0.7);margin-bottom:14px;">Lens 03</div>
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">Relationships</div>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether you build your identity through independence or through belonging. How much authority you grant to community and tradition, and how open you stay to being persuaded. This shapes the kind of connection you actually seek.</p>
         </div>
 
-        <div style="background:rgba(224,120,74,0.06);border:1px solid rgba(224,120,74,0.18);border-radius:16px;padding:28px 24px;">
+        <div class="lens-card" style="background:rgba(224,120,74,0.06);border:1px solid rgba(224,120,74,0.18);border-radius:16px;padding:28px 24px;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(224,120,74,0.7);margin-bottom:14px;">Lens 04</div>
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">Society</div>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether social structures are natural, constructed, or corrupted. How justice should work. Whether tradition or progress is the wiser guide. What you owe to people you'll never meet. The political is always philosophical first.</p>
         </div>
 
-        <div style="background:rgba(184,174,245,0.06);border:1px solid rgba(184,174,245,0.18);border-radius:16px;padding:28px 24px;">
+        <div class="lens-card" style="background:rgba(184,174,245,0.06);border:1px solid rgba(184,174,245,0.18);border-radius:16px;padding:28px 24px;">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(184,174,245,0.7);margin-bottom:14px;">Lens 05</div>
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;">Life and Existence</div>
           <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.65;margin:0;">Whether the universe has a built-in purpose or whether meaning is something you build yourself. Your relationship with uncertainty, with faith, and with whether human progress is real or a story we tell each other. The horizon everything else is measured against.</p>
