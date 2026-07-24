@@ -28,10 +28,10 @@ Read, in order:
 
 1. `C:\Andre's 2nd brain\_AI workflow\Vault Instructions - Full.md`
 2. `C:\Andre's 2nd brain\_AI workflow\Quick Reference - Vault Rules.md`
-3. `776 - Build Log and Decisions\Phil OS - Documentation and Versioning Contract.md` (Phil OS project root)
+3. `Build Log and Decisions\Phil OS - Documentation and Versioning Contract.md` (Phil OS project root)
 4. Current State Manifest, if it exists (Phil OS project root)
-5. The latest 2-3 complete entries in `Phil OS - Build Log.md` (Phil OS project root, `776 - Build Log and Decisions\`)
-6. Relevant recent entries in `Phil OS - Decisions Log.md` (Phil OS project root, `776 - Build Log and Decisions\`)
+5. The latest 2-3 complete entries in `Phil OS - Build Log.md` (Phil OS project root, `Build Log and Decisions\`)
+6. Relevant recent entries in `Phil OS - Decisions Log.md` (Phil OS project root, `Build Log and Decisions\`)
 7. `Phil OS - Build Checklist.md` (Phil OS project root)
 8. Current Handover, if one exists (Phil OS project root)
 9. `Phil OS - Master Index.md` (Phil OS project root)
