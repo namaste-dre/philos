@@ -59,23 +59,30 @@ async function verifyOwnership(supabaseUrl, svcHeaders, id, userId) {
 // D117: monthly generation caps (2 full report generations / 3 failed
 // generations per user per month, QA mode excluded). Enforced entirely
 // against existing completions columns - user_id, qa_mode, attempt_status,
-// completed_at, claimed_at - no schema change. Only gates a genuinely NEW
-// attempt (attempt_id not already claimed by this user) - continuing an
-// already-claimed attempt (a retry after an in-flight failure, same
-// attempt_id, before it succeeds or is abandoned) is not a new generation
-// slot and is never capped here, matching today's existing retry behavior
-// unchanged.
+// completed_at, claimed_at - no schema change.
+//
+// Only a 'pending' or 'complete' existing attempt bypasses the cap check -
+// that is a genuine in-flight claim or a deterministic replay, never new
+// generation work. An existing 'failed' row does NOT bypass: reclaiming it
+// is itself another attempt at real generation work and must be gated the
+// same as a brand-new attempt, or unlimited retries of one attempt_id could
+// never be capped (claim_attempt() reclaims a failed row back to 'pending'
+// in place - it never becomes a second row the count could see). Lyra/Codex
+// review (2026-07-29) on the first version of this check - see the Build
+// Log and F1 Remaining Items Packet for the corrected round.
 const MONTHLY_SUCCESS_CAP = 2;
 const MONTHLY_FAILED_CAP = 3;
 
-async function hasExistingAttemptRow(supabaseUrl, svcHeaders, attemptId, userId) {
+// Returns null if no completions row exists yet for this attempt_id/user,
+// otherwise the row's current attempt_status ('pending'/'complete'/'failed').
+async function getExistingAttemptStatus(supabaseUrl, svcHeaders, attemptId, userId) {
   const res = await fetch(
-    `${supabaseUrl}/rest/v1/completions?attempt_id=eq.${encodeURIComponent(attemptId)}&user_id=eq.${encodeURIComponent(userId)}&select=id`,
+    `${supabaseUrl}/rest/v1/completions?attempt_id=eq.${encodeURIComponent(attemptId)}&user_id=eq.${encodeURIComponent(userId)}&select=attempt_status`,
     { headers: svcHeaders },
   );
   if (!res.ok) throw new Error('Attempt-state check failed');
   const rows = await res.json();
-  return Array.isArray(rows) && rows.length > 0;
+  return Array.isArray(rows) && rows.length > 0 ? rows[0].attempt_status : null;
 }
 
 function startOfCurrentMonthISO() {
@@ -145,15 +152,21 @@ export default async function handler(req, res) {
       const qaMode = body.qa_mode === true;
 
       if (!qaMode) {
-        let alreadyClaimed;
+        let existingStatus;
         try {
-          alreadyClaimed = await hasExistingAttemptRow(supabaseUrl, svcHeaders, attemptId, user.id);
+          existingStatus = await getExistingAttemptStatus(supabaseUrl, svcHeaders, attemptId, user.id);
         } catch (e) {
           console.error('claim-attempt cap pre-check failed:', e.message);
           return res.status(500).json({ error: 'Could not verify attempt state' });
         }
 
-        if (!alreadyClaimed) {
+        // Bypass only for a genuine in-flight claim ('pending') or a
+        // deterministic replay ('complete') - neither is new generation
+        // work. No row yet, or an existing 'failed' row (a reclaim), both
+        // fall through to the cap check below.
+        const bypassCap = existingStatus === 'pending' || existingStatus === 'complete';
+
+        if (!bypassCap) {
           let successCount, failedCount;
           try {
             successCount = await countCompletionsThisMonth(supabaseUrl, svcHeaders, user.id, 'complete', 'completed_at');
@@ -253,6 +266,6 @@ export default async function handler(req, res) {
 // Exported for containment tests only (A1/D117) - not part of the public API surface.
 export const __testables__ = {
   verifyOwnership, pick, COMPLETE_COLUMNS, UUID_RE,
-  hasExistingAttemptRow, countCompletionsThisMonth, startOfCurrentMonthISO,
+  getExistingAttemptStatus, countCompletionsThisMonth, startOfCurrentMonthISO,
   MONTHLY_SUCCESS_CAP, MONTHLY_FAILED_CAP,
 };

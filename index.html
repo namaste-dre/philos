@@ -8977,8 +8977,13 @@ Return ONLY valid JSON, with no markdown fences and no preamble:
     }
     if (!report1) throw lastErr;
   } catch(e) {
-    // A1: release the claim so a retry (same attempt_id) can reclaim it
-    // instead of being stuck 'pending' until the stale-timeout window.
+    // A1: release the claim so a retry doesn't get stuck 'pending' until the
+    // stale-timeout window. D117: once this attempt is marked failed, clear
+    // the in-memory attempt id so the visible "Try again" mints a genuinely
+    // new attempt_id next time (ensureAttemptId() only mints when unset) -
+    // otherwise unlimited retries of one attempt would collapse onto the
+    // same completions row and the failed-generation cap could never see
+    // more than one failure no matter how many times it actually happened.
     if (claimedId) {
       try {
         const { data: { session: failSession } } = await supa.auth.getSession();
@@ -8988,6 +8993,7 @@ Return ONLY valid JSON, with no markdown fences and no preamble:
           body: JSON.stringify({ action: 'fail', id: claimedId }),
         });
       } catch (_) {}
+      state.attemptId = null;
     }
     const msg = e.message || '';
     const userMsg = msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'

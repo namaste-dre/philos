@@ -134,16 +134,18 @@ async function run() {
   // ---- Claim: RPC response translation ----
   // D117 cap pre-checks now run before every non-QA claim reaches the RPC.
   // capGetHandler simulates the completions GETs those pre-checks issue:
-  // the attempt_id=eq. existing-row check, and the two attempt_status=eq.
-  // count checks (complete/failed). existingRow controls whether this
-  // attempt_id is treated as already-claimed (skips the cap counts
-  // entirely, exactly like a real retry/replay); successCount/failedCount
-  // control what the two count queries report when it is not.
-  function capGetHandler({ existingRow = false, successCount = 0, failedCount = 0 } = {}) {
+  // the attempt_id=eq. existing-status check, and the two attempt_status=eq.
+  // count checks (complete/failed). existingStatus is null (no row yet),
+  // 'pending', 'complete', or 'failed' - only 'pending'/'complete' bypass
+  // the cap check (Lyra/Codex correction, 2026-07-29): an existing 'failed'
+  // row is a reclaim, not a bypass, and falls through to the same cap check
+  // as a brand-new attempt. successCount/failedCount control what the two
+  // count queries report whenever the cap check actually runs.
+  function capGetHandler({ existingStatus = null, successCount = 0, failedCount = 0 } = {}) {
     return async (url) => {
       const u = String(url);
       if (u.includes('attempt_id=eq.')) {
-        return { ok: true, json: async () => (existingRow ? [{ id: 'existing-row' }] : []) };
+        return { ok: true, json: async () => (existingStatus ? [{ attempt_status: existingStatus }] : []) };
       }
       if (u.includes('attempt_status=eq.complete')) {
         return { ok: true, json: async () => Array.from({ length: successCount }, (_, i) => ({ id: 'ok' + i })) };
@@ -158,7 +160,7 @@ async function run() {
     let sentParams = null;
     installAuth(
       async (url, opts) => { sentParams = JSON.parse(opts.body); return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
-      null, capGetHandler({ existingRow: false, successCount: 0, failedCount: 0 }),
+      null, capGetHandler({ existingStatus: null, successCount: 0, failedCount: 0 }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID, qa_mode: false }, headers: authHeaders() });
     const res = mockRes();
@@ -170,7 +172,7 @@ async function run() {
   {
     installAuth(
       async () => ({ ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'complete', out_report_json: { tagline: 'hi' }, out_should_generate: false }]) }),
-      null, capGetHandler({ existingRow: true }),
+      null, capGetHandler({ existingStatus: 'complete' }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
@@ -181,7 +183,7 @@ async function run() {
   {
     installAuth(
       async () => ({ ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: false }]) }),
-      null, capGetHandler({ existingRow: true }),
+      null, capGetHandler({ existingStatus: 'pending' }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
@@ -189,7 +191,7 @@ async function run() {
     ok('someone else already generating -> should_generate false, status pending', res.statusCode === 200 && res.body.status === 'pending' && res.body.should_generate === false, res.body);
   }
   {
-    installAuth(async () => ({ ok: false, status: 500 }), null, capGetHandler({ existingRow: false, successCount: 0, failedCount: 0 }));
+    installAuth(async () => ({ ok: false, status: 500 }), null, capGetHandler({ existingStatus: null, successCount: 0, failedCount: 0 }));
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
     await handler(req, res);
@@ -202,7 +204,7 @@ async function run() {
     let rpcCalled = false;
     installAuth(
       async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
-      null, capGetHandler({ existingRow: false, successCount: 2, failedCount: 0 }),
+      null, capGetHandler({ existingStatus: null, successCount: 2, failedCount: 0 }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
@@ -215,7 +217,7 @@ async function run() {
     let rpcCalled = false;
     installAuth(
       async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
-      null, capGetHandler({ existingRow: false, successCount: 0, failedCount: 3 }),
+      null, capGetHandler({ existingStatus: null, successCount: 0, failedCount: 3 }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
@@ -228,7 +230,7 @@ async function run() {
     let rpcCalled = false;
     installAuth(
       async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
-      null, capGetHandler({ existingRow: false, successCount: 1, failedCount: 2 }),
+      null, capGetHandler({ existingStatus: null, successCount: 1, failedCount: 2 }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
@@ -236,17 +238,73 @@ async function run() {
     ok('one below both caps -> 200, RPC called', res.statusCode === 200 && rpcCalled === true, res.body);
   }
   {
-    // Retrying an already-claimed attempt is never capped, even if the user
-    // is already over both caps - it is not a new generation slot.
+    // Retrying a genuinely in-flight attempt ('pending') bypasses the cap
+    // entirely, even far over both caps - it is not new generation work.
     let rpcCalled = false;
     installAuth(
       async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
-      null, capGetHandler({ existingRow: true, successCount: 99, failedCount: 99 }),
+      null, capGetHandler({ existingStatus: 'pending', successCount: 99, failedCount: 99 }),
     );
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
     await handler(req, res);
-    ok('retry of already-claimed attempt bypasses cap entirely -> 200, RPC called', res.statusCode === 200 && rpcCalled === true, res.body);
+    ok('retry of a pending attempt bypasses the cap entirely -> 200, RPC called', res.statusCode === 200 && rpcCalled === true, res.body);
+  }
+  {
+    // Replaying a 'complete' attempt bypasses the cap entirely, even far
+    // over both caps - deterministic replay, never new generation work.
+    let rpcCalled = false;
+    installAuth(
+      async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'complete', out_report_json: {}, out_should_generate: false }]) }; },
+      null, capGetHandler({ existingStatus: 'complete', successCount: 99, failedCount: 99 }),
+    );
+    const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('replay of a complete attempt bypasses the cap entirely -> 200, RPC called', res.statusCode === 200 && rpcCalled === true, res.body);
+  }
+  {
+    // Lyra/Codex correction (2026-07-29): reclaiming an existing 'failed'
+    // attempt must NOT bypass the cap - it is another real attempt at
+    // generation work. Below both caps -> still allowed through.
+    let rpcCalled = false;
+    installAuth(
+      async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
+      null, capGetHandler({ existingStatus: 'failed', successCount: 0, failedCount: 1 }),
+    );
+    const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('reclaiming a failed attempt below the cap -> 200, RPC called (not a free bypass)', res.statusCode === 200 && rpcCalled === true, res.body);
+  }
+  {
+    // Lyra/Codex correction (2026-07-29): reclaiming an existing 'failed'
+    // attempt IS gated by the failed cap - at 3 failed rows this month
+    // (this row itself is one of them), the reclaim is blocked, not waved
+    // through as a harmless replay.
+    let rpcCalled = false;
+    installAuth(
+      async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
+      null, capGetHandler({ existingStatus: 'failed', successCount: 0, failedCount: 3 }),
+    );
+    const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('reclaiming a failed attempt at the failed cap -> 403, RPC never called (this is the fix)', res.statusCode === 403 && res.body.cap === 'failed' && rpcCalled === false, res.body);
+  }
+  {
+    // Same fix, success side: reclaiming a failed attempt while already at
+    // the success cap is also blocked - succeeding this time would be a 3rd
+    // successful report this month.
+    let rpcCalled = false;
+    installAuth(
+      async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
+      null, capGetHandler({ existingStatus: 'failed', successCount: 2, failedCount: 0 }),
+    );
+    const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
+    const res = mockRes();
+    await handler(req, res);
+    ok('reclaiming a failed attempt at the success cap -> 403, RPC never called', res.statusCode === 403 && res.body.cap === 'success' && rpcCalled === false, res.body);
   }
   {
     // QA mode is excluded from the caps entirely - no cap pre-check GET is
@@ -263,7 +321,7 @@ async function run() {
     ok('qa_mode claim -> 200, RPC called, no cap GET attempted (getHandler never invoked)', res.statusCode === 200 && rpcCalled === true, res.body);
   }
   {
-    // Existing-row pre-check itself failing -> 500, non-disclosing, RPC never called.
+    // Existing-status pre-check itself failing -> 500, non-disclosing, RPC never called.
     let rpcCalled = false;
     installAuth(
       async () => { rpcCalled = true; return { ok: true, json: async () => ([]) }; },
@@ -407,15 +465,15 @@ async function run() {
   }
   {
     let capturedUrl = null;
-    global.fetch = async (url) => { capturedUrl = String(url); return { ok: true, json: async () => ([{ id: 'x' }]) }; };
-    const found = await mod.__testables__.hasExistingAttemptRow('https://example.supabase.co', {}, ATTEMPT_ID, VALID_USER.id);
-    ok('hasExistingAttemptRow queries by attempt_id and user_id', capturedUrl.includes(`attempt_id=eq.${ATTEMPT_ID}`) && capturedUrl.includes(`user_id=eq.${VALID_USER.id}`), capturedUrl);
-    ok('hasExistingAttemptRow returns true when a row is found', found === true);
+    global.fetch = async (url) => { capturedUrl = String(url); return { ok: true, json: async () => ([{ attempt_status: 'failed' }]) }; };
+    const status = await mod.__testables__.getExistingAttemptStatus('https://example.supabase.co', {}, ATTEMPT_ID, VALID_USER.id);
+    ok('getExistingAttemptStatus queries by attempt_id and user_id', capturedUrl.includes(`attempt_id=eq.${ATTEMPT_ID}`) && capturedUrl.includes(`user_id=eq.${VALID_USER.id}`), capturedUrl);
+    ok('getExistingAttemptStatus returns the row\'s attempt_status when found', status === 'failed', status);
   }
   {
     global.fetch = async () => ({ ok: true, json: async () => ([]) });
-    const found = await mod.__testables__.hasExistingAttemptRow('https://example.supabase.co', {}, ATTEMPT_ID, VALID_USER.id);
-    ok('hasExistingAttemptRow returns false when no row is found', found === false);
+    const status = await mod.__testables__.getExistingAttemptStatus('https://example.supabase.co', {}, ATTEMPT_ID, VALID_USER.id);
+    ok('getExistingAttemptStatus returns null when no row is found', status === null, status);
   }
   {
     let capturedUrl = null;
