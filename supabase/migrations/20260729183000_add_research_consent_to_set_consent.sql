@@ -2,8 +2,19 @@
 -- set_consent() with a 'research' branch so onboarding-time research-consent
 -- intent can be captured through the same canonical /api/consent path
 -- already used for gdpr/marketing, rather than inventing a new mechanism.
--- The existing 'gdpr' and 'marketing' branches below are unchanged verbatim -
--- only a new elsif branch is added and the final else/exception is preserved.
+--
+-- Correction, 2026-07-29 (Lyra/Codex review, before live application): the
+-- first version of this migration copied the 'gdpr'/'marketing' branches
+-- from the older supabase/migrations/20260710151338_add_set_consent_rpc.sql,
+-- not the later supabase/migrations/20260710_add_gdpr_consent_version.sql
+-- (Decisions Log D91, "Step 3"), which supersedes it and is what is actually
+-- live today - its 'gdpr' branch also sets gdpr_consent_version. Applying
+-- the first version as-is would have silently dropped that live write.
+-- The 'gdpr' and 'marketing' branches below are now copied verbatim from
+-- 20260710_add_gdpr_consent_version.sql (confirmed byte-for-byte identical
+-- to the live function via direct query before this correction) - only the
+-- new 'research' elsif branch is additive, and the final else/exception is
+-- preserved.
 --
 -- This function only records INTENT (profiles.research_consent,
 -- profiles.research_consent_version, plus the audit row in consent_log). It
@@ -31,7 +42,8 @@ begin
   elsif p_consent_type = 'gdpr' then
     update public.profiles
       set gdpr_consent = p_granted,
-          consented_at = now()
+          consented_at = now(),
+          gdpr_consent_version = p_consent_version
       where id = p_user_id;
   elsif p_consent_type = 'research' then
     update public.profiles
