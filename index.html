@@ -8799,9 +8799,32 @@ async function generateReport() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${claimSession.access_token}` },
       body: JSON.stringify({ action: 'claim', attempt_id: state.attemptId, qa_mode: state.qaMode || false }),
     });
-    if (!claimRes.ok) throw new Error(`Claim HTTP ${claimRes.status}`);
+    if (!claimRes.ok) {
+      // D117: a monthly generation-cap rejection is not a transient error -
+      // retrying will not help until the cap resets, so it gets its own
+      // message with no "Try again" button, distinct from every other
+      // claim-failure path below.
+      let capBody = null;
+      if (claimRes.status === 403) {
+        try { capBody = await claimRes.json(); } catch (_) {}
+      }
+      if (capBody && capBody.error === 'monthly_generation_cap_reached') {
+        const capErr = new Error('CAP_REACHED');
+        capErr.capMessage = capBody.message || 'You have reached a monthly generation limit.';
+        throw capErr;
+      }
+      throw new Error(`Claim HTTP ${claimRes.status}`);
+    }
     claimResult = await claimRes.json();
   } catch (e) {
+    if (e.capMessage) {
+      document.getElementById('gen-error').innerHTML =
+        `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+          <div>⚠ ${e.capMessage}</div>
+        </div>`;
+      show('screen-generating');
+      return;
+    }
     const msg = e.message || '';
     const userMsg = msg.includes('401') ? 'Session expired. Please sign in again.' : 'Could not start report generation. Please try again.';
     document.getElementById('gen-error').innerHTML =
