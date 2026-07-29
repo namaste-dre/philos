@@ -8805,13 +8805,24 @@ async function generateReport() {
       // message with no "Try again" button, distinct from every other
       // claim-failure path below.
       let capBody = null;
-      if (claimRes.status === 403) {
+      if (claimRes.status === 403 || claimRes.status === 409) {
         try { capBody = await claimRes.json(); } catch (_) {}
       }
-      if (capBody && capBody.error === 'monthly_generation_cap_reached') {
+      if (claimRes.status === 403 && capBody && capBody.error === 'monthly_generation_cap_reached') {
         const capErr = new Error('CAP_REACHED');
         capErr.capMessage = capBody.message || 'You have reached a monthly generation limit.';
         throw capErr;
+      }
+      // D117 (Lyra/Codex review, second pass): the server refuses to
+      // silently reclaim an attempt_id that already failed once, even
+      // below cap. Clear it here so the visible "Try again" button mints a
+      // genuinely new attempt_id (ensureAttemptId() only mints when unset)
+      // instead of colliding on the same dead-end row again.
+      if (claimRes.status === 409 && capBody && capBody.error === 'failed_attempt_restart_required') {
+        state.attemptId = null;
+        const restartErr = new Error('RESTART_REQUIRED');
+        restartErr.restartMessage = capBody.message || 'This attempt already failed. Please start a fresh generation attempt.';
+        throw restartErr;
       }
       throw new Error(`Claim HTTP ${claimRes.status}`);
     }
@@ -8821,6 +8832,17 @@ async function generateReport() {
       document.getElementById('gen-error').innerHTML =
         `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
           <div>⚠ ${e.capMessage}</div>
+        </div>`;
+      show('screen-generating');
+      return;
+    }
+    if (e.restartMessage) {
+      document.getElementById('gen-error').innerHTML =
+        `<div class="error-box" style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+          <div>⚠ ${e.restartMessage}</div>
+          <button onclick="generateReport()" style="background:var(--accent);border:none;color:#1a1208;padding:10px 24px;border-radius:50px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;">
+            Try again
+          </button>
         </div>`;
       show('screen-generating');
       return;
@@ -8985,15 +9007,23 @@ Return ONLY valid JSON, with no markdown fences and no preamble:
     // same completions row and the failed-generation cap could never see
     // more than one failure no matter how many times it actually happened.
     if (claimedId) {
+      // Lyra/Codex review (2026-07-29, second pass): only clear the
+      // in-memory attempt id once the server has actually confirmed this
+      // attempt is marked failed - if the fail-marking request itself
+      // fails (network/auth/500), the row may still be sitting 'pending',
+      // and clearing the id here would wrongly treat an unrecorded failure
+      // as if a failed-generation slot had been consumed.
+      let failMarked = false;
       try {
         const { data: { session: failSession } } = await supa.auth.getSession();
-        await fetch('/api/claim-attempt', {
+        const failRes = await fetch('/api/claim-attempt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(failSession?.access_token ? { 'Authorization': `Bearer ${failSession.access_token}` } : {}) },
           body: JSON.stringify({ action: 'fail', id: claimedId }),
         });
+        failMarked = failRes.ok;
       } catch (_) {}
-      state.attemptId = null;
+      if (failMarked) state.attemptId = null;
     }
     const msg = e.message || '';
     const userMsg = msg.includes('403') ? 'Authentication error. Please sign out and sign back in, then try again.'

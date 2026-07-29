@@ -189,6 +189,24 @@ export default async function handler(req, res) {
               message: `You've reached your ${MONTHLY_FAILED_CAP} failed generations for this month. Please contact dre63052@gmail.com for help.`,
             });
           }
+
+          // Lyra/Codex review (2026-07-29, second pass): a 'failed' attempt_id
+          // must never be silently reclaimed into new generation work, even
+          // below both caps - the reload/resume path (a stale failed
+          // attempt_id restored from saved progress) could otherwise keep
+          // colliding onto the same row indefinitely without ever
+          // consuming a distinct failed-generation slot. Each failed row is
+          // single-use from this endpoint's perspective: once failed, it is
+          // never reclaimed here again - the client must mint a fresh
+          // attempt_id. The claim_attempt() RPC's own failed-row reclaim
+          // branch is therefore unreachable from this endpoint now (its
+          // stale-pending reclaim branch is untouched and still used).
+          if (existingStatus === 'failed') {
+            return res.status(409).json({
+              error: 'failed_attempt_restart_required',
+              message: 'This attempt already failed. Please start a fresh generation attempt.',
+            });
+          }
         }
       }
 

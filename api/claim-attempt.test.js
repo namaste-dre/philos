@@ -264,9 +264,14 @@ async function run() {
     ok('replay of a complete attempt bypasses the cap entirely -> 200, RPC called', res.statusCode === 200 && rpcCalled === true, res.body);
   }
   {
-    // Lyra/Codex correction (2026-07-29): reclaiming an existing 'failed'
-    // attempt must NOT bypass the cap - it is another real attempt at
-    // generation work. Below both caps -> still allowed through.
+    // Lyra/Codex correction (2026-07-29, SECOND PASS): the first correction
+    // let a 'failed' attempt below cap proceed to the RPC (reclaiming the
+    // failed row). Lyra's re-review found this still collapses onto the
+    // same row on the reload/resume path without ever consuming a distinct
+    // failed slot - so a 'failed' attempt_id must never reach the RPC again
+    // via this endpoint, capped or not. Below both caps -> 409
+    // failed_attempt_restart_required, RPC never called; the client is
+    // expected to mint a fresh attempt_id and retry.
     let rpcCalled = false;
     installAuth(
       async () => { rpcCalled = true; return { ok: true, json: async () => ([{ out_id: COMPLETION_ID, out_status: 'pending', out_report_json: null, out_should_generate: true }]) }; },
@@ -275,7 +280,7 @@ async function run() {
     const req = mockReq({ body: { action: 'claim', attempt_id: ATTEMPT_ID }, headers: authHeaders() });
     const res = mockRes();
     await handler(req, res);
-    ok('reclaiming a failed attempt below the cap -> 200, RPC called (not a free bypass)', res.statusCode === 200 && rpcCalled === true, res.body);
+    ok('failed attempt below both caps -> 409 failed_attempt_restart_required, RPC never called (this is the second fix)', res.statusCode === 409 && res.body.error === 'failed_attempt_restart_required' && rpcCalled === false, res.body);
   }
   {
     // Lyra/Codex correction (2026-07-29): reclaiming an existing 'failed'
