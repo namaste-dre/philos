@@ -1,11 +1,14 @@
 export const config = { maxDuration: 15 };
 
 const ALLOWED_ORIGIN = 'https://phil-os.thelifepm.com';
-// Canonical path currently covers gdpr and marketing only. Research consent
-// keeps its own dedicated endpoint (research-sync.js) - it also writes the
-// de-identified research_profiles table, which this simple profiles-column
-// flip does not model. Not folded in here without a separate decision.
-const ALLOWED_TYPES  = ['gdpr', 'marketing'];
+// D118 architecture addendum, path (a), 2026-07-29: 'research' records
+// onboarding-time INTENT only (profiles.research_consent/_version via
+// set_consent()) - it does not populate the de-identified research_profiles
+// table. That still happens exactly as it already did: api/research-sync.js
+// (Settings-page toggle, unchanged) or, for the new onboarding path,
+// api/claim-attempt.js's 'complete' handler honoring the stored intent at
+// first report completion.
+const ALLOWED_TYPES  = ['gdpr', 'marketing', 'research'];
 const ALLOWED_SOURCES = ['onboarding', 'settings', 'email_gate'];
 
 async function getUser(token) {

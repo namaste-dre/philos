@@ -3854,6 +3854,14 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <input type="checkbox" id="ob-marketing" style="width:16px;height:16px;flex-shrink:0;margin-top:3px;accent-color:var(--accent);cursor:pointer;"/>
       <div style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;">Optional: send me occasional emails about new features and Phil OS updates. You can change this anytime in Settings.</div>
     </div>
+    <div style="margin-bottom:20px;">
+      <div class="ob-research-copy" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:10px;">Share your de-identified results (axis scores, archetype, age range, country) with researchers? No name or email is ever shared. You can change this anytime in Settings.</div>
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="ob-research-btn" data-choice="yes" onclick="obSelectResearch(this,true)" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(157,147,232,0.15);background:transparent;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;">Yes</button>
+        <button type="button" class="ob-research-btn" data-choice="no" onclick="obSelectResearch(this,false)" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(157,147,232,0.15);background:transparent;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;cursor:pointer;">No</button>
+      </div>
+      <div id="ob-research-error" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--danger);margin-top:8px;">Please choose yes or no to continue.</div>
+    </div>
     <button class="auth-btn-primary" id="ob-submit-btn" onclick="submitOnboarding()">Let's go →</button>
   </div>
 </div>
@@ -12360,6 +12368,23 @@ function obSelectGender(btn) {
   btn.classList.add('selected');
 }
 
+// No default - null until the user explicitly picks yes or no. Reset each
+// time the modal is (re)shown so a prior session's choice can never leak
+// into a fresh onboarding pass.
+let obResearchChoice = null;
+
+function obSelectResearch(btn, choice) {
+  obResearchChoice = choice;
+  document.querySelectorAll('#onboarding-modal .ob-research-btn').forEach(b => {
+    b.style.borderColor = 'rgba(157,147,232,0.15)';
+    b.style.background = 'transparent';
+  });
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.background = 'rgba(201,169,110,0.12)';
+  const errEl = document.getElementById('ob-research-error');
+  if (errEl) errEl.style.display = 'none';
+}
+
 async function showOnboardingIfNeeded() {
   if (!currentUser) return;
   const { data: profile } = await supa.from('profiles').select('first_name,age,gender,gdpr_consent').eq('id', currentUser.id).maybeSingle();
@@ -12368,6 +12393,11 @@ async function showOnboardingIfNeeded() {
   const name = meta.given_name || (meta.full_name || meta.name || '').split(' ')[0] || '';
   const nameEl = document.getElementById('ob-name');
   if (nameEl && name) nameEl.value = name;
+  obResearchChoice = null;
+  document.querySelectorAll('#onboarding-modal .ob-research-btn').forEach(b => {
+    b.style.borderColor = 'rgba(157,147,232,0.15)';
+    b.style.background = 'transparent';
+  });
   const modal = document.getElementById('onboarding-modal');
   if (modal) modal.style.display = 'flex';
 }
@@ -12382,10 +12412,13 @@ async function submitOnboarding() {
   const marketing = document.getElementById('ob-marketing')?.checked || false;
   const msgEl   = document.getElementById('onboarding-msg');
   const errEl   = document.getElementById('ob-gdpr-error');
+  const researchErrEl = document.getElementById('ob-research-error');
   const btn     = document.getElementById('ob-submit-btn');
   if (!name) { if (msgEl) { msgEl.textContent='Please enter your first name.'; msgEl.style.display='block'; } return; }
   if (!gdpr) { if (errEl) errEl.style.display='block'; return; }
+  if (obResearchChoice === null) { if (researchErrEl) researchErrEl.style.display='block'; return; }
   if (errEl) errEl.style.display='none';
+  if (researchErrEl) researchErrEl.style.display='none';
   if (msgEl) msgEl.style.display='none';
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   const pronouns = (typeof PRONOUN_MAP !== 'undefined' && PRONOUN_MAP[gender]) ? PRONOUN_MAP[gender] : { subject:'they', object:'them', possessive:'their', reflexive:'themselves' };
@@ -12437,6 +12470,27 @@ async function submitOnboarding() {
     console.warn('[Consent] Marketing preference not recorded:', marketingResult.error);
     if (marketing) {
       showToast('Your account was created, but your marketing email preference could not be saved. You can try again later in Settings.');
+    }
+  }
+
+  // Research consent, D118 path (a): recorded through the same canonical
+  // /api/consent path as gdpr/marketing above. A "yes" here is only intent -
+  // api/claim-attempt.js's 'complete' handler is what actually honors it by
+  // populating research_profiles at first report completion. Same fail-open
+  // pattern as marketing: a failed write should not block account creation,
+  // since declining/failing both leave the account unenrolled (the
+  // privacy-safe default), only a failed "yes" needs a visible notice.
+  const researchResult = await recordConsent(session, {
+    consentType: 'research',
+    granted: obResearchChoice,
+    consentVersion: 'research-v1-2026-07',
+    source: 'onboarding',
+    textSnapshot: document.querySelector('#onboarding-modal .ob-research-copy')?.textContent || null,
+  });
+  if (!researchResult.ok) {
+    console.warn('[Consent] Research preference not recorded:', researchResult.error);
+    if (obResearchChoice) {
+      showToast('Your account was created, but your research-participation preference could not be saved. You can try again later in Settings.');
     }
   }
 

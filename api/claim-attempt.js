@@ -110,6 +110,107 @@ async function countCompletionsThisMonth(supabaseUrl, svcHeaders, userId, attemp
   return Array.isArray(rows) ? rows.length : 0;
 }
 
+// D118 architecture addendum, path (a), 2026-07-29: honors an onboarding-
+// time research-consent "yes" (recorded via set_consent()'s 'research'
+// branch as profiles.research_consent) by populating research_profiles at
+// the first successful report completion - research-sync.js's own opt-in
+// path never runs for these users otherwise, since it hard-requires a
+// completion to already exist.
+//
+// researchKeyFor() must derive the exact same research_key research-sync.js
+// derives for the same user (required for merge-duplicates to ever find the
+// same row rather than silently creating a second one), but this file's own
+// test harness forbids the module under test from using any `import`
+// statement (api/claim-attempt.test.js's loadModule() throws on one) - so
+// this uses the global Web Crypto API (crypto.subtle, no import needed,
+// same as this file's existing global `fetch` usage) instead of
+// research-sync.js's `import crypto from 'crypto'` + createHmac. For the
+// configured production pepper (a non-empty RESEARCH_KEY_PEPPER), both
+// compute the identical standard HMAC-SHA256(pepper, userId) value -
+// verified byte-for-byte identical, hex-for-hex. They are NOT equivalent if
+// the pepper is missing/empty: Node's createHmac silently accepts a
+// zero-length key, but Web Crypto's importKey rejects one outright
+// (DataError: "Zero-length key is not supported"). Rather than let that
+// divergence surface as an unexplained runtime throw, this path intentionally
+// fails closed - a missing pepper is a real misconfiguration, and honoring
+// research consent with an effectively unkeyed (or silently differently-keyed
+// on research-sync.js's side) research_key would be worse than skipping the
+// honoring step for this completion. The caller (honorResearchConsentIfNeeded,
+// called from the 'complete' action) already catches and logs this - the
+// user-facing response still returns 200 either way.
+async function researchKeyFor(userId) {
+  const pepper = process.env.RESEARCH_KEY_PEPPER || '';
+  if (!pepper) throw new Error('RESEARCH_KEY_PEPPER is required for research consent honoring');
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(pepper), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(userId));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function ageRange(age) {
+  const n = parseInt(age, 10);
+  if (isNaN(n) || n < 13) return null;
+  const lo = Math.floor(n / 10) * 10;
+  return `${lo}-${lo + 9}`;
+}
+
+// Best-effort only - a failure here must never surface as a 'complete'
+// action failure to the user; the report itself already finalized
+// successfully by the time this runs. Errors are logged, not thrown.
+async function honorResearchConsentIfNeeded(supabaseUrl, svcHeaders, userId, completionId) {
+  const profRes = await fetch(
+    `${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=research_consent,age,country`,
+    { headers: svcHeaders },
+  );
+  if (!profRes.ok) throw new Error('Could not read profile for research-consent honoring');
+  const profRows = await profRes.json();
+  const profile = Array.isArray(profRows) ? profRows[0] : null;
+  if (!profile || profile.research_consent !== true) return;
+
+  const key = await researchKeyFor(userId);
+
+  // Idempotency gate: skip entirely if a row already exists for this user's
+  // research_key (e.g. a retake's second completion, or a user who already
+  // has one from the Settings-toggle path). The research_profiles POST
+  // below is itself a merge-duplicates upsert keyed on research_key, so
+  // this check is a belt-and-suspenders skip, not the only safety net -
+  // even a raced double-call cannot create a duplicate row.
+  const existingRes = await fetch(
+    `${supabaseUrl}/rest/v1/research_profiles?research_key=eq.${key}&select=research_key&limit=1`,
+    { headers: svcHeaders },
+  );
+  if (!existingRes.ok) throw new Error('Could not check existing research_profiles row');
+  const existingRows = await existingRes.json();
+  if (Array.isArray(existingRows) && existingRows.length > 0) return;
+
+  const compRes = await fetch(
+    `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(completionId)}&select=archetype_family,archetype_variant,scores,fingerprint,contradictions_count,instrument_version`,
+    { headers: svcHeaders },
+  );
+  if (!compRes.ok) throw new Error('Could not read completion for research-profile population');
+  const compRows = await compRes.json();
+  const completion = Array.isArray(compRows) ? compRows[0] : null;
+  if (!completion) return;
+
+  const upsertRes = await fetch(`${supabaseUrl}/rest/v1/research_profiles`, {
+    method: 'POST',
+    headers: { ...svcHeaders, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({
+      research_key:          key,
+      age_range:              ageRange(profile.age),
+      country_code:           profile.country || null,
+      scores:                 completion.scores,
+      fingerprint:            completion.fingerprint,
+      archetype_family:       completion.archetype_family,
+      archetype_variant:      completion.archetype_variant,
+      contradictions_count:   completion.contradictions_count,
+      instrument_version:     completion.instrument_version,
+      research_consented_at:  new Date().toISOString(),
+    }),
+  });
+  if (!upsertRes.ok) throw new Error('Failed to write research profile: ' + await upsertRes.text());
+}
+
 export default async function handler(req, res) {
   const origin = req.headers['origin'] || '';
   if (origin === ALLOWED_ORIGIN) res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
@@ -251,6 +352,17 @@ export default async function handler(req, res) {
         console.error('claim-attempt complete failed:', text);
         return res.status(500).json({ error: 'Could not finalize attempt' });
       }
+
+      // D118 path (a): best-effort only, deliberately after the response
+      // above would already be safe to send - never let a research-profile
+      // honoring failure turn a successful report completion into a user-
+      // visible error.
+      try {
+        await honorResearchConsentIfNeeded(supabaseUrl, svcHeaders, user.id, id);
+      } catch (e) {
+        console.error('claim-attempt research-consent honoring failed:', e.message);
+      }
+
       return res.status(200).json({ ok: true });
     }
 
@@ -281,9 +393,10 @@ export default async function handler(req, res) {
   }
 }
 
-// Exported for containment tests only (A1/D117) - not part of the public API surface.
+// Exported for containment tests only (A1/D117/D118) - not part of the public API surface.
 export const __testables__ = {
   verifyOwnership, pick, COMPLETE_COLUMNS, UUID_RE,
   getExistingAttemptStatus, countCompletionsThisMonth, startOfCurrentMonthISO,
   MONTHLY_SUCCESS_CAP, MONTHLY_FAILED_CAP,
+  researchKeyFor, ageRange, honorResearchConsentIfNeeded,
 };
