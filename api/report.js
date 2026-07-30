@@ -207,7 +207,9 @@ export default async function handler(req, res) {
 }
 
 // Exported for containment tests only (A0.2) - not part of the public API surface.
-export const __testables__ = { computeReportToken, tokenMatches, UUID_RE };
+// axisTrackServerHtml added at FM2 slice 2 so the geometry tests can prove
+// exact parity with index.html's axisTrackHtml.
+export const __testables__ = { computeReportToken, tokenMatches, UUID_RE, axisTrackServerHtml };
 
 function errorPage(msg) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Phil OS</title>
@@ -217,11 +219,38 @@ function errorPage(msg) {
   <body><div class="msg"><div class="logo">PHIL/OS</div><p>${msg}</p><p><a href="https://phil-os.thelifepm.com">Take the assessment</a></p></div></body></html>`;
 }
 
-function bar(score, color) {
-  const pct = Math.round((score / 7) * 100);
-  return `<div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;">
-    <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div>
+// FM2 (Belief Map spec Section 11): centered-bipolar-geometry primitive for
+// the public share page - the server-rendered mirror of index.html's
+// axisTrackHtml(), kept mathematically identical to it on purpose (same
+// (score-1)/6 mapping, same clamping, same 3-decimal formatting, same
+// left/right centered fill and exact unrounded marker). This replaces the
+// previous left-anchored score/7 fill, which was wrong on two counts: it
+// used the 0-7 range for a 1-7 scale (score 4 rendered at 57%, not the 50%
+// midpoint; score 1 rendered at 14% instead of 0%), and it read as a
+// progress bar, which the spec explicitly rubric-caps. The share page has
+// no stylesheet classes, so the geometry is emitted as inline styles that
+// replicate index.html's .axis-track/.axis-center-tick/.axis-fill/
+// .axis-marker rules. Score is defensively Number()-coerced and falls back
+// to the 4.0 midpoint if non-finite, so garbage data renders as a neutral
+// center rather than emitting NaN into CSS.
+function axisTrackServerHtml(score, color, trackHeight = 8, fillExtra = '') {
+  const n = Number(score);
+  const s = Number.isFinite(n) ? n : 4;
+  const rawPct = ((s - 1) / 6) * 100;
+  const pct = Math.max(0, Math.min(100, rawPct));
+  const left = Math.min(50, pct);
+  const right = Math.min(50, 100 - pct);
+  const fmt = v => Number(v.toFixed(3));
+  const radius = Math.round(trackHeight / 2);
+  return `<div style="height:${trackHeight}px;background:rgba(255,255,255,0.05);border-radius:${radius}px;overflow:visible;position:relative;">
+    <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,0.35);transform:translateX(-50%);"></div>
+    <div style="position:absolute;top:0;height:100%;border-radius:${radius}px;left:${fmt(left)}%;right:${fmt(right)}%;background:${color};${fillExtra}"></div>
+    <div style="position:absolute;top:50%;left:${fmt(pct)}%;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid rgba(7,6,26,0.9);box-shadow:0 0 0 1px rgba(255,255,255,0.5);transform:translate(-50%,-50%);"></div>
   </div>`;
+}
+
+function bar(score, color) {
+  return axisTrackServerHtml(score, color, 8);
 }
 
 function axisRow(label, score, poleL, poleR, color) {
@@ -280,16 +309,19 @@ function renderReportPage({ c, report, scores, fingerprint, archetype, variant, 
     { emoji: '🌌', bg: 'rgba(180,130,255,0.15)' },
   ];
 
+  // FM2: same centered bipolar geometry as the belief-map rows below - the
+  // previous left-anchored score/7 gradient fill had the same 1-7-scale
+  // mapping bug as bar(). The directional gradient was replaced with the
+  // solid tier-2 green (glow preserved) because a fixed left-to-right
+  // gradient reads as a direction cue, which is misleading on a fill that
+  // now grows from the center toward either pole.
   const fingerprintHtml = fingerprint.slice(0, 5).map(f => {
-    const pct = Math.round((f.score / 7) * 100);
     return `<div style="margin-bottom:20px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
         <span style="font-family:IBM Plex Mono,monospace;font-size:13px;color:#5bbf94;">${f.axis ? f.axis.replace(/_/g,' ') : ''}</span>
         <span style="font-family:IBM Plex Mono,monospace;font-size:12px;color:#c9a96e;font-weight:700;">${parseFloat(f.score).toFixed(1)}/7</span>
       </div>
-      <div style="height:10px;background:rgba(255,255,255,0.05);border-radius:5px;overflow:hidden;">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#5bbf94,rgba(91,191,148,0.5));box-shadow:0 0 12px rgba(91,191,148,0.3);border-radius:5px;"></div>
-      </div>
+      ${axisTrackServerHtml(f.score, '#5bbf94', 10, 'box-shadow:0 0 12px rgba(91,191,148,0.3);')}
     </div>`;
   }).join('');
 

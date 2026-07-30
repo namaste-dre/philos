@@ -181,5 +181,58 @@ function parseGeometry(htmlStr) {
   ok('the passed color is applied to axis-fill', /axis-fill" style="[^"]*background:#5bbf94/.test(htmlStr), htmlStr);
 }
 
+// ---- 8. FM2 slice 3: My Profile fingerprint bars route through the shared primitive ----
+// Source-text assertions on the showProfile fingerprint block (same
+// call-wiring technique as index.share-ui.test.js): the profile surface
+// must use axisTrackHtml(), and its old separately-implemented left-anchored
+// fill must be gone entirely.
+{
+  const fpBlockStart = html.indexOf("document.getElementById('profile-fingerprint')");
+  ok('profile-fingerprint block found in index.html', fpBlockStart !== -1);
+  const fpBlock = html.slice(fpBlockStart, fpBlockStart + 1600);
+  ok('profile fingerprint bars call the shared axisTrackHtml primitive', fpBlock.includes('axisTrackHtml(f.score, color)'), fpBlock.slice(0, 400));
+  ok('old left-anchored width fill removed from the profile block', !fpBlock.includes('width:${pct}%'));
+  ok('old rounded-percent computation removed from the profile block', !fpBlock.includes('Math.round(((f.score - 1) / 6) * 100)'));
+  ok('profile block keeps its pole labels (only the track was migrated)', fpBlock.includes('meta.poleL') && fpBlock.includes('meta.poleR'));
+}
+
+// ---- 9. FM2 slice 2 parity: api/report.js's server-side mirror stays mathematically identical ----
+// Loads axisTrackServerHtml out of api/report.js by source extraction (it
+// is exported via __testables__, but extraction avoids needing the vm
+// module loader here) and compares its computed geometry against
+// axisTrackHtml for the same scores. This is the cross-file consistency
+// check spec Section 11 implies ("Same geometry across map, fingerprint,
+// deep view, data-rich cards") - if either side's math drifts, this fails.
+{
+  const reportSrc = fs.readFileSync(path.join(__dirname, 'api', 'report.js'), 'utf8');
+  const serverFnSrc = extractFunction(reportSrc, 'axisTrackServerHtml');
+  const callServer = (score) => {
+    const sandbox = {};
+    vm.createContext(sandbox);
+    new vm.Script(serverFnSrc + `\nvar __result = axisTrackServerHtml(${score}, '#fff');`).runInContext(sandbox);
+    return sandbox.__result;
+  };
+  const serverMarker = htmlStr => {
+    const m = htmlStr.match(/left:(-?\d+(?:\.\d+)?)%;width:12px/);
+    return m ? Number(m[1]) : null;
+  };
+  const serverFill = htmlStr => {
+    const m = htmlStr.match(/left:(-?\d+(?:\.\d+)?)%;right:(-?\d+(?:\.\d+)?)%;background/);
+    return m ? { left: Number(m[1]), right: Number(m[2]) } : null;
+  };
+  let identical = true;
+  const mismatches = [];
+  for (let s = 1; s <= 7; s += 0.1) {
+    const score = Number(s.toFixed(1));
+    const client = parseGeometry(callAxisTrackHtml(score, '#fff'));
+    const server = { marker: serverMarker(callServer(score)), fill: serverFill(callServer(score)) };
+    if (client.markerPct !== server.marker || client.fillLeft !== server.fill.left || client.fillRight !== server.fill.right) {
+      identical = false;
+      mismatches.push({ score, client, server });
+    }
+  }
+  ok('client axisTrackHtml and server axisTrackServerHtml produce identical marker/fill percentages across the whole 1-7 range (61 scores)', identical, mismatches.slice(0, 3));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exitCode = 1;

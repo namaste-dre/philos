@@ -338,6 +338,49 @@ async function run() {
   ok('UUID_RE accepts a well-formed uuid', rt.UUID_RE.test(VALID_ID) === true);
   ok('UUID_RE rejects garbage', rt.UUID_RE.test('not-a-uuid') === false);
 
+  // ---- FM2 slice 2: axisTrackServerHtml geometry (Belief Map spec Section 11) ----
+  // Mirrors index.axis-geometry.test.js's expectations for index.html's
+  // axisTrackHtml - the two functions must stay mathematically identical.
+  {
+    const track = rt.axisTrackServerHtml;
+    const markerPct = html => {
+      // The marker div is the last positioned element; extract its left value.
+      const m = html.match(/left:([\d.]+)%;width:12px/);
+      return m ? Number(m[1]) : null;
+    };
+    const fillBounds = html => {
+      const m = html.match(/left:([\d.]+)%;right:([\d.]+)%;background/);
+      return m ? { left: Number(m[1]), right: Number(m[2]) } : null;
+    };
+
+    ok('geometry: score 4.0 -> marker at exact 50% center', markerPct(track(4, '#fff')) === 50);
+    ok('geometry: score 1 -> marker at 0%', markerPct(track(1, '#fff')) === 0);
+    ok('geometry: score 7 -> marker at 100%', markerPct(track(7, '#fff')) === 100);
+    ok('geometry: score 4.2 -> exact 53.333%, not rounded to 53', markerPct(track(4.2, '#fff')) === 53.333);
+    ok('geometry: score 3.3 -> exact 38.333%, not rounded to 38', markerPct(track(3.3, '#fff')) === 38.333);
+    ok('geometry: the old score/7 bug is gone - score 4 no longer lands at 57%', markerPct(track(4, '#fff')) !== 57);
+
+    const f5 = fillBounds(track(5, '#fff'));
+    const f3 = fillBounds(track(3, '#fff'));
+    ok('geometry: score 5 fill grows rightward from center (left pinned at 50)', f5.left === 50 && f5.right < 50);
+    ok('geometry: score 3 fill grows leftward from center (right pinned at 50)', f3.right === 50 && f3.left < 50);
+    ok('geometry: 3 and 5 are mirror-symmetric (equal visual weight)', f5.right === f3.left && (50 - f5.right) === (50 - f3.left));
+
+    const f4 = fillBounds(track(4, '#fff'));
+    ok('geometry: score 4 fill collapses to zero width at center', f4.left === 50 && f4.right === 50);
+
+    ok('geometry: out-of-range score clamps to 0-100', markerPct(track(0, '#fff')) === 0 && markerPct(track(9, '#fff')) === 100);
+    ok('geometry: non-finite score falls back to neutral center, no NaN in CSS',
+      markerPct(track(NaN, '#fff')) === 50 && !track(undefined, '#fff').includes('NaN'));
+    ok('geometry: string score is coerced ("4.2" behaves as 4.2)', markerPct(track('4.2', '#fff')) === 53.333);
+
+    ok('geometry: center tick present at 50%', track(2, '#fff').includes('left:50%;top:-2px'));
+    ok('geometry: track uses overflow visible so the marker is not clipped', track(2, '#fff').includes('overflow:visible'));
+    ok('geometry: custom track height and fill extra style are emitted',
+      track(5, '#5bbf94', 10, 'box-shadow:0 0 12px rgba(91,191,148,0.3);').includes('height:10px') &&
+      track(5, '#5bbf94', 10, 'box-shadow:0 0 12px rgba(91,191,148,0.3);').includes('box-shadow:0 0 12px'));
+  }
+
   global.fetch = originalFetch;
 
   console.log(`\n${pass} passed, ${fail} failed`);

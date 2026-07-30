@@ -13379,11 +13379,17 @@ async function showProfile() {
   }
 
   // Fingerprint bars
+  // FM2 slice 3 (Belief Map spec Section 11): migrated from a separately
+  // implemented left-anchored width fill (which used the correct 1-7 scale
+  // math but a rounded whole-percent position, no center reference, and a
+  // progress-bar reading) to the shared axisTrackHtml() primitive, so this
+  // surface is identical by construction to the live-report fingerprint
+  // bars and the full belief map. The .axis-track CSS classes are global in
+  // this file, so they apply here unchanged.
   const fpEl = document.getElementById('profile-fingerprint');
   if (fpEl && fp && fp.length) {
     fpEl.innerHTML = fp.slice(0, 5).map(f => {
       const meta = AXIS_META[f.axis] || {};
-      const pct  = Math.round(((f.score - 1) / 6) * 100);
       const tier = meta.tier || 3;
       const color = tier === 1 ? 'var(--tier1)' : tier === 2 ? 'var(--tier2)' : 'var(--tier3)';
       return `<div>
@@ -13391,9 +13397,7 @@ async function showProfile() {
           <span style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text2);">${meta.label || f.axis}</span>
           <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">${f.score.toFixed(1)}</span>
         </div>
-        <div style="height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.6s ease;"></div>
-        </div>
+        ${axisTrackHtml(f.score, color)}
         <div style="display:flex;justify-content:space-between;margin-top:4px;">
           <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);">${meta.poleL || ''}</span>
           <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);">${meta.poleR || ''}</span>
