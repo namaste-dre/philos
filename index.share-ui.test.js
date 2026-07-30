@@ -138,5 +138,41 @@ function runInSandbox(source, blockOrNull, extraGlobals) {
   ok('refreshShareStatus() calls renderShareUrl() when a current URL is available', /renderShareUrl\(currentReportShareUrl\)/.test(refreshSrc), refreshSrc);
 }
 
+// ---- 4. IB-4: sharing-off state-aware messaging on the older share controls ----
+{
+  const helperSrc = extractFunction(html, 'shareUnavailableMessage');
+
+  const offSandbox = { currentReportShareEnabled: false };
+  vm.createContext(offSandbox);
+  new vm.Script(helperSrc + '\nvar __result = shareUnavailableMessage();').runInContext(offSandbox);
+  ok('shareUnavailableMessage() returns the disabled-state message when sharing is off',
+    offSandbox.__result === 'Sharing is off. Turn sharing back on to create a new link.', offSandbox.__result);
+  ok('the disabled-state message does not include a URL of any kind', !/https?:\/\//.test(offSandbox.__result), offSandbox.__result);
+
+  const loadingSandbox = { currentReportShareEnabled: true };
+  vm.createContext(loadingSandbox);
+  new vm.Script(helperSrc + '\nvar __result = shareUnavailableMessage();').runInContext(loadingSandbox);
+  ok('shareUnavailableMessage() returns the original not-ready message when sharing is on but no URL yet (still loading)',
+    loadingSandbox.__result === "Your share link isn't ready yet - try again in a moment.", loadingSandbox.__result);
+
+  const unknownSandbox = { currentReportShareEnabled: undefined };
+  vm.createContext(unknownSandbox);
+  new vm.Script(helperSrc + '\nvar __result = shareUnavailableMessage();').runInContext(unknownSandbox);
+  ok('shareUnavailableMessage() falls back to the not-ready message when share state is not yet known (undefined)',
+    unknownSandbox.__result === "Your share link isn't ready yet - try again in a moment.", unknownSandbox.__result);
+
+  // Static check: every older share control must route through the shared
+  // helper rather than each carrying its own copy of the misleading string -
+  // a single source of truth for this message, same principle as the
+  // manage-sharing block being the source of truth for share state itself.
+  for (const fnName of ['shareToX', 'shareToReddit', 'shareNative', 'copyProfileLink']) {
+    const fnSrc = extractFunction(html, fnName);
+    ok(`${fnName}() routes its unavailable-state message through shareUnavailableMessage()`,
+      fnSrc.includes('shareUnavailableMessage()'), fnSrc);
+    ok(`${fnName}() no longer hardcodes the old single-purpose "not ready yet" string directly`,
+      !fnSrc.includes("Your share link isn't ready yet"), fnSrc);
+  }
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exitCode = 1;

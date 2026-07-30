@@ -11524,8 +11524,22 @@ function closeShareModal() {
   if (modal) modal.style.display = 'none';
 }
 
+// IB-4: the older share/copy controls (shareToX, shareToReddit, shareNative,
+// copyProfileLink) all guard on currentReportShareUrl being unset, but a
+// single generic "not ready yet" message is misleading when the real cause
+// is that the user deliberately turned sharing off - it reads as a
+// transient glitch rather than the state they just chose. This distinguishes
+// the two causes using the same currentReportShareEnabled flag the manage-
+// sharing block (the source of truth) already reads - no new state, no
+// token/security change, no automatic regeneration, no URL exposed.
+function shareUnavailableMessage() {
+  return currentReportShareEnabled === false
+    ? 'Sharing is off. Turn sharing back on to create a new link.'
+    : "Your share link isn't ready yet - try again in a moment.";
+}
+
 function shareToX() {
-  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
+  if (!currentReportShareUrl) { alert(shareUnavailableMessage()); return; }
   const text = encodeURIComponent(getShareText());
   const url  = encodeURIComponent(currentReportShareUrl);
   window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
@@ -11533,7 +11547,7 @@ function shareToX() {
 }
 
 function shareToReddit() {
-  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
+  if (!currentReportShareUrl) { alert(shareUnavailableMessage()); return; }
   const title = encodeURIComponent(getShareText());
   const url   = encodeURIComponent(currentReportShareUrl);
   window.open(`https://reddit.com/submit?title=${title}&url=${url}`, '_blank');
@@ -11546,7 +11560,7 @@ function downloadForSocial() {
 }
 
 async function shareNative() {
-  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
+  if (!currentReportShareUrl) { alert(shareUnavailableMessage()); return; }
   const canvas = getCardCanvas();
   if (!canvas || !navigator.share) return;
   try {
@@ -11618,7 +11632,7 @@ async function submitConsentGate() {
 }
 
 async function copyProfileLink() {
-  if (!currentReportShareUrl) { alert("Your share link isn't ready yet - try again in a moment."); return; }
+  if (!currentReportShareUrl) { alert(shareUnavailableMessage()); return; }
   const url = currentReportShareUrl;
   try {
     await navigator.clipboard.writeText(url);
