@@ -10183,7 +10183,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   document.getElementById('report-identity').innerHTML =
     '<div class="report-text-block">' +
     (report.identity || arch.description).split('\n\n').map(p =>
-      `<p>${p}</p>`
+      `<p>${sanitizeHTML(p)}</p>`
     ).join('') +
     '</div>';
 
@@ -10199,20 +10199,20 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       return '<div class="world-card">'
         + '<div class="world-card-header">'
         + '<div class="world-card-icon" style="background:' + bg + '">' + icon + '</div>'
-        + '<div class="world-card-title">' + (card.lens || '') + '</div>'
+        + '<div class="world-card-title">' + sanitizeHTML(card.lens || '') + '</div>'
         + '</div>'
         + '<div class="world-card-body">'
         + '<div class="world-card-block">'
         + '<div class="world-card-block-label">Your view</div>'
-        + '<div class="world-card-block-text">' + (card.view || '') + '</div>'
+        + '<div class="world-card-block-text">' + sanitizeHTML(card.view || '') + '</div>'
         + '</div>'
         + '<div class="world-card-block">'
         + '<div class="world-card-block-label">How it shows up</div>'
-        + '<div class="world-card-block-text">' + (card.shows_up || '') + '</div>'
+        + '<div class="world-card-block-text">' + sanitizeHTML(card.shows_up || '') + '</div>'
         + '</div>'
         + '<div class="world-card-prompt">'
         + '<div class="world-card-prompt-label">Sit with this</div>'
-        + '<div class="world-card-prompt-text">' + (card.prompt || '') + '</div>'
+        + '<div class="world-card-prompt-text">' + sanitizeHTML(card.prompt || '') + '</div>'
         + '</div>'
         + '</div>'
         + '</div>';
@@ -10242,9 +10242,9 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   const patternsEl = document.getElementById('report-patterns');
   if (patternsEl && report.patterns && report.patterns.length > 0) {
     patternsEl.innerHTML = report.patterns.map(p =>
-      `<div class="pattern-card ${p.type}">
-        <div class="pattern-label">${p.type === 'positive' ? '↑' : '↓'} ${p.label}</div>
-        <div class="pattern-text">${p.text}</div>
+      `<div class="pattern-card ${sanitizeHTML(p.type || '')}">
+        <div class="pattern-label">${p.type === 'positive' ? '↑' : '↓'} ${sanitizeHTML(p.label || '')}</div>
+        <div class="pattern-text">${sanitizeHTML(p.text || '')}</div>
       </div>`
     ).join('');
   } else {
@@ -10358,8 +10358,8 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
           <div class="alignment-grid">
             ${report.alignment.map(item =>
               `<div class="alignment-card">
-                <div class="alignment-card-label">${item.label}</div>
-                <div class="alignment-card-text">${item.text}</div>
+                <div class="alignment-card-label">${sanitizeHTML(item.label || '')}</div>
+                <div class="alignment-card-text">${sanitizeHTML(item.text || '')}</div>
               </div>`
             ).join('')}
           </div>
@@ -10415,10 +10415,10 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
         <div class="growth-num">0${i+1}</div>
         <div class="growth-text">${
           (g && typeof g === 'object')
-            ? `<div style="font-weight:600;color:var(--text);margin-bottom:6px;">${g.title || ''}</div>
-               <div>${g.text || ''}</div>
-               ${g.practice ? `<div style="margin-top:10px;font-size:14px;color:var(--purple2);"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Try this</span><br>${g.practice}</div>` : ''}`
-            : g
+            ? `<div style="font-weight:600;color:var(--text);margin-bottom:6px;">${sanitizeHTML(g.title || '')}</div>
+               <div>${sanitizeHTML(g.text || '')}</div>
+               ${g.practice ? `<div style="margin-top:10px;font-size:14px;color:var(--purple2);"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Try this</span><br>${sanitizeHTML(g.practice)}</div>` : ''}`
+            : sanitizeHTML(g || '')
         }</div>
       </div>`
     ).join('');

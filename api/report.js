@@ -2,6 +2,21 @@ import crypto from 'crypto';
 
 export const config = { maxDuration: 60 };
 
+// A3: escape-by-default for the public share page. Safe for both HTML text
+// nodes and double-quoted attribute values (escapes the quote characters
+// too). Report content (name, identity, world, alignment, patterns, growth)
+// reaches this server-rendered, unauthenticated page raw - never trust it.
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const RATE_LIMIT      = 30;   // fetches per IP per window - generous for legitimate refreshes/shares
 const RATE_WINDOW_HRS = 1;
@@ -209,20 +224,20 @@ function worldCard(card, iconEmoji, iconBg) {
   return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;margin-bottom:20px;">
     <div style="display:flex;align-items:center;gap:14px;padding:18px 22px 14px;border-bottom:1px solid rgba(255,255,255,0.07);">
       <div style="width:36px;height:36px;border-radius:8px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${iconEmoji}</div>
-      <div style="font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);">${card.lens || ''}</div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);">${escapeHtml(card.lens || '')}</div>
     </div>
     <div style="padding:20px 22px;">
       <div style="margin-bottom:16px;">
         <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8c88a0;margin-bottom:6px;">Your view</div>
-        <div style="font-size:15px;line-height:1.75;color:#f0ede6;">${card.view || ''}</div>
+        <div style="font-size:15px;line-height:1.75;color:#f0ede6;">${escapeHtml(card.view || '')}</div>
       </div>
       <div style="margin-bottom:16px;">
         <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8c88a0;margin-bottom:6px;">How it shows up</div>
-        <div style="font-size:15px;line-height:1.75;color:#f0ede6;">${card.shows_up || ''}</div>
+        <div style="font-size:15px;line-height:1.75;color:#f0ede6;">${escapeHtml(card.shows_up || '')}</div>
       </div>
       <div style="padding:14px 16px;background:rgba(201,169,110,0.07);border-left:3px solid #c9a96e;border-radius:0 6px 6px 0;">
         <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;margin-bottom:6px;">Sit with this</div>
-        <div style="font-size:14px;line-height:1.7;color:#e8c97a;font-style:italic;">${card.prompt || ''}</div>
+        <div style="font-size:14px;line-height:1.7;color:#e8c97a;font-style:italic;">${escapeHtml(card.prompt || '')}</div>
       </div>
     </div>
   </div>`;
@@ -232,7 +247,7 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
   const tagline = report.tagline || '';
   const identity = report.identity || '';
   const identityHtml = (Array.isArray(identity) ? identity.join('\n\n') : identity)
-    .split('\n\n').filter(Boolean).map(p => `<p style="margin-bottom:1.3em;font-size:19px;line-height:1.88;color:#f0ede6;">${p}</p>`).join('');
+    .split('\n\n').filter(Boolean).map(p => `<p style="margin-bottom:1.3em;font-size:19px;line-height:1.88;color:#f0ede6;">${escapeHtml(p)}</p>`).join('');
 
   const growth = Array.isArray(report.growth) ? report.growth : [];
   const worldCards = Array.isArray(report.world) ? report.world : [];
@@ -343,14 +358,14 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
 
   const alignmentHtml = alignment.map(a => `
     <div style="background:#111028;border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:26px;margin-bottom:14px;">
-      <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#c9a96e;margin-bottom:10px;font-weight:600;">${a.label}</div>
-      <div style="font-size:16px;color:#f0ede6;line-height:1.75;">${a.text}</div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#c9a96e;margin-bottom:10px;font-weight:600;">${escapeHtml(a.label || '')}</div>
+      <div style="font-size:16px;color:#f0ede6;line-height:1.75;">${escapeHtml(a.text || '')}</div>
     </div>`).join('');
 
   const patternsHtml = patterns.map(p => `
     <div style="background:#111028;border:2px solid rgba(255,255,255,0.22);border-left:3px solid ${p.type === 'positive' ? '#5bbf94' : '#e0784a'};border-radius:12px;padding:22px;margin-bottom:14px;">
-      <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${p.type === 'positive' ? '#5bbf94' : '#e0784a'};margin-bottom:10px;font-weight:600;">${p.label}</div>
-      <div style="font-size:16px;color:#f0ede6;line-height:1.65;">${p.text}</div>
+      <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:${p.type === 'positive' ? '#5bbf94' : '#e0784a'};margin-bottom:10px;font-weight:600;">${escapeHtml(p.label || '')}</div>
+      <div style="font-size:16px;color:#f0ede6;line-height:1.65;">${escapeHtml(p.text || '')}</div>
     </div>`).join('');
 
   // Growth entries are {title, text, practice} objects since Phase 8;
@@ -360,10 +375,10 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
       <div style="font-family:Playfair Display,serif;font-size:26px;color:#b8aef5;line-height:1.1;flex-shrink:0;font-weight:700;opacity:0.75;">${i + 1}</div>
       <div style="font-size:17px;color:#f0ede6;line-height:1.78;">${
         (g && typeof g === 'object')
-          ? `<div style="font-weight:600;color:#f0ede6;margin-bottom:6px;">${g.title || ''}</div>
-             <div>${g.text || ''}</div>
-             ${g.practice ? `<div style="margin-top:10px;font-size:14px;color:#b8aef5;"><span style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Try this</span><br>${g.practice}</div>` : ''}`
-          : g
+          ? `<div style="font-weight:600;color:#f0ede6;margin-bottom:6px;">${escapeHtml(g.title || '')}</div>
+             <div>${escapeHtml(g.text || '')}</div>
+             ${g.practice ? `<div style="margin-top:10px;font-size:14px;color:#b8aef5;"><span style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">Try this</span><br>${escapeHtml(g.practice)}</div>` : ''}`
+          : escapeHtml(g || '')
       }</div>
     </div>`).join('');
 
@@ -389,11 +404,11 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta property="og:title" content="${name}'s Phil OS Report, ${archetype}"/>
+<meta property="og:title" content="${escapeHtml(name)}'s Phil OS Report, ${escapeHtml(archetype)}"/>
 <meta name="robots" content="noindex, nofollow"/>
-<meta property="og:description" content="${tagline}"/>
-<meta property="og:url" content="${shareUrl}"/>
-<title>${name} — Phil OS Report</title>
+<meta property="og:description" content="${escapeHtml(tagline)}"/>
+<meta property="og:url" content="${escapeHtml(shareUrl)}"/>
+<title>${escapeHtml(name)} — Phil OS Report</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -421,8 +436,8 @@ html,body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;
     <!-- Share URL -->
     <div style="margin:0 auto 16px;max-width:560px;padding:12px 16px;background:rgba(201,169,110,0.06);border:1px solid rgba(201,169,110,0.22);border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
       <span style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c9a96e;flex-shrink:0;">Share</span>
-      <a href="${shareUrl}" style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#e8c97a;word-break:break-all;flex:1;text-decoration:none;">${shareUrl}</a>
-      <button onclick="navigator.clipboard.writeText('${shareUrl}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)})" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.35);color:#c9a96e;font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:1px;padding:6px 14px;border-radius:6px;cursor:pointer;flex-shrink:0;">Copy</button>
+      <a id="share-url-link" href="${escapeHtml(shareUrl)}" style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#e8c97a;word-break:break-all;flex:1;text-decoration:none;">${escapeHtml(shareUrl)}</a>
+      <button id="share-url-copy" type="button" style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.35);color:#c9a96e;font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:1px;padding:6px 14px;border-radius:6px;cursor:pointer;flex-shrink:0;">Copy</button>
     </div>
   </div>
 </div>
@@ -459,6 +474,20 @@ html,body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;
   </div>
 </div>
 
+<script>
+(function () {
+  var btn = document.getElementById('share-url-copy');
+  var link = document.getElementById('share-url-link');
+  if (!btn || !link) return;
+  btn.addEventListener('click', function () {
+    var url = link.getAttribute('href');
+    navigator.clipboard.writeText(url).then(function () {
+      btn.textContent = 'Copied!';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+    });
+  });
+})();
+</script>
 </body>
 </html>`;
 }
