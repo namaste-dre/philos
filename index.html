@@ -1596,13 +1596,43 @@ body::after {
   height: 8px;
   background: rgba(255,255,255,0.05);
   border-radius: 4px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
+/* FM2: centered bipolar geometry (Belief Map spec Section 11) - fill now
+   grows from the scale midpoint (score 4, 50%) toward whichever pole the
+   score leans, using left/right instead of a left-anchored width, so two
+   equally-distant-from-center scores (e.g. 3.0 and 5.0) produce visually
+   symmetric fill lengths. overflow was relaxed to visible so the marker
+   dot (taller than the 8px track) is not clipped. */
 .axis-fill {
+  position: absolute;
+  top: 0;
   height: 100%;
   border-radius: 4px;
-  transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
+  transition: left 1.4s cubic-bezier(0.4,0,0.2,1), right 1.4s cubic-bezier(0.4,0,0.2,1);
+}
+.axis-center-tick {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: rgba(255,255,255,0.35);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.axis-marker {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(7,6,26,0.9);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.5);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 .axis-poles {
   display: flex;
@@ -10124,6 +10154,34 @@ function renderPhilPatterns(patterns) {
   el.style.display = 'flex';
 }
 
+// FM2 (Belief Map spec Section 11): shared centered-bipolar-geometry
+// primitive for the .axis-row/.axis-track/.axis-fill/.axis-poles surfaces
+// that already share these CSS classes (live report fingerprint bars and
+// full 32-axis belief map) - one shared function instead of duplicating the
+// geometry math at each call site, so both surfaces stay identical by
+// construction rather than by convention. Score is the true 1-7 scale;
+// 4.0 maps to the exact 50% center. Pure/synchronous, no DOM access - just
+// returns the inner HTML for a .axis-track element.
+function axisTrackHtml(score, color) {
+  // Exact marker per spec Section 11 ("exact marker (4.2 at 4.2)") - no
+  // Math.round() to a whole percent, which would silently bucket every
+  // score within a ~3.5% window (on the 6-point-wide 1-7 scale) to the same
+  // rounded position. Clamped defensively in case score ever arrives
+  // outside 1-7 (should not happen given the instrument's own scoring, but
+  // this function has no way to enforce that upstream). Formatted to 3
+  // decimal places - precise enough for CSS positioning, not rounded away.
+  const rawPct = ((score - 1) / 6) * 100;
+  const pct = Math.max(0, Math.min(100, rawPct));
+  const left = Math.min(50, pct);
+  const right = Math.min(50, 100 - pct);
+  const fmt = n => Number(n.toFixed(3));
+  return `<div class="axis-track">
+          <div class="axis-center-tick"></div>
+          <div class="axis-fill" style="left:${fmt(left)}%;right:${fmt(right)}%;background:${color}"></div>
+          <div class="axis-marker" style="left:${fmt(pct)}%" aria-hidden="true"></div>
+        </div>`;
+}
+
 function renderReport(scores, contradictions, archetypeResult, fingerprint, report) {
   // Store contradictions for card access
   state._lastContradictions = contradictions || [];
@@ -10290,15 +10348,12 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     fpBars.innerHTML = fingerprint.map(f => {
       const meta = AXIS_META[f.axis];
       if (!meta) return '';
-      const pct = Math.round(((f.score-1)/6)*100);
       return `<div class="axis-row">
         <div class="axis-meta">
           <span class="axis-name">${philTerm(meta.label)}</span>
           <span class="axis-score">${f.score.toFixed(1)}</span>
         </div>
-        <div class="axis-track">
-          <div class="axis-fill" style="width:${pct}%;background:${meta.color}"></div>
-        </div>
+        ${axisTrackHtml(f.score, meta.color)}
         <div class="axis-poles"><span>${meta.poleL}</span><span>${meta.poleR}</span></div>
       </div>`;
     }).join('');
@@ -10758,7 +10813,6 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     if (!container) return;
     container.innerHTML = axes.map(([axis, meta]) => {
       const score = scores[axis] || 4;
-      const pct = Math.round(((score-1)/6)*100);
       // 10g (D109): migrated axes get a three-band interpretation behind a
       // native <details> disclosure (keyboard accessible for free); the rest
       // keep the legacy one-line extreme labels until their batch migrates.
@@ -10777,9 +10831,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
           <span class="axis-name">${philTerm(meta.label)}</span>
           <span class="axis-score">${score.toFixed(1)}</span>
         </div>
-        <div class="axis-track">
-          <div class="axis-fill" style="width:${pct}%;background:${meta.color}"></div>
-        </div>
+        ${axisTrackHtml(score, meta.color)}
         <div class="axis-poles"><span>${meta.poleL}</span><span>${meta.poleR}</span></div>
         ${interpHtml}
       </div>`;
