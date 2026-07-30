@@ -6,16 +6,35 @@ const ALLOWED_ORIGIN  = 'https://phil-os.thelifepm.com';
 
 // A0.2: capability token for /api/report. Minted here only after ownership
 // is verified (or right after a fresh row is created by its own submitter),
-// never on a bare id lookup. Stateless - recomputed identically by
-// report.js from the id alone, no extra column or expiry bookkeeping. This
-// is the "equivalent short-lived proof" mechanism named in the A0.2 brief:
-// report.js is a plain server-rendered navigation with no way to carry a
-// bearer token, so possession of this token (not the bare id) is what
-// proves the viewer was actually handed the link. Revocation/expiry are
-// D-1's public-share feature, explicitly out of scope here.
-function computeReportToken(id) {
+// never on a bare id lookup. This is the "equivalent short-lived proof"
+// mechanism named in the A0.2 brief: report.js is a plain server-rendered
+// navigation with no way to carry a bearer token, so possession of this
+// token (not the bare id) is what proves the viewer was actually handed the
+// link.
+//
+// A7 (D136): must be computed identically to report.js's computeReportToken,
+// including the salt branch - a NULL share_token_salt (every row's state
+// until a user regenerates) still uses the original legacy formula, so
+// existing/never-rotated links keep minting and validating exactly as
+// before. See getShareState() below for where the row's current
+// share_enabled/share_token_salt is read prior to minting.
+function computeReportToken(id, salt) {
   const secret = process.env.SUPABASE_SERVICE_KEY || '';
-  return crypto.createHmac('sha256', secret).update(`report-token:${id}`).digest('hex').slice(0, 32);
+  const material = salt ? `report-token:${id}:${salt}` : `report-token:${id}`;
+  return crypto.createHmac('sha256', secret).update(material).digest('hex').slice(0, 32);
+}
+
+// A7 (D136): read the row's current sharing state immediately before
+// minting/re-minting a token - never trust a cached or previously-known
+// state, since a revoke/regenerate could have happened between requests.
+async function getShareState(supabaseUrl, svcHeaders, id) {
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&select=share_enabled,share_token_salt`,
+    { headers: svcHeaders },
+  );
+  if (!res.ok) return null;
+  const rows = await res.json();
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 const RATE_LIMIT      = 20;   // captures per IP per window
 const RATE_WINDOW_HRS = 1;
@@ -199,9 +218,21 @@ export default async function handler(req, res) {
     // A0.2: minted only once ownership is established above (either the
     // caller just proved they own completionId, or they are the one who
     // just created it) - never handed out for a bare id lookup.
-    const reportToken = completionId ? computeReportToken(completionId) : null;
+    // A7 (D136): mint using the row's current share state, and refuse to
+    // mint an active-looking token if sharing has been explicitly turned
+    // off - the client must see a clear disabled state, never a token that
+    // will just 404 silently at report.js with no explanation.
+    let reportToken = null;
+    let shareEnabled = true;
+    if (completionId) {
+      const shareState = await getShareState(supabaseUrl, svcHeaders, completionId);
+      shareEnabled = !shareState || shareState.share_enabled !== false;
+      if (shareEnabled) {
+        reportToken = computeReportToken(completionId, shareState ? shareState.share_token_salt : null);
+      }
+    }
 
-    return res.status(200).json({ ok: true, completion_id: completionId, responses_saved: responsesOk, report_token: reportToken });
+    return res.status(200).json({ ok: true, completion_id: completionId, responses_saved: responsesOk, share_enabled: shareEnabled, report_token: reportToken });
 
   } catch (e) {
     console.error('Capture error:', e.message);
@@ -209,5 +240,5 @@ export default async function handler(req, res) {
   }
 }
 
-// Exported for containment tests only (A0.2) - not part of the public API surface.
-export const __testables__ = { computeReportToken };
+// Exported for containment tests only (A0.2/A7) - not part of the public API surface.
+export const __testables__ = { computeReportToken, getShareState };

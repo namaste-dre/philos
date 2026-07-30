@@ -92,9 +92,10 @@ async function run() {
       report_json: { tagline: 'test', identity: 'test identity' },
       scores: { naturalism: 5 },
       fingerprint: [{ axis: 'naturalism', score: 5 }],
-      first_name: 'Andre',
       archetype_family: 'The Determined Humanist',
       archetype_variant: 'The Activist',
+      share_enabled: true,
+      share_token_salt: null,
       ...overrides,
     };
   }
@@ -206,6 +207,9 @@ async function run() {
     ok('Cache-Control: no-store present on successful response', res.headers['Cache-Control'] === 'no-store', res.headers);
     ok('Pragma: no-cache present on successful response', res.headers['Pragma'] === 'no-cache', res.headers);
     ok('Referrer-Policy: no-referrer present on successful response', res.headers['Referrer-Policy'] === 'no-referrer', res.headers);
+    // D-3: public share output must never carry the respondent's name.
+    ok('title tag is generic (no name)', res.body.includes('<title>Phil OS Report</title>'), res.body.match(/<title>.*?<\/title>/));
+    ok('og:title has no name prefix', res.body.includes('content="A Phil OS Report, The Determined Humanist"'));
   }
 
   // ---- 8. Response minimized: completed_at no longer selected/fetched ----
@@ -225,6 +229,12 @@ async function run() {
     const res = mockRes();
     await handler(req, res);
     ok('completed_at dropped from the select list (unused field)', selectedFields !== null && !selectedFields.includes('completed_at'), selectedFields);
+    // D-3: the public fetch must never even select first_name.
+    ok('first_name dropped from the select list', selectedFields !== null && !selectedFields.includes('first_name'), selectedFields);
+    // A7: share_enabled/share_token_salt must be selected so the token can
+    // be validated and revocation enforced.
+    ok('share_enabled included in the select list', selectedFields !== null && selectedFields.includes('share_enabled'), selectedFields);
+    ok('share_token_salt included in the select list', selectedFields !== null && selectedFields.includes('share_token_salt'), selectedFields);
   }
 
   // ---- 9. Rate limit fails closed ----
@@ -243,6 +253,71 @@ async function run() {
     await handler(req, res);
     ok('rate limiter unconfigured -> 500 service-unavailable path (no data leak)', res.statusCode === 500 || res.statusCode === 404, res.statusCode);
     process.env.SUPABASE_SERVICE_KEY = 'test-secret-key';
+  }
+
+  // ---- A7 (D-1/D136): revocation and salted-token rotation ----
+  {
+    // Token parity between capture.js (mint) and report.js (verify) must
+    // hold with a salt too, not just the legacy no-salt case.
+    ok('capture.js and report.js compute the identical SALTED token for the same id+salt',
+      ct.computeReportToken(VALID_ID, 'salt-a') === rt.computeReportToken(VALID_ID, 'salt-a'));
+    ok('a different salt produces a different token for the same id',
+      rt.computeReportToken(VALID_ID, 'salt-a') !== rt.computeReportToken(VALID_ID, 'salt-b'));
+    ok('a salted token differs from the legacy unsalted token for the same id',
+      rt.computeReportToken(VALID_ID, 'salt-a') !== rt.computeReportToken(VALID_ID));
+  }
+  {
+    // share_enabled: false must block access even with the objectively
+    // correct token for that row - revocation gates before token match.
+    installFetch({ rowsForId: { [VALID_ID]: mockRow({ share_enabled: false }) } });
+    const req = mockReq({ query: { id: VALID_ID, t: TOKEN } });
+    const res = mockRes();
+    await handler(req, res);
+    ok('share_enabled=false blocks access even with the correct legacy token -> 404', res.statusCode === 404, res.statusCode);
+  }
+  {
+    // A row with share_token_salt = NULL (every pre-existing row, and every
+    // new row until first regenerate) must still validate against the
+    // original legacy id-only token - this is what keeps existing/never-
+    // rotated links working unchanged after this deploy.
+    installFetch({ rowsForId: { [VALID_ID]: mockRow({ share_token_salt: null }) } });
+    const req = mockReq({ query: { id: VALID_ID, t: TOKEN } }); // TOKEN = legacy computeReportToken(VALID_ID)
+    const res = mockRes();
+    await handler(req, res);
+    ok('NULL share_token_salt validates the legacy token (existing links unaffected) -> 200', res.statusCode === 200, res.statusCode);
+  }
+  {
+    // Once a row has a real salt (post-regenerate), only the salted token
+    // is valid - the old legacy token for the same id must now be dead,
+    // proving regenerate permanently invalidates the prior URL.
+    const salt = 'freshly-regenerated-salt';
+    const saltedToken = rt.computeReportToken(VALID_ID, salt);
+    installFetch({ rowsForId: { [VALID_ID]: mockRow({ share_token_salt: salt }) } });
+
+    const reqOld = mockReq({ query: { id: VALID_ID, t: TOKEN } }); // old legacy token
+    const resOld = mockRes();
+    await handler(reqOld, resOld);
+    ok('after regenerate, the OLD legacy token is permanently invalid -> 404', resOld.statusCode === 404, resOld.statusCode);
+
+    const reqNew = mockReq({ query: { id: VALID_ID, t: saltedToken } });
+    const resNew = mockRes();
+    await handler(reqNew, resNew);
+    ok('after regenerate, the NEW salted token validates -> 200', resNew.statusCode === 200, resNew.statusCode);
+  }
+  {
+    // Re-enabling sharing after a revoke must not silently revalidate a
+    // previously-issued token computed under a stale salt - this is the
+    // exact "weak version" D-1/D136 required this design to avoid.
+    const staleSalt = 'salt-before-revoke';
+    const staleToken = rt.computeReportToken(VALID_ID, staleSalt);
+    const newSalt = 'salt-after-regenerate';
+    // Simulate the post-regenerate row state directly (share-control.js's
+    // real regenerate action is exercised in share-control.test.js).
+    installFetch({ rowsForId: { [VALID_ID]: mockRow({ share_enabled: true, share_token_salt: newSalt }) } });
+    const req = mockReq({ query: { id: VALID_ID, t: staleToken } });
+    const res = mockRes();
+    await handler(req, res);
+    ok('a stale pre-rotation token stays dead even once sharing is re-enabled -> 404', res.statusCode === 404, res.statusCode);
   }
 
   // ---- 10. OPTIONS method ----

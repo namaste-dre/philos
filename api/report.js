@@ -47,13 +47,21 @@ const RARITY_BY_FAMILY = {
 // A0.2 containment: /api/report previously treated bare possession of the
 // completion id (a value logged, emailed, and pasted around) as sufficient
 // authorization. It is now not - a viewer must also present the capability
-// token minted by api/capture.js at completion-ownership time. This is a
-// stateless, non-expiring per-completion token (expiry/revocation belong to
-// the future D-1 public-share feature, not this block); it must be computed
-// identically here and in capture.js.
-function computeReportToken(id) {
+// token minted by api/capture.js at completion-ownership time.
+//
+// A7 (D136): the token is no longer purely stateless. A NULL share_token_salt
+// means "this row has never been rotated" and validates against the
+// original legacy formula (HMAC of id alone) - this is what keeps every
+// share link issued before this change working unchanged. A non-NULL salt
+// (set only by a user-initiated regenerate, api/share-control.js) means the
+// row has been rotated at least once; only the current salt's token is
+// valid, permanently invalidating every token computed under the old
+// formula or a prior salt. Must be computed identically here and in
+// capture.js.
+function computeReportToken(id, salt) {
   const secret = process.env.SUPABASE_SERVICE_KEY || '';
-  return crypto.createHmac('sha256', secret).update(`report-token:${id}`).digest('hex').slice(0, 32);
+  const material = salt ? `report-token:${id}:${salt}` : `report-token:${id}`;
+  return crypto.createHmac('sha256', secret).update(material).digest('hex').slice(0, 32);
 }
 
 function tokenMatches(provided, expected) {
@@ -141,16 +149,22 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
   if (!supabaseUrl || !supabaseKey) return res.status(500).send(errorPage('Something went wrong loading this report.'));
 
-  const expectedToken = computeReportToken(id);
-  if (!tokenMatches(t, expectedToken)) return notFound();
-
   const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
   const rate = await checkRateLimit(`report:${ip}`);
   if (!rate.allowed) return notFound();
 
   try {
+    // D-3: first_name is never selected here - the public share page must
+    // never carry the respondent's name, in the data it fetches as well as
+    // what it renders. A7/D136: share_enabled and share_token_salt are
+    // needed before the token can even be validated, since the salt is now
+    // part of the expected-token formula - this necessarily moves the row
+    // fetch ahead of token validation (previously id-only token validation
+    // ran before any DB call). Cost of a DB read for a garbage token is
+    // acceptable: rate limiting above still fails closed, and the response
+    // stays the same uniform 404 either way, so no side channel is added.
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&select=report_json,scores,fingerprint,first_name,archetype_family,archetype_variant,axis_count,question_count`,
+      `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&select=report_json,scores,fingerprint,archetype_family,archetype_variant,axis_count,question_count,share_enabled,share_token_salt`,
       {
         headers: {
           'apikey': supabaseKey,
@@ -165,10 +179,14 @@ export default async function handler(req, res) {
     if (!rows || !rows.length) return notFound();
 
     const c = rows[0];
+    if (c.share_enabled === false) return notFound();
+
+    const expectedToken = computeReportToken(id, c.share_token_salt);
+    if (!tokenMatches(t, expectedToken)) return notFound();
+
     const report = c.report_json || {};
     const scores = c.scores || {};
     const fingerprint = c.fingerprint || [];
-    const name = c.first_name || 'You';
     const archetype = c.archetype_family || '';
     const variant = c.archetype_variant || '';
     const shareUrl = `https://phil-os.thelifepm.com/report?id=${id}&t=${t}`;
@@ -180,7 +198,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Referrer-Policy', 'no-referrer');
-    return res.status(200).send(renderReportPage({ c, report, scores, fingerprint, name, archetype, variant, shareUrl }));
+    return res.status(200).send(renderReportPage({ c, report, scores, fingerprint, archetype, variant, shareUrl }));
 
   } catch (e) {
     console.error('report.js error:', e.message);
@@ -243,7 +261,7 @@ function worldCard(card, iconEmoji, iconBg) {
   </div>`;
 }
 
-function renderReportPage({ c, report, scores, fingerprint, name, archetype, variant, shareUrl }) {
+function renderReportPage({ c, report, scores, fingerprint, archetype, variant, shareUrl }) {
   const tagline = report.tagline || '';
   const identity = report.identity || '';
   const identityHtml = (Array.isArray(identity) ? identity.join('\n\n') : identity)
@@ -404,11 +422,11 @@ function renderReportPage({ c, report, scores, fingerprint, name, archetype, var
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta property="og:title" content="${escapeHtml(name)}'s Phil OS Report, ${escapeHtml(archetype)}"/>
+<meta property="og:title" content="A Phil OS Report, ${escapeHtml(archetype)}"/>
 <meta name="robots" content="noindex, nofollow"/>
 <meta property="og:description" content="${escapeHtml(tagline)}"/>
 <meta property="og:url" content="${escapeHtml(shareUrl)}"/>
-<title>${escapeHtml(name)} — Phil OS Report</title>
+<title>Phil OS Report</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}

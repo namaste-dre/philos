@@ -8375,7 +8375,18 @@ function qaExportNotes() {
 function renderShareUrl(url) {
   // Find or create share URL block in report
   let existing = document.getElementById('report-share-url');
-  if (existing) { existing.querySelector('a').href = url; existing.querySelector('a').textContent = url; return; }
+  if (existing) {
+    // A7 fix: the previous version only updated the anchor, leaving the
+    // Copy button's data-url pointed at whatever URL was current when the
+    // block was first created - after a regenerate, Copy would silently
+    // hand out a dead token. Every URL-bearing part must move together.
+    const link = existing.querySelector('a');
+    const btn  = existing.querySelector('button');
+    if (link) { link.href = url; link.textContent = url; }
+    if (btn)  { btn.dataset.url = url; btn.textContent = 'Copy'; }
+    existing.style.display = '';
+    return;
+  }
 
   const shareBlock = document.createElement('div');
   shareBlock.id = 'report-share-url';
@@ -8390,6 +8401,18 @@ function renderShareUrl(url) {
   // Insert at top of report body
   const reportBody = document.querySelector('.report-body');
   if (reportBody) reportBody.insertBefore(shareBlock, reportBody.firstChild);
+}
+
+// A7 (D-1/D136): replace the visible on-page share block with a disabled
+// notice - called on revoke and whenever a status refresh finds sharing off
+// with no token to show. Never leave a revoked/dead URL visibly presented
+// as if it still worked.
+function renderShareDisabledState() {
+  const existing = document.getElementById('report-share-url');
+  if (!existing) return;
+  existing.innerHTML = '<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:10px;">'
+    + '<div style="font-family:IBM Plex Sans,sans-serif;font-size:12px;color:rgba(255,255,255,0.55);">Sharing is off for this report. Turn it back on from the share menu to get a new link.</div>'
+    + '</div>';
 }
 
 // Problem 3C: get the real share URL for an already-saved completion, for
@@ -8410,7 +8433,14 @@ async function fetchShareUrlForCompletion(completionId) {
       body: JSON.stringify({ completion_id: completionId }),
     });
     const data = await res.json().catch(() => null);
-    if (!data || !data.ok || !data.report_token) return null;
+    if (!data || !data.ok) return null;
+    // A7 (D-1/D136): record which completion this is and its current
+    // sharing state regardless of whether a token came back - a disabled
+    // report legitimately has no token, and the manage-sharing UI needs to
+    // tell that apart from "not loaded yet".
+    currentReportCompletionId = completionId;
+    currentReportShareEnabled = data.share_enabled !== false;
+    if (!data.report_token) return null;
     return window.location.origin + '/report?id=' + completionId + '&t=' + data.report_token;
   } catch(e) {
     console.warn('[Share] Could not retrieve share link:', e.message);
@@ -9127,6 +9157,8 @@ Return ONLY valid JSON, with no markdown fences:
             ? (window.location.origin + '/report?id=' + completionId + '&t=' + reportToken)
             : null;
           currentReportShareUrl = shareUrl;
+          currentReportCompletionId = completionId || null;
+          currentReportShareEnabled = !result || result.share_enabled !== false;
           // Send report email with share URL
           sendReportEmail(report, fingerprint, archetypeResult, contradictions, shareUrl);
           // Show share URL in report if we have it
@@ -11362,10 +11394,13 @@ function roundRect(ctx, x, y, w, h, r) {
 function downloadCard() {
   const canvas = getCardCanvas();
   if (!canvas) return;
-  const name = (state.userName || 'my').replace(/\s+/g,'-').toLowerCase();
+  // D-3: downloaded/shared artifact filenames must not carry the
+  // respondent's name - this file is routinely re-shared/uploaded
+  // elsewhere by the user, same public-artifact category as the share
+  // page's title/meta.
   const archSlug = (cardData?.archetypeName || 'phil-os').replace(/\s+/g,'-').toLowerCase();
   const a = document.createElement('a');
-  a.download = `${name}-${archSlug}-philos.png`;
+  a.download = `phil-os-report-${archSlug}.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
 }
@@ -11388,6 +11423,100 @@ function shareCard() {
   // Hide native share button if Web Share API not available
   const nativeBtn = document.getElementById('share-native-btn');
   if (nativeBtn) nativeBtn.style.display = navigator.share ? 'flex' : 'none';
+  refreshShareStatus();
+}
+
+// A7 (D-1/D136): minimal manage-sharing controls - on/off plus regenerate,
+// no history or per-viewer tracking. Turning sharing back on always goes
+// through regenerate (a fresh salt), never a bare re-enable - a bare
+// re-enable would let a previously revoked, already-leaked link work again,
+// exactly the failure mode D-1 required this design to avoid.
+const SHARE_MANAGE_BTN_STYLE = 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:var(--text);font-family:IBM Plex Sans,sans-serif;font-size:12px;font-weight:600;padding:9px 14px;border-radius:8px;cursor:pointer;';
+
+function renderShareManageUI() {
+  const statusEl  = document.getElementById('share-manage-status');
+  const actionsEl = document.getElementById('share-manage-actions');
+  if (!statusEl || !actionsEl) return;
+
+  if (!currentReportCompletionId) {
+    statusEl.textContent = 'Sharing status unavailable.';
+    actionsEl.innerHTML = '';
+    return;
+  }
+
+  if (currentReportShareEnabled) {
+    statusEl.textContent = 'Sharing is on. Anyone with your link can view your report.';
+    actionsEl.innerHTML =
+      '<button onclick="revokeShareLink()" style="' + SHARE_MANAGE_BTN_STYLE + '">Turn off sharing</button>' +
+      '<button onclick="regenerateShareLink()" style="' + SHARE_MANAGE_BTN_STYLE + '">Get new link</button>';
+  } else {
+    statusEl.textContent = 'Sharing is off. Your previous link no longer works.';
+    actionsEl.innerHTML =
+      '<button onclick="regenerateShareLink()" style="' + SHARE_MANAGE_BTN_STYLE + '">Turn on sharing (new link)</button>';
+  }
+}
+
+async function refreshShareStatus() {
+  const statusEl  = document.getElementById('share-manage-status');
+  const actionsEl = document.getElementById('share-manage-actions');
+  if (statusEl) statusEl.textContent = 'Checking sharing status…';
+  if (actionsEl) actionsEl.innerHTML = '';
+  if (currentReportCompletionId) {
+    currentReportShareUrl = await fetchShareUrlForCompletion(currentReportCompletionId);
+  }
+  // A7 fix: sync the on-page share block (separate surface from this
+  // modal's own status line) with whatever state was just fetched, so a
+  // stale/dead URL is never left visible as usable, and a real current URL
+  // is never left un-synced either.
+  if (currentReportShareEnabled && currentReportShareUrl) renderShareUrl(currentReportShareUrl);
+  else if (!currentReportShareEnabled) renderShareDisabledState();
+  renderShareManageUI();
+}
+
+async function callShareControl(action) {
+  if (!currentReportCompletionId) return null;
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session?.access_token) return null;
+    const res = await fetch('/api/share-control', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action, completion_id: currentReportCompletionId }),
+    });
+    return await res.json().catch(() => null);
+  } catch(e) {
+    console.warn('[Share] share-control call failed:', e.message);
+    return null;
+  }
+}
+
+async function revokeShareLink() {
+  const statusEl = document.getElementById('share-manage-status');
+  if (statusEl) statusEl.textContent = 'Turning off sharing…';
+  const data = await callShareControl('revoke');
+  if (!data || !data.ok) {
+    if (statusEl) statusEl.textContent = "Couldn't update sharing right now - try again.";
+    return;
+  }
+  currentReportShareEnabled = false;
+  currentReportShareUrl = null;
+  renderShareDisabledState();
+  renderShareManageUI();
+}
+
+async function regenerateShareLink() {
+  const statusEl = document.getElementById('share-manage-status');
+  if (statusEl) statusEl.textContent = 'Creating a new link…';
+  const data = await callShareControl('regenerate');
+  if (!data || !data.ok) {
+    if (statusEl) statusEl.textContent = "Couldn't update sharing right now - try again.";
+    return;
+  }
+  currentReportShareEnabled = true;
+  currentReportShareUrl = data.share_url || null;
+  if (currentReportShareUrl) renderShareUrl(currentReportShareUrl);
+  renderShareManageUI();
+  if (statusEl) statusEl.textContent = 'New link created - sharing is on.';
 }
 
 function closeShareModal() {
@@ -11422,9 +11551,10 @@ async function shareNative() {
   if (!canvas || !navigator.share) return;
   try {
     const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-    const name = (state.userName || 'my').replace(/\s+/g,'-').toLowerCase();
+    // D-3: same generic-filename rule as downloadCard() - no respondent
+    // name in a file that gets shared/uploaded elsewhere.
     const archSlug = (cardData?.archetypeName || 'phil-os').replace(/\s+/g,'-').toLowerCase();
-    const file = new File([blob], `${name}-${archSlug}-philos.png`, { type: 'image/png' });
+    const file = new File([blob], `phil-os-report-${archSlug}.png`, { type: 'image/png' });
     const shareData = { title: 'Phil OS', text: getShareText(), url: currentReportShareUrl };
     if (navigator.canShare?.({ files: [file] })) shareData.files = [file];
     await navigator.share(shareData);
@@ -12099,6 +12229,8 @@ function devRunIntegrityCheck() {
   window.downloadForSocial = downloadForSocial;
   window.shareNative       = shareNative;
   window.copyProfileLink   = copyProfileLink;
+  window.revokeShareLink     = revokeShareLink;
+  window.regenerateShareLink = regenerateShareLink;
   // Consent gate
   window.submitConsentGate = submitConsentGate;
 })();
@@ -12118,6 +12250,12 @@ let currentUser = null;
 // reads from this single value instead of each hardcoding its own guess -
 // null means "not known yet", never "fall back to the homepage".
 let currentReportShareUrl = null;
+// A7 (D-1/D136): the completion id and current on/off sharing state paired
+// with currentReportShareUrl above - needed so the manage-sharing UI can
+// call api/share-control.js for the report actually on screen, and can
+// show "sharing is off" distinctly from "link not loaded yet".
+let currentReportCompletionId = null;
+let currentReportShareEnabled = true;
 
 // ── Boot: check session on load ──
 let _consentGatePassed = false; // module-level: survives onAuthReady re-entry
@@ -13601,6 +13739,14 @@ document.addEventListener('DOMContentLoaded', authBoot);
       </button>
 
     </div>
+
+    <!-- A7 (D-1/D136): minimal manage-sharing controls - status line plus
+         revoke/regenerate actions, no history or per-viewer tracking. -->
+    <div id="share-manage" style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);">
+      <div id="share-manage-status" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--muted);margin-bottom:10px;">Checking sharing status…</div>
+      <div id="share-manage-actions" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
+    </div>
+
   </div>
 </div>
 
