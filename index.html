@@ -8538,12 +8538,22 @@ async function saveToSupabase(payload, claimedId) {
 
 async function sendReportEmail(report, fingerprint, archetypeResult, contradictions, shareUrl) {
   try {
+    // Hardened /api/email requires the signed-in session and always sends
+    // to the verified account address - the email field is no longer read
+    // by the server (kept out of the payload entirely).
+    const { data: { session } } = await supa.auth.getSession();
+    if (!session?.access_token) {
+      console.warn('Email skipped: no active session');
+      return;
+    }
     await fetch('/api/email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
       body: JSON.stringify({
         name: state.userName,
-        email: state.captureData?.email,
         archetype: archetypeResult.primary.family,
         variant: archetypeResult.primary.variant,
         tagline: report.tagline,
