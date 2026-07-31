@@ -1091,6 +1091,26 @@ body::after {
 /* Each section panel */
 .rs { display: none; padding: 44px 52px 100px; background: transparent; }
 .rs.active { display: block; }
+
+/* ── C1/C2/C3 (D143): continuous Full Report mode + focused deep-dives ── */
+/* Continuous mode: every section stacks in reading order; the shareable
+   card moves to the end of the flow (one share surface inside the report,
+   not the destination). Focused mode: the big archetype hero hides and a
+   compact context strip takes its place, so each section page reads
+   section-first immediately above the fold. */
+.report-sections.continuous { display: flex; flex-direction: column; }
+.report-sections.continuous .rs { display: block; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.report-sections.continuous #rs-card { order: 99; border-bottom: none; }
+.rs-open-btn { display: none; margin: 2px 0 6px; background: transparent; border: 1px solid rgba(255,255,255,0.22); border-radius: 6px; padding: 6px 13px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); cursor: pointer; transition: border-color .2s, color .2s; }
+.rs-open-btn:hover { border-color: var(--accent); color: var(--accent); }
+.report-sections.continuous .rs-open-btn { display: inline-block; }
+#screen-report.section-focus .report-header { display: none; }
+#report-context-strip { display: none; max-width: 1160px; margin: 0 auto; padding: 86px 24px 0; }
+#screen-report.section-focus #report-context-strip { display: block; }
+#report-context-strip .rcs-inner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+#report-context-strip .rcs-line { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+#report-context-strip .rcs-back { background: transparent; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); cursor: pointer; padding: 0; }
+#report-context-strip .rcs-back:hover { text-decoration: underline; }
 .rs-header {
   margin-bottom: 36px;
   padding-bottom: 28px;
@@ -4324,7 +4344,15 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
     </div>
   </div>
 
-
+  <!-- C3 (D143): compact context strip shown on focused section pages in
+       place of the full archetype hero - each deep-dive reads
+       section-first above the fold. -->
+  <div id="report-context-strip">
+    <div class="rcs-inner">
+      <button class="rcs-back" onclick="showReportSection('rs-full')">&larr; Full Report</button>
+      <span class="rcs-line">Part of your <span id="report-context-arch">-</span> report</span>
+    </div>
+  </div>
 
   <div class="report-layout">
 
@@ -4333,6 +4361,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <div class="report-nav-title">Sections</div>
       <!-- Mobile dropdown - replaces horizontal scroll on small screens -->
       <select class="report-nav-dropdown" id="report-nav-dropdown" onchange="showReportSection(this.value);document.querySelectorAll('.rn-item').forEach(b=>b.classList.toggle('active',b.dataset.section===this.value));">
+        <option value="rs-full">Full Report</option>
         <option value="rs-card">Your Card</option>
         <option value="rs-identity">Who You Are</option>
         <option value="rs-world">In the World</option>
@@ -4346,7 +4375,8 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         <option value="rs-map">Full Belief Map</option>
       </select>
       <!-- Desktop sidebar buttons -->
-      <button class="rn-item active" data-section="rs-card"           onclick="showReportSection('rs-card')">Your Card</button>
+      <button class="rn-item active" data-section="rs-full"           onclick="showReportSection('rs-full')">Full Report</button>
+      <button class="rn-item"        data-section="rs-card"           onclick="showReportSection('rs-card')">Your Card</button>
       <button class="rn-item"        data-section="rs-identity"       onclick="showReportSection('rs-identity')">Who You Are</button>
       <button class="rn-item"        data-section="rs-world"          onclick="showReportSection('rs-world')">In the World</button>
       <button class="rn-item"        data-section="rs-famous"         onclick="showReportSection('rs-famous')">Famous Minds</button>
@@ -10851,9 +10881,11 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
 
   showNavProgress(false);
   show('screen-report');
-  // Reset nav and go to card section first
+  // Reset nav and land on the continuous Full Report (D143: the default
+  // My Profile destination - the card is one surface inside it, not the
+  // whole profile impression).
   document.querySelectorAll('.rn-item').forEach(el => el.style.display = '');
-  showReportSection('rs-card');
+  showReportSection('rs-full');
 
   // Re-attach tooltips to dynamically injected phil-term nodes
   if (typeof window.attachTooltipBehaviour === 'function') {
@@ -13079,19 +13111,59 @@ async function handleForgotPassword() {
 }
 
 // ── Sign out ──
-async function showReportSection(sectionId) {
+async // C1/C2/C3 (D143): 'rs-full' is the continuous Full Report - every section
+// stacked in reading order with the card at the end - and the default My
+// Profile destination. Any other section id is a focused deep-dive: the
+// big archetype hero hides, a compact context strip shows instead, and the
+// section's own header is the first thing above the fold.
+function showReportSection(sectionId) {
+  const container = document.getElementById('report-sections');
+  const screen = document.getElementById('screen-report');
   document.querySelectorAll('.rs').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.rn-item').forEach(el => el.classList.remove('active'));
-  const sec = document.getElementById(sectionId);
-  if (sec) sec.classList.add('active');
   const navItem = document.querySelector('.rn-item[data-section="' + sectionId + '"]');
   if (navItem) navItem.classList.add('active');
   // Keep mobile dropdown in sync
   const dropdown = document.getElementById('report-nav-dropdown');
   if (dropdown) dropdown.value = sectionId;
+
+  if (sectionId === 'rs-full') {
+    initFullReportAffordances();
+    if (container) container.classList.add('continuous');
+    if (screen) screen.classList.remove('section-focus');
+  } else {
+    if (container) container.classList.remove('continuous');
+    const sec = document.getElementById(sectionId);
+    if (sec) sec.classList.add('active');
+    if (screen) screen.classList.add('section-focus');
+    const ctx = document.getElementById('report-context-arch');
+    const arch = document.getElementById('report-archetype');
+    if (ctx && arch) ctx.textContent = arch.textContent; // textContent only - A3 discipline
+  }
   // Scroll report screen to top
-  const screen = document.getElementById('screen-report');
   if (screen) screen.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+// One-time setup: give every section header an "open this section"
+// affordance, visible only in continuous mode (CSS-gated). Injected rather
+// than hand-added to 11 static headers so a future new section gets the
+// affordance automatically.
+var _fullReportAffordancesDone = false; // var, not let: hoisted, so the
+// call order between renderReport (earlier in this block) and this
+// declaration (later) can never produce a temporal-dead-zone error.
+function initFullReportAffordances() {
+  if (_fullReportAffordancesDone) return;
+  _fullReportAffordancesDone = true;
+  document.querySelectorAll('#report-sections .rs').forEach(sec => {
+    const header = sec.querySelector('.rs-header');
+    if (!header) return;
+    const btn = document.createElement('button');
+    btn.className = 'rs-open-btn';
+    btn.textContent = 'Open this section';
+    btn.onclick = () => showReportSection(sec.id);
+    header.appendChild(btn);
+  });
 }
 
 async function handleSignOut() {
