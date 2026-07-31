@@ -147,5 +147,26 @@ new vm.Script(
   }
 }
 
+// ---- 5. Share-page scoresMap key parity (labels deliberately differ) ----
+// api/report.js's scoresMap is a third copy of the axis list carrying
+// plain-language display variants for the public share page - label
+// divergence there is a deliberate design (confirmed 2026-07-31), so only
+// KEY parity is asserted: every axis exists on both sides, none invented.
+{
+  const rep = fs.readFileSync(path.join(__dirname, 'api', 'report.js'), 'utf8');
+  const sm = /const scoresMap = \[([\s\S]*?)\n  \];/.exec(rep);
+  ok('scoresMap block found in api/report.js', !!sm);
+  if (sm) {
+    const keys = [...sm[1].matchAll(/key:'(\w+)'/g)].map(x => x[1]);
+    ok('scoresMap lists exactly 32 axes', keys.length === 32, keys.length);
+    ok('scoresMap keys contain no duplicates', new Set(keys).size === keys.length);
+    const cAxes = new Set(Object.keys(client.AXIS_META));
+    const unknown = keys.filter(k => !cAxes.has(k));
+    const missing = [...cAxes].filter(k => !keys.includes(k));
+    ok('every scoresMap key exists in AXIS_META', unknown.length === 0, unknown);
+    ok('no AXIS_META axis is missing from scoresMap', missing.length === 0, missing);
+  }
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exitCode = 1;
