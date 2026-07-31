@@ -2850,6 +2850,24 @@ select.modal-input option { background: #12101e; }
   transition: color 0.2s, background 0.2s;
 }
 .nav-link-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+/* ── Dashboard (D114 spec) ── */
+.dash-wrap { max-width: 1060px; margin: 0 auto; padding: 90px 22px 80px; }
+.dash-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 24px 26px; margin-bottom: 22px; }
+.dash-h { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--purple2); margin-bottom: 14px; }
+.dash-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.dash-btn { background: transparent; border: 1px solid rgba(255,255,255,0.22); border-radius: 6px; padding: 7px 14px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); cursor: pointer; transition: border-color .2s, color .2s; }
+.dash-btn:hover { border-color: var(--accent); color: var(--accent); }
+.dash-btn.active { border-color: var(--accent); color: var(--accent); }
+.dash-select { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; padding: 7px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text); }
+.dash-hist-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.dash-hist-row:last-child { border-bottom: none; }
+.dash-axis-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text2); cursor: pointer; margin: 3px; }
+.dash-axis-chip.on { border-color: var(--accent); color: var(--text); }
+.dash-tier-badge { display: inline-block; min-width: 18px; text-align: center; padding: 2px 7px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; }
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.dash-note-area { width: 100%; min-height: 64px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text); font-size: 13px; line-height: 1.5; padding: 9px 11px; resize: vertical; }
+@media (max-width: 640px) { .dash-wrap { padding: 74px 12px 60px; } .dash-card { padding: 16px 14px; } }
 /* Nav space reserved on all screens */
 #screen-landing,
 #screen-intro,
@@ -3119,6 +3137,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
          the logo, disconnected from the rest of the account controls. -->
     <div id="nav-links" style="display:none;align-items:center;gap:4px;margin-right:8px;">
       <button class="nav-link-btn" onclick="navGoReport()">My Profile</button>
+      <button class="nav-link-btn" onclick="navGoDashboard()">Dashboard</button>
       <button class="nav-link-btn" onclick="show('screen-resources')">Resources</button>
     </div>
     <!-- Settings dropdown -->
@@ -4187,6 +4206,88 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
 <!-- ══════════════════════════════════════════
      SCREEN 4: REPORT
 ══════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     DASHBOARD (D114 spec - Dashboard and History Specification)
+     ══════════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen" role="main" aria-label="Your report history and trends">
+  <div class="dash-wrap">
+    <div style="margin-bottom:26px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Dashboard</div>
+      <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--text);">Your history and trends</div>
+    </div>
+
+    <div id="dash-loading" class="dash-sub" style="padding:30px 0;">Loading your history...</div>
+    <div id="dash-empty" style="display:none;" class="dash-card">
+      <div class="dash-h">No completed reports yet</div>
+      <div class="dash-sub">Your dashboard fills in after your first completed assessment. Every report you generate is kept here permanently, with trends appearing from your second one onward.</div>
+    </div>
+
+    <div id="dash-body" style="display:none;">
+
+      <!-- 3.1 Overview + 3.6 time-since + 3.7 retake status -->
+      <div class="dash-card" id="dash-overview-card">
+        <div class="dash-h">Overview</div>
+        <div id="dash-overview"></div>
+      </div>
+
+      <!-- 3.2 Report history + 3.12 notes -->
+      <div class="dash-card">
+        <div class="dash-h">Report history</div>
+        <div id="dash-history"></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="dash-btn" onclick="dashExport('csv')">Export CSV</button>
+          <button class="dash-btn" onclick="dashExport('json')">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- 3.3 Axis trends -->
+      <div class="dash-card">
+        <div class="dash-h">Axis trends</div>
+        <div class="dash-sub" style="margin-bottom:12px;">Score over time per axis, 1 to 7 between the two named poles. One completion shows a point; the line appears from your second completion.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <button class="dash-btn active" id="dash-mode-compare" onclick="dashSetMode('compare')">Overlay</button>
+          <button class="dash-btn" id="dash-mode-grid" onclick="dashSetMode('grid')">Grid</button>
+          <input class="dash-select" id="dash-axis-search" type="text" placeholder="Search axes..." oninput="dashRenderAxisPicker(this.value)" style="flex:1;min-width:140px;">
+        </div>
+        <div id="dash-axis-picker" style="margin-bottom:12px;"></div>
+        <div id="dash-trends"></div>
+      </div>
+
+      <!-- 3.4 stability/flux + 3.5 pole crossings -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;">
+        <div class="dash-card" style="margin-bottom:22px;">
+          <div class="dash-h">Stability and flux</div>
+          <div id="dash-stability"></div>
+        </div>
+        <div class="dash-card" style="margin-bottom:22px;">
+          <div class="dash-h">Pole crossings</div>
+          <div class="dash-sub" style="margin-bottom:10px;">Moments an axis did not just drift but changed which pole you lean toward.</div>
+          <div id="dash-crossings"></div>
+        </div>
+      </div>
+
+      <!-- 3.8 contradiction engine view -->
+      <div class="dash-card">
+        <div class="dash-h">Belief tensions over time</div>
+        <div id="dash-contradictions"></div>
+      </div>
+
+      <!-- 3.9 + 3.11 two-point comparison -->
+      <div class="dash-card">
+        <div class="dash-h">Compare two reports</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+          <select class="dash-select" id="dash-cmp-a"></select>
+          <span style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;">vs</span>
+          <select class="dash-select" id="dash-cmp-b"></select>
+          <button class="dash-btn" onclick="dashComparePair()">Compare</button>
+        </div>
+        <div id="dash-compare"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div id="screen-report" class="screen">
   <div class="report-canvas-base" aria-hidden="true"></div>
   <div class="report-bg-glow3"></div>
@@ -13446,6 +13547,502 @@ function navGoReport() {
     });
   } else {
     show('screen-landing');
+  }
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD (D114 spec) - loading, rendering, interactions
+// ══════════════════════════════════════════
+// All user-derived text (notes, archetype names from the DB) enters the
+// DOM via textContent, never innerHTML interpolation - A3 discipline.
+// Chart SVG is built exclusively from numbers and static AXIS_META labels.
+
+let dashState = null;          // last-loaded dashboard payload
+let dashSelectedAxes = null;   // Set of axis ids currently charted
+let dashMode = 'compare';      // 'compare' overlay | 'grid'
+const DASH_PALETTE = ['#c9a96e', '#9d93e8', '#6fb890', '#e0a84a', '#e07878', '#7ab8d4', '#c98ec4', '#a8c96e'];
+
+async function dashAuthHeaders() {
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session?.access_token) return null;
+  return { 'Authorization': `Bearer ${session.access_token}` };
+}
+
+function navGoDashboard() {
+  if (!currentUser) { showAuth('login'); return; }
+  show('screen-dashboard');
+  loadDashboard();
+}
+
+async function loadDashboard() {
+  const loading = document.getElementById('dash-loading');
+  const empty = document.getElementById('dash-empty');
+  const body = document.getElementById('dash-body');
+  loading.style.display = 'block'; empty.style.display = 'none'; body.style.display = 'none';
+  try {
+    const headers = await dashAuthHeaders();
+    if (!headers) { loading.textContent = 'Sign in to see your dashboard.'; return; }
+    const res = await fetch('/api/capture?view=dashboard', { headers });
+    if (!res.ok) { loading.textContent = 'Could not load your history right now. Try again in a moment.'; return; }
+    dashState = await res.json();
+    loading.style.display = 'none';
+    if (!dashState.completions || dashState.completions.length === 0) { empty.style.display = 'block'; return; }
+    body.style.display = 'block';
+    if (dashSelectedAxes === null) {
+      // Spec 3.3: default view is the 6 T1 signature axes - the first six
+      // entries of the instrument's own SIG_AXES ordering, not a guess.
+      dashSelectedAxes = new Set(SIG_AXES.slice(0, 6));
+    }
+    dashRenderOverview();
+    dashRenderHistory();
+    dashRenderAxisPicker('');
+    dashRenderTrends();
+    dashRenderStability();
+    dashRenderCrossings();
+    dashRenderContradictions();
+    dashInitCompare();
+  } catch (e) {
+    console.warn('Dashboard load failed:', e.message);
+    loading.textContent = 'Could not load your history right now. Try again in a moment.';
+  }
+}
+
+function dashEl(tag, styleOrClass, text) {
+  const el = document.createElement(tag);
+  if (styleOrClass) {
+    if (styleOrClass.includes(':')) el.style.cssText = styleOrClass;
+    else el.className = styleOrClass;
+  }
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function dashAxisLabel(axisId) {
+  return (AXIS_META[axisId] && AXIS_META[axisId].label) || axisId;
+}
+
+function dashFmtDate(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? '' : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// -- Overview (3.1) + time-since (3.6) + retake status (3.7) --
+function dashRenderOverview() {
+  const host = document.getElementById('dash-overview');
+  host.textContent = '';
+  const ov = dashState.overview;
+  const comps = dashState.completions;
+
+  const top = dashEl('div', 'display:flex;flex-wrap:wrap;gap:26px;align-items:baseline;margin-bottom:14px;');
+  const arch = dashEl('div');
+  arch.appendChild(dashEl('div', 'font-family:Playfair Display,serif;font-size:24px;font-weight:700;color:var(--text);', ov.archetypeFamily || 'Report'));
+  if (ov.archetypeVariant) arch.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--accent);', ov.archetypeVariant));
+  top.appendChild(arch);
+  const meta = dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--muted);');
+  meta.textContent = `${ov.totalCompletions} report${ov.totalCompletions === 1 ? '' : 's'} · latest ${dashState.elapsedSinceLatest === 'today' ? 'today' : dashState.elapsedSinceLatest + ' ago'}`;
+  top.appendChild(meta);
+  host.appendChild(top);
+
+  // Drift summary + what moved most (auto-surfaced per spec)
+  const drift = dashEl('div', 'font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:14px;');
+  if (ov.topMovedAxes && ov.topMovedAxes.length > 0) {
+    const m = ov.topMovedAxes[0];
+    const dir = Number(m.to) > Number(m.from) ? AXIS_META[m.axisId]?.poleR : AXIS_META[m.axisId]?.poleL;
+    drift.textContent = `Since your previous report, ${dashAxisLabel(m.axisId)} moved the most (${Number(m.from).toFixed(1)} to ${Number(m.to).toFixed(1)}, toward ${dir || 'the other pole'}). ` +
+      (ov.topMovedAxes.length > 1 ? `Also moving: ${ov.topMovedAxes.slice(1).map(x => dashAxisLabel(x.axisId)).join(', ')}.` : '');
+  } else {
+    drift.textContent = 'This is your first completed report - drift and trends appear once you have a second one to compare against.';
+  }
+  host.appendChild(drift);
+
+  // Position intensity - MUST be paired with epistemic humility (Lyra,
+  // Dashboard spec Section 4): never shown as a lone confidence number.
+  const stats = dashEl('div', 'display:flex;flex-wrap:wrap;gap:22px;margin-bottom:14px;');
+  const s1 = dashEl('div');
+  s1.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);', 'Position intensity'));
+  s1.appendChild(dashEl('div', 'font-family:Playfair Display,serif;font-size:22px;font-weight:700;color:var(--purple2);', `${ov.convictionStrength}%`));
+  stats.appendChild(s1);
+  const s2 = dashEl('div');
+  s2.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);', 'Epistemic humility axis'));
+  s2.appendChild(dashEl('div', 'font-family:Playfair Display,serif;font-size:22px;font-weight:700;color:var(--text2);', ov.epistemicHumility === null ? '-' : Number(ov.epistemicHumility).toFixed(1)));
+  stats.appendChild(s2);
+  const s3 = dashEl('div');
+  s3.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);', 'Tensions (latest)'));
+  s3.appendChild(dashEl('div', 'font-family:Playfair Display,serif;font-size:22px;font-weight:700;color:var(--text2);', String(ov.contradictionsCount)));
+  stats.appendChild(s3);
+  host.appendChild(stats);
+  host.appendChild(dashEl('div', 'dash-sub',
+    'Position intensity is how far your answers sit from the neutral midpoint on average - it measures how defined your positions are, not how confident or correct they are. Read it together with your epistemic humility score (1 = confident answers can be reached, 7 = deep questions deserve durable uncertainty): the pair distinguishes a considered middle from an undecided one better than either number alone.'));
+
+  // Retake status (3.7) - mirrors the D117 server rule: calendar month,
+  // completed non-QA generations, cap 2. Display only; the server enforces.
+  const now = new Date();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const usedThisMonth = comps.filter(c => c.completedAt >= monthStart).length;
+  const nextReset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  const retake = dashEl('div', 'margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--text2);');
+  retake.textContent = `Retakes: ${Math.min(usedThisMonth, 2)} of 2 full generations used this month` +
+    (usedThisMonth >= 2 ? ` · next opens ${nextReset.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}` : '');
+  host.appendChild(retake);
+}
+
+// -- Report history (3.2) + personal notes (3.12) --
+function dashRenderHistory() {
+  const host = document.getElementById('dash-history');
+  host.textContent = '';
+  const comps = [...dashState.completions].reverse(); // newest first for the list
+  for (const c of comps) {
+    const row = dashEl('div', 'dash-hist-row');
+    const when = dashEl('div', 'min-width:150px;');
+    when.appendChild(dashEl('div', 'font-size:14px;color:var(--text);', dashFmtDate(c.completedAt)));
+    when.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--muted);', c.elapsed === 'today' ? 'today' : `${c.elapsed} ago`));
+    row.appendChild(when);
+    const what = dashEl('div', 'flex:1;min-width:170px;');
+    what.appendChild(dashEl('div', 'font-size:14px;color:var(--text2);', c.archetypeFamily || 'Report'));
+    what.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--muted);', `${c.contradictionsCount ?? 0} tension${(c.contradictionsCount ?? 0) === 1 ? '' : 's'}`));
+    row.appendChild(what);
+    const actions = dashEl('div', 'display:flex;gap:8px;flex-wrap:wrap;');
+    const viewBtn = dashEl('button', 'dash-btn', 'View report');
+    viewBtn.onclick = () => dashViewReport(c.id);
+    actions.appendChild(viewBtn);
+    const noteBtn = dashEl('button', 'dash-btn', dashState.notes[c.id] ? 'Edit note' : 'Add note');
+    noteBtn.onclick = () => dashToggleNote(c.id, row);
+    actions.appendChild(noteBtn);
+    row.appendChild(actions);
+    if (dashState.notes[c.id]) {
+      const notePreview = dashEl('div', 'width:100%;font-size:13px;color:var(--muted);font-style:italic;line-height:1.5;');
+      notePreview.textContent = `"${dashState.notes[c.id].text}"`;
+      notePreview.dataset.notePreview = c.id;
+      row.appendChild(notePreview);
+    }
+    host.appendChild(row);
+  }
+}
+
+function dashToggleNote(completionId, row) {
+  const existing = row.querySelector('[data-note-editor]');
+  if (existing) { existing.remove(); return; }
+  const wrap = dashEl('div', 'width:100%;margin-top:8px;');
+  wrap.dataset.noteEditor = completionId;
+  const area = document.createElement('textarea');
+  area.className = 'dash-note-area';
+  area.maxLength = 2000;
+  area.placeholder = 'Your own context for this report - what was going on, what you were reading, what changed...';
+  area.value = dashState.notes[completionId]?.text || '';
+  wrap.appendChild(area);
+  const btns = dashEl('div', 'display:flex;gap:8px;margin-top:8px;');
+  const save = dashEl('button', 'dash-btn', 'Save note');
+  save.onclick = () => dashSaveNote(completionId, area.value, wrap);
+  btns.appendChild(save);
+  if (dashState.notes[completionId]) {
+    const del = dashEl('button', 'dash-btn', 'Delete note');
+    del.onclick = () => dashDeleteNote(completionId, wrap);
+    btns.appendChild(del);
+  }
+  wrap.appendChild(btns);
+  row.appendChild(wrap);
+  area.focus();
+}
+
+async function dashSaveNote(completionId, text, wrap) {
+  if (!text.trim()) return;
+  const headers = await dashAuthHeaders();
+  if (!headers) return;
+  const res = await fetch('/api/capture', {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note_action: 'save', completion_id: completionId, note_text: text.trim() }),
+  });
+  if (res.ok) {
+    dashState.notes[completionId] = { text: text.trim(), updatedAt: new Date().toISOString() };
+    dashRenderHistory();
+  } else {
+    wrap.appendChild(dashEl('div', 'color:var(--danger);font-size:12px;margin-top:6px;', 'Could not save the note - try again.'));
+  }
+}
+
+async function dashDeleteNote(completionId, wrap) {
+  const headers = await dashAuthHeaders();
+  if (!headers) return;
+  const res = await fetch('/api/capture', {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note_action: 'delete', completion_id: completionId }),
+  });
+  if (res.ok) { delete dashState.notes[completionId]; dashRenderHistory(); }
+  else wrap.appendChild(dashEl('div', 'color:var(--danger);font-size:12px;margin-top:6px;', 'Could not delete the note - try again.'));
+}
+
+async function dashViewReport(completionId) {
+  const headers = await dashAuthHeaders();
+  if (!headers) return;
+  const res = await fetch(`/api/capture?view=report&completion_id=${encodeURIComponent(completionId)}`, { headers });
+  if (!res.ok) return;
+  const data = await res.json();
+  if (data.completion) restoreCompletion(data.completion);
+}
+
+async function dashExport(format) {
+  const headers = await dashAuthHeaders();
+  if (!headers) return;
+  const res = await fetch(`/api/capture?view=export&format=${format}`, { headers });
+  if (!res.ok) return;
+  const blob = await res.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `phil-os-score-history.${format}`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// -- Axis trends (3.3) --
+function dashRenderAxisPicker(query) {
+  const host = document.getElementById('dash-axis-picker');
+  host.textContent = '';
+  const q = (query || '').toLowerCase();
+  for (const axisId of Object.keys(AXIS_META)) {
+    const label = dashAxisLabel(axisId);
+    if (q && !label.toLowerCase().includes(q) && !axisId.includes(q)) continue;
+    const chip = dashEl('span', 'dash-axis-chip' + (dashSelectedAxes.has(axisId) ? ' on' : ''), label);
+    chip.onclick = () => {
+      if (dashSelectedAxes.has(axisId)) dashSelectedAxes.delete(axisId);
+      else dashSelectedAxes.add(axisId);
+      dashRenderAxisPicker(document.getElementById('dash-axis-search').value);
+      dashRenderTrends();
+    };
+    host.appendChild(chip);
+  }
+}
+
+function dashSetMode(mode) {
+  dashMode = mode;
+  document.getElementById('dash-mode-compare').classList.toggle('active', mode === 'compare');
+  document.getElementById('dash-mode-grid').classList.toggle('active', mode === 'grid');
+  dashRenderTrends();
+}
+
+// SVG built purely from numbers + static AXIS_META pole labels.
+function dashTrendSVG(axisIds, width, height, showLegend) {
+  const pad = { l: 34, r: 12, t: 12, b: 22 };
+  const comps = dashState.completions;
+  const n = comps.length;
+  const x = i => n === 1 ? (pad.l + (width - pad.l - pad.r) / 2) : pad.l + (i / (n - 1)) * (width - pad.l - pad.r);
+  const y = score => pad.t + ((7 - score) / 6) * (height - pad.t - pad.b);
+  let svg = `<svg viewBox="0 0 ${width} ${height}" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg" role="img">`;
+  for (const grid of [1, 4, 7]) {
+    svg += `<line x1="${pad.l}" y1="${y(grid)}" x2="${width - pad.r}" y2="${y(grid)}" stroke="rgba(255,255,255,${grid === 4 ? 0.18 : 0.07})" stroke-width="1"${grid === 4 ? ' stroke-dasharray="4 3"' : ''}/>`;
+    svg += `<text x="${pad.l - 6}" y="${y(grid) + 3.5}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9" fill="rgba(255,255,255,0.35)">${grid}</text>`;
+  }
+  axisIds.forEach((axisId, k) => {
+    const series = (dashState.trends[axisId] || []);
+    const color = DASH_PALETTE[k % DASH_PALETTE.length];
+    if (series.length > 1) {
+      const pts = series.map((p, i) => `${x(i).toFixed(1)},${y(Number(p.score)).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>`;
+    }
+    series.forEach((p, i) => {
+      svg += `<circle cx="${x(i).toFixed(1)}" cy="${y(Number(p.score)).toFixed(1)}" r="3.4" fill="${color}"/>`;
+    });
+  });
+  if (n >= 1) {
+    svg += `<text x="${x(0)}" y="${height - 6}" text-anchor="${n === 1 ? 'middle' : 'start'}" font-family="IBM Plex Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">${dashFmtDate(comps[0].completedAt)}</text>`;
+    if (n > 1) svg += `<text x="${x(n - 1)}" y="${height - 6}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">${dashFmtDate(comps[n - 1].completedAt)}</text>`;
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+function dashRenderTrends() {
+  const host = document.getElementById('dash-trends');
+  host.textContent = '';
+  const selected = [...dashSelectedAxes];
+  if (selected.length === 0) { host.appendChild(dashEl('div', 'dash-sub', 'Pick at least one axis above.')); return; }
+
+  if (dashMode === 'grid') {
+    const grid = dashEl('div', 'dash-grid');
+    for (const axisId of selected) {
+      const cell = dashEl('div', 'border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 12px;');
+      cell.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--text2);margin-bottom:2px;', dashAxisLabel(axisId)));
+      cell.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:9px;color:var(--muted);margin-bottom:6px;', `${AXIS_META[axisId]?.poleL || ''} 1 - 7 ${AXIS_META[axisId]?.poleR || ''}`));
+      const holder = dashEl('div');
+      holder.innerHTML = dashTrendSVG([axisId], 220, 90, false); // numbers + static labels only
+      cell.appendChild(holder);
+      grid.appendChild(cell);
+    }
+    host.appendChild(grid);
+    return;
+  }
+
+  // Overlay mode: one chart + legend, pole meanings listed per axis below.
+  const holder = dashEl('div');
+  holder.innerHTML = dashTrendSVG(selected, 900, 300, true); // numbers + static labels only
+  host.appendChild(holder);
+  const legend = dashEl('div', 'display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;');
+  selected.forEach((axisId, k) => {
+    const chip = dashEl('span', 'font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--text2);');
+    const dot = dashEl('span', `display:inline-block;width:9px;height:9px;border-radius:50%;background:${DASH_PALETTE[k % DASH_PALETTE.length]};margin-right:5px;`);
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(`${dashAxisLabel(axisId)} (1 = ${AXIS_META[axisId]?.poleL || '?'}, 7 = ${AXIS_META[axisId]?.poleR || '?'})`));
+    legend.appendChild(chip);
+  });
+  host.appendChild(legend);
+}
+
+// -- Stability vs flux (3.4) --
+function dashRenderStability() {
+  const host = document.getElementById('dash-stability');
+  host.textContent = '';
+  const sf = dashState.stabilityFlux;
+  if (sf.insufficientData) {
+    host.appendChild(dashEl('div', 'dash-sub', 'Needs at least two completed reports - stability is about what holds across retakes.'));
+    return;
+  }
+  const wrap = dashEl('div', 'display:grid;grid-template-columns:1fr 1fr;gap:14px;');
+  const stable = dashEl('div');
+  stable.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;', 'Most stable'));
+  for (const s of sf.mostStable) stable.appendChild(dashEl('div', 'font-size:13px;color:var(--text2);padding:3px 0;', dashAxisLabel(s.axisId)));
+  wrap.appendChild(stable);
+  const volatile_ = dashEl('div');
+  volatile_.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;', 'Most in flux'));
+  for (const s of sf.mostVolatile) volatile_.appendChild(dashEl('div', 'font-size:13px;color:var(--text2);padding:3px 0;', dashAxisLabel(s.axisId)));
+  wrap.appendChild(volatile_);
+  host.appendChild(wrap);
+}
+
+// -- Pole crossings (3.5) --
+function dashRenderCrossings() {
+  const host = document.getElementById('dash-crossings');
+  host.textContent = '';
+  const crossings = dashState.poleCrossings || [];
+  if (crossings.length === 0) {
+    host.appendChild(dashEl('div', 'dash-sub', dashState.completions.length < 2
+      ? 'Crossings appear once you have two or more reports to compare.'
+      : 'No pole crossings yet - your movements have stayed on the same side of each question.'));
+    return;
+  }
+  for (const c of crossings) {
+    const row = dashEl('div', 'padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);');
+    const fromPole = c.fromSide === 'left' ? AXIS_META[c.axisId]?.poleL : AXIS_META[c.axisId]?.poleR;
+    const toPole = c.toSide === 'left' ? AXIS_META[c.axisId]?.poleL : AXIS_META[c.axisId]?.poleR;
+    row.appendChild(dashEl('div', 'font-size:14px;color:var(--text);', dashAxisLabel(c.axisId)));
+    row.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--accent);',
+      `${fromPole || c.fromSide} (${Number(c.fromScore).toFixed(1)}) to ${toPole || c.toSide} (${Number(c.toScore).toFixed(1)}) · ${dashFmtDate(c.toCompletedAt)}`));
+    host.appendChild(row);
+  }
+}
+
+// -- Contradiction engine view (3.8) - the spec's cornerstone --
+// Tier tallies per attempt run through the SAME live engine the report
+// uses (detectContradictions is defined in this file); the pairwise
+// resolved/new/persistent detail comes from the server compare view.
+const DASH_TIER_STYLE = {
+  A: 'background:rgba(224,120,120,0.18);color:var(--danger);',
+  B: 'background:rgba(224,168,74,0.16);color:#e0a84a;',
+  C: 'background:rgba(255,255,255,0.09);color:var(--muted);',
+};
+
+function dashRenderContradictions() {
+  const host = document.getElementById('dash-contradictions');
+  host.textContent = '';
+  const comps = dashState.completions;
+
+  const table = dashEl('div');
+  for (const c of comps) {
+    const fired = detectContradictions(c.scores);
+    const tiers = { A: 0, B: 0, C: 0 };
+    fired.forEach(r => { tiers[r.tier] = (tiers[r.tier] || 0) + 1; });
+    const row = dashEl('div', 'display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;');
+    row.appendChild(dashEl('div', 'min-width:130px;font-size:13px;color:var(--text2);', dashFmtDate(c.completedAt)));
+    for (const t of ['A', 'B', 'C']) {
+      const badge = dashEl('span', 'dash-tier-badge', `${t} ${tiers[t]}`);
+      badge.style.cssText += DASH_TIER_STYLE[t];
+      row.appendChild(badge);
+    }
+    row.appendChild(dashEl('span', 'font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--muted);', `${fired.length} total`));
+    table.appendChild(row);
+  }
+  host.appendChild(table);
+  host.appendChild(dashEl('div', 'dash-sub', 'Tier A tensions are direct logical conflicts, B are real frictions with known resolutions, C are interesting combinations worth examining. A drop from two Tier A to one Tier C is a different result than the raw count alone shows - which is why the tiers are broken out. Pick two reports below to see which specific tensions resolved, appeared, or persisted between them; a tension that persists across attempts is not a red flag but a place still worth sitting with - your growth edges already draw on exactly these.'));
+}
+
+// -- Two-point comparison (3.9 + 3.11) + contradiction diff (3.8b) --
+function dashInitCompare() {
+  const a = document.getElementById('dash-cmp-a');
+  const b = document.getElementById('dash-cmp-b');
+  a.textContent = ''; b.textContent = '';
+  const comps = dashState.completions;
+  comps.forEach((c, i) => {
+    for (const sel of [a, b]) {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${dashFmtDate(c.completedAt)} (${c.archetypeFamily || 'Report'})`;
+      sel.appendChild(opt.cloneNode(true));
+    }
+  });
+  if (comps.length >= 2) { a.value = comps[comps.length - 2].id; b.value = comps[comps.length - 1].id; }
+  const host = document.getElementById('dash-compare');
+  host.textContent = '';
+  host.appendChild(dashEl('div', 'dash-sub', comps.length < 2
+    ? 'Comparison unlocks with your second report.'
+    : 'Pick any two reports and compare - archetype change, biggest moves, and exactly which tensions resolved, appeared, or persisted.'));
+}
+
+async function dashComparePair() {
+  const aId = document.getElementById('dash-cmp-a').value;
+  const bId = document.getElementById('dash-cmp-b').value;
+  const host = document.getElementById('dash-compare');
+  if (!aId || !bId || aId === bId) {
+    host.textContent = '';
+    host.appendChild(dashEl('div', 'dash-sub', 'Pick two different reports.'));
+    return;
+  }
+  const headers = await dashAuthHeaders();
+  if (!headers) return;
+  host.textContent = '';
+  host.appendChild(dashEl('div', 'dash-sub', 'Comparing...'));
+  const res = await fetch(`/api/capture?view=compare&a=${encodeURIComponent(aId)}&b=${encodeURIComponent(bId)}`, { headers });
+  host.textContent = '';
+  if (!res.ok) { host.appendChild(dashEl('div', 'dash-sub', 'Comparison failed - try again.')); return; }
+  const data = await res.json();
+  const cmp = data.comparison, diff = data.contradictionDiff;
+
+  if (cmp.archetypeChanged) {
+    const line = dashEl('div', 'font-size:15px;color:var(--text);margin-bottom:10px;');
+    line.textContent = `Archetype: ${cmp.archetypeFrom.family || '?'} to ${cmp.archetypeTo.family || '?'}`;
+    host.appendChild(line);
+  } else {
+    host.appendChild(dashEl('div', 'font-size:15px;color:var(--text);margin-bottom:10px;', `Archetype held steady: ${cmp.archetypeTo.family || '?'}`));
+  }
+  host.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--accent);margin-bottom:12px;',
+    `Overall movement: ${cmp.overallChange} points per axis on average · tensions ${cmp.contradictionsFrom} to ${cmp.contradictionsTo}`));
+
+  const movers = dashEl('div', 'margin-bottom:14px;');
+  movers.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;', 'Biggest moves'));
+  for (const m of cmp.biggestMovingAxes.filter(x => Math.abs(x.delta) > 0.001)) {
+    movers.appendChild(dashEl('div', 'font-size:13px;color:var(--text2);padding:2px 0;',
+      `${dashAxisLabel(m.axisId)}: ${Number(m.from).toFixed(1)} to ${Number(m.to).toFixed(1)}`));
+  }
+  host.appendChild(movers);
+
+  const buckets = [
+    ['Resolved', diff.resolved, 'Tensions in the first report that are gone in the second.'],
+    ['New', diff.new, 'Tensions the second report has that the first did not.'],
+    ['Persistent', diff.persistent, 'Tensions present in both - still worth sitting with.'],
+  ];
+  for (const [name, list, sub] of buckets) {
+    const sec = dashEl('div', 'margin-bottom:12px;');
+    sec.appendChild(dashEl('div', 'font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;', `${name} (${list.length})`));
+    if (list.length === 0) sec.appendChild(dashEl('div', 'dash-sub', 'None.'));
+    for (const r of list) {
+      const row = dashEl('div', 'display:flex;align-items:baseline;gap:8px;padding:3px 0;');
+      const badge = dashEl('span', 'dash-tier-badge', r.tier);
+      badge.style.cssText += DASH_TIER_STYLE[r.tier] || DASH_TIER_STYLE.C;
+      row.appendChild(badge);
+      row.appendChild(dashEl('span', 'font-size:13px;color:var(--text2);', r.title));
+      sec.appendChild(row);
+    }
+    if (list.length > 0) sec.appendChild(dashEl('div', 'font-size:11px;color:var(--muted);margin-top:3px;', sub));
+    host.appendChild(sec);
   }
 }
 
