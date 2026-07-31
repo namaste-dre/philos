@@ -1894,6 +1894,9 @@ body::after {
 }
 .alignment-block-icon {
   font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent);
 }
 .alignment-block-title {
   font-family: 'IBM Plex Mono', monospace;
@@ -10425,7 +10428,15 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   const worldSection = document.getElementById('section-world');
   const worldEl = document.getElementById('report-world');
   if (worldEl && report.world && Array.isArray(report.world) && report.world.length) {
-    const iconMap = { mirror: '🧐', people: '👥', connect: '🤝', city: '🌆', horizon: '🌌' };
+    // Inline line-icon SVGs matching the product's custom icon language (no emoji in content areas)
+    const lensSvg = (paths) => '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + '</svg>';
+    const iconMap = {
+      mirror:  lensSvg('<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V21M8.5 21h7"/>'),
+      people:  lensSvg('<circle cx="9" cy="8.5" r="3"/><circle cx="16.5" cy="10.5" r="2.4"/><path d="M4 20c0-3.2 2.3-5.2 5-5.2s5 2 5 5.2M14.6 20c.2-2.4 1.6-3.9 3.4-3.9 1.7 0 2.9 1.4 3 3.9"/>'),
+      connect: lensSvg('<circle cx="6.5" cy="12" r="3"/><circle cx="17.5" cy="12" r="3"/><path d="M9.5 12h5"/>'),
+      city:    lensSvg('<path d="M4 21V10.5h5V21M9 21V5.5h6V21M15 21v-7.5h5V21M3 21h18"/>'),
+      horizon: lensSvg('<path d="M3 17.5h18M7 17.5a5 5 0 0 1 10 0M12 6v2.2M6 8.5l1.5 1.5M18 8.5l-1.5 1.5"/>')
+    };
     const colorMap = { mirror: 'rgba(157,147,232,0.15)', people: 'rgba(91,191,148,0.15)', connect: 'rgba(201,169,110,0.15)', city: 'rgba(224,120,74,0.15)', horizon: 'rgba(180,130,255,0.15)' };
     worldEl.innerHTML = report.world.map(card => {
       const icon = iconMap[card.icon] || '○';
@@ -10515,7 +10526,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       html += `
       <div class="alignment-block">
         <div class="alignment-block-header">
-          <span class="alignment-block-icon">💼</span>
+          <span class="alignment-block-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M9.5 8V6.2A2.2 2.2 0 0 1 11.7 4h.6a2.2 2.2 0 0 1 2.2 2.2V8M4 13h16"/></svg></span>
           <span class="alignment-block-title">Career and Work</span>
         </div>
         <div class="alignment-block-body">
@@ -10543,7 +10554,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       html += `
       <div class="alignment-block">
         <div class="alignment-block-header">
-          <span class="alignment-block-icon">❤️</span>
+          <span class="alignment-block-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.2-4.6-7.2-10A4.1 4.1 0 0 1 12 7.6 4.1 4.1 0 0 1 19.2 10c0 5.4-7.2 10-7.2 10z"/></svg></span>
           <span class="alignment-block-title">Relationships and Connection</span>
         </div>
         <div class="alignment-block-body">
@@ -10582,7 +10593,7 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
       html += `
       <div class="alignment-block">
         <div class="alignment-block-header">
-          <span class="alignment-block-icon">🧠</span>
+          <span class="alignment-block-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2.1 5-4.9 2 2.1-5z"/></svg></span>
           <span class="alignment-block-title">Decision-Making and Conflict</span>
         </div>
         <div class="alignment-block-body">
