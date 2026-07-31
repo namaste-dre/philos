@@ -18,12 +18,20 @@ const vm = require('vm');
 // generation) - resolve that via a synthetic module, reject anything else
 // so a stray dependency on application code cannot sneak in unnoticed.
 async function linker(specifier, referencingModule) {
-  if (specifier !== 'crypto') throw new Error('unexpected import: ' + specifier);
-  const nodeCrypto = require('crypto');
+  // This harness also loads capture.js (token-parity checks), which since
+  // the dashboard build imports the two CommonJS computation libs.
+  // Everything else stays a hard error so a stray dependency on
+  // application code cannot sneak in unnoticed.
+  let target = null;
+  if (specifier === 'crypto') target = require('crypto');
+  else if (specifier === '../lib/dashboard.js') target = require('../lib/dashboard.js');
+  else if (specifier === '../lib/contradictions.js') target = require('../lib/contradictions.js');
+  else throw new Error('unexpected import: ' + specifier);
+
   const m = new vm.SyntheticModule(['default'], function () {
-    this.setExport('default', nodeCrypto);
-  }, { identifier: 'node:crypto' });
-  await m.link(() => { throw new Error('crypto synthetic module has no imports'); });
+    this.setExport('default', target);
+  }, { identifier: specifier });
+  await m.link(() => { throw new Error('synthetic module has no imports'); });
   await m.evaluate();
   return m;
 }

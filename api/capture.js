@@ -1,4 +1,13 @@
 import crypto from 'crypto';
+// Dashboard computation layer (D114 spec) - pure CommonJS modules, no I/O.
+// Vercel's bundler handles the ESM-imports-CJS interop; the local test
+// harness links them via synthetic modules (see api/capture.test.js).
+import dashboardLib from '../lib/dashboard.js';
+import contradictionsLib from '../lib/contradictions.js';
+
+const { computeOverview, formatElapsed, computeAxisTrends, computeStabilityFlux,
+        detectPoleCrossings, compareCompletions } = dashboardLib;
+const { detectContradictions, diffContradictions } = contradictionsLib;
 
 export const config = { maxDuration: 60 };
 
@@ -114,22 +123,232 @@ async function checkRateLimit(key) {
   }
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const NOTE_MAX_LENGTH = 2000; // mirrors the personal_notes CHECK constraint
+
+// -- Dashboard read surface (D114 spec) ------------------------------------
+// GET on this same endpoint - a request shape the pre-dashboard code
+// rejected outright with 405, so nothing in the existing POST capture flow
+// can be reached or altered by any GET. Placed on this file (rather than a
+// new api/dashboard.js) because the api/ directory sits at exactly the
+// Vercel Hobby 12-function ceiling (deploy-config.test.js guards it), and
+// a 13th file silently breaks deploys.
+//
+// Every view requires a verified session and reads ONLY rows where
+// user_id equals the verified user - completions?user_id=eq.<verified id>
+// is the sole row filter, so cross-user reads are impossible by
+// construction. QA-mode rows and incomplete attempts are excluded: the
+// dashboard is the user's real history, not test runs or failures.
+async function handleDashboardGet(req, res, supabaseUrl, svcHeaders) {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Authentication required' });
+  const user = await getUser(token);
+  if (!user || !user.id) return res.status(401).json({ error: 'Invalid or expired session' });
+
+  const view = req.query.view || 'dashboard';
+
+  const completionsUrl = `${supabaseUrl}/rest/v1/completions` +
+    `?user_id=eq.${encodeURIComponent(user.id)}` +
+    `&attempt_status=eq.complete&qa_mode=eq.false` +
+    `&completed_at=not.is.null&order=completed_at.asc` +
+    `&select=id,completed_at,archetype_family,archetype_variant,contradictions_count,scores,fingerprint,instrument_version`;
+
+  try {
+    if (view === 'dashboard') {
+      const [compRes, notesRes] = await Promise.all([
+        fetch(completionsUrl, { headers: svcHeaders }),
+        fetch(`${supabaseUrl}/rest/v1/personal_notes?user_id=eq.${encodeURIComponent(user.id)}&select=completion_id,note_text,updated_at`, { headers: svcHeaders }),
+      ]);
+      if (!compRes.ok) return res.status(500).json({ error: 'History lookup failed' });
+      const completions = await compRes.json();
+      // Notes are non-critical: if the table read fails, the dashboard still
+      // renders - notes just arrive empty rather than sinking the whole view.
+      const noteRows = notesRes.ok ? await notesRes.json() : [];
+      const notes = {};
+      for (const n of (Array.isArray(noteRows) ? noteRows : [])) {
+        notes[n.completion_id] = { text: n.note_text, updatedAt: n.updated_at };
+      }
+
+      const now = new Date().toISOString();
+      const overview = computeOverview(completions);
+      return res.status(200).json({
+        ok: true,
+        completions: completions.map(c => ({
+          id: c.id,
+          completedAt: c.completed_at,
+          archetypeFamily: c.archetype_family,
+          archetypeVariant: c.archetype_variant,
+          contradictionsCount: c.contradictions_count,
+          scores: c.scores,
+          elapsed: formatElapsed(c.completed_at, now),
+        })),
+        overview,
+        elapsedSinceLatest: overview ? formatElapsed(overview.latestCompletedAt, now) : null,
+        trends: computeAxisTrends(completions),
+        stabilityFlux: computeStabilityFlux(completions),
+        poleCrossings: detectPoleCrossings(completions),
+        notes,
+        computedAt: now,
+      });
+    }
+
+    if (view === 'report') {
+      const id = req.query.completion_id;
+      if (!UUID_RE.test(id || '')) return res.status(400).json({ error: 'Invalid completion_id' });
+      const r = await fetch(
+        `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&user_id=eq.${encodeURIComponent(user.id)}` +
+        `&select=id,completed_at,archetype_family,archetype_variant,contradictions_count,scores,fingerprint,report_json,report_version,instrument_version`,
+        { headers: svcHeaders });
+      if (!r.ok) return res.status(500).json({ error: 'Report lookup failed' });
+      const rows = await r.json();
+      if (!Array.isArray(rows) || rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+      return res.status(200).json({ ok: true, completion: rows[0] });
+    }
+
+    if (view === 'compare') {
+      const a = req.query.a, b = req.query.b;
+      if (!UUID_RE.test(a || '') || !UUID_RE.test(b || '')) return res.status(400).json({ error: 'Invalid completion ids' });
+      const r = await fetch(
+        `${supabaseUrl}/rest/v1/completions?id=in.(${encodeURIComponent(a)},${encodeURIComponent(b)})&user_id=eq.${encodeURIComponent(user.id)}` +
+        `&select=id,completed_at,archetype_family,archetype_variant,contradictions_count,scores`,
+        { headers: svcHeaders });
+      if (!r.ok) return res.status(500).json({ error: 'Comparison lookup failed' });
+      const rows = await r.json();
+      const rowA = rows.find(x => x.id === a), rowB = rows.find(x => x.id === b);
+      if (!rowA || !rowB) return res.status(404).json({ error: 'One or both completions not found' });
+      return res.status(200).json({
+        ok: true,
+        comparison: compareCompletions(rowA, rowB),
+        contradictionDiff: diffContradictions(rowA.scores, rowB.scores),
+        from: { id: rowA.id, completedAt: rowA.completed_at },
+        to: { id: rowB.id, completedAt: rowB.completed_at },
+      });
+    }
+
+    if (view === 'contradictions') {
+      const id = req.query.completion_id;
+      if (!UUID_RE.test(id || '')) return res.status(400).json({ error: 'Invalid completion_id' });
+      const r = await fetch(
+        `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(id)}&user_id=eq.${encodeURIComponent(user.id)}&select=id,scores,completed_at`,
+        { headers: svcHeaders });
+      if (!r.ok) return res.status(500).json({ error: 'Lookup failed' });
+      const rows = await r.json();
+      if (!Array.isArray(rows) || rows.length === 0) return res.status(404).json({ error: 'Completion not found' });
+      return res.status(200).json({ ok: true, completedAt: rows[0].completed_at, contradictions: detectContradictions(rows[0].scores) });
+    }
+
+    if (view === 'export') {
+      const r = await fetch(completionsUrl, { headers: svcHeaders });
+      if (!r.ok) return res.status(500).json({ error: 'Export lookup failed' });
+      const completions = await r.json();
+      if (req.query.format === 'csv') {
+        const axisIds = completions.length ? Object.keys(completions[0].scores).sort() : [];
+        const header = ['completed_at', 'archetype_family', 'archetype_variant', 'contradictions_count', ...axisIds];
+        const lines = [header.join(',')];
+        for (const c of completions) {
+          lines.push([
+            c.completed_at, JSON.stringify(c.archetype_family || ''), JSON.stringify(c.archetype_variant || ''),
+            c.contradictions_count ?? '', ...axisIds.map(a => c.scores[a] ?? ''),
+          ].join(','));
+        }
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename="phil-os-score-history.csv"');
+        return res.status(200).send(lines.join('\n'));
+      }
+      res.setHeader('Content-Disposition', 'attachment; filename="phil-os-score-history.json"');
+      return res.status(200).json({ ok: true, completions });
+    }
+
+    return res.status(400).json({ error: 'Unknown view' });
+  } catch (e) {
+    console.error('[capture] dashboard view error:', e.message);
+    return res.status(500).json({ error: 'Dashboard read failed' });
+  }
+}
+
+// -- Personal note writes (D114 spec Section 3.12, child table per Lyra's --
+// 2026-07-27 review). A POST branch guarded by note_action - a field the
+// quiz-capture payload never carries, so the existing flow is unreachable
+// from this branch and vice versa.
+async function handleNoteWrite(req, res, supabaseUrl, svcHeaders, body) {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Authentication required' });
+  const user = await getUser(token);
+  if (!user || !user.id) return res.status(401).json({ error: 'Invalid or expired session' });
+
+  const { note_action, completion_id, note_text } = body;
+  if (!UUID_RE.test(completion_id || '')) return res.status(400).json({ error: 'Invalid completion_id' });
+
+  // Ownership: the completion this note attaches to must belong to the
+  // verified caller - same IDOR discipline as the responses-attach path.
+  const ownerCheck = await fetch(
+    `${supabaseUrl}/rest/v1/completions?id=eq.${encodeURIComponent(completion_id)}&select=user_id`,
+    { headers: svcHeaders });
+  if (!ownerCheck.ok) return res.status(500).json({ error: 'Ownership check failed' });
+  const ownerRows = await ownerCheck.json();
+  if (!ownerRows[0] || ownerRows[0].user_id !== user.id) return res.status(403).json({ error: 'Not authorized for this completion' });
+
+  try {
+    if (note_action === 'delete') {
+      const del = await fetch(`${supabaseUrl}/rest/v1/personal_notes?completion_id=eq.${encodeURIComponent(completion_id)}&user_id=eq.${encodeURIComponent(user.id)}`, {
+        method: 'DELETE', headers: { ...svcHeaders, 'Prefer': 'return=minimal' },
+      });
+      if (!del.ok) return res.status(500).json({ error: 'Note delete failed' });
+      return res.status(200).json({ ok: true, deleted: true });
+    }
+
+    if (note_action === 'save') {
+      if (typeof note_text !== 'string' || note_text.trim().length === 0) return res.status(400).json({ error: 'note_text required' });
+      if (note_text.length > NOTE_MAX_LENGTH) return res.status(400).json({ error: `Note exceeds ${NOTE_MAX_LENGTH} characters` });
+      const up = await fetch(`${supabaseUrl}/rest/v1/personal_notes?on_conflict=completion_id`, {
+        method: 'POST',
+        headers: { ...svcHeaders, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({
+          completion_id, user_id: user.id, note_text, updated_at: new Date().toISOString(),
+        }),
+      });
+      if (!up.ok) {
+        console.error('[capture] note save failed:', await up.text());
+        return res.status(500).json({ error: 'Note save failed' });
+      }
+      return res.status(200).json({ ok: true, saved: true });
+    }
+
+    return res.status(400).json({ error: 'Unknown note_action' });
+  } catch (e) {
+    console.error('[capture] note write error:', e.message);
+    return res.status(500).json({ error: 'Note write failed' });
+  }
+}
+
 export default async function handler(req, res) {
   const origin = req.headers['origin'] || '';
   if (origin === ALLOWED_ORIGIN) res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Vary', 'Origin');
 
   if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
   if (!supabaseUrl || !supabaseKey) return res.status(500).json({ ok: false, error: 'Database not configured' });
 
+  const svcHeadersEarly = {
+    'Content-Type':  'application/json',
+    'apikey':        supabaseKey,
+    'Authorization': `Bearer ${supabaseKey}`,
+  };
+
+  if (req.method === 'GET') return handleDashboardGet(req, res, supabaseUrl, svcHeadersEarly);
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
   const body = req.body;
   if (!body || typeof body !== 'object') return res.status(400).json({ error: 'Invalid JSON' });
+
+  if (typeof body.note_action === 'string') return handleNoteWrite(req, res, supabaseUrl, svcHeadersEarly, body);
 
   const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
   const rate = await checkRateLimit(`capture:${ip}`);
