@@ -18,6 +18,13 @@ export const config = { maxDuration: 60 };
 
 const ALLOWED_ORIGIN = 'https://phil-os.thelifepm.com';
 
+// Per-user send cap: the real product flow sends at most one email per
+// report generation (itself capped by D117 at 2/month), so 5 per day is
+// generous headroom while making authenticated self-spam pointless.
+// Same fail-closed rate_limits-table pattern as api/generate.js (A0.1).
+const EMAIL_RATE_LIMIT = 5;
+const EMAIL_RATE_WINDOW_HRS = 24;
+
 const LIMITS = {
   name: 100,
   archetype: 200,
@@ -59,6 +66,84 @@ function cappedString(value, max) {
   if (typeof value !== 'string') return null;
   if (value.length > max) return null;
   return value;
+}
+
+// Fail-closed per-user rate limit, mirroring api/generate.js's A0.1
+// pattern against the same rate_limits table (key: email:<userId>).
+async function checkRateLimit(userId) {
+  const url    = process.env.SUPABASE_URL;
+  const secret = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !secret) {
+    console.error('[email] rate limit store not configured - failing closed');
+    return { allowed: false, reason: 'unavailable' };
+  }
+
+  const key      = `email:${userId}`;
+  const windowMs = EMAIL_RATE_WINDOW_HRS * 60 * 60 * 1000;
+  const now      = new Date();
+  const headers  = {
+    'apikey':        secret,
+    'Authorization': `Bearer ${secret}`,
+    'Content-Type':  'application/json',
+    'Prefer':        'return=minimal',
+  };
+
+  try {
+    const getRes = await fetch(
+      `${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}&select=calls,window_start`,
+      { headers }
+    );
+    if (!getRes.ok) {
+      console.error('[email] rate limit lookup failed:', getRes.status);
+      return { allowed: false, reason: 'unavailable' };
+    }
+    const records = await getRes.json();
+    const record  = Array.isArray(records) ? records[0] : null;
+
+    if (!record) {
+      const createRes = await fetch(`${url}/rest/v1/rate_limits`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ key, calls: 1, window_start: now.toISOString() }),
+      });
+      if (!createRes.ok) {
+        console.error('[email] rate limit create failed:', createRes.status);
+        return { allowed: false, reason: 'unavailable' };
+      }
+      return { allowed: true };
+    }
+
+    const elapsed = now - new Date(record.window_start);
+    if (elapsed > windowMs) {
+      const resetRes = await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ calls: 1, window_start: now.toISOString() }),
+      });
+      if (!resetRes.ok) {
+        console.error('[email] rate limit window reset failed:', resetRes.status);
+        return { allowed: false, reason: 'unavailable' };
+      }
+      return { allowed: true };
+    }
+
+    if (record.calls >= EMAIL_RATE_LIMIT) {
+      const resetAt = new Date(new Date(record.window_start).getTime() + windowMs);
+      return { allowed: false, reason: 'exceeded', resetAt: resetAt.toISOString() };
+    }
+
+    const incrementRes = await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, {
+      method: 'PATCH', headers,
+      body: JSON.stringify({ calls: record.calls + 1 }),
+    });
+    if (!incrementRes.ok) {
+      console.error('[email] rate limit increment failed:', incrementRes.status);
+      return { allowed: false, reason: 'unavailable' };
+    }
+    return { allowed: true };
+
+  } catch (e) {
+    console.warn('[email] rate limit check failed:', e.message);
+    return { allowed: false, reason: 'unavailable' }; // fail closed
+  }
 }
 
 export default async function handler(req, res) {
@@ -136,6 +221,14 @@ export default async function handler(req, res) {
 
   const resendKey = process.env.RESEND_API_KEY;
   if (!resendKey) return res.status(503).json({ ok: false, error: 'Email not configured' });
+
+  const rate = await checkRateLimit(user.id);
+  if (!rate.allowed) {
+    if (rate.reason === 'exceeded') {
+      return res.status(429).json({ ok: false, error: 'Email limit reached', resetAt: rate.resetAt });
+    }
+    return res.status(503).json({ ok: false, error: 'Email temporarily unavailable' });
+  }
 
   const fingerprintHTML = fingerprint.map(f => `
     <tr>

@@ -51,15 +51,26 @@ function mockReq({ method = 'POST', origin = 'https://phil-os.thelifepm.com', au
 
 const VERIFIED_EMAIL = 'owner@example.com';
 
-// Routing fetch mock: Supabase auth check + Resend capture.
-function installFetch({ authOk = true, resendOk = true } = {}) {
-  const calls = { resend: [] };
+// Routing fetch mock: Supabase auth check + rate_limits table + Resend
+// capture. rateRecord: null = no row yet (create path); an object = the
+// stored row; rateLookupFail simulates a store outage (must fail closed).
+function installFetch({ authOk = true, resendOk = true, rateRecord = null, rateLookupFail = false } = {}) {
+  const calls = { resend: [], rateWrites: [] };
   globalThis.fetch = async (url, opts) => {
-    if (String(url).includes('/auth/v1/user')) {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) {
       if (!authOk) return { ok: false };
       return { ok: true, json: async () => ({ id: 'user-1', email: VERIFIED_EMAIL }) };
     }
-    if (String(url).includes('api.resend.com')) {
+    if (u.includes('/rest/v1/rate_limits')) {
+      if (opts && (opts.method === 'POST' || opts.method === 'PATCH')) {
+        calls.rateWrites.push({ method: opts.method, url: u, body: JSON.parse(opts.body) });
+        return { ok: true, json: async () => ([]) };
+      }
+      if (rateLookupFail) return { ok: false, status: 500 };
+      return { ok: true, json: async () => (rateRecord ? [rateRecord] : []) };
+    }
+    if (u.includes('api.resend.com')) {
       calls.resend.push(JSON.parse(opts.body));
       if (!resendOk) return { ok: false, text: async () => 'provider secret detail' };
       return { ok: true, json: async () => ({ id: 'email-1' }) };
@@ -87,6 +98,7 @@ function validBody(overrides = {}) {
 (async () => {
   process.env.SUPABASE_URL = 'https://stub.supabase.co';
   process.env.SUPABASE_ANON_KEY = 'stub-anon';
+  process.env.SUPABASE_SERVICE_KEY = 'stub-service';
   process.env.RESEND_API_KEY = 'stub-resend';
 
   const { default: handler } = await loadModule('email.js');
@@ -225,6 +237,38 @@ function validBody(overrides = {}) {
     await handler(mockReq({ body: validBody({ name: 'Line\r\nBreak' }) }), res);
     ok('subject line carries no CR/LF from the name field',
       res.statusCode === 200 && !/[\r\n]/.test(calls.resend[0].subject), calls.resend[0].subject);
+  }
+
+  // ---- Rate limiting (fail-closed, same A0.1 pattern as api/generate) ----
+  {
+    const calls = installFetch(); // no record -> create path
+    const res = mockRes();
+    await handler(mockReq({ body: validBody() }), res);
+    ok('first send in a window creates the rate row and succeeds',
+      res.statusCode === 200 && calls.rateWrites.some(w => w.method === 'POST' && w.body.key === 'email:user-1'),
+      calls.rateWrites);
+  }
+  {
+    const calls = installFetch({ rateRecord: { calls: 5, window_start: new Date().toISOString() } });
+    const res = mockRes();
+    await handler(mockReq({ body: validBody() }), res);
+    ok('at the cap, send is refused with 429 and a resetAt',
+      res.statusCode === 429 && typeof res.body.resetAt === 'string', res.statusCode);
+    ok('a rate-limited request never reaches the provider', calls.resend.length === 0);
+  }
+  {
+    const calls = installFetch({ rateRecord: { calls: 5, window_start: new Date(Date.now() - 25 * 3600 * 1000).toISOString() } });
+    const res = mockRes();
+    await handler(mockReq({ body: validBody() }), res);
+    ok('an expired window resets and the send succeeds',
+      res.statusCode === 200 && calls.rateWrites.some(w => w.method === 'PATCH' && w.body.calls === 1));
+  }
+  {
+    const calls = installFetch({ rateLookupFail: true });
+    const res = mockRes();
+    await handler(mockReq({ body: validBody() }), res);
+    ok('rate-store outage fails CLOSED with 503, never sends',
+      res.statusCode === 503 && calls.resend.length === 0, res.statusCode);
   }
 
   console.log(`\n${pass} passed, ${fail} failed`);
