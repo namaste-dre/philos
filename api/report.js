@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import observability from '../lib/observability.js';
+const { logEvent } = observability;
 
 export const config = { maxDuration: 60 };
 
@@ -124,7 +126,7 @@ async function checkRateLimit(key) {
     return { allowed: incrementRes.ok };
 
   } catch (e) {
-    console.warn('[report] rate limit check failed:', e.message);
+    logEvent('warn', 'report', 'rate_limit_check_failed', { message: e.message });
     return { allowed: false };
   }
 }
@@ -201,7 +203,7 @@ export default async function handler(req, res) {
     return res.status(200).send(renderReportPage({ c, report, scores, fingerprint, archetype, variant, shareUrl }));
 
   } catch (e) {
-    console.error('report.js error:', e.message);
+    logEvent('error', 'report', 'request_failed', { message: e.message });
     return res.status(500).send(errorPage('Something went wrong loading this report.'));
   }
 }

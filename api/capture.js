@@ -4,6 +4,8 @@ import crypto from 'crypto';
 // harness links them via synthetic modules (see api/capture.test.js).
 import dashboardLib from '../lib/dashboard.js';
 import contradictionsLib from '../lib/contradictions.js';
+import observability from '../lib/observability.js';
+const { logEvent } = observability;
 
 const { computeOverview, formatElapsed, computeAxisTrends, computeStabilityFlux,
         detectPoleCrossings, compareCompletions } = dashboardLib;
@@ -118,7 +120,7 @@ async function checkRateLimit(key) {
     await fetch(`${url}/rest/v1/rate_limits?key=eq.${encodeURIComponent(key)}`, { method: 'PATCH', headers, body: JSON.stringify({ calls: record.calls + 1 }) });
     return { allowed: true };
   } catch (e) {
-    console.warn('[capture] rate limit check failed:', e.message);
+    logEvent('warn', 'capture', 'rate_limit_check_failed', { message: e.message });
     return { allowed: true };
   }
 }
@@ -262,7 +264,7 @@ async function handleDashboardGet(req, res, supabaseUrl, svcHeaders) {
 
     return res.status(400).json({ error: 'Unknown view' });
   } catch (e) {
-    console.error('[capture] dashboard view error:', e.message);
+    logEvent('error', 'capture', 'dashboard_view_error', { message: e.message });
     return res.status(500).json({ error: 'Dashboard read failed' });
   }
 }
@@ -310,7 +312,9 @@ async function handleNoteWrite(req, res, supabaseUrl, svcHeaders, body) {
         }),
       });
       if (!up.ok) {
-        console.error('[capture] note save failed:', await up.text());
+        // Status only: the response body can echo the submitted note text back,
+        // which is user content and must not reach the log stream.
+        logEvent('error', 'capture', 'note_save_failed', { status: up.status });
         return res.status(500).json({ error: 'Note save failed' });
       }
       return res.status(200).json({ ok: true, saved: true });
@@ -318,7 +322,7 @@ async function handleNoteWrite(req, res, supabaseUrl, svcHeaders, body) {
 
     return res.status(400).json({ error: 'Unknown note_action' });
   } catch (e) {
-    console.error('[capture] note write error:', e.message);
+    logEvent('error', 'capture', 'note_write_error', { message: e.message });
     return res.status(500).json({ error: 'Note write failed' });
   }
 }
@@ -402,7 +406,10 @@ export default async function handler(req, res) {
 
       if (!completionResponse.ok) {
         const text = await completionResponse.text();
-        console.error('Supabase completions error:', text);
+        // Status only in the log: this error body can echo the submitted row
+        // back (first_name, email, report_json). The response to the caller is
+        // left exactly as before - narrowing that is its own change, not this one.
+        logEvent('error', 'capture', 'completions_insert_failed', { status: completionResponse.status });
         return res.status(500).json({ ok: false, error: text });
       }
 
@@ -421,8 +428,8 @@ export default async function handler(req, res) {
       });
 
       if (!responsesResponse.ok) {
-        const text = await responsesResponse.text();
-        console.error('Supabase responses error:', text);
+        // Status only: this body can echo per-question answer rows.
+        logEvent('error', 'capture', 'responses_insert_failed', { status: responsesResponse.status });
         responsesOk = false;
       }
     }
@@ -431,7 +438,7 @@ export default async function handler(req, res) {
     if (session_id && typeof session_id === 'string') {
       fetch(`${supabaseUrl}/rest/v1/anon_progress?session_id=eq.${session_id}`, {
         method: 'DELETE', headers: { ...svcHeaders, 'Prefer': 'return=minimal' },
-      }).catch(e => console.warn('anon_progress cleanup failed:', e.message));
+      }).catch(e => logEvent('warn', 'capture', 'anon_progress_cleanup_failed', { message: e.message }));
     }
 
     // A0.2: minted only once ownership is established above (either the
@@ -454,7 +461,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, completion_id: completionId, responses_saved: responsesOk, share_enabled: shareEnabled, report_token: reportToken });
 
   } catch (e) {
-    console.error('Capture error:', e.message);
+    logEvent('error', 'capture', 'capture_error', { message: e.message });
     return res.status(500).json({ ok: false, error: e.message });
   }
 }

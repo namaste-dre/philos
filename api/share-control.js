@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import observability from '../lib/observability.js';
+const { logEvent } = observability;
 
 export const config = { maxDuration: 15 };
 
@@ -106,7 +108,9 @@ export default async function handler(req, res) {
         },
       );
       if (!patchRes.ok) {
-        console.error('share-control revoke failed:', await patchRes.text());
+        // Status only: the error body can echo the PATCH payload, and the
+        // regenerate path's payload contains share_token_salt (a token secret).
+        logEvent('error', 'share-control', 'revoke_failed', { status: patchRes.status });
         return res.status(500).json({ error: 'Could not revoke share link' });
       }
       return res.status(200).json({ ok: true, share_enabled: false });
@@ -127,7 +131,8 @@ export default async function handler(req, res) {
       },
     );
     if (!patchRes.ok) {
-      console.error('share-control regenerate failed:', await patchRes.text());
+      // Status only - the PATCH payload here contains share_token_salt.
+      logEvent('error', 'share-control', 'regenerate_failed', { status: patchRes.status });
       return res.status(500).json({ error: 'Could not regenerate share link' });
     }
 
@@ -136,7 +141,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, share_enabled: true, report_token: reportToken, share_url: shareUrl });
 
   } catch (e) {
-    console.error('share-control error:', e.message);
+    logEvent('error', 'share-control', 'request_failed', { message: e.message });
     return res.status(500).json({ error: 'Something went wrong' });
   }
 }

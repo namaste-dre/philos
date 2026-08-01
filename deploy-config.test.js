@@ -105,5 +105,25 @@ const EXPECTED_FUNCTIONS = [
     libModules.includes('report-schema-v3.js'), libModules);
 }
 
+// ---- 4. DI-006: the zero-import containment contract stays intact ----
+{
+  // Three endpoints are deliberately dependency-free so their entire
+  // security surface is auditable in one file, and their own test harnesses
+  // enforce it (api/generate.test.js: "generate.js must not import
+  // anything"; api/email.test.js; api/claim-attempt.test.js). The DI-006
+  // structured-logging slice therefore does NOT reach them - it was applied
+  // only to capture.js, report.js, and share-control.js, whose harnesses use
+  // an explicit import allowlist meant to be extended deliberately.
+  //
+  // This assertion documents that split and fails if someone adds an import
+  // to a zero-import endpoint, which would weaken A0.1/A4 containment.
+  const ZERO_IMPORT_ENDPOINTS = ['generate.js', 'email.js', 'claim-attempt.js'];
+  for (const f of ZERO_IMPORT_ENDPOINTS) {
+    const src = fs.readFileSync(path.join(__dirname, 'api', f), 'utf8');
+    const hasImport = /^\s*import\s/m.test(src);
+    ok(`api/${f} stays dependency-free (zero-import containment contract)`, !hasImport);
+  }
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exitCode = 1;

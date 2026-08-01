@@ -13,12 +13,14 @@ const path = require('path');
 const vm = require('vm');
 
 async function linker(specifier) {
-  if (specifier !== 'crypto') throw new Error('unexpected import: ' + specifier);
-  const nodeCrypto = require('crypto');
+  let target = null;
+  if (specifier === 'crypto') target = require('crypto');
+  else if (specifier === '../lib/observability.js') target = require('../lib/observability.js');
+  else throw new Error('unexpected import: ' + specifier);
   const m = new vm.SyntheticModule(['default'], function () {
-    this.setExport('default', nodeCrypto);
-  }, { identifier: 'node:crypto' });
-  await m.link(() => { throw new Error('crypto synthetic module has no imports'); });
+    this.setExport('default', target);
+  }, { identifier: specifier });
+  await m.link(() => { throw new Error('synthetic module has no imports'); });
   await m.evaluate();
   return m;
 }
