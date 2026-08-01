@@ -1,0 +1,177 @@
+"""
+B-1 extraction script: parses the canonical vault doc "Phil OS - Famous
+Minds Variant Content" and generates lib/famous-minds-registry.js.
+
+Registry shape, extended from the vault doc's stated design to preserve
+every reviewed field: per variant id,
+{ variantId, figures: [{name, qualifier, role, match, diverge, startHere}] }.
+(The doc's own "Registry shape" line lists only {name, role, match, diverge}
+and omits "Start here" even though the content standard requires it as a
+fourth field on every entry - this script includes it since the instruction
+is to preserve every reviewed field exactly, not just the ones the shape
+note happened to list.)
+
+Disclosed judgment call, not a content rewrite: one figure entry -
+"Rabbi Jonathan Sacks" in Family 9 - carries the bracket annotation
+"[Approved as drafted, D156]" rather than a genuine mode-qualifier chip
+like every other bracket in the document ("Private mode", "Secular
+reading", etc.). That bracket is plainly an editorial review note (it
+names a decision ID and says "Approved as drafted"), not product-facing
+chip content, so this script does NOT extract it as a qualifier - Sacks
+gets qualifier: null, consistent with every other unqualified figure.
+This is a data-modeling decision about what counts as chip content, not
+a change to any reviewed text.
+
+Run: python extract_famous_minds.py
+"""
+import re
+import json
+
+import os
+
+DOC = os.environ.get(
+    "FAMOUS_MINDS_DOC",
+    r"C:\Andre's 2nd brain\750 - Other Ventures\757 - Phil OS\Build Log and Decisions\Phil OS - Famous Minds Variant Content.md",
+)
+OUT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib", "famous-minds-registry.js"))
+
+text = open(DOC, encoding="utf-8").read()
+body = text.split("\n## Open questions", 1)[0]
+
+variant_pattern = re.compile(r"^#{3,4} (\d{1,2}[A-E]) - .+$", re.M)
+matches = list(variant_pattern.finditer(body))
+assert len(matches) == 60, f"expected 60 variant headers, found {len(matches)}"
+
+# Bracket annotations that are genuine product-facing mode-qualifier chips.
+# Anything else in brackets (like a decision-approval note) is excluded.
+NON_QUALIFIER_BRACKETS = {"Approved as drafted, D156"}
+
+figure_pattern = re.compile(
+    r"^\*\*(.+?)\*\*(?: \[(.+?)\])?\n"
+    r"- Role: (.+?)\n"
+    r"- Why this match: (.+?)\n"
+    r"- Where the match ends: (.+?)\n"
+    r"- Start here: (.+?)(?:\n\n|\n(?=\*\*)|\n(?=#{3,4} )|$)",
+    re.M | re.S,
+)
+
+entries = {}
+order = []
+disclosed_exclusions = []
+for i, m in enumerate(matches):
+    variant_id = m.group(1)
+    order.append(variant_id)
+    start = m.end()
+    end = matches[i + 1].start() if i + 1 < len(matches) else len(body)
+    block = body[start:end]
+
+    figures = []
+    for fm in figure_pattern.finditer(block):
+        name = fm.group(1).strip()
+        bracket = fm.group(2)
+        role, match_text, diverge, start_here = [g.strip() for g in fm.groups()[2:]]
+        qualifier = None
+        if bracket:
+            if bracket in NON_QUALIFIER_BRACKETS:
+                disclosed_exclusions.append(f"{variant_id}/{name}: excluded bracket '{bracket}' (not a chip)")
+            else:
+                qualifier = bracket
+        figures.append({
+            "name": name,
+            "qualifier": qualifier,
+            "role": role,
+            "match": match_text,
+            "diverge": diverge,
+            "startHere": start_here,
+        })
+
+    assert len(figures) == 3, f"{variant_id}: expected 3 figures, found {len(figures)}"
+    entries[variant_id] = {"variantId": variant_id, "figures": figures}
+
+assert len(entries) == 60
+print("Disclosed bracket exclusions (not treated as chip qualifiers):")
+for d in disclosed_exclusions:
+    print(" -", d)
+
+def js_string(s):
+    if s is None:
+        return "null"
+    return json.dumps(s, ensure_ascii=False)
+
+def js_figure(f):
+    return (
+        "{ name: %s, qualifier: %s, role: %s, match: %s, diverge: %s, startHere: %s }"
+        % (js_string(f["name"]), js_string(f["qualifier"]), js_string(f["role"]),
+           js_string(f["match"]), js_string(f["diverge"]), js_string(f["startHere"]))
+    )
+
+lines = []
+lines.append("// B-1/B-2/B-3 extraction, 2026-08-02: inert Famous Minds content registry.")
+lines.append("//")
+lines.append("// Holds each variant's three figure entries (name, optional mode qualifier,")
+lines.append("// role, why-this-match, where-the-match-ends, start-here work) - see the")
+lines.append("// canonical vault document \"Phil OS - Famous Minds Variant Content\", B-1 -")
+lines.append("// the vault doc is the review surface and source of truth; this module is")
+lines.append("// the machine-readable encoding. Do not hand-edit content strings here:")
+lines.append("// re-parse from the vault doc so the two cannot drift (DI-005 principle), the")
+lines.append("// same discipline lib/belief-map-registry.js and lib/alignment-library-registry.js")
+lines.append("// follow. Generated by scripts/extract-famous-minds-registry.py.")
+lines.append("//")
+lines.append("// Figure names are drawn verbatim from each variant's live `thinkers` line")
+lines.append("// (index.html ARCHETYPES), already audited (Belief Map Content Standard Part")
+lines.append("// VI, 180/180 verified real, zero fabrications, 2026-07-31). One disclosed")
+lines.append("// extraction judgment call: the vault doc's Family 9 Rabbi Jonathan Sacks")
+lines.append("// entry carries the bracket \"[Approved as drafted, D156]\", which is an")
+lines.append("// editorial review-approval note, not a mode-qualifier chip like every other")
+lines.append("// bracket in the document (\"Private mode\", \"Secular reading\", etc.) - this")
+lines.append("// registry gives that entry qualifier: null, matching every other unqualified")
+lines.append("// figure, rather than surfacing the review note as if it were product chip text.")
+lines.append("//")
+lines.append("// DELIBERATELY INERT: nothing imports this module yet. Wiring this content")
+lines.append("// into any product surface (replacing the family-level FAMOUS_BY_FAMILY cards)")
+lines.append("// is its own separately authorized block. Lyra's 180-entry construct/equal-")
+lines.append("// dignity/attribution review CLOSED PASS 2026-08-01 (Round 27). Only the 15")
+lines.append("// Family 1 exemplars carry Andre's voice sign-off; the other 165 entries have")
+lines.append("// Lyra's construct review but no voice sign-off yet - this registry extraction")
+lines.append("// does not imply or change that gate.")
+lines.append("//")
+lines.append("// Same dependency-free CommonJS convention as lib/belief-map-registry.js.")
+lines.append("")
+lines.append("'use strict';")
+lines.append("")
+lines.append("const REGISTRY_SCHEMA_VERSION = 1;")
+lines.append("")
+lines.append("const VARIANT_IDS = Object.freeze([")
+for vid in order:
+    lines.append(f"  {js_string(vid)},")
+lines.append("]);")
+lines.append("")
+lines.append("const FAMOUS_MINDS_REGISTRY = Object.freeze({")
+for vid in order:
+    e = entries[vid]
+    lines.append(f"  {js_string(vid)}: Object.freeze({{")
+    lines.append(f"    variantId: {js_string(vid)},")
+    fig_lines = ",\n      ".join(js_figure(f) for f in e["figures"])
+    lines.append(f"    figures: Object.freeze([\n      {fig_lines}\n    ]),")
+    lines.append("  }),")
+lines.append("});")
+lines.append("")
+lines.append("function getVariantFigures(variantId) {")
+lines.append("  return FAMOUS_MINDS_REGISTRY[variantId] || null;")
+lines.append("}")
+lines.append("")
+lines.append("module.exports = {")
+lines.append("  REGISTRY_SCHEMA_VERSION,")
+lines.append("  VARIANT_IDS,")
+lines.append("  FAMOUS_MINDS_REGISTRY,")
+lines.append("  getVariantFigures,")
+lines.append("};")
+lines.append("")
+
+out = "\n".join(lines)
+with open(OUT, "w", encoding="utf-8", newline="\n") as f:
+    f.write(out)
+
+total_figures = sum(len(e["figures"]) for e in entries.values())
+print(f"Wrote {OUT}: {len(entries)} variants, {total_figures} figures, {len(out)} chars")
+assert total_figures == 180, total_figures
