@@ -9377,8 +9377,10 @@ Return ONLY valid JSON, with no markdown fences:
       .split(userName).join('{name}')
   );
 
-  // Merge: AI supplies identity, alignment, world. Everything else is
-  // data-driven from the archetype entry and the growth-edge library (C1).
+  // Merge: AI supplies identity and world. Alignment is no longer AI-supplied
+  // (2026-08-01: selected deterministically from the Alignment Library, see
+  // selectAlignmentCard() below). Everything else is data-driven from the
+  // archetype entry and the growth-edge library (C1).
   const report = {
     ...report1,
     archetypeName: arch.family,
