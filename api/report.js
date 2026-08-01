@@ -268,11 +268,11 @@ function axisRow(label, score, poleL, poleR, color) {
   </div>`;
 }
 
-function worldCard(card, iconEmoji, iconBg) {
+function worldCard(card, iconSvg, iconBg, iconColor) {
   if (!card) return '';
   return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;margin-bottom:20px;">
     <div style="display:flex;align-items:center;gap:14px;padding:18px 22px 14px;border-bottom:1px solid rgba(255,255,255,0.07);">
-      <div style="width:36px;height:36px;border-radius:8px;background:${iconBg};display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${iconEmoji}</div>
+      <div style="width:36px;height:36px;border-radius:8px;background:${iconBg};display:flex;align-items:center;justify-content:center;color:${iconColor};flex-shrink:0;">${iconSvg}</div>
       <div style="font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);">${escapeHtml(card.lens || '')}</div>
     </div>
     <div style="padding:20px 22px;">
@@ -303,12 +303,17 @@ function renderReportPage({ c, report, scores, fingerprint, archetype, variant, 
   const alignment = Array.isArray(report.alignment) ? report.alignment : [];
   const patterns = Array.isArray(report.patterns) ? report.patterns : [];
 
+  // A3 parity (2026-08-01): the authenticated report replaced content-area
+  // emoji with the product's own stroke-icon language; the public share page
+  // was left behind. Same five lens icons, same order, inlined as SVG since
+  // this page has no stylesheet or icon font.
+  const lensSvg = (paths) => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + '</svg>';
   const worldIcons = [
-    { emoji: '🧐', bg: 'rgba(157,147,232,0.15)' },
-    { emoji: '👥', bg: 'rgba(91,191,148,0.15)' },
-    { emoji: '🤝', bg: 'rgba(201,169,110,0.15)' },
-    { emoji: '🌆', bg: 'rgba(224,120,74,0.15)' },
-    { emoji: '🌌', bg: 'rgba(180,130,255,0.15)' },
+    { icon: lensSvg('<circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V21M8.5 21h7"/>'), bg: 'rgba(157,147,232,0.15)', color: 'rgba(200,190,255,0.9)' },
+    { icon: lensSvg('<circle cx="9" cy="8.5" r="3"/><circle cx="16.5" cy="10.5" r="2.4"/><path d="M4 20c0-3.2 2.3-5.2 5-5.2s5 2 5 5.2M14.6 20c.2-2.4 1.6-3.9 3.4-3.9 1.7 0 2.9 1.4 3 3.9"/>'), bg: 'rgba(91,191,148,0.15)', color: 'rgba(150,225,195,0.9)' },
+    { icon: lensSvg('<circle cx="6.5" cy="12" r="3"/><circle cx="17.5" cy="12" r="3"/><path d="M9.5 12h5"/>'), bg: 'rgba(201,169,110,0.15)', color: 'rgba(230,205,150,0.9)' },
+    { icon: lensSvg('<path d="M4 21V10.5h5V21M9 21V5.5h6V21M15 21v-7.5h5V21M3 21h18"/>'), bg: 'rgba(224,120,74,0.15)', color: 'rgba(245,170,130,0.9)' },
+    { icon: lensSvg('<path d="M3 17.5h18M7 17.5a5 5 0 0 1 10 0M12 6v2.2M6 8.5l1.5 1.5M18 8.5l-1.5 1.5"/>'), bg: 'rgba(180,130,255,0.15)', color: 'rgba(215,185,255,0.9)' },
   ];
 
   // FM2: same centered bipolar geometry as the belief-map rows below - the
@@ -434,7 +439,7 @@ function renderReportPage({ c, report, scores, fingerprint, archetype, variant, 
       }</div>
     </div>`).join('');
 
-  const worldHtml = worldCards.map((card, i) => worldCard(card, worldIcons[i]?.emoji || '○', worldIcons[i]?.bg || 'rgba(255,255,255,0.06)')).join('');
+  const worldHtml = worldCards.map((card, i) => worldCard(card, worldIcons[i]?.icon || '', worldIcons[i]?.bg || 'rgba(255,255,255,0.06)', worldIcons[i]?.color || 'rgba(255,255,255,0.75)')).join('');
 
   const sec = (label, content, id) => `
     <div style="margin-bottom:76px;" ${id ? `id="${id}"` : ''}>
