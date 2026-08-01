@@ -1700,6 +1700,61 @@ body::after {
 .contradiction-card.tier-b .contradiction-tier-badge { color: var(--accent); border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.08); }
 .contradiction-card.tier-c .contradiction-tier-badge { color: var(--purple2); border-color: rgba(157,147,232,0.3); background: rgba(157,147,232,0.08); }
 .contradiction-text { font-size: 16px; color: var(--text2); line-height: 1.78; font-weight: 400; max-width: 54ch; }
+/* A5: the two colliding axis positions, rendered with the shared axis-track primitive */
+.contradiction-collision {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 14px 16px 10px;
+  margin: 14px 0 16px;
+}
+.contradiction-collision-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.contradiction-axis-row { margin-bottom: 14px; }
+.contradiction-axis-row:last-child { margin-bottom: 4px; }
+/* A4: zero-tension state - a real result, presented as one */
+.contradiction-zero {
+  background: linear-gradient(135deg, rgba(91,191,148,0.07) 0%, rgba(157,147,232,0.05) 100%);
+  border: 1px solid rgba(91,191,148,0.25);
+  border-radius: 12px;
+  padding: 28px 28px 22px;
+  text-align: left;
+}
+.contradiction-zero-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(91,191,148,0.5);
+  color: rgba(91,191,148,1);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.contradiction-zero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.contradiction-zero-text {
+  font-size: 16px;
+  color: var(--text2);
+  line-height: 1.78;
+  max-width: 54ch;
+  margin: 0 0 12px;
+}
+.contradiction-zero-text:last-child { margin-bottom: 0; }
 .contradiction-questions {
   margin-top: 16px;
   padding-top: 14px;
@@ -4533,7 +4588,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
           <p class="rs-desc">Where your beliefs contradict each other. This is the most philosophically rigorous section and the most practically useful. Most people carry unexamined contradictions for years. Identifying them does not mean your worldview is broken. It means your thinking is complex enough to hold competing commitments. The question worth asking is whether you chose that, or whether it just happened to you.</p>
         </div>
         <div class="report-section" id="section-contradictions" style="border:none;padding:0;margin:0;">
-          <div style="background:linear-gradient(135deg,rgba(232,112,112,0.06) 0%,rgba(157,147,232,0.05) 100%);border:1px solid rgba(232,112,112,0.18);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+          <div id="contradiction-howto" style="background:linear-gradient(135deg,rgba(232,112,112,0.06) 0%,rgba(157,147,232,0.05) 100%);border:1px solid rgba(232,112,112,0.18);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
             <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--danger);margin-bottom:10px;">How to use this section</div>
             <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 12px;">A contradiction doesn't mean you're wrong - it means two positions you hold are in logical tension. The engine runs 42 rules across your 32 axes and flags every place where your beliefs pull in incompatible directions. Use this section as an exercise in logical consistency: for each tension, ask whether you can defend holding both positions or whether one needs revision.</p>
             <p style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--text2);line-height:1.7;margin:0 0 14px;">This is active philosophy, not passive reading. The thinkers who built the clearest worldviews did it by stress-testing their own beliefs. Phil OS is doing that for you automatically - finding the fault lines so you can decide, deliberately, whether to bridge them or own them.</p>
@@ -10668,10 +10723,28 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
 
   // ── CONTRADICTIONS ──
   const contEl = document.getElementById('report-contradictions');
+  const contHowto = document.getElementById('contradiction-howto');
   if (contEl) {
     if (contradictions.length > 0) {
+      if (contHowto) contHowto.style.display = '';
       const tierLabels = {A:'Hard Contradiction', B:'Consistency Flag', C:'Interesting Tension'};
       const tierClasses = {A:'', B:'tier-b', C:'tier-c'};
+      // A5: each card opens with the two colliding axis positions rendered
+      // through the shared axisTrackHtml primitive - the engine's own a/b
+      // axes and the user's real scores, previously computed and discarded.
+      const collisionRow = (axisId) => {
+        const meta = AXIS_META[axisId];
+        if (!meta) return '';
+        const sc = scores[axisId] || 4;
+        return `<div class="axis-row contradiction-axis-row">
+          <div class="axis-meta">
+            <span class="axis-name">${philTerm(meta.label)}</span>
+            <span class="axis-score">${sc.toFixed(1)}</span>
+          </div>
+          ${axisTrackHtml(sc, meta.color)}
+          <div class="axis-poles"><span>${meta.poleL}</span><span>${meta.poleR}</span></div>
+        </div>`;
+      };
       contEl.innerHTML = contradictions.map(c => {
         const tierClass = tierClasses[c.tier] || '';
         const questionsHtml = (c.questions && c.questions.length)
@@ -10684,6 +10757,12 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
         const strengthBars = Array.from({length:3}, (_,i) =>
           `<span style="width:5px;height:${8+i*3}px;border-radius:2px;background:${i < bars ? 'currentColor' : 'rgba(255,255,255,0.15)'};display:inline-block;margin:0 1px;vertical-align:bottom;"></span>`
         ).join('');
+        const collisionHtml = (AXIS_META[c.a] && AXIS_META[c.b])
+          ? `<div class="contradiction-collision">
+              <div class="contradiction-collision-label">The two positions in tension</div>
+              ${collisionRow(c.a)}
+              ${collisionRow(c.b)}
+            </div>` : '';
         return `<div class="contradiction-card ${tierClass}">
           <div class="contradiction-header">
             <div class="contradiction-title">${c.title}</div>
@@ -10692,12 +10771,23 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
               <div class="contradiction-tier-badge">${tierLabels[c.tier] || c.tier}</div>
             </div>
           </div>
+          ${collisionHtml}
           <div class="contradiction-text">${c.text || ''}</div>
           ${questionsHtml}
         </div>`;
       }).join('');
     } else {
-      const contraNav = document.querySelector('.rn-item[data-section="rs-contradictions"]'); if (contraNav) contraNav.style.display = 'none';
+      // A4: zero tensions is a real result, not a missing section. Hide the
+      // how-to box (it explains cards that do not exist) and present the
+      // clean result honestly. Nav stays visible - there is content now.
+      if (contHowto) contHowto.style.display = 'none';
+      contEl.innerHTML = `<div class="contradiction-zero">
+        <div class="contradiction-zero-badge">0</div>
+        <div class="contradiction-zero-title">No logical tensions detected</div>
+        <p class="contradiction-zero-text">The engine ran all 42 consistency checks across your 32 axis positions and found no pair of beliefs pulling in logically incompatible directions. Most people carry at least one unexamined tension. A clean result means your positions, as measured, fit together.</p>
+        <p class="contradiction-zero-text">This is not proof that your worldview is correct. It means the positions you hold are mutually consistent under every check the engine knows. Positions near the middle of an axis also produce fewer hard collisions, so a consistent profile can reflect held-open questions as well as settled ones.</p>
+        <p class="contradiction-zero-text">If you retake the assessment later, changed positions can introduce new tensions. The Full Belief Map below shows every position this result was computed from.</p>
+      </div>`;
     }
   }
 
