@@ -1099,9 +1099,26 @@ body::after {
    compact context strip takes its place, so each section page reads
    section-first immediately above the fold. */
 .report-sections.continuous { display: flex; flex-direction: column; }
-.report-sections.continuous .rs { display: block; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.report-sections.continuous .rs {
+  display: block;
+  border-bottom: none;
+  position: relative;
+}
+/* A7: section divider language - a centered gradient hairline instead of a
+   flat full-width border, matching the tier-divider treatment elsewhere */
+.report-sections.continuous .rs::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+}
+.report-sections.continuous .rs:last-of-type::after,
+.report-sections.continuous #rs-card::after { content: none; }
 .report-sections.continuous #rs-card { order: 99; border-bottom: none; }
-.rs-open-btn { display: none; margin: 2px 0 6px; background: transparent; border: 1px solid rgba(255,255,255,0.22); border-radius: 6px; padding: 6px 13px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); cursor: pointer; transition: border-color .2s, color .2s; }
+.rs-open-btn { display: none; margin: 2px 0 6px; background: transparent; border: 1px solid rgba(255,255,255,0.22); border-radius: 6px; padding: 6px 13px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); cursor: pointer; transition: border-color .2s, color .2s; }
 .rs-open-btn:hover { border-color: var(--accent); color: var(--accent); }
 .report-sections.continuous .rs-open-btn { display: inline-block; }
 #screen-report.section-focus .report-header { display: none; }
@@ -1118,10 +1135,11 @@ body::after {
 }
 .rs-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: 12px; /* A7: eyebrow legibility, Finding 4 precedent */
+  font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color:rgba(255,255,255,0.62);
+  color:rgba(255,255,255,0.72);
   margin-bottom: 10px;
 }
 .rs-title {
@@ -4514,7 +4532,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
       <!-- 00 · YOUR CARD - shown first on report generation -->
       <div class="rs active" id="rs-card" role="region" aria-label="Your shareable card">
         <div class="rs-header">
-          <div class="rs-eyebrow">Your Phil OS</div>
+          <div class="rs-eyebrow">Section 11 · Share</div>
           <h2 class="rs-title">Your Shareable Card</h2>
           <p class="rs-desc">Your philosophical OS in one card. Download it and share it anywhere - TikTok, Instagram, Reddit, X. It updates every time you retake the assessment.</p>
         </div>
