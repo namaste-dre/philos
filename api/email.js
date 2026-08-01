@@ -1,5 +1,21 @@
 export const config = { maxDuration: 60 };
 
+// DI-006 slice 3 (2026-08-01): structured events, duplicated inline rather
+// than imported from lib/observability.js - this file's test harness
+// enforces a zero-import containment contract (A0.1), so no module of any
+// kind may be pulled in here. Same JSON shape as lib/observability.js so
+// all six endpoints' log lines parse uniformly. Never pass PII, tokens,
+// emails, or report content as `detail` - status codes, byte lengths, and
+// error-message strings only.
+function logEvent(level, event, detail) {
+  const record = { ts: new Date().toISOString(), level, module: 'email', event };
+  if (detail !== undefined) record.detail = detail;
+  const line = JSON.stringify(record);
+  if (level === 'error') console.error(line);
+  else if (level === 'warn') console.warn(line);
+  else console.log(line);
+}
+
 // Email hardening (2026-07-31): this endpoint was an unauthenticated,
 // CORS-wildcard, unescaped-template sender - a latent open relay that
 // only stayed harmless because RESEND_API_KEY was never configured
@@ -74,7 +90,7 @@ async function checkRateLimit(userId) {
   const url    = process.env.SUPABASE_URL;
   const secret = process.env.SUPABASE_SERVICE_KEY;
   if (!url || !secret) {
-    console.error('[email] rate limit store not configured - failing closed');
+    logEvent('error', 'rate_limit_store_unconfigured');
     return { allowed: false, reason: 'unavailable' };
   }
 
@@ -94,7 +110,7 @@ async function checkRateLimit(userId) {
       { headers }
     );
     if (!getRes.ok) {
-      console.error('[email] rate limit lookup failed:', getRes.status);
+      logEvent('error', 'rate_limit_lookup_failed', { status: getRes.status });
       return { allowed: false, reason: 'unavailable' };
     }
     const records = await getRes.json();
@@ -106,7 +122,7 @@ async function checkRateLimit(userId) {
         body: JSON.stringify({ key, calls: 1, window_start: now.toISOString() }),
       });
       if (!createRes.ok) {
-        console.error('[email] rate limit create failed:', createRes.status);
+        logEvent('error', 'rate_limit_create_failed', { status: createRes.status });
         return { allowed: false, reason: 'unavailable' };
       }
       return { allowed: true };
@@ -119,7 +135,7 @@ async function checkRateLimit(userId) {
         body: JSON.stringify({ calls: 1, window_start: now.toISOString() }),
       });
       if (!resetRes.ok) {
-        console.error('[email] rate limit window reset failed:', resetRes.status);
+        logEvent('error', 'rate_limit_reset_failed', { status: resetRes.status });
         return { allowed: false, reason: 'unavailable' };
       }
       return { allowed: true };
@@ -135,13 +151,13 @@ async function checkRateLimit(userId) {
       body: JSON.stringify({ calls: record.calls + 1 }),
     });
     if (!incrementRes.ok) {
-      console.error('[email] rate limit increment failed:', incrementRes.status);
+      logEvent('error', 'rate_limit_increment_failed', { status: incrementRes.status });
       return { allowed: false, reason: 'unavailable' };
     }
     return { allowed: true };
 
   } catch (e) {
-    console.warn('[email] rate limit check failed:', e.message);
+    logEvent('warn', 'rate_limit_check_exception', { message: e.message });
     return { allowed: false, reason: 'unavailable' }; // fail closed
   }
 }
@@ -359,7 +375,10 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const text = await response.text();
-      console.error('Resend error:', text);
+      // Status and body length only - Resend's error body can echo request
+      // field values (e.g. an invalid recipient address) and must not be
+      // logged verbatim, same discipline as the slice 1 leak fixes.
+      logEvent('error', 'provider_error', { status: response.status, bodyLength: text.length });
       // Provider detail stays in the server log; the client gets a
       // non-disclosing failure with an honest status code.
       return res.status(502).json({ ok: false, error: 'Email provider error' });
@@ -368,7 +387,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
 
   } catch (e) {
-    console.error('Email error:', e.message);
+    logEvent('error', 'send_failed', { message: e.message });
     return res.status(502).json({ ok: false, error: 'Email send failed' });
   }
 }

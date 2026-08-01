@@ -1,5 +1,21 @@
 export const config = { maxDuration: 30 };
 
+// DI-006 slice 3 (2026-08-01): structured events, duplicated inline rather
+// than imported from lib/observability.js - this file's test harness
+// enforces a zero-import containment contract (A1/D117/D118), so no
+// module of any kind may be pulled in here. Same JSON shape as
+// lib/observability.js so all six endpoints' log lines parse uniformly.
+// Never pass PII, tokens, emails, or report content as `detail` - status
+// codes, byte lengths, and error-message strings only.
+function logEvent(level, event, detail) {
+  const record = { ts: new Date().toISOString(), level, module: 'claim-attempt', event };
+  if (detail !== undefined) record.detail = detail;
+  const line = JSON.stringify(record);
+  if (level === 'error') console.error(line);
+  else if (level === 'warn') console.warn(line);
+  else console.log(line);
+}
+
 const ALLOWED_ORIGIN = 'https://phil-os.thelifepm.com';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -257,7 +273,7 @@ export default async function handler(req, res) {
         try {
           existingStatus = await getExistingAttemptStatus(supabaseUrl, svcHeaders, attemptId, user.id);
         } catch (e) {
-          console.error('claim-attempt cap pre-check failed:', e.message);
+          logEvent('error', 'cap_precheck_failed', { message: e.message });
           return res.status(500).json({ error: 'Could not verify attempt state' });
         }
 
@@ -273,7 +289,7 @@ export default async function handler(req, res) {
             successCount = await countCompletionsThisMonth(supabaseUrl, svcHeaders, user.id, 'complete', 'completed_at');
             failedCount  = await countCompletionsThisMonth(supabaseUrl, svcHeaders, user.id, 'failed', 'claimed_at');
           } catch (e) {
-            console.error('claim-attempt cap count failed:', e.message);
+            logEvent('error', 'cap_count_failed', { message: e.message });
             return res.status(500).json({ error: 'Could not verify generation caps' });
           }
           if (successCount >= MONTHLY_SUCCESS_CAP) {
@@ -318,7 +334,10 @@ export default async function handler(req, res) {
       });
       if (!rpcRes.ok) {
         const text = await rpcRes.text();
-        console.error('claim_attempt RPC failed:', text);
+        // Status and body length only - a PostgREST error body can echo
+        // constraint/value detail from the row and must not be logged
+        // verbatim, same discipline as the slice 1 leak fixes.
+        logEvent('error', 'rpc_failed', { status: rpcRes.status, bodyLength: text.length });
         return res.status(500).json({ error: 'Could not claim attempt' });
       }
       const rows = await rpcRes.json();
@@ -349,7 +368,7 @@ export default async function handler(req, res) {
       );
       if (!updateRes.ok) {
         const text = await updateRes.text();
-        console.error('claim-attempt complete failed:', text);
+        logEvent('error', 'complete_failed', { status: updateRes.status, bodyLength: text.length });
         return res.status(500).json({ error: 'Could not finalize attempt' });
       }
 
@@ -360,7 +379,7 @@ export default async function handler(req, res) {
       try {
         await honorResearchConsentIfNeeded(supabaseUrl, svcHeaders, user.id, id);
       } catch (e) {
-        console.error('claim-attempt research-consent honoring failed:', e.message);
+        logEvent('error', 'research_consent_honor_failed', { message: e.message });
       }
 
       return res.status(200).json({ ok: true });
@@ -379,7 +398,7 @@ export default async function handler(req, res) {
       );
       if (!updateRes.ok) {
         const text = await updateRes.text();
-        console.error('claim-attempt fail failed:', text);
+        logEvent('error', 'fail_failed', { status: updateRes.status, bodyLength: text.length });
         return res.status(500).json({ error: 'Could not mark attempt failed' });
       }
       return res.status(200).json({ ok: true });
@@ -388,7 +407,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid request' });
 
   } catch (e) {
-    console.error('claim-attempt error:', e.message);
+    logEvent('error', 'handler_exception', { message: e.message });
     return res.status(500).json({ error: 'Something went wrong' });
   }
 }

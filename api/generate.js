@@ -1,5 +1,21 @@
 export const config = { maxDuration: 60 };
 
+// DI-006 slice 3 (2026-08-01): structured events, duplicated inline rather
+// than imported from lib/observability.js - this file's test harness
+// enforces a zero-import containment contract (A0.1), so no module of any
+// kind may be pulled in here. Same JSON shape as lib/observability.js so
+// all six endpoints' log lines parse uniformly. Never pass PII, tokens,
+// emails, or report content as `detail` - status codes and error-message
+// strings only.
+function logEvent(level, event, detail) {
+  const record = { ts: new Date().toISOString(), level, module: 'generate', event };
+  if (detail !== undefined) record.detail = detail;
+  const line = JSON.stringify(record);
+  if (level === 'error') console.error(line);
+  else if (level === 'warn') console.warn(line);
+  else console.log(line);
+}
+
 // -- Constants --------------------------------------------
 const ALLOWED_ORIGIN     = 'https://phil-os.thelifepm.com';
 const DEV_EMAILS         = ['dre63052@gmail.com'];
@@ -452,7 +468,7 @@ async function checkRateLimit(key) {
   const url    = process.env.SUPABASE_URL;
   const secret = process.env.SUPABASE_SERVICE_KEY;
   if (!url || !secret) {
-    console.error('[generate] rate limit store not configured - failing closed');
+    logEvent('error', 'rate_limit_store_unconfigured');
     return { allowed: false, reason: 'unavailable' };
   }
 
@@ -471,7 +487,7 @@ async function checkRateLimit(key) {
       { headers }
     );
     if (!getRes.ok) {
-      console.error('[generate] rate limit lookup failed:', getRes.status);
+      logEvent('error', 'rate_limit_lookup_failed', { status: getRes.status });
       return { allowed: false, reason: 'unavailable' };
     }
     const records = await getRes.json();
@@ -483,7 +499,7 @@ async function checkRateLimit(key) {
         body: JSON.stringify({ key, calls: 1, window_start: now.toISOString() }),
       });
       if (!createRes.ok) {
-        console.error('[generate] rate limit create failed:', createRes.status);
+        logEvent('error', 'rate_limit_create_failed', { status: createRes.status });
         return { allowed: false, reason: 'unavailable' };
       }
       return { allowed: true, remaining: RATE_LIMIT - 1 };
@@ -496,7 +512,7 @@ async function checkRateLimit(key) {
         body: JSON.stringify({ calls: 1, window_start: now.toISOString() }),
       });
       if (!resetRes.ok) {
-        console.error('[generate] rate limit window reset failed:', resetRes.status);
+        logEvent('error', 'rate_limit_reset_failed', { status: resetRes.status });
         return { allowed: false, reason: 'unavailable' };
       }
       return { allowed: true, remaining: RATE_LIMIT - 1 };
@@ -512,13 +528,13 @@ async function checkRateLimit(key) {
       body: JSON.stringify({ calls: record.calls + 1 }),
     });
     if (!incrementRes.ok) {
-      console.error('[generate] rate limit increment failed:', incrementRes.status);
+      logEvent('error', 'rate_limit_increment_failed', { status: incrementRes.status });
       return { allowed: false, reason: 'unavailable' };
     }
     return { allowed: true, remaining: RATE_LIMIT - record.calls - 1 };
 
   } catch (e) {
-    console.warn('[generate] rate limit check failed:', e.message);
+    logEvent('warn', 'rate_limit_check_exception', { message: e.message });
     return { allowed: false, reason: 'unavailable' }; // fail closed
   }
 }
@@ -626,7 +642,7 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      console.error('[generate] provider error:', response.status);
+      logEvent('error', 'provider_error', { status: response.status });
       return res.status(502).json({ error: 'Generation service temporarily unavailable' });
     }
 
@@ -634,7 +650,7 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
 
   } catch (e) {
-    console.error('[generate] request failed:', e.message);
+    logEvent('error', 'request_failed', { message: e.message });
     return res.status(502).json({ error: 'Generation service temporarily unavailable' });
   }
 }
