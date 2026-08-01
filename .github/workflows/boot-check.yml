@@ -1,0 +1,70 @@
+name: Boot completion check (DI-006 slice 2)
+
+# Loads the real production site in a real headless browser on a schedule
+# and confirms window.__philBooted became true after load. A plain HTTP
+# 200-OK check cannot reveal this: the 2026-07-31 incident (a stranded
+# keyword partway through index.html's main script block) served a
+# perfectly valid 200 page while silently preventing authBoot's
+# DOMContentLoaded registration - every function still looked callable in
+# isolation, which is exactly why direct-call verification missed it.
+# See BL-20260731-225800-auth for the full incident account, and the
+# index.html commit that added window.__philBooted for the marker itself.
+#
+# On failure this workflow run fails, which GitHub emails by default to
+# whoever has notifications enabled for this repo - no separate alert
+# channel or third-party account is required for this slice. Choosing a
+# dedicated alert destination (Slack, PagerDuty, etc.) is a separate,
+# later decision, not blocked by this workflow.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  boot-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Install Playwright
+        run: npx --yes playwright install --with-deps chromium
+
+      - name: Load production and assert boot completed
+        run: |
+          cat <<'EOF' > check.mjs
+          import { chromium } from 'playwright';
+
+          const TARGET = 'https://phil-os.thelifepm.com';
+          const errors = [];
+
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+          page.on('pageerror', (err) => errors.push(String(err)));
+          page.on('console', (msg) => {
+            if (msg.type() === 'error') errors.push(msg.text());
+          });
+
+          const response = await page.goto(TARGET, { waitUntil: 'load', timeout: 20000 });
+          const status = response ? response.status() : null;
+
+          const booted = await page.evaluate(() => window.__philBooted === true).catch(() => false);
+
+          await browser.close();
+
+          console.log('HTTP status:', status);
+          console.log('window.__philBooted:', booted);
+          console.log('console/page errors observed:', errors.length);
+          if (errors.length) console.log(errors.join('\n'));
+
+          if (status !== 200) {
+            console.error(`FAIL: expected HTTP 200, got ${status}`);
+            process.exit(1);
+          }
+          if (booted !== true) {
+            console.error('FAIL: window.__philBooted never became true - the page served but the main script did not run to completion.');
+            process.exit(1);
+          }
+
+          console.log('PASS: production served 200 and the boot marker confirmed the script ran to completion.');
+          EOF
+          node check.mjs
