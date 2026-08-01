@@ -1836,6 +1836,55 @@ body::after {
 }
 .growth-text { font-size: 16px; color: var(--text); line-height: 1.8; font-weight: 400; max-width: 54ch; }
 
+/* A6: detected philosophical positions inside How You Operate */
+.position-list-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 26px 0 14px;
+}
+.position-list { display: flex; flex-direction: column; gap: 12px; }
+.position-item {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-left: 3px solid var(--muted);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.position-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.position-desc {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 60ch;
+}
+.position-tension-note {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 18px;
+  line-height: 1.6;
+}
+.position-tension-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--purple2);
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: inherit;
+}
+
 /* MEDIA ECOSYSTEM */
 .media-grid {
   display: grid;
@@ -4529,6 +4578,7 @@ body.font-dyslexic .identity-text { font-family: 'OpenDyslexic', sans-serif !imp
         </div>
         <div class="report-section" id="section-patterns" style="border:none;padding:0;">
           <div class="patterns-grid" id="report-patterns"></div>
+          <div id="report-positions"></div>
         </div>
       </div>
 
@@ -10550,6 +10600,34 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   } else {
     const patNav = document.querySelector('.rn-item[data-section="rs-patterns"]');
     if (patNav) patNav.style.display = 'none';
+  }
+
+  // A6: surface the detected philosophical positions as real section content.
+  // computePhilPatterns() already produces named positions with full
+  // philosopher-grounded descriptions, but they only appeared as hover-only
+  // hero tags - information-bearing content behind a hover interaction.
+  // Here the same data renders as readable cards. Static app data, no user
+  // input reaches this HTML.
+  const positionsEl = document.getElementById('report-positions');
+  if (positionsEl) {
+    const philPats = computePhilPatterns(scores);
+    const posColor = {purple:'var(--purple2)', red:'var(--danger)', gold:'var(--accent)', teal:'var(--tier2)', muted:'var(--muted)'};
+    const tensionNote = (contradictions && contradictions.length > 0)
+      ? `<div class="position-tension-note">Your ${contradictions.length} belief tension${contradictions.length === 1 ? '' : 's'} also shape${contradictions.length === 1 ? 's' : ''} how you operate - <button class="position-tension-link" onclick="showReportSection('rs-contradictions')">see Belief Tensions</button></div>`
+      : `<div class="position-tension-note">No belief tensions modify these patterns - your measured positions run consistent.</div>`;
+    if (philPats.length > 0) {
+      positionsEl.innerHTML = `
+        <div class="position-list-label">Named positions detected in your profile</div>
+        <div class="position-list">
+          ${philPats.map(p => `<div class="position-item" style="border-left-color:${posColor[p.color] || 'var(--muted)'}">
+            <div class="position-name">${p.label}</div>
+            <div class="position-desc">${p.tooltip}</div>
+          </div>`).join('')}
+        </div>
+        ${tensionNote}`;
+    } else {
+      positionsEl.innerHTML = tensionNote;
+    }
   }
 
   // ── FINGERPRINT BARS ──
