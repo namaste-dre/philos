@@ -14516,6 +14516,16 @@ async function settingsChangePassword() {
 // Boot on DOM ready
 document.addEventListener('DOMContentLoaded', authBoot);
 
+// DI-006 slice 2: end-of-script execution marker. This must be the last
+// statement in this script block. It exists specifically because function
+// declarations hoist - a stranded keyword earlier in this block once threw
+// before this line was ever reached, silently killing authBoot's
+// registration above while every function still looked callable in
+// isolation (BL-20260731-225800-auth). An external check can load this page
+// and confirm window.__philBooted became true; if it never does, the
+// script died partway through, which a plain 200-OK response cannot reveal.
+window.__philBooted = true;
+
 </script>
 <!-- ── CONSENT GATE ── -->
 <div id="consent-gate" style="display:none;position:fixed;inset:0;background:rgba(8,6,26,0.97);backdrop-filter:blur(20px);z-index:9500;align-items:center;justify-content:center;padding:24px;">
