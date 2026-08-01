@@ -25,6 +25,7 @@ async function linker(specifier) {
   else if (specifier === '../lib/dashboard.js') target = require('../lib/dashboard.js');
   else if (specifier === '../lib/contradictions.js') target = require('../lib/contradictions.js');
   else if (specifier === '../lib/observability.js') target = require('../lib/observability.js');
+  else if (specifier === '../lib/alignment-library-registry.js') target = require('../lib/alignment-library-registry.js');
   else throw new Error('unexpected import: ' + specifier);
 
   const m = new vm.SyntheticModule(['default'], function () {

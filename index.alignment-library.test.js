@@ -254,5 +254,21 @@ const APPROVED = {
     mismatches.length === 0, mismatches.slice(0, 8));
 }
 
+// ---- 9. Cross-file parity: index.html's ALIGNMENT_DOMAIN_CANDIDATES must ----
+// match lib/alignment-library-registry.js's copy exactly (the public share
+// page hotfix, api/report.js, imports and relies on the lib module's copy;
+// this guards against the two ever drifting).
+{
+  const { ALIGNMENT_DOMAIN_CANDIDATES: serverCandidates } = require('./lib/alignment-library-registry.js');
+  const mismatches = [];
+  DOMAINS.forEach(domain => {
+    if (JSON.stringify(ALIGNMENT_DOMAIN_CANDIDATES[domain]) !== JSON.stringify(serverCandidates[domain])) {
+      mismatches.push({ domain, client: ALIGNMENT_DOMAIN_CANDIDATES[domain], server: serverCandidates[domain] });
+    }
+  });
+  ok('client (index.html) and server (lib/alignment-library-registry.js) candidate-axis sets are byte-identical',
+    mismatches.length === 0, mismatches);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail > 0) process.exitCode = 1;

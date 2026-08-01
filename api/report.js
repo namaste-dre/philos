@@ -6,8 +6,18 @@ import observability from '../lib/observability.js';
 // engine the dashboard uses (byte-parity-guarded against index.html), so
 // the public page can never disagree with what the private report showed.
 import contradictionsLib from '../lib/contradictions.js';
+// Hotfix (2026-08-01): Call 1 no longer generates report.alignment (the
+// Alignment Library wiring block, 923e07f, moved that content to
+// deterministic client-side selection). New reports therefore arrive here
+// with no report.alignment array. Falls back to the same deterministic
+// selection server-side so the public share page does not silently lose
+// its Life Alignment section for every report generated from now on.
+// Historical reports that do carry a nonempty report.alignment render it
+// unchanged, exactly as before.
+import alignmentLib from '../lib/alignment-library-registry.js';
 const { logEvent } = observability;
 const { detectContradictions } = contradictionsLib;
+const { getAlignmentCards } = alignmentLib;
 
 export const config = { maxDuration: 60 };
 
@@ -307,7 +317,15 @@ function renderReportPage({ c, report, scores, fingerprint, archetype, variant, 
 
   const growth = Array.isArray(report.growth) ? report.growth : [];
   const worldCards = Array.isArray(report.world) ? report.world : [];
-  const alignment = Array.isArray(report.alignment) ? report.alignment : [];
+  // Preserve historical reports' AI-generated alignment cards unchanged;
+  // compute the deterministic Alignment Library cards only when the report
+  // has none (every report generated after 923e07f), using the same
+  // approved candidate-axis sets and selector the authenticated report
+  // page uses. getAlignmentCards() never throws and always returns exactly
+  // 4 entries per the ruled mechanism (see lib/alignment-library-registry.js).
+  const alignment = Array.isArray(report.alignment) && report.alignment.length > 0
+    ? report.alignment
+    : getAlignmentCards(scores || {});
   const patterns = Array.isArray(report.patterns) ? report.patterns : [];
 
   // A3 parity (2026-08-01): the authenticated report replaced content-area

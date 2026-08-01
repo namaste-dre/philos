@@ -27,6 +27,7 @@ async function linker(specifier, referencingModule) {
   else if (specifier === '../lib/dashboard.js') target = require('../lib/dashboard.js');
   else if (specifier === '../lib/contradictions.js') target = require('../lib/contradictions.js');
   else if (specifier === '../lib/observability.js') target = require('../lib/observability.js');
+  else if (specifier === '../lib/alignment-library-registry.js') target = require('../lib/alignment-library-registry.js');
   else throw new Error('unexpected import: ' + specifier);
 
   const m = new vm.SyntheticModule(['default'], function () {
@@ -426,6 +427,70 @@ async function run() {
     // The section must never carry a respondent name (D135/D-3 regression guard).
     ok('tensions: no first_name reference anywhere in rendered output',
       !firingHtml.includes('first_name'));
+  }
+
+  // ---- Hotfix (2026-08-01): public share Alignment Library fallback ----
+  // Call 1 no longer generates report.alignment (923e07f); this section
+  // pins the fallback that keeps the public share page's "Life alignment"
+  // section from silently disappearing for every report generated since.
+  {
+    const render = rt.renderReportPage;
+    const baseArgs = (report, scores) => ({
+      c: {}, report, scores, fingerprint: [],
+      archetype: 'The Rational Empiricist', variant: 'The Analyst',
+      shareUrl: 'https://phil-os.thelifepm.com/report?id=x&t=y',
+    });
+
+    // A real-shaped score profile covering all 24 candidate axes so every
+    // domain's selector has something to choose from, not just defaults.
+    const fullScores = {
+      authority: 6.2, temporal_orientation: 3.0, responsibility: 5.5, human_nature: 4.0, social_ontology: 4.1, progress: 3.9,
+      self: 5.0, meaning_practice: 3.0, uncertainty: 4.0, identity: 4.0, moral_scope: 4.0, meaning: 4.0,
+      knowledge: 6.8, epistemic_humility: 4.0, epistemic_method: 4.0, ethics: 4.0, science: 4.0, teleology: 4.0,
+      freewill_practice: 1.5, justice: 4.0, moral_authority: 4.0, realism: 4.0, moral_ground: 4.0, determinism: 4.0,
+    };
+
+    const noAlignmentHtml = render(baseArgs({}, fullScores));
+    ok('fallback: a report with no report.alignment still renders the Life alignment section',
+      noAlignmentHtml.includes('Life alignment'));
+
+    ok('fallback: exactly 4 alignment cards render (no report.alignment path)',
+      (noAlignmentHtml.match(/margin-bottom:10px;font-weight:600;">(Work|Relationships|Decisions|Conflict)</g) || []).length === 4,
+      (noAlignmentHtml.match(/margin-bottom:10px;font-weight:600;">(Work|Relationships|Decisions|Conflict)</g) || []));
+
+    ['Work', 'Relationships', 'Decisions', 'Conflict'].forEach(domain => {
+      ok(`fallback: ${domain} card label renders`, noAlignmentHtml.includes(`>${domain}<`));
+    });
+
+    ok('fallback: no "undefined" leaks into the rendered alignment section',
+      !noAlignmentHtml.slice(noAlignmentHtml.indexOf('Life alignment')).includes('undefined'));
+
+    const emptyArrayHtml = render(baseArgs({ alignment: [] }, fullScores));
+    ok('fallback: an explicitly empty report.alignment array also triggers the deterministic fallback (not a blank section)',
+      emptyArrayHtml.includes('Life alignment') && emptyArrayHtml.includes('>Work<'));
+
+    // Historical reports that DO carry a nonempty report.alignment must
+    // render exactly that content, unchanged - the fallback only fires
+    // when the field is missing or empty.
+    const historical = [
+      { label: 'Work', text: 'Historical AI-generated work text, must survive unchanged.' },
+      { label: 'Relationships', text: 'Historical AI-generated relationships text.' },
+      { label: 'Decisions', text: 'Historical AI-generated decisions text.' },
+      { label: 'Conflict', text: 'Historical AI-generated conflict text.' },
+    ];
+    const historicalHtml = render(baseArgs({ alignment: historical }, fullScores));
+    ok('fallback: a nonempty historical report.alignment is preserved verbatim, not replaced',
+      historicalHtml.includes('Historical AI-generated work text, must survive unchanged.'));
+
+    // Confirm the preservation path genuinely skipped the fallback, not
+    // just that historical text happens to also be present: the
+    // deterministic card the fallback WOULD have produced for this same
+    // score profile must be absent from output when historical alignment
+    // exists.
+    const { getAlignmentCards } = require('../lib/alignment-library-registry.js');
+    const wouldHaveComputed = getAlignmentCards(fullScores);
+    ok('fallback: the deterministic text the fresh-computation path would have produced is NOT present when historical alignment exists',
+      !historicalHtml.includes(wouldHaveComputed[0].text));
   }
 
   global.fetch = originalFetch;

@@ -9211,8 +9211,11 @@ async function generateReport() {
 - animal_ethics 1=human interests far outweigh animal, 7=animal suffering matters equally
 - progress 1=pessimist about human progress, 7=optimist`;
 
-  // ── CALL 1: Identity + alignment only. Card text, tagline, patterns, and
-  // growth are data-driven since Phase 8 (C1) and never touch the API. ──
+  // ── CALL 1: Identity only (2026-08-01: alignment removed from this call
+  // - the four Decision-Making/Conflict cards are now deterministic,
+  // selected client-side by selectAlignmentCard() from the Alignment
+  // Library, never generated). Card text, tagline, patterns, and growth
+  // are data-driven since Phase 8 (C1) and never touch the API. ──
   const prompt1 = `You are writing a philosophical profile for ${userName}. Make them feel accurately described, in a way they recognise.
 
 COMPLETE AXIS SCORES (1=left pole, 7=right pole):
