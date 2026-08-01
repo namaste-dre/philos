@@ -390,6 +390,44 @@ async function run() {
       track(5, '#5bbf94', 10, 'box-shadow:0 0 12px rgba(91,191,148,0.3);').includes('box-shadow:0 0 12px'));
   }
 
+  // ---- D156: Belief Tensions on the public share page ----
+  {
+    const render = rt.renderReportPage;
+    const baseArgs = (scores) => ({
+      c: {}, report: {}, scores, fingerprint: [],
+      archetype: 'The Rational Empiricist', variant: 'The Analyst',
+      shareUrl: 'https://phil-os.thelifepm.com/report?id=x&t=y',
+    });
+
+    // C01 fires on determinism >= 5.5 && justice <= 2.5 (hard determinism +
+    // desert-based justice) - build a profile that triggers it.
+    const firing = { determinism: 6.5, justice: 1.5 };
+    const firingHtml = render(baseArgs(firing));
+    ok('tensions: section header renders on the public page', firingHtml.includes('Belief tensions'));
+    ok('tensions: a firing rule renders its registry title',
+      firingHtml.includes('Hard Determinism + Desert-Based Justice'));
+    ok('tensions: collision visual renders both axes of the fired rule',
+      firingHtml.includes('The two positions in tension') &&
+      firingHtml.includes('Determinism') && firingHtml.includes('Justice'));
+    ok('tensions: collision rows use the real scores, not defaults',
+      firingHtml.includes('6.5') && firingHtml.includes('1.5'));
+    ok('tensions: tier badge renders for the fired rule',
+      firingHtml.includes('Hard Contradiction'));
+    ok('tensions: plain-language pole labels appear in the collision rows (D156 canonicalization)',
+      firingHtml.includes('Genuine free will') && firingHtml.includes('Punishment-based'));
+
+    // All-neutral profile fires nothing -> honest zero-state, never a blank section.
+    const neutralHtml = render(baseArgs({}));
+    ok('tensions: zero-state block renders when no rules fire',
+      neutralHtml.includes('No logical tensions detected'));
+    ok('tensions: zero-state does not fabricate a card',
+      !neutralHtml.includes('The two positions in tension'));
+
+    // The section must never carry a respondent name (D135/D-3 regression guard).
+    ok('tensions: no first_name reference anywhere in rendered output',
+      !firingHtml.includes('first_name'));
+  }
+
   global.fetch = originalFetch;
 
   console.log(`\n${pass} passed, ${fail} failed`);

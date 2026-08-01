@@ -1,6 +1,13 @@
 import crypto from 'crypto';
 import observability from '../lib/observability.js';
+// D156 (2026-08-01): Andre ruled the public share page includes Belief
+// Tensions, rendered with the collision visual. Contradictions are computed
+// here from the row's own scores via the same verbatim-extracted 42-rule
+// engine the dashboard uses (byte-parity-guarded against index.html), so
+// the public page can never disagree with what the private report showed.
+import contradictionsLib from '../lib/contradictions.js';
 const { logEvent } = observability;
+const { detectContradictions } = contradictionsLib;
 
 export const config = { maxDuration: 60 };
 
@@ -211,7 +218,7 @@ export default async function handler(req, res) {
 // Exported for containment tests only (A0.2) - not part of the public API surface.
 // axisTrackServerHtml added at FM2 slice 2 so the geometry tests can prove
 // exact parity with index.html's axisTrackHtml.
-export const __testables__ = { computeReportToken, tokenMatches, UUID_RE, axisTrackServerHtml };
+export const __testables__ = { computeReportToken, tokenMatches, UUID_RE, axisTrackServerHtml, renderReportPage };
 
 function errorPage(msg) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Phil OS</title>
@@ -426,7 +433,7 @@ function renderReportPage({ c, report, scores, fingerprint, archetype, variant, 
     </div>`).join('');
 
   // Growth entries are {title, text, practice} objects since Phase 8;
-  // older stored reports hold plain strings — render both.
+  // older stored reports hold plain strings - render both.
   const growthHtml = growth.map((g, i) => `
     <div style="display:flex;gap:22px;padding:24px 26px;background:#111028;border:1px solid rgba(255,255,255,0.09);border-radius:12px;align-items:flex-start;margin-bottom:12px;">
       <div style="font-family:Playfair Display,serif;font-size:26px;color:#b8aef5;line-height:1.1;flex-shrink:0;font-weight:700;opacity:0.75;">${i + 1}</div>
@@ -440,6 +447,69 @@ function renderReportPage({ c, report, scores, fingerprint, archetype, variant, 
     </div>`).join('');
 
   const worldHtml = worldCards.map((card, i) => worldCard(card, worldIcons[i]?.icon || '', worldIcons[i]?.bg || 'rgba(255,255,255,0.06)', worldIcons[i]?.color || 'rgba(255,255,255,0.75)')).join('');
+
+  // D156: Belief Tensions on the public page, collision visual included.
+  // Computed from this row's own scores by the shared engine - registry
+  // title/text/questions are server-owned constants, but they pass through
+  // escapeHtml anyway to keep this page's escape-by-default rule uniform.
+  const contradictions = detectContradictions(scores);
+  const tierMeta = {
+    A: { label: 'Hard Contradiction',  color: '#e87070', border: 'rgba(232,112,112,0.3)', bg: 'rgba(232,112,112,0.08)' },
+    B: { label: 'Consistency Flag',    color: '#c9a96e', border: 'rgba(201,169,110,0.3)', bg: 'rgba(201,169,110,0.08)' },
+    C: { label: 'Interesting Tension', color: '#b8aef5', border: 'rgba(157,147,232,0.3)', bg: 'rgba(157,147,232,0.08)' },
+  };
+  const collisionRow = (axisId) => {
+    const meta = scoresMap.find(a => a.key === axisId);
+    if (!meta) return '';
+    const sc = Number(scores[axisId]) || 4;
+    return `<div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-family:IBM Plex Mono,monospace;font-size:12px;color:#ccc8be;">${meta.label}</span>
+        <span style="font-family:IBM Plex Mono,monospace;font-size:12px;color:#c9a96e;font-weight:700;">${sc.toFixed(1)}</span>
+      </div>
+      ${axisTrackServerHtml(sc, meta.color)}
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:IBM Plex Mono,monospace;font-size:10px;color:rgba(200,195,230,0.6);">
+        <span>${meta.poleL}</span><span>${meta.poleR}</span>
+      </div>
+    </div>`;
+  };
+  const tensionsHtml = contradictions.length
+    ? contradictions.map(t => {
+        const tm = tierMeta[t.tier] || tierMeta.C;
+        const bars = t.strength >= 0.66 ? 3 : t.strength >= 0.33 ? 2 : 1;
+        const strengthBars = Array.from({ length: 3 }, (_, i) =>
+          `<span style="width:5px;height:${8 + i * 3}px;border-radius:2px;background:${i < bars ? tm.color : 'rgba(255,255,255,0.15)'};display:inline-block;margin:0 1px;vertical-align:bottom;"></span>`
+        ).join('');
+        const collisionHtml = (scoresMap.some(a => a.key === t.a) && scoresMap.some(a => a.key === t.b))
+          ? `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 16px 10px;margin:14px 0 16px;">
+              <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b4b0c8;margin-bottom:12px;">The two positions in tension</div>
+              ${collisionRow(t.a)}
+              ${collisionRow(t.b)}
+            </div>` : '';
+        const questionsHtml = (t.questions && t.questions.length)
+          ? `<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);">
+              <div style="font-family:IBM Plex Mono,monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b4b0c8;margin-bottom:8px;">Questions to sit with</div>
+              ${t.questions.map(q => `<div style="font-size:14px;color:#d4d0c8;line-height:1.7;margin-bottom:8px;">${escapeHtml(q)}</div>`).join('')}
+            </div>` : '';
+        return `<div style="background:#111028;border:1px solid rgba(255,255,255,0.10);border-left:4px solid ${tm.color};border-radius:12px;padding:28px 32px;margin-bottom:16px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+            <div style="font-family:IBM Plex Mono,monospace;font-size:12px;color:${tm.color};letter-spacing:0.10em;font-weight:600;text-transform:uppercase;">${escapeHtml(t.title)}</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span title="Tension strength: ${Math.round((t.strength || 0) * 100)}%" style="opacity:0.7;">${strengthBars}</span>
+              <span style="font-family:IBM Plex Mono,monospace;font-size:9px;letter-spacing:0.12em;padding:3px 10px;border-radius:50px;text-transform:uppercase;border:1px solid ${tm.border};color:${tm.color};background:${tm.bg};flex-shrink:0;">${tm.label}</span>
+            </div>
+          </div>
+          ${collisionHtml}
+          <div style="font-size:16px;color:#d4d0c8;line-height:1.78;max-width:54ch;">${escapeHtml(t.text || '')}</div>
+          ${questionsHtml}
+        </div>`;
+      }).join('')
+    : `<div style="background:linear-gradient(135deg,rgba(91,191,148,0.07) 0%,rgba(157,147,232,0.05) 100%);border:1px solid rgba(91,191,148,0.25);border-radius:12px;padding:28px 28px 22px;text-align:left;">
+        <div style="width:44px;height:44px;border-radius:50%;border:2px solid rgba(91,191,148,0.5);color:rgba(91,191,148,1);font-family:IBM Plex Mono,monospace;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">0</div>
+        <div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700;color:#f0ede6;margin-bottom:12px;">No logical tensions detected</div>
+        <p style="font-size:16px;color:#d4d0c8;line-height:1.78;max-width:54ch;margin:0 0 12px;">The engine ran all 42 consistency checks across the 32 axis positions in this report and found no pair of beliefs pulling in logically incompatible directions. Most profiles carry at least one unexamined tension. A clean result means these positions, as measured, fit together.</p>
+        <p style="font-size:16px;color:#d4d0c8;line-height:1.78;max-width:54ch;margin:0;">This is not proof the worldview is correct. It means the positions held are mutually consistent under every check the engine knows.</p>
+      </div>`;
 
   const sec = (label, content, id) => `
     <div style="margin-bottom:76px;" ${id ? `id="${id}"` : ''}>
@@ -513,6 +583,8 @@ html,body{background:#07061a;color:#f0ede6;font-family:IBM Plex Sans,sans-serif;
   ${alignmentHtml ? sec('Life alignment', alignmentHtml) : ''}
 
   ${growthHtml ? sec('Growth edges', growthHtml) : ''}
+
+  ${sec('Belief tensions', `<p style="font-size:15px;color:#8c88a0;margin-bottom:24px;font-family:IBM Plex Mono,monospace;letter-spacing:0.04em;">Where positions in this profile pull against each other, found by 42 consistency checks across all 32 axes.</p>${tensionsHtml}`)}
 
   ${t1Bars || t2Bars || t3Bars ? sec('Full belief map',
     tierDiv('Foundations and Structural', 't1') + t1Bars +
