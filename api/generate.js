@@ -633,18 +633,17 @@ const GROUNDING_GLOSSARY = {
 };
 // END GROUNDING_DATA block
 
-// -- C-2 five-band grounding selector + staged prompt path (2026-08-02) --
-// STAGED, DISABLED BY DEFAULT: nothing in the request handler references
-// buildGroundedCall1Prompt or groundingContextFrom - they exist as a
-// candidate path exercised only by api/generate.test.js, per the C-2
-// directive's staging rule. Making the grounded prompt the production
-// default is C-5 territory: it requires Andre-gated real test generations
-// and a matching update to index.html's prompt-hash mirror, neither of
-// which this block performs. The flag below is a documentation-grade gate,
-// asserted false by the test suite; flipping it alone changes nothing
-// because the handler does not consult it - activation requires an
-// explicit, reviewed edit to the handler's prompt selection.
-const GROUNDED_PROMPTS_ENABLED = false;
+// -- C-2 five-band grounding selector + Call 1 prompt path --
+// Staged 2026-08-02, ACTIVATED the same evening on Andre's GO, after the
+// C-5 paid comparison (grounded won on evidence-fidelity in all 3 pairs)
+// and the one-pair anti-echo recheck on d42cdb67 (the strengthened rule
+// held: no band-text echo). The handler consults this flag and routes
+// Call 1 through buildGroundedCall1Prompt. Call 2 is deliberately NOT
+// grounded - that stays an explicit open ruling, not silently decided
+// here. Rollback lever: setting this false restores the default Call 1
+// prompt byte-exactly, but index.html's prompt-hash mirror must be
+// reverted in the same commit or provenance hashes will disagree.
+const GROUNDED_PROMPTS_ENABLED = true;
 
 // Documented budget for the whole grounding section: five axes' compact
 // snippets plus a bounded glossary comfortably fit; the selector also
@@ -1121,8 +1120,20 @@ export default async function handler(req, res) {
     archVariant:          arch.variant,
   };
 
+  // -- Call 1 runs on the five-band grounded prompt. The grounding
+  // evidence is derived here from the already-validated numeric context
+  // (scores + fingerprint axes) and reviewed registry content only - the
+  // client never sends prompt prose, and no identity data can enter it.
+  // Call 2 stays on its default builder pending its own ruling. --
+  const groundingText = (GROUNDED_PROMPTS_ENABLED && callType === 1)
+    ? groundingContextFrom(ctx.axisMap, ctx.fingerprintAxes)
+    : '';
+
   // -- Server controls model, params, and message shape entirely --
-  const messages = [{ role: 'user', content: promptBuilder(promptCtx) }];
+  const promptText = groundingText
+    ? buildGroundedCall1Prompt(promptCtx, groundingText)
+    : promptBuilder(promptCtx);
+  const messages = [{ role: 'user', content: promptText }];
   const maxTokens = MAX_TOKENS_BY_CALL[callType];
 
   try {

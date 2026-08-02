@@ -481,6 +481,13 @@ async function run() {
     ok('call 1 succeeds end-to-end (mocked)', res.statusCode === 200 && !!res.body?.content, res.body);
     ok('call 1 server-built prompt embeds derived name and archetype', captured?.messages?.[0]?.content.includes('Andre') && captured.messages[0].content.includes('The Determined Humanist'));
     ok('call 1 uses server-pinned model/tokens/roles', captured?.model === 'claude-sonnet-5' && captured.max_tokens === 1500 && captured.messages[0].role === 'user');
+    // Activation (2026-08-02): Call 1 now goes out grounded, carrying real
+    // per-profile band evidence, not just the section header.
+    ok('call 1 is sent on the grounded prompt', captured?.messages?.[0]?.content.includes('GROUNDING CONTEXT (reviewed interpretations'));
+    ok('call 1 grounding carries real band evidence, not an empty section',
+      captured?.messages?.[0]?.content.includes("This person's position:"));
+    ok('call 1 grounded prompt still carries the anti-echo rule',
+      captured?.messages?.[0]?.content.includes('evidence, not prose inventory'));
   }
   {
     installDefaultFetch();
@@ -495,6 +502,10 @@ async function run() {
     await handler(req, res);
     ok('call 2 succeeds end-to-end (mocked)', res.statusCode === 200 && !!res.body?.content, res.body);
     ok('call 2 uses server-pinned tokens (1800)', captured?.max_tokens === 1800);
+    // Call 2 grounding is an explicit open ruling, deliberately not taken
+    // by the Call 1 activation - asserted so it cannot drift in silently.
+    ok('call 2 is NOT grounded (scope boundary held)',
+      !captured?.messages?.[0]?.content.includes('GROUNDING CONTEXT'));
   }
 
   // ---- No live QA generation ----
@@ -522,17 +533,20 @@ async function run() {
     const registry = require('../lib/belief-map-registry.js');
     const PROMPT_CTX = { userName: 'Andre', axisDump: 'x', fingerprintSummary: 'y', contradictionSummary: 'None', liminalNote: '', archFamily: 'F', archVariant: 'V' };
 
-    // Staging gate.
-    ok('GROUNDED_PROMPTS_ENABLED is false (staged, disabled by default)', t.GROUNDED_PROMPTS_ENABLED === false);
+    // Activation gate (2026-08-02): grounded Call 1 is live. These
+    // assertions replaced the staging gate that pinned the opposite state.
+    ok('GROUNDED_PROMPTS_ENABLED is true (grounded Call 1 activated)', t.GROUNDED_PROMPTS_ENABLED === true);
     const genSource = fs.readFileSync(path.join(__dirname, 'generate.js'), 'utf8');
     const handlerSection = genSource.slice(
       genSource.indexOf('export default async function handler'),
       genSource.indexOf('export const __testables__'));
-    ok('the request handler never references the grounded builder or selector',
+    ok('the request handler routes through the grounded builder and selector',
       handlerSection.length > 0 &&
-      !handlerSection.includes('buildGroundedCall1Prompt') && !handlerSection.includes('groundingContextFrom') &&
-      !handlerSection.includes('GROUNDED_PROMPTS_ENABLED'));
-    ok('PROMPT_BUILDERS still selects the original builders (source assertion)',
+      handlerSection.includes('buildGroundedCall1Prompt') && handlerSection.includes('groundingContextFrom') &&
+      handlerSection.includes('GROUNDED_PROMPTS_ENABLED'));
+    ok('grounding is gated to Call 1 only (Call 2 scope boundary in source)',
+      handlerSection.includes("GROUNDED_PROMPTS_ENABLED && callType === 1"));
+    ok('PROMPT_BUILDERS still selects the original builders (rollback path intact)',
       genSource.includes('const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };'));
 
     // Band-classification parity with lib/belief-map-registry.js at 0.01 resolution.
@@ -671,8 +685,12 @@ async function run() {
         base.includes('P5 (2 sentences):'));
     }
 
-    // Prompt-hash mirror: the client's hash-mirror templates are untouched
-    // this round, and the staged path is (correctly) absent from them.
+    // Prompt-hash mirror: now that grounded Call 1 is live, the client's
+    // hash mirror must carry the grounding section too, or prompt_hash
+    // would describe a pipeline that no longer runs. The evidence itself
+    // is server-derived and per-respondent, so the mirror carries the
+    // literal {grounding} placeholder in its place - the same role the
+    // client's other substitutions perform.
     {
       const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
       const sharedSegments = [
@@ -682,8 +700,17 @@ async function run() {
       ];
       ok('client prompt-hash mirror still carries the default template segments',
         sharedSegments.every((s) => html.includes(s) && genSource.includes(s)));
-      ok('client prompt-hash mirror does not carry the staged grounding section (not live, correctly unmirrored)',
-        !html.includes('GROUNDING CONTEXT (reviewed interpretations'));
+      // Byte-exact parity of the whole grounding section, evidence aside:
+      // build the server's section with a sentinel, swap the sentinel for
+      // the placeholder, and require the client to carry it verbatim.
+      const sampled = t.buildGroundedCall1Prompt(PROMPT_CTX, '<<EVIDENCE>>');
+      const serverSection = sampled.slice(
+        sampled.indexOf('GROUNDING CONTEXT ('),
+        sampled.indexOf('PATTERN NOTES:')).split('<<EVIDENCE>>').join('{grounding}');
+      ok('client prompt-hash mirror carries the grounding section byte-identically (with {grounding} placeholder)',
+        serverSection.length > 200 && html.includes(serverSection));
+      ok('client mirror carries the {grounding} placeholder, never real band evidence',
+        html.includes('{grounding}') && !html.includes("This person's position:"));
     }
   }
 

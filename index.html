@@ -9327,7 +9327,12 @@ async function generateReport() {
   // - the four Decision-Making/Conflict cards are now deterministic,
   // selected client-side by selectAlignmentCard() from the Alignment
   // Library, never generated). Card text, tagline, patterns, and growth
-  // are data-driven since Phase 8 (C1) and never touch the API. ──
+  // are data-driven since Phase 8 (C1) and never touch the API.
+  // This template is a hash mirror, not the sent prompt: the server owns
+  // the real one. Since 2026-08-02 the server also injects five-band
+  // GROUNDING CONTEXT evidence into Call 1, mirrored below with a
+  // {grounding} placeholder; the rules text must stay byte-identical to
+  // api/generate.js's buildGroundedCall1Prompt, guarded by a parity test. ──
   const prompt1 = `You are writing a philosophical profile for ${userName}. Make them feel accurately described, in a way they recognise.
 
 COMPLETE AXIS SCORES (1=left pole, 7=right pole):
@@ -9340,6 +9345,17 @@ ${liminalNote}
 
 AXIS REFERENCE:
 ${axisRef}
+
+GROUNDING CONTEXT (reviewed interpretations of this person's five strongest axes):
+{grounding}
+
+GROUNDING RULES:
+- The grounding context above is evidence, not prose inventory. Use it to make your claims accurate; never mine it for sentences.
+- Translate the evidence into fresh second-person synthesis in your own words. Never copy the interpretations' wording, never closely paraphrase their distinctive sentences, and never reuse their distinctive metaphors, signature constructions, or contrast frames (for example, a memorable image or an "X versus Y was never the choice" framing from an interpretation must not reappear in any form).
+- This person will later read those exact interpretation texts elsewhere in their report. Any phrase of yours that would sound duplicated next to them is a failure, even if reworded.
+- Ground every claim in the actual scores and this evidence.
+- Do not invent biography, relationships, habits, or life events.
+- Keep the same second-person warmth as the rest of these instructions.
 
 PATTERN NOTES:
 - meaning <=2 AND meaning_practice <=3: nihilism in practice
@@ -9478,6 +9494,10 @@ Return ONLY valid JSON, with no markdown fences:
 
   // Provenance hash (D47): the exact prompt pair with per-respondent data
   // substituted out, so identical pipelines hash identically across users.
+  // The Call 1 grounding evidence is per-respondent too, but it is derived
+  // server-side and never exists here, so the mirror above carries the
+  // literal {grounding} placeholder in its place - the same role the
+  // substitutions below perform for the segments the client does hold.
   const promptHash = await sha256Hex(
     [prompt1, prompt2].join('\n')
       .split(axisDump).join('{axes}')

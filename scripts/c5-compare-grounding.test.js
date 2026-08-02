@@ -118,14 +118,23 @@ async function run() {
     const handlerSection = genSource.slice(
       genSource.indexOf('export default async function handler'),
       genSource.indexOf('export const __testables__'));
-    ok('production handler still never references the grounded path',
-      handlerSection.length > 0 && !handlerSection.includes('buildGroundedCall1Prompt') && !handlerSection.includes('groundingContextFrom'));
+    // 2026-08-02: grounded Call 1 was activated, so the handler now does
+    // reference the grounded path. The harness's own contract is unchanged
+    // - it still compares the two builders directly, and its "default" arm
+    // remains buildCall1Prompt regardless of which one production runs.
+    ok('production handler references the grounded path (activated)',
+      handlerSection.length > 0 && handlerSection.includes('buildGroundedCall1Prompt') && handlerSection.includes('groundingContextFrom'));
     ok('PROMPT_BUILDERS remains unchanged (source assertion)',
       genSource.includes('const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };'));
     ok('api/generate.js does not reference the harness', !genSource.includes('c5-compare'));
     const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-    ok('index.html does not reference the harness and still has no grounding section',
-      !html.includes('c5-compare') && !html.includes('GROUNDING CONTEXT (reviewed interpretations'));
+    ok('index.html does not reference the harness', !html.includes('c5-compare'));
+    // Post-activation: index.html legitimately carries the grounding
+    // section as the prompt-hash mirror, but only ever as the {grounding}
+    // placeholder - real band evidence must stay server-side.
+    ok('index.html mirrors the grounding section without real band evidence',
+      html.includes('GROUNDING CONTEXT (reviewed interpretations') &&
+      html.includes('{grounding}') && !html.includes("This person's position:"));
   }
 
   // ---- 7b. Parser repairs the known provider control-character defect ----
