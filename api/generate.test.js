@@ -514,6 +514,163 @@ async function run() {
   const p2 = t.buildCall2Prompt({ userName: 'Andre', axisDump: 'x', archFamily: 'F', archVariant: 'V' });
   ok('buildCall2Prompt matches original template opening', p2.startsWith('You are writing the "world lenses" section'));
 
+  // ---- C-2 staged grounding (2026-08-02) ----
+  // The grounding selector and staged prompt builder are a candidate path
+  // exercised only here; the handler must never reference them, and the
+  // default prompts must be provably unchanged by their existence.
+  {
+    const registry = require('../lib/belief-map-registry.js');
+    const PROMPT_CTX = { userName: 'Andre', axisDump: 'x', fingerprintSummary: 'y', contradictionSummary: 'None', liminalNote: '', archFamily: 'F', archVariant: 'V' };
+
+    // Staging gate.
+    ok('GROUNDED_PROMPTS_ENABLED is false (staged, disabled by default)', t.GROUNDED_PROMPTS_ENABLED === false);
+    const genSource = fs.readFileSync(path.join(__dirname, 'generate.js'), 'utf8');
+    const handlerSection = genSource.slice(
+      genSource.indexOf('export default async function handler'),
+      genSource.indexOf('export const __testables__'));
+    ok('the request handler never references the grounded builder or selector',
+      handlerSection.length > 0 &&
+      !handlerSection.includes('buildGroundedCall1Prompt') && !handlerSection.includes('groundingContextFrom') &&
+      !handlerSection.includes('GROUNDED_PROMPTS_ENABLED'));
+    ok('PROMPT_BUILDERS still selects the original builders (source assertion)',
+      genSource.includes('const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };'));
+
+    // Band-classification parity with lib/belief-map-registry.js at 0.01 resolution.
+    {
+      const mismatches = [];
+      for (let s = 100; s <= 700; s++) {
+        const score = s / 100;
+        const got = t.classifyGroundingBand(score);
+        const expected = Object.keys(registry.BAND_THRESHOLDS).find(
+          (k) => score >= registry.BAND_THRESHOLDS[k][0] && score <= registry.BAND_THRESHOLDS[k][1]
+        );
+        if (got !== expected) mismatches.push({ score, got, expected });
+      }
+      ok('classifyGroundingBand matches lib BAND_THRESHOLDS at every 0.01 step, 1.00-7.00',
+        mismatches.length === 0, mismatches.slice(0, 5));
+      ok('inline GROUNDING_THRESHOLDS carry the registry thresholds byte-for-byte',
+        JSON.stringify(t.GROUNDING_THRESHOLDS) === JSON.stringify(registry.BAND_THRESHOLDS));
+    }
+
+    // Inline data parity: every carried field byte-identical to the registry.
+    {
+      const axisIds = Object.keys(registry.BELIEF_MAP_REGISTRY);
+      const dataIds = Object.keys(t.GROUNDING_DATA);
+      ok('GROUNDING_DATA covers exactly the registry axes', JSON.stringify(dataIds.sort()) === JSON.stringify([...axisIds].sort()));
+      const mismatches = [];
+      axisIds.forEach((id) => {
+        const src = registry.BELIEF_MAP_REGISTRY[id];
+        const dst = t.GROUNDING_DATA[id];
+        if (!dst) { mismatches.push(`${id}: missing`); return; }
+        if (dst.label !== src.displayName) mismatches.push(`${id}.label`);
+        if (dst.def !== src.shortDefinition) mismatches.push(`${id}.def`);
+        registry.BAND_KEYS.forEach((band) => {
+          if (dst.bands[band] !== src.bands[band].short) mismatches.push(`${id}.bands.${band}`);
+        });
+      });
+      ok('every GROUNDING_DATA field is byte-identical to lib/belief-map-registry.js (32 axes x 7 fields)',
+        mismatches.length === 0, mismatches.slice(0, 8));
+      ok('GROUNDING_GLOSSARY is byte-identical to the registry GLOSSARY',
+        JSON.stringify(t.GROUNDING_GLOSSARY) === JSON.stringify(registry.GLOSSARY));
+    }
+
+    // Selector behavior.
+    const AXIS_MAP = {};
+    VALID_AXIS_SCORES.forEach(({ axis, score }) => { AXIS_MAP[axis] = score; });
+    const FPS = VALID_FINGERPRINT_AXES.map((f) => ({ ...f, score: AXIS_MAP[f.axis] }));
+    {
+      const text = t.groundingContextFrom(AXIS_MAP, FPS);
+      const fpLabels = FPS.map((f) => registry.BELIEF_MAP_REGISTRY[f.axis].displayName);
+      ok('grounding text includes every fingerprint axis label, in order',
+        fpLabels.every((l) => text.includes(l)) &&
+        fpLabels.map((l) => text.indexOf(l)).every((v, i, a) => i === 0 || v > a[i - 1]), text.slice(0, 120));
+      const naturalismBand = t.classifyGroundingBand(AXIS_MAP.naturalism);
+      ok('grounding text carries the correct band short text for a known axis',
+        text.includes(registry.BELIEF_MAP_REGISTRY.naturalism.bands[naturalismBand].short));
+      ok('grounding text stays under the documented budget', text.length <= t.GROUNDING_MAX_CHARS, text.length);
+      ok('grounding text contains no em/en dashes', !/[—–]/.test(text));
+
+      // Glossary bounds: only real terms, deduplicated, capped.
+      const termLines = text.split('\n').filter((l) => l.startsWith('- '));
+      const terms = termLines.map((l) => l.slice(2, l.indexOf(':')));
+      ok('every included glossary term exists in the registry glossary',
+        terms.every((term) => term in registry.GLOSSARY), terms);
+      ok('glossary terms are deduplicated and capped',
+        new Set(terms).size === terms.length && terms.length <= t.GROUNDING_MAX_GLOSSARY, terms);
+    }
+    {
+      // Worst-case budget: the 5 largest axes by snippet size plus a full
+      // glossary block must fit the documented budget.
+      const snippetSizes = Object.keys(t.GROUNDING_DATA).map((id) => {
+        const d = t.GROUNDING_DATA[id];
+        const maxBand = Math.max(...Object.values(d.bands).map((b) => b.length));
+        return d.label.length + d.def.length + maxBand + 40;
+      }).sort((a, b) => b - a);
+      const worstAxes = snippetSizes.slice(0, 5).reduce((a, b) => a + b, 0);
+      const glossaryWorst = Object.entries(registry.GLOSSARY)
+        .map(([k, v]) => k.length + v.length + 4).sort((a, b) => b - a)
+        .slice(0, t.GROUNDING_MAX_GLOSSARY).reduce((a, b) => a + b, 0) + 60;
+      ok('worst-case grounding (5 largest axes + max glossary) fits the documented budget',
+        worstAxes + glossaryWorst <= t.GROUNDING_MAX_CHARS, { worstAxes, glossaryWorst, budget: t.GROUNDING_MAX_CHARS });
+    }
+    {
+      // Malformed inputs: skipped safely, never throws, never mutates.
+      let threw = false;
+      let out = '';
+      try {
+        out = t.groundingContextFrom(AXIS_MAP, [null, { axis: 42 }, { axis: 'not_an_axis' }, { axis: 'naturalism' }]);
+      } catch (e) { threw = true; }
+      ok('malformed fingerprint entries are skipped without throwing', !threw && out.includes('Naturalism'), out.slice(0, 80));
+      ok('null/missing inputs never throw', (() => {
+        try { t.groundingContextFrom(null, null); t.groundingContextFrom({}, []); return true; } catch (e) { return false; }
+      })());
+      const frozenMap = Object.freeze({ naturalism: 6.0 });
+      const frozenFps = Object.freeze([Object.freeze({ axis: 'naturalism', direction: 'right' })]);
+      threw = false;
+      try { t.groundingContextFrom(frozenMap, frozenFps); } catch (e) { threw = true; }
+      ok('groundingContextFrom never mutates its inputs (deep-frozen inputs do not throw)', !threw);
+    }
+
+    // Staged prompt path.
+    {
+      const base = t.buildCall1Prompt(PROMPT_CTX);
+      ok('buildGroundedCall1Prompt with empty grounding returns the default prompt byte-identically',
+        t.buildGroundedCall1Prompt(PROMPT_CTX, '') === base);
+      const grounded = t.buildGroundedCall1Prompt(PROMPT_CTX, t.groundingContextFrom(AXIS_MAP, FPS));
+      ok('grounded prompt includes the GROUNDING CONTEXT section', grounded.includes('GROUNDING CONTEXT (reviewed interpretations'));
+      ok('grounded prompt includes the grounding rules', grounded.includes('Do not invent biography, relationships, habits, or life events.'));
+      ok('grounded prompt preserves the full default template around the insertion',
+        grounded.startsWith('You are writing a philosophical profile for Andre.') &&
+        grounded.includes('PATTERN NOTES:') && grounded.includes('WRITING RULES:') &&
+        grounded.includes('{"identity":"5 paragraphs separated by'));
+      ok('grounded prompt inserts grounding before PATTERN NOTES',
+        grounded.indexOf('GROUNDING CONTEXT') < grounded.indexOf('PATTERN NOTES:'));
+      // Privacy: grounding text itself is built purely from registry
+      // content and numeric scores - no identity data can enter it.
+      const groundingOnly = t.groundingContextFrom(AXIS_MAP, FPS);
+      ok('grounding text contains no user identity data', !groundingOnly.includes('Andre') && !groundingOnly.includes('@') && !groundingOnly.includes('Bearer'));
+      // No C-1 smuggling: the identity contract line is unchanged.
+      ok('the identity JSON contract is unchanged (no C-1 deepening smuggled in)',
+        base.includes('{"identity":"5 paragraphs separated by \\n\\n. P1 (3 sentences):') &&
+        base.includes('P5 (2 sentences):'));
+    }
+
+    // Prompt-hash mirror: the client's hash-mirror templates are untouched
+    // this round, and the staged path is (correctly) absent from them.
+    {
+      const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+      const sharedSegments = [
+        'The test is recognition: name the implications of their own answers back to them',
+        '{"identity":"5 paragraphs separated by',
+        '"lens":"Life and Existence","icon":"horizon"',
+      ];
+      ok('client prompt-hash mirror still carries the default template segments',
+        sharedSegments.every((s) => html.includes(s) && genSource.includes(s)));
+      ok('client prompt-hash mirror does not carry the staged grounding section (not live, correctly unmirrored)',
+        !html.includes('GROUNDING CONTEXT (reviewed interpretations'));
+    }
+  }
+
   global.fetch = originalFetch;
 
   console.log(`\n${pass} passed, ${fail} failed`);
