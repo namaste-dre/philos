@@ -1962,29 +1962,60 @@ body::after {
 /* FAMOUS TYPES */
 .famous-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
 .famous-card {
   background: var(--surface);
   border: 2px solid rgba(255,255,255,0.22);
   border-radius: var(--r);
-  padding: 20px;
-  text-align: center;
+  padding: 22px;
+  text-align: left;
 }
 .famous-name {
   font-family: 'Playfair Display', serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
-.famous-desc {
+.famous-qualifier {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--purple2);
+  background: rgba(157,147,232,0.1);
+  border: 1px solid rgba(157,147,232,0.3);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 8px;
+}
+.famous-role {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 13px; /* raised from 11px - information-bearing text floor */
   color: var(--muted);
   letter-spacing: 0.04em;
   line-height: 1.55;
+  margin-bottom: 14px;
+}
+.famous-detail-row { margin-top: 12px; }
+.famous-detail-label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.famous-detail-row p {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.65;
+  margin: 0;
 }
 
 /* PATTERNS GRID */
@@ -13265,6 +13296,1710 @@ const CULTURE_MAP_LIBRARY = {
 };
 // END CULTURE_MAP_LIBRARY block
 
+// FAMOUS_MINDS_LIBRARY block (auto-generated, do not hand-edit)
+// B-1 wiring (2026-08-02): the client-embedded, reviewed variant-specific
+// Famous Minds figures (name / optional mode qualifier / role / why this
+// matches you / where the match ends / start here) for each of the 60
+// variants, 3 figures each. Generated from lib/famous-minds-registry.js by
+// scripts/embed-famous-minds.js - never hand-edit this block directly;
+// re-run the script instead so this and the registry module cannot drift
+// (DI-005 principle). Replaces the family-level FAMOUS_BY_FAMILY cards in
+// the report's Famous Minds section only, per the registry's own
+// documented intent - FAMOUS_BY_FAMILY itself is untouched and still
+// powers the separate share-card image generator (buildCardData()).
+// Lyra's 180-entry construct/equal-dignity/attribution review closed PASS
+// 2026-08-01 (Round 27); a bounded pre-wiring review (Fable) on 2026-08-02
+// found two entries (9C Sacks, 12A Nietzsche) leaking internal review-
+// process language into their diverge text - fixed at the vault-doc source
+// and re-extracted before this embed. Andre voice sign-off across the full
+// 180-entry set is a separate, not-yet-recorded gate (only the 15 Family 1
+// exemplars are signed off) - this wiring does not imply or change that
+// gate, consistent with the same pattern already established for B-2/B-3.
+const FAMOUS_MINDS_LIBRARY = {
+  "1A": {
+    "figures": [
+      {
+        "name": "Robert Sapolsky",
+        "qualifier": null,
+        "role": "Stanford neuroscientist and primatologist, author of Behave and Determined.",
+        "match": "he traces human behaviour through biology, stress, and circumstance until the idea of standalone blame stops making sense, which is this profile's core move. His argument that understanding causes should transform punishment mirrors the way this profile reads responsibility as structural before personal.",
+        "diverge": "he pushes further than most people with this profile, arguing that moral responsibility should be abandoned outright rather than reformed.",
+        "startHere": "Behave (2017)."
+      },
+      {
+        "name": "Bryan Stevenson",
+        "qualifier": null,
+        "role": "founder of the Equal Justice Initiative, death-row lawyer, author of Just Mercy.",
+        "match": "his life's work treats people as more than the worst thing they have done and treats unjust outcomes as products of systems that can be redesigned. That is this profile's causal lens applied where the stakes are highest.",
+        "diverge": "his motivation is openly rooted in Christian faith, where this profile typically builds its care on secular ground.",
+        "startHere": "Just Mercy (2014)."
+      },
+      {
+        "name": "Angela Davis",
+        "qualifier": null,
+        "role": "scholar and activist, professor emerita at UC Santa Cruz, central figure in the prison-abolition movement.",
+        "match": "she reads incarceration, poverty, and race as interlocking structures rather than personal failings, and acts on that reading. The refusal to accept individual blame as the end of the story is this variant's signature.",
+        "diverge": "her explicitly Marxist political program goes beyond the structural diagnosis this profile shares with her.",
+        "startHere": "Are Prisons Obsolete? (2003)."
+      }
+    ]
+  },
+  "1B": {
+    "figures": [
+      {
+        "name": "Daniel Dennett",
+        "qualifier": null,
+        "role": "late Tufts philosopher of mind, University Professor and Fletcher Professor Emeritus, author of Consciousness Explained and Freedom Evolves (died 2024).",
+        "match": "a lifelong naturalist who insisted that minds, meaning, and morality are all evolved, physical phenomena that can be explained without magic, which is exactly this profile's starting commitment.",
+        "diverge": "he was a compatibilist who defended a free will worth wanting, where this profile leans toward calling that a redefinition.",
+        "startHere": "Freedom Evolves (2003)."
+      },
+      {
+        "name": "Patricia Churchland",
+        "qualifier": null,
+        "role": "founder of neurophilosophy, author of Braintrust, professor emerita at UC San Diego.",
+        "match": "she grounds morality in neurobiology and attachment rather than in commandments or pure reason, treating the brain as where philosophy has to start. This profile shares that instinct that the mechanism is the explanation.",
+        "diverge": "her eliminativist streak about everyday mental concepts is more radical than this profile's ordinary language about beliefs and desires.",
+        "startHere": "Braintrust (2011)."
+      },
+      {
+        "name": "Galen Strawson",
+        "qualifier": null,
+        "role": "British analytic philosopher, author of the Basic Argument against ultimate moral responsibility.",
+        "match": "his formal argument that no one can be ultimately responsible for how they are, because you would have to have made yourself, is the cleanest philosophical statement of what this profile senses about praise and blame.",
+        "diverge": "he is also a panpsychist who takes consciousness to be fundamental to matter, a metaphysical move this profile's physicalism usually declines.",
+        "startHere": "the essay The Impossibility of Moral Responsibility (1994)."
+      }
+    ]
+  },
+  "1C": {
+    "figures": [
+      {
+        "name": "Peter Singer",
+        "qualifier": null,
+        "role": "Princeton moral philosopher, author of Animal Liberation and Practical Ethics.",
+        "match": "he follows evidence and consistency wherever they lead, extending moral concern to animals and distant strangers because the arguments demand it. That evidence-first widening of the circle is this variant's shape.",
+        "diverge": "his act-utilitarianism is more demanding than the workable, good-enough ethics this profile tends to practice.",
+        "startHere": "Practical Ethics (1979)."
+      },
+      {
+        "name": "Sam Harris",
+        "qualifier": null,
+        "role": "neuroscientist and author of Free Will and The Moral Landscape.",
+        "match": "he argues that free will is an illusion and that this realization should soften hatred and reshape justice, while keeping science as the arbiter of claims. Both moves sit at this profile's center.",
+        "diverge": "his claim that science can determine objective moral values is stronger moral realism than this profile's built-not-found reading of value.",
+        "startHere": "Free Will (2012)."
+      },
+      {
+        "name": "Steven Pinker",
+        "qualifier": null,
+        "role": "Harvard cognitive scientist, author of The Better Angels of Our Nature and Enlightenment Now.",
+        "match": "he treats human progress as real, measurable, and driven by reason and institutions rather than providence, which matches this profile's evidence-anchored optimism.",
+        "diverge": "he weights individual reason and markets more, and structural critique less, than this family typically does.",
+        "startHere": "Enlightenment Now (2018)."
+      }
+    ]
+  },
+  "1D": {
+    "figures": [
+      {
+        "name": "Marcus Aurelius",
+        "qualifier": null,
+        "role": "Roman emperor and Stoic, whose private notebooks became the Meditations.",
+        "match": "he practiced acceptance of what causes determine, wrote for no audience, and turned understanding into composure rather than crusade. That private, unperformed version of the causal lens is this variant exactly.",
+        "diverge": "his Stoicism rested on a providential, ordered cosmos, where this profile sees no built-in direction at all.",
+        "startHere": "Meditations (c. 170 CE)."
+      },
+      {
+        "name": "Oliver Sacks",
+        "qualifier": null,
+        "role": "neurologist and writer, author of The Man Who Mistook His Wife for a Hat and Awakenings.",
+        "match": "he looked at the strangest human behaviour and responded with explanation and tenderness at once, letting the mechanism deepen the compassion instead of replacing it. That fusion is this variant's quiet strength.",
+        "diverge": "his lens stayed clinical and personal; the structural, systems-level reading this family shares was never his subject.",
+        "startHere": "The Man Who Mistook His Wife for a Hat (1985)."
+      },
+      {
+        "name": "Albert Camus",
+        "qualifier": "Private mode",
+        "role": "French-Algerian writer and philosopher of the absurd, author of The Myth of Sisyphus and The Plague.",
+        "match": "he accepted a universe with no given meaning and answered it with quiet integrity and daily commitment rather than despair or display. This variant lives that same undramatic revolt.",
+        "diverge": "his concern was meaning, not causation; he never grounded his position in the determinism this family starts from.",
+        "startHere": "The Myth of Sisyphus (1942)."
+      }
+    ]
+  },
+  "1E": {
+    "figures": [
+      {
+        "name": "Bart Ehrman",
+        "qualifier": null,
+        "role": "New Testament scholar at UNC Chapel Hill, author of Misquoting Jesus, former evangelical.",
+        "match": "he followed the evidence out of the faith he was raised in, through textual criticism and the problem of suffering, and rebuilt a working life around honest scholarship about the tradition he left. That evidence-forced rebuild is this variant's story.",
+        "diverge": "he remains professionally immersed in scripture and notably measured about religion's value, where this profile often makes a cleaner break.",
+        "startHere": "Misquoting Jesus (2005)."
+      },
+      {
+        "name": "Ayaan Hirsi Ali",
+        "qualifier": null,
+        "role": "Somali-born writer and former Dutch parliamentarian, author of Infidel.",
+        "match": "she walked out of the belief system she was raised in at real personal cost and rebuilt her worldview deliberately, in public, from the ground up. The costly, chosen reconstruction is what this variant recognizes.",
+        "diverge": "her stated 2023 conversion to Christianity means her rebuild ultimately landed in a new faith rather than the secular ground this profile typically settles on.",
+        "startHere": "Infidel (2007)."
+      },
+      {
+        "name": "Christopher Hitchens",
+        "qualifier": null,
+        "role": "journalist and polemicist, author of God Is Not Great.",
+        "match": "he made the case against religious authority with evidence, history, and moral argument, and insisted that meaning and ethics survive the loss of faith intact. That confidence that the rebuilt house stands is this variant's destination.",
+        "diverge": "he had no devout past to leave; he fought religion from outside it, where this profile's authority comes from having lived inside.",
+        "startHere": "God Is Not Great (2007)."
+      }
+    ]
+  },
+  "2A": {
+    "figures": [
+      {
+        "name": "Ibram X. Kendi",
+        "qualifier": null,
+        "role": "historian at Howard University, National Book Award winner for Stamped from the Beginning.",
+        "match": "he reads racial disparities as products of policies rather than personal attitudes, and insists the unit of analysis is the system that produces outcomes. That policy-first lens is this profile's default move.",
+        "diverge": "his definitional framework, in which positions are either racist or antiracist with no neutral ground, is more binary than this profile's analytic register.",
+        "startHere": "Stamped from the Beginning (2016)."
+      },
+      {
+        "name": "Rutger Bregman",
+        "qualifier": null,
+        "role": "Dutch historian and journalist, author of Utopia for Realists and Humankind.",
+        "match": "he argues that poverty and dysfunction are design problems with design solutions, from basic income to shorter workweeks, backed by historical evidence. Structural optimism grounded in data is this variant's signature.",
+        "diverge": "Humankind's strong thesis that people are fundamentally decent is a bigger claim about human nature than this profile's system-focus requires.",
+        "startHere": "Utopia for Realists (2017)."
+      },
+      {
+        "name": "Naomi Klein",
+        "qualifier": null,
+        "role": "Canadian journalist and author of No Logo and The Shock Doctrine.",
+        "match": "she traces how crises get converted into structural advantage for the already powerful, treating outcomes as engineered rather than accidental. Reading power through systems is exactly this profile's lens.",
+        "diverge": "her explicitly movement-driven anticapitalism goes further than the reformist redesign this variant typically favors.",
+        "startHere": "The Shock Doctrine (2007)."
+      }
+    ]
+  },
+  "2B": {
+    "figures": [
+      {
+        "name": "Bryan Stevenson",
+        "qualifier": null,
+        "role": "founder of the Equal Justice Initiative, death-row lawyer, author of Just Mercy.",
+        "match": "he treats wrongful punishment as a system failure that can be litigated, documented, and rebuilt, one case and one institution at a time. Building justice rather than only critiquing injustice is this variant's exact shape.",
+        "diverge": "his work is grounded in Christian faith, where this profile's architecture is typically secular.",
+        "startHere": "Just Mercy (2014)."
+      },
+      {
+        "name": "Michelle Alexander",
+        "qualifier": null,
+        "role": "civil rights lawyer and legal scholar, author of The New Jim Crow.",
+        "match": "she showed mass incarceration functioning as a racial caste system rebuilt inside formally neutral laws, which is this profile's core insight that structure survives the renaming. Diagnosis in service of redesign is the variant's method.",
+        "diverge": "her later framing leans toward moral and spiritual awakening as the engine of change, where this profile tends to bet on institutional mechanics.",
+        "startHere": "The New Jim Crow (2010)."
+      },
+      {
+        "name": "Howard Zehr",
+        "qualifier": null,
+        "role": "criminologist known as a founding figure of the modern restorative justice movement.",
+        "match": "he replaced the question of what law was broken and what punishment fits with who was harmed and what repair requires, which is structural redesign of justice itself. This variant recognizes that reframing as its own project.",
+        "diverge": "his framework's roots in Mennonite peacemaking tradition sit differently from this profile's typically secular derivation.",
+        "startHere": "The Little Book of Restorative Justice (2002)."
+      }
+    ]
+  },
+  "2C": {
+    "figures": [
+      {
+        "name": "Karl Marx",
+        "qualifier": null,
+        "role": "nineteenth-century philosopher and political economist, author of Capital.",
+        "match": "he analyzed poverty and power as outputs of an economic structure rather than personal failings, and made the structure itself the object of critique. That is this profile's economic lens at its source.",
+        "diverge": "his revolutionary program and historical theory go beyond the structural analysis this profile shares.",
+        "startHere": "The Communist Manifesto (1848)."
+      },
+      {
+        "name": "David Graeber",
+        "qualifier": null,
+        "role": "anthropologist and author of Debt: The First 5,000 Years and Bullshit Jobs.",
+        "match": "he questioned economic arrangements everyone treats as natural, showing debt, work, and money as historical constructions that could be otherwise. Denaturalizing the economy is this variant's instinct.",
+        "diverge": "his anarchism locates the alternative in stateless self-organization, further than this profile's typically redistributive program.",
+        "startHere": "Debt: The First 5,000 Years (2011)."
+      },
+      {
+        "name": "Thomas Piketty",
+        "qualifier": null,
+        "role": "French economist, author of Capital in the Twenty-First Century.",
+        "match": "he documented, with two centuries of data, how untouched capital concentrates faster than economies grow, making inequality a structural default rather than an accident. Evidence-heavy structural economics is this profile's home ground.",
+        "diverge": "his remedies stay inside taxation and social democracy, more institutionalist than this variant's radical register.",
+        "startHere": "Capital in the Twenty-First Century (2014)."
+      }
+    ]
+  },
+  "2D": {
+    "figures": [
+      {
+        "name": "Kimberlé Crenshaw",
+        "qualifier": null,
+        "role": "law professor at UCLA and Columbia who coined the term intersectionality.",
+        "match": "she showed that overlapping structures of disadvantage produce harms no single-axis analysis can see, which is this profile's insistence that systems compound. The analytic precision of that move is the variant's signature.",
+        "diverge": "her work is anchored in legal doctrine and critical race theory specifically, a narrower toolset than this profile's general structural reading.",
+        "startHere": "The Urgency of Intersectionality (2016)."
+      },
+      {
+        "name": "bell hooks",
+        "qualifier": null,
+        "role": "writer and cultural critic, author of more than thirty books on race, gender, class, and love.",
+        "match": "she read domination as one interlocking system appearing in many rooms, and wrote about it in language built to reach everyone inside it. Structural analysis that stays humane and accessible is this variant's aspiration.",
+        "diverge": "her centering of love as a political practice is warmer machinery than this profile's typically analytic engine.",
+        "startHere": "Feminism Is for Everybody (2000)."
+      },
+      {
+        "name": "Patricia Hill Collins",
+        "qualifier": null,
+        "role": "sociologist, University of Maryland distinguished professor emerita, past president of the American Sociological Association.",
+        "match": "she built the systematic framework for how race, class, and gender operate as a matrix of domination, giving this profile's compound-structures instinct its formal architecture.",
+        "diverge": "her standpoint epistemology, in which social position partly grounds what can be known, is a stronger epistemic claim than this profile requires.",
+        "startHere": "Black Feminist Thought (1990)."
+      }
+    ]
+  },
+  "2E": {
+    "figures": [
+      {
+        "name": "Steven Pinker",
+        "qualifier": null,
+        "role": "Harvard cognitive scientist, author of The Better Angels of Our Nature.",
+        "match": "he argues from long-run data that violence has declined and institutions deserve much of the credit, which is this profile's belief that progress is real, measurable, and engineered.",
+        "diverge": "he is notably more market-friendly and less structurally critical than this family's center of gravity.",
+        "startHere": "The Better Angels of Our Nature (2011)."
+      },
+      {
+        "name": "Angus Deaton",
+        "qualifier": null,
+        "role": "Princeton economist, 2015 Nobel laureate for his analysis of consumption, poverty, and welfare.",
+        "match": "he measures human progress and its failures with the care of someone who trusts neither optimism nor pessimism, only data, including his later work on deaths of despair. Progress checked against evidence is this variant's exact temperament.",
+        "diverge": "his skepticism of foreign aid as a development tool cuts against this profile's typical interventionist instincts.",
+        "startHere": "The Great Escape (2013)."
+      },
+      {
+        "name": "Hans Rosling",
+        "qualifier": null,
+        "role": "Swedish physician and statistician, co-founder of Gapminder, author of Factfulness.",
+        "match": "he spent a career showing that the world is better than we think and worse than it should be, and that both halves are measurable. Correcting the narrative with data, in either direction, is this profile's discipline.",
+        "diverge": "his relentless focus on global aggregates leaves less room for the within-country structural critique this family runs on.",
+        "startHere": "Factfulness (2018)."
+      }
+    ]
+  },
+  "3A": {
+    "figures": [
+      {
+        "name": "David Deutsch",
+        "qualifier": null,
+        "role": "Oxford physicist, pioneer of quantum computation, author of The Beginning of Infinity.",
+        "match": "he holds that good explanations track reality itself and that knowledge can grow without bound, which is this profile's conviction that science describes the world, not just our experience of it.",
+        "diverge": "his many-worlds commitment and boundless optimism about progress are stronger bets than this profile has to place.",
+        "startHere": "The Beginning of Infinity (2011)."
+      },
+      {
+        "name": "Sean Carroll",
+        "qualifier": null,
+        "role": "theoretical physicist at Johns Hopkins, author of The Big Picture.",
+        "match": "his poetic naturalism keeps one physical world while letting higher-level descriptions be genuinely true, which is how this profile holds hard science and everyday reality together without contradiction.",
+        "diverge": "his Everettian reading of quantum mechanics is a specific metaphysical wager this profile need not share.",
+        "startHere": "The Big Picture (2016)."
+      },
+      {
+        "name": "Hilary Putnam",
+        "qualifier": null,
+        "role": "Harvard philosopher central to twentieth-century debates on realism, mind, and language.",
+        "match": "his no-miracles argument, that science's success would be inexplicable unless theories track truth, is the cleanest formal version of this profile's trust in the scientific picture.",
+        "diverge": "he famously revised his own realism repeatedly, holding positions more provisionally than this profile's settled trust.",
+        "startHere": "Reason, Truth and History (1981)."
+      }
+    ]
+  },
+  "3B": {
+    "figures": [
+      {
+        "name": "Carl Sagan",
+        "qualifier": null,
+        "role": "astronomer and science communicator, author of The Demon-Haunted World.",
+        "match": "he treated wonder and rigor as the same faculty, insisting extraordinary claims require extraordinary evidence while never losing awe at what evidence reveals. That fusion is this variant at its best.",
+        "diverge": "his public-facing optimism about science as a civic project extends beyond this profile's stricter gatekeeping instinct.",
+        "startHere": "The Demon-Haunted World (1995)."
+      },
+      {
+        "name": "Michael Shermer",
+        "qualifier": null,
+        "role": "founder of Skeptic magazine, author of Why People Believe Weird Things.",
+        "match": "he made a career of asking believers the question this profile asks by reflex: how would you know if you were wrong? Systematic doubt applied to comfortable claims is the variant's method.",
+        "diverge": "his libertarian political leanings are a separate commitment this profile's epistemology does not entail.",
+        "startHere": "Why People Believe Weird Things (1997)."
+      },
+      {
+        "name": "Richard Feynman",
+        "qualifier": null,
+        "role": "Nobel laureate physicist, one of the central developers of quantum electrodynamics.",
+        "match": "his first principle, that you must not fool yourself and you are the easiest person to fool, is this profile's entire epistemology in one sentence. Playful, relentless honesty about what is actually known.",
+        "diverge": "his impatience with philosophy itself sits awkwardly with this profile's willingness to examine its own foundations.",
+        "startHere": "Surely You're Joking, Mr. Feynman! (1985)."
+      }
+    ]
+  },
+  "3C": {
+    "figures": [
+      {
+        "name": "Bertrand Russell",
+        "qualifier": null,
+        "role": "logician and philosopher, Nobel laureate in Literature, co-author of Principia Mathematica.",
+        "match": "he brought logical precision to every domain from mathematics to marriage, holding that beliefs should be proportioned exactly to evidence. Clarity as an ethical duty is this variant's creed.",
+        "diverge": "his serial confidence in each successive position outran the calibrated tentativeness this profile prizes.",
+        "startHere": "The Problems of Philosophy (1912)."
+      },
+      {
+        "name": "Derek Parfit",
+        "qualifier": null,
+        "role": "Oxford philosopher, author of Reasons and Persons.",
+        "match": "he followed arguments about personal identity and ethics to conclusions most people flinch from, trusting the argument over the intuition. That willingness to be argued out of the obvious is this profile's discipline.",
+        "diverge": "his later conviction that ethics has objective, non-natural truths is stronger moral metaphysics than this profile's naturalism prefers.",
+        "startHere": "Reasons and Persons (1984)."
+      },
+      {
+        "name": "Susan Wolf",
+        "qualifier": null,
+        "role": "moral philosopher at UNC Chapel Hill, author of Meaning in Life and Why It Matters.",
+        "match": "she analyzes meaning with analytic care, arguing it arises when subjective engagement meets objective worth, giving this profile a rigorous way to talk about what matters without mysticism.",
+        "diverge": "her account requires objective values that this profile's stricter empiricism may decline to grant.",
+        "startHere": "Meaning in Life and Why It Matters (2010)."
+      }
+    ]
+  },
+  "3D": {
+    "figures": [
+      {
+        "name": "Aristotle",
+        "qualifier": null,
+        "role": "ancient Greek philosopher whose Nicomachean Ethics founded virtue ethics.",
+        "match": "he derived ethics from observable human nature, asking what creatures like us need to flourish rather than what heaven commands. Ethics as natural fact is this profile's foundation.",
+        "diverge": "his teleological biology, in which things have built-in purposes, is machinery this profile's modern naturalism replaced.",
+        "startHere": "Nicomachean Ethics (c. 350 BCE)."
+      },
+      {
+        "name": "Martha Nussbaum",
+        "qualifier": null,
+        "role": "University of Chicago philosopher, developer of the capabilities approach to human welfare.",
+        "match": "she turned Aristotelian flourishing into a measurable framework for what humans need, used by real development institutions. Naturalist ethics made operational is this variant's ambition.",
+        "diverge": "her extensive use of literature and emotion as ethical evidence is a wider evidence base than this profile's empiricism usually admits.",
+        "startHere": "Creating Capabilities (2011)."
+      },
+      {
+        "name": "Philippa Foot",
+        "qualifier": null,
+        "role": "Oxford moral philosopher, originator of the trolley problem, author of Natural Goodness.",
+        "match": "she argued moral evaluation works like botanical evaluation, judging humans against the standard of what our form of life needs, making goodness a natural fact. That is this profile's thesis stated exactly.",
+        "diverge": "her late-career moral objectivism plants a firmer flag than this profile's evidence-first caution tends to.",
+        "startHere": "Natural Goodness (2001)."
+      }
+    ]
+  },
+  "3E": {
+    "figures": [
+      {
+        "name": "William James",
+        "qualifier": null,
+        "role": "Harvard psychologist and philosopher, founder of American pragmatism.",
+        "match": "he measured ideas by their cash value in experience, asking what difference a belief makes in practice rather than what it mirrors in heaven. Truth as what works, tested honestly, is this variant's engine.",
+        "diverge": "his will-to-believe defense of faith ventures where this profile's evidentialism declines to follow.",
+        "startHere": "Pragmatism (1907)."
+      },
+      {
+        "name": "John Dewey",
+        "qualifier": null,
+        "role": "American philosopher of education and democracy, leading figure of pragmatism.",
+        "match": "he treated inquiry as the method of democracy itself, every belief a hypothesis and every institution an experiment open to revision. Experimentalism as a way of life is this profile's politics and epistemology at once.",
+        "diverge": "his sweeping social reconstructionism assigns inquiry more transformative reach than this profile typically claims.",
+        "startHere": "Experience and Education (1938)."
+      },
+      {
+        "name": "Richard Rorty",
+        "qualifier": null,
+        "role": "American philosopher, author of Philosophy and the Mirror of Nature.",
+        "match": "he argued that vocabularies are tools rather than mirrors and that justification is social, which radicalizes this profile's instinct that usefulness outranks correspondence.",
+        "diverge": "his deflationary treatment of truth and his move away from correspondence realism go a full step beyond this profile's still-realist working assumption.",
+        "startHere": "Contingency, Irony, and Solidarity (1989)."
+      }
+    ]
+  },
+  "4A": {
+    "figures": [
+      {
+        "name": "Albert Camus",
+        "qualifier": null,
+        "role": "French-Algerian writer and philosopher, Nobel laureate, author of The Myth of Sisyphus.",
+        "match": "he stared at the gap between our demand for meaning and the universe's silence and chose revolt, living fully without appeal. That refusal of both despair and false comfort is this variant's founding move.",
+        "diverge": "his suspicion of systematic philosophy means he offers a posture, not the built architecture this profile tends to construct.",
+        "startHere": "The Myth of Sisyphus (1942)."
+      },
+      {
+        "name": "Samuel Beckett",
+        "qualifier": null,
+        "role": "Irish playwright and novelist, Nobel laureate, author of Waiting for Godot.",
+        "match": "his characters go on precisely when going on makes no sense, finding in bare persistence something like dignity. The comedy of continuing anyway is this profile's daily practice rendered as art.",
+        "diverge": "his art stays deliberately inside the bleakness, where this profile builds outward from it.",
+        "startHere": "Waiting for Godot (1952; first performed 1953)."
+      },
+      {
+        "name": "Milan Kundera",
+        "qualifier": null,
+        "role": "Czech-French novelist, author of The Unbearable Lightness of Being.",
+        "match": "he turned the absence of cosmic weight into his great subject, asking how to live when nothing recurs and every choice happens exactly once. Lightness taken seriously is this variant's territory.",
+        "diverge": "his ironic distance from every commitment sits uneasily with this profile's chosen, wholehearted engagements.",
+        "startHere": "The Unbearable Lightness of Being (1984)."
+      }
+    ]
+  },
+  "4B": {
+    "figures": [
+      {
+        "name": "Jean-Paul Sartre",
+        "qualifier": null,
+        "role": "French philosopher and playwright, author of Being and Nothingness.",
+        "match": "his formula that existence precedes essence, that we are condemned to be free and responsible for what we make of ourselves, is this profile's foundational text. Bad faith as the enemy is the variant's ethics.",
+        "diverge": "his later Marxist turn reworked freedom through history and collective struggle in ways this profile may resist.",
+        "startHere": "Existentialism Is a Humanism (1946)."
+      },
+      {
+        "name": "Simone de Beauvoir",
+        "qualifier": null,
+        "role": "French philosopher and novelist, author of The Second Sex.",
+        "match": "she showed that freedom is always situated, exercised inside constraints others built, and that one becomes rather than is born a self. Freedom with its social conditions acknowledged is this profile's mature form.",
+        "diverge": "her insistence that your freedom requires willing everyone else's is a stronger ethical entailment than the bare Sartrean core.",
+        "startHere": "The Ethics of Ambiguity (1947)."
+      },
+      {
+        "name": "Frantz Fanon",
+        "qualifier": null,
+        "role": "Martinican psychiatrist and philosopher, author of Black Skin, White Masks.",
+        "match": "he applied existential freedom to colonized identity, showing how the gaze of others can imprison a self and how liberation means re-authoring it. Existentialism with real-world stakes is this variant's edge.",
+        "diverge": "his account of revolutionary violence as psychologically and politically transformative goes where this profile's ethics of freedom typically will not.",
+        "startHere": "Black Skin, White Masks (1952)."
+      }
+    ]
+  },
+  "4C": {
+    "figures": [
+      {
+        "name": "Viktor Frankl",
+        "qualifier": null,
+        "role": "Viennese psychiatrist, Holocaust survivor, founder of logotherapy.",
+        "match": "he demonstrated in the worst conditions humans have built that meaning can still be chosen, through work, love, and the stance one takes toward suffering. Meaning as an act rather than a discovery is this variant's creed.",
+        "diverge": "his conviction that meaning is ultimately there to be found, backed by a religious sensibility, differs from this profile's built-from-scratch reading.",
+        "startHere": "Man's Search for Meaning (1946; English edition 1959)."
+      },
+      {
+        "name": "Irvin Yalom",
+        "qualifier": null,
+        "role": "Stanford psychiatrist and writer, author of Existential Psychotherapy.",
+        "match": "he turned the confrontation with death, freedom, isolation, and meaninglessness into a therapeutic practice, treating meaning-making as work a person can actually do. That practicality is this profile's version of philosophy.",
+        "diverge": "his frame stays clinical and individual, without the larger world-building ambition this variant often carries.",
+        "startHere": "Love's Executioner (1989)."
+      },
+      {
+        "name": "Susan Wolf",
+        "qualifier": null,
+        "role": "moral philosopher at UNC Chapel Hill, author of Meaning in Life and Why It Matters.",
+        "match": "her formula that meaning arises when subjective passion meets objectively worthwhile projects gives this profile's instinct a precise anatomy: neither feeling alone nor worth alone suffices.",
+        "diverge": "the objective-worth half of her account imports a value realism this profile's constructivism may not accept.",
+        "startHere": "Meaning in Life and Why It Matters (2010)."
+      }
+    ]
+  },
+  "4D": {
+    "figures": [
+      {
+        "name": "Simone de Beauvoir",
+        "qualifier": null,
+        "role": "French philosopher and novelist, author of The Second Sex.",
+        "match": "one is not born but becomes a woman is the founding sentence of identity as project rather than essence, and this profile lives inside that sentence generalized to everything.",
+        "diverge": "her analysis remains anchored in the concrete situation of women, where this profile abstracts the becoming to identity as such.",
+        "startHere": "The Second Sex (1949)."
+      },
+      {
+        "name": "Charles Taylor",
+        "qualifier": null,
+        "role": "Canadian philosopher, author of Sources of the Self.",
+        "match": "he showed that modern identity is articulated within moral frameworks and webs of recognition, that a self is interpreted into being rather than found. Identity as ongoing authorship with sources is this variant's map.",
+        "diverge": "his Catholic horizon and communitarian leanings give the sources more authority than this profile's self-authorship allows.",
+        "startHere": "The Ethics of Authenticity (1991)."
+      },
+      {
+        "name": "Judith Butler",
+        "qualifier": null,
+        "role": "philosopher at UC Berkeley, author of Gender Trouble.",
+        "match": "their account of identity as performative, constituted by repeated acts rather than expressing a prior essence, is one of the most influential versions of this profile's constructed-self thesis.",
+        "diverge": "their view that the constructing is done largely by discourse and norms leaves less room for the deliberate individual authorship this variant claims.",
+        "startHere": "Gender Trouble (1990)."
+      }
+    ]
+  },
+  "4E": {
+    "figures": [
+      {
+        "name": "Martin Buber",
+        "qualifier": null,
+        "role": "Austrian-Israeli philosopher of dialogue, author of I and Thou.",
+        "match": "he located the real self not inside the individual but in genuine meeting, the I that only exists facing a Thou. Existence as fundamentally relational is this variant's founding correction to solitary existentialism.",
+        "diverge": "his eternal Thou grounds the relation theologically, where this profile keeps the meeting human.",
+        "startHere": "I and Thou (1923)."
+      },
+      {
+        "name": "Simone de Beauvoir",
+        "qualifier": null,
+        "role": "French philosopher and novelist, author of The Ethics of Ambiguity.",
+        "match": "she argued that my freedom is entangled with everyone else's, that willing myself free means willing others free, making relationship internal to selfhood rather than an accessory. That entanglement is this profile's core.",
+        "diverge": "her framework still starts from individual freedom and reasons outward, where this variant starts from the bond itself.",
+        "startHere": "The Ethics of Ambiguity (1947)."
+      },
+      {
+        "name": "bell hooks",
+        "qualifier": null,
+        "role": "writer and cultural critic, author of All About Love.",
+        "match": "she treated love as a practice and a discipline, something built through will, care, and accountability rather than fallen into. Love as constructed commitment is exactly how this profile builds its relational world.",
+        "diverge": "her spiritual framing of love's redemptive power extends past this profile's secular construction.",
+        "startHere": "All About Love (2000)."
+      }
+    ]
+  },
+  "5A": {
+    "figures": [
+      {
+        "name": "Immanuel Kant",
+        "qualifier": null,
+        "role": "eighteenth-century German philosopher, author of the Groundwork of the Metaphysics of Morals.",
+        "match": "he grounded morality in reason itself, duties binding on any rational being regardless of desire or consequence. The conviction that some lines hold universally is this profile's spine.",
+        "diverge": "his absolutism about exceptionless duties, famously including the prohibition on lying to a murderer at the door, is stricter than most who share this profile will follow.",
+        "startHere": "Groundwork of the Metaphysics of Morals (1785)."
+      },
+      {
+        "name": "Christine Korsgaard",
+        "qualifier": null,
+        "role": "Harvard moral philosopher, author of The Sources of Normativity.",
+        "match": "she rebuilt Kant for the present, arguing that valuing anything commits you to valuing the humanity that does the valuing. Moral necessity derived rather than asserted is this variant's method.",
+        "diverge": "her constructivism grounds moral truth in rational procedure rather than in the mind-independent facts stricter realists in this profile want.",
+        "startHere": "The Sources of Normativity (1996)."
+      },
+      {
+        "name": "Onora O'Neill",
+        "qualifier": null,
+        "role": "British philosopher of Kantian ethics and bioethics, crossbench peer, Reith lecturer.",
+        "match": "she applies principled ethics to institutions, consent, and trust with the working assumption that obligations are real and specifiable. Principle brought to practical governance is this profile in action.",
+        "diverge": "her focus on obligation over rights and outcomes narrows the moral field more than this profile's realism requires.",
+        "startHere": "A Question of Trust (2002)."
+      }
+    ]
+  },
+  "5B": {
+    "figures": [
+      {
+        "name": "Aristotle",
+        "qualifier": null,
+        "role": "ancient Greek philosopher whose Nicomachean Ethics founded virtue ethics.",
+        "match": "he made character the primary moral fact, virtues as real excellences of a human life that can be cultivated or missed. The question of who to become, taken as having a true answer, is this variant's center.",
+        "diverge": "his comfort with natural hierarchy, including slavery and the subordination of women, is a feature of his framework this profile flatly rejects.",
+        "startHere": "Nicomachean Ethics (c. 350 BCE)."
+      },
+      {
+        "name": "Alasdair MacIntyre",
+        "qualifier": null,
+        "role": "Scottish-American moral philosopher, author of After Virtue.",
+        "match": "he diagnosed modern moral discourse as fragments of lost traditions and argued virtues only make sense inside practices and communities with shared goods. Virtue as embedded and real is this profile's sophisticated form.",
+        "diverge": "his conclusion that moral coherence requires tradition, ultimately Thomist tradition, binds virtue to community more tightly than this profile's realism needs.",
+        "startHere": "After Virtue (1981)."
+      },
+      {
+        "name": "Martha Nussbaum",
+        "qualifier": null,
+        "role": "University of Chicago philosopher, author of The Fragility of Goodness.",
+        "match": "she showed that virtues answer to real human vulnerabilities, that goodness can be genuinely damaged by luck, making moral life high-stakes and objective at once. Virtue with its fragility acknowledged is this variant's honest version.",
+        "diverge": "her liberal universalism about capabilities shifts weight from character to institutions in a way classical virtue ethics in this profile resists.",
+        "startHere": "The Fragility of Goodness (1986)."
+      }
+    ]
+  },
+  "5C": {
+    "figures": [
+      {
+        "name": "Aristotle",
+        "qualifier": null,
+        "role": "ancient Greek philosopher, founder of the naturalist tradition in ethics.",
+        "match": "he read moral standards off human nature itself, what fulfills creatures like us, making right and wrong facts about flourishing. Nature as the moral measure is this variant's first premise.",
+        "diverge": "his ethics never issues the universal binding law this profile's natural-law tradition later derived from it.",
+        "startHere": "Nicomachean Ethics (c. 350 BCE)."
+      },
+      {
+        "name": "Thomas Aquinas",
+        "qualifier": "Secular reading",
+        "role": "thirteenth-century philosopher and theologian, author of the Summa Theologiae.",
+        "match": "his natural-law framework, in which practical reason grasps real basic goods and moral rules protect them, is readable without its theology as this profile's structure: objective goods, knowable by reason, binding on everyone.",
+        "diverge": "in Aquinas himself the natural law is grounded in eternal law, and the secular reading this variant takes is a deliberate extraction, not his own position.",
+        "startHere": "Summa Theologiae, the Treatise on Law (c. 1270)."
+      },
+      {
+        "name": "John Finnis",
+        "qualifier": null,
+        "role": "Oxford legal philosopher, author of Natural Law and Natural Rights.",
+        "match": "he rebuilt natural law for modern jurisprudence, deriving objective basic goods and their requirements without leaning on theology up front. That is this variant's project executed at full analytic rigor.",
+        "diverge": "his application of the framework to sexual ethics and other contested questions reaches contested conclusions this profile need not inherit wholesale.",
+        "startHere": "Natural Law and Natural Rights (1980)."
+      }
+    ]
+  },
+  "5D": {
+    "figures": [
+      {
+        "name": "David Brink",
+        "qualifier": null,
+        "role": "philosopher at UC San Diego, author of Moral Realism and the Foundations of Ethics.",
+        "match": "he defends moral facts as natural facts, knowable the way other empirical matters are, no special metaphysics required. Moral realism made scientifically respectable is exactly this variant's position.",
+        "diverge": "his externalism, on which moral judgment does not automatically motivate, is a technical commitment even sympathetic readers of this profile may decline.",
+        "startHere": "Moral Realism and the Foundations of Ethics (1989)."
+      },
+      {
+        "name": "Richard Boyd",
+        "qualifier": null,
+        "role": "Cornell philosopher of science and ethics.",
+        "match": "he argued that moral terms work like natural-kind terms, referring to real property clusters we discover more about over time. Treating moral inquiry as continuous with science is this profile's methodological heart.",
+        "diverge": "his homeostatic-cluster machinery ties goodness to a specific scientific semantics that fellow realists in this profile can reasonably resist.",
+        "startHere": "the essay How to Be a Moral Realist (1988)."
+      },
+      {
+        "name": "Nicholas Sturgeon",
+        "qualifier": null,
+        "role": "Cornell philosopher of metaethics.",
+        "match": "he argued that moral facts genuinely explain events, the way physical properties explain effects, giving this profile its best answer to the charge that morality explains nothing.",
+        "diverge": "his program stays defensive, vindicating realism against objections rather than building the substantive moral system this profile ultimately wants.",
+        "startHere": "the essay Moral Explanations (1985)."
+      }
+    ]
+  },
+  "5E": {
+    "figures": [
+      {
+        "name": "John Rawls",
+        "qualifier": null,
+        "role": "Harvard political philosopher, author of A Theory of Justice.",
+        "match": "he showed that objective principles can be constructed from a fair procedure, what free equals would choose behind a veil of ignorance. Moral truth as the output of fairness itself is this variant's signature move.",
+        "diverge": "his construction covers the basic structure of society, not the whole of ethics this profile's realism extends to.",
+        "startHere": "A Theory of Justice (1971)."
+      },
+      {
+        "name": "T.M. Scanlon",
+        "qualifier": null,
+        "role": "Harvard moral philosopher, author of What We Owe to Each Other.",
+        "match": "his contractualism grounds right and wrong in principles no one could reasonably reject, making morality objective because justifiability to others is not a matter of taste. That is this profile's realism with people at the base.",
+        "diverge": "his framework covers what we owe each other and brackets the rest of value, narrower ground than this profile may want.",
+        "startHere": "What We Owe to Each Other (1998)."
+      },
+      {
+        "name": "Jürgen Habermas",
+        "qualifier": null,
+        "role": "German philosopher of the Frankfurt School, theorist of communicative action.",
+        "match": "he located moral validity in what could win uncoerced agreement in ideal discourse, giving this profile a way to be objective about norms without metaphysics: a norm's validity is what could survive real justification under conditions free of coercion.",
+        "diverge": "his sprawling social theory carries commitments about modernity and democracy far beyond this variant's metaethical core.",
+        "startHere": "Moral Consciousness and Communicative Action (1983)."
+      }
+    ]
+  },
+  "6A": {
+    "figures": [
+      {
+        "name": "Carol Gilligan",
+        "qualifier": null,
+        "role": "psychologist, author of In a Different Voice.",
+        "match": "she showed that a morality of care, responsibility, and relationship is not a deficient version of a morality of rules but its own complete voice. Hearing care as first-class ethics is this variant's founding move.",
+        "diverge": "her claims about gendered moral development are an empirical thesis this profile's ethics does not depend on.",
+        "startHere": "In a Different Voice (1982)."
+      },
+      {
+        "name": "Nel Noddings",
+        "qualifier": null,
+        "role": "Stanford philosopher of education, author of Caring.",
+        "match": "she built ethics outward from the concrete caring relation, the one-caring and the cared-for, rather than downward from principles. Starting from the actual encounter is this profile's method.",
+        "diverge": "her wariness of abstract principle limits the structural generalizing this family's collectivism still wants.",
+        "startHere": "Caring (1984)."
+      },
+      {
+        "name": "Virginia Held",
+        "qualifier": null,
+        "role": "philosopher at CUNY, author of The Ethics of Care.",
+        "match": "she systematized care ethics as a full alternative framework, with care as both value and practice, and argued markets and states should be evaluated by it. Care scaled to institutions is this variant's ambition.",
+        "diverge": "her retention of justice as a separate, sometimes overriding frame is a dualism this profile often merges.",
+        "startHere": "The Ethics of Care (2006)."
+      }
+    ]
+  },
+  "6B": {
+    "figures": [
+      {
+        "name": "Peter Singer",
+        "qualifier": null,
+        "role": "Princeton moral philosopher, author of Animal Liberation.",
+        "match": "he argued that suffering counts wherever it occurs and that species membership is not a moral boundary, the exact widening of the circle this profile lives by.",
+        "diverge": "his utilitarianism permits trade-offs, including some animal use, that rights-based readers of this profile refuse.",
+        "startHere": "Animal Liberation (1975)."
+      },
+      {
+        "name": "Tom Regan",
+        "qualifier": null,
+        "role": "philosopher at North Carolina State, author of The Case for Animal Rights.",
+        "match": "he grounded animal protection in rights rather than aggregate welfare, holding that subjects-of-a-life have inherent value that cannot be traded away. The refusal to bargain over the voiceless is this variant's edge.",
+        "diverge": "his strict rights absolutism forbids even harm-reducing compromises this profile's practical care may accept.",
+        "startHere": "The Case for Animal Rights (1983)."
+      },
+      {
+        "name": "Gary Francione",
+        "qualifier": null,
+        "role": "Rutgers law professor, founder of the abolitionist approach to animal rights.",
+        "match": "he insists that sentience alone confers the right not to be property, and that welfare reform inside an ownership system misses the point. Taking the claim to its root is this variant's temperament.",
+        "diverge": "his rejection of incremental welfare campaigns as counterproductive is a strategic absolutism many with this profile decline.",
+        "startHere": "Introduction to Animal Rights (2000)."
+      }
+    ]
+  },
+  "6C": {
+    "figures": [
+      {
+        "name": "Desmond Tutu",
+        "qualifier": null,
+        "role": "South African Anglican archbishop, Nobel Peace laureate, chair of the Truth and Reconciliation Commission.",
+        "match": "he put ubuntu, a person is a person through other persons, at the center of a nation's attempt to heal, choosing restorative truth over retribution. Personhood as shared is this variant's core belief enacted at scale.",
+        "diverge": "in his public witness, ubuntu is deeply joined to Christian forgiveness, where this profile can hold the relational ontology on secular ground.",
+        "startHere": "No Future Without Forgiveness (1999)."
+      },
+      {
+        "name": "Kwame Gyekye",
+        "qualifier": null,
+        "role": "Ghanaian philosopher of African communitarian thought.",
+        "match": "he articulated a moderate communitarianism in which the person is constituted by community without being dissolved into it, precisely the balance this profile tries to keep.",
+        "diverge": "his defense of individual rights within community is more individualist than the strong collectivism some with this profile hold.",
+        "startHere": "An Essay on African Philosophical Thought (1987)."
+      },
+      {
+        "name": "Michael Eze",
+        "qualifier": null,
+        "role": "philosopher and historian of ubuntu ethics.",
+        "match": "he reads ubuntu as an ongoing mutual creation, humanity bestowed through recognition rather than possessed alone, which gives this profile's relational instinct its most dynamic formulation.",
+        "diverge": "his academic-historical project describes and refines the tradition rather than issuing the activist program this variant often wants.",
+        "startHere": "Intellectual History in Contemporary South Africa (2010)."
+      }
+    ]
+  },
+  "6D": {
+    "figures": [
+      {
+        "name": "bell hooks",
+        "qualifier": null,
+        "role": "writer and cultural critic, author of All About Love.",
+        "match": "she held together structural critique and radical tenderness, insisting systems of domination are real and love is still the answer worth organizing a life around. That double vision is this variant exactly.",
+        "diverge": "her spiritual register for love's power runs warmer than this profile's grounded realism.",
+        "startHere": "All About Love (2000)."
+      },
+      {
+        "name": "Paul Farmer",
+        "qualifier": null,
+        "role": "physician and anthropologist, co-founder of Partners In Health.",
+        "match": "he treated the poorest patients as non-negotiably deserving of first-world medicine and named the structural violence that denied it, joining structural analysis to institution-building and clinical care. Care with its sleeves rolled up is this profile's standard.",
+        "diverge": "his liberation-theology roots give his preferential option for the poor a religious grounding this profile does not require.",
+        "startHere": "Pathologies of Power (2003)."
+      },
+      {
+        "name": "Bryan Stevenson",
+        "qualifier": null,
+        "role": "founder of the Equal Justice Initiative, author of Just Mercy.",
+        "match": "his practice of getting proximate to suffering, staying hopeful, and changing narratives is empathy operationalized into legal strategy. Feeling as fuel for effective work is this variant's engine.",
+        "diverge": "his Christian faith carries the hope this profile has to generate without it.",
+        "startHere": "Just Mercy (2014)."
+      }
+    ]
+  },
+  "6E": {
+    "figures": [
+      {
+        "name": "Martin Luther King Jr.",
+        "qualifier": null,
+        "role": "Baptist minister and leader of the American civil rights movement, Nobel Peace laureate.",
+        "match": "he showed how disciplined nonviolence can confront unjust structures without replicating their cruelty, holding love and demand together. Change without hatred is this variant's whole program.",
+        "diverge": "his theology of a moral arc bending toward justice rests on a providence this profile's hope does without.",
+        "startHere": "Letter from Birmingham Jail (1963)."
+      },
+      {
+        "name": "Gandhi",
+        "qualifier": null,
+        "role": "leader of Indian independence, developer of satyagraha, nonviolent resistance as truth-force.",
+        "match": "he made nonviolence a method rather than a mood, systematic, strategic, and unyielding, showing that refusing to harm can be the strongest possible pressure. Method is what this profile takes from him.",
+        "diverge": "his ascetic discipline and some views on caste, sexuality, and social order require separate judgment rather than simple adoption by this profile.",
+        "startHere": "An Autobiography: The Story of My Experiments with Truth (1927)."
+      },
+      {
+        "name": "Thich Nhat Hanh",
+        "qualifier": null,
+        "role": "Vietnamese Zen master, founder of engaged Buddhism, nominated for the Nobel Peace Prize by Martin Luther King Jr.",
+        "match": "he taught that peace begins as a practice in the person and extends outward into action, being peace in order to make peace. Inner discipline serving outer reform is this variant's balance.",
+        "diverge": "his Buddhist metaphysics of interbeing grounds the practice in a cosmology this profile can bracket.",
+        "startHere": "Peace Is Every Step (1991)."
+      }
+    ]
+  },
+  "7A": {
+    "figures": [
+      {
+        "name": "John Stuart Mill",
+        "qualifier": null,
+        "role": "nineteenth-century English philosopher and economist, author of On Liberty.",
+        "match": "his harm principle, that power over an individual is justified only to prevent harm to others, is this profile's constitution in one sentence. Liberty defended for what it lets people become.",
+        "diverge": "his utilitarian foundation makes liberty instrumental to welfare, where this profile often holds it as bedrock.",
+        "startHere": "On Liberty (1859)."
+      },
+      {
+        "name": "Friedrich Hayek",
+        "qualifier": null,
+        "role": "Austrian-British economist and philosopher, Nobel laureate, author of The Road to Serfdom.",
+        "match": "he argued that knowledge is dispersed beyond any planner's reach, so free coordination outperforms command, giving this profile's liberty its epistemic backbone.",
+        "diverge": "his acceptance of a state safety net surprises purists, while his skepticism of social justice as a concept goes further than many with this profile follow.",
+        "startHere": "The Road to Serfdom (1944)."
+      },
+      {
+        "name": "Isaiah Berlin",
+        "qualifier": null,
+        "role": "Oxford philosopher and historian of ideas, author of Two Concepts of Liberty.",
+        "match": "he distinguished freedom from interference from freedom to master oneself, and warned how the second gets weaponized against the first. That vigilance about liberty's counterfeits is this variant's discipline.",
+        "diverge": "his value pluralism, real goods genuinely conflicting, unsettles the tidy priority of liberty this profile prefers.",
+        "startHere": "Two Concepts of Liberty (1958)."
+      }
+    ]
+  },
+  "7B": {
+    "figures": [
+      {
+        "name": "Ayn Rand",
+        "qualifier": null,
+        "role": "Russian-American novelist and philosopher, author of Atlas Shrugged.",
+        "match": "she made the moral case for the individual as an end in himself, with achievement as virtue and no duty to sacrifice, one of the most forceful statements of this profile's core.",
+        "diverge": "her system's totalizing rejection of altruism in any form is harder-edged than most who share this profile live.",
+        "startHere": "The Fountainhead (1943)."
+      },
+      {
+        "name": "Robert Nozick",
+        "qualifier": null,
+        "role": "Harvard philosopher, author of Anarchy, State, and Utopia.",
+        "match": "his side-constraints reading of rights, persons may not be used without consent, whatever the payoff, gives this profile its rigorous philosophical form, including the famous argument that taxation of earnings resembles forced labor.",
+        "diverge": "he later softened several positions, and his framework's silence on rectifying historical injustice is a gap he acknowledged himself.",
+        "startHere": "Anarchy, State, and Utopia (1974)."
+      },
+      {
+        "name": "John Locke",
+        "qualifier": null,
+        "role": "seventeenth-century English philosopher of natural rights and government by consent.",
+        "match": "his premise that persons own themselves and their labor, and that government exists by consent to protect what is already theirs, is this profile's historical foundation.",
+        "diverge": "his theology, property provisos, and historical entanglement with colonial ventures sit outside the clean framework this profile takes from him.",
+        "startHere": "Second Treatise of Government (1689)."
+      }
+    ]
+  },
+  "7C": {
+    "figures": [
+      {
+        "name": "John Stuart Mill",
+        "qualifier": null,
+        "role": "nineteenth-century English philosopher, author of On Liberty.",
+        "match": "his defense of free thought and discussion, that silencing any opinion robs the human race, is this variant's daily creed, and his fear of social conformity as tyranny is its sharpest insight.",
+        "diverge": "his corn-dealer example concedes speech restrictions in incitement conditions that this profile's stricter absolutists contest.",
+        "startHere": "On Liberty (1859)."
+      },
+      {
+        "name": "Nadine Strossen",
+        "qualifier": null,
+        "role": "John Marshall Harlan II Professor of Law Emerita at New York Law School, former president of the ACLU.",
+        "match": "she defends free speech precisely for the despised speaker, arguing that counterspeech beats censorship and that speech restrictions boomerang onto the powerless. Principle held under pressure is this variant's test, and she passes it publicly.",
+        "diverge": "her broader progressive commitments are separable politics this profile's civil-libertarian core does not entail.",
+        "startHere": "HATE: Why We Should Resist It with Free Speech, Not Censorship (2018)."
+      },
+      {
+        "name": "Glenn Greenwald",
+        "qualifier": null,
+        "role": "journalist who broke the Snowden surveillance reporting, co-founder of The Intercept.",
+        "match": "he treats state surveillance and secrecy as standing threats to the individual regardless of which party wields them, which is this profile's suspicion of power made operational.",
+        "diverge": "his combative media-war persona and contrarian alliances go beyond the principled minimalism this variant prefers.",
+        "startHere": "No Place to Hide (2014)."
+      }
+    ]
+  },
+  "7D": {
+    "figures": [
+      {
+        "name": "Murray Rothbard",
+        "qualifier": null,
+        "role": "American economist and political theorist, systematizer of anarcho-capitalism.",
+        "match": "he followed self-ownership and non-aggression to their limit, concluding that even the minimal state is an unjustified monopoly. Consistency all the way down is this variant's demand.",
+        "diverge": "his strategic alliances and polemical style produced positions many who share his premises repudiate.",
+        "startHere": "For a New Liberty (1973)."
+      },
+      {
+        "name": "David Friedman",
+        "qualifier": null,
+        "role": "economist and legal theorist, author of The Machinery of Freedom.",
+        "match": "he builds the stateless case on consequences rather than axioms, sketching how law, defense, and courts could work as competitive services. The engineering-minded version of this profile's conclusion.",
+        "diverge": "his consequentialism means his anarchism is contingent on outcomes, not the principled absolute this variant often holds.",
+        "startHere": "The Machinery of Freedom (1973)."
+      },
+      {
+        "name": "Lysander Spooner",
+        "qualifier": null,
+        "role": "nineteenth-century American legal theorist and abolitionist entrepreneur.",
+        "match": "he argued the Constitution binds no one who never consented and pressed that principle practically by running a private mail company against the federal postal monopoly. Consent taken literally is this variant's founding intuition.",
+        "diverge": "his natural-law absolutism grounds rights in a moral order this profile's secular contractarians derive differently.",
+        "startHere": "No Treason (1870)."
+      }
+    ]
+  },
+  "7E": {
+    "figures": [
+      {
+        "name": "Edmund Burke",
+        "qualifier": null,
+        "role": "eighteenth-century Anglo-Irish statesman, author of Reflections on the Revolution in France.",
+        "match": "he defended inherited liberties against abstract schemes, holding that freedom survives inside institutions that took generations to build. Liberty as an inheritance to conserve is this variant's fusion.",
+        "diverge": "his deference to establishment and prescription outweighs the individualist principle this profile still centers.",
+        "startHere": "Reflections on the Revolution in France (1790)."
+      },
+      {
+        "name": "Roger Scruton",
+        "qualifier": null,
+        "role": "English philosopher of aesthetics and politics, author of How to Be a Conservative.",
+        "match": "he argued that freedom presupposes a home, a settled first-person plural of custom and belonging, giving this profile its case that liberty needs cultural soil.",
+        "diverge": "his willingness to subordinate market freedom to national and cultural goods marks the conservative half outweighing the libertarian one.",
+        "startHere": "How to Be a Conservative (2014)."
+      },
+      {
+        "name": "Frank Meyer",
+        "qualifier": null,
+        "role": "American political theorist at National Review, architect of fusionism.",
+        "match": "his fusionism holds that virtue must be freely chosen to be virtue at all, so a free order and a moral order require each other. That is this variant's exact thesis, stated as doctrine.",
+        "diverge": "his Cold War anticommunism drove alliances and priorities specific to his era rather than to the framework.",
+        "startHere": "In Defense of Freedom (1962)."
+      }
+    ]
+  },
+  "8A": {
+    "figures": [
+      {
+        "name": "Marcus Aurelius",
+        "qualifier": null,
+        "role": "Roman emperor and Stoic philosopher, author of the Meditations.",
+        "match": "he practiced philosophy under maximum pressure, writing reminders to himself about impermanence, duty, and composure while running an empire. The discipline of returning to principle daily is this variant's practice.",
+        "diverge": "his providential cosmos, in which the whole is ordered for the good, is metaphysics this profile's naturalism reads as optional.",
+        "startHere": "Meditations (c. 170 CE)."
+      },
+      {
+        "name": "Epictetus",
+        "qualifier": null,
+        "role": "Greek Stoic teacher, born enslaved, whose lectures survive as the Discourses and Enchiridion.",
+        "match": "his dichotomy of control, some things are up to us and some are not, is the operating instruction this profile runs on, taught by someone whose circumstances tested it completely.",
+        "diverge": "his theistic framing of the will as a portion of God is a grounding this profile's secular practice does not use.",
+        "startHere": "Enchiridion (c. 125 CE)."
+      },
+      {
+        "name": "Seneca",
+        "qualifier": null,
+        "role": "Roman statesman, dramatist, and Stoic essayist.",
+        "match": "his letters turn Stoicism into practical counsel on anger, grief, time, and fortune, philosophy as correspondence with a friend. The applied, humane register is this variant's tone.",
+        "diverge": "the gap between his preached simplicity and his enormous wealth is a tension he acknowledged and this profile must weigh.",
+        "startHere": "Letters from a Stoic (c. 65 CE)."
+      }
+    ]
+  },
+  "8B": {
+    "figures": [
+      {
+        "name": "Ryan Holiday",
+        "qualifier": null,
+        "role": "American author who popularized applied Stoicism, author of The Obstacle Is the Way.",
+        "match": "he translated Stoic practice into contemporary work and ambition, obstacles reframed as material, which is how this profile actually uses the tradition day to day.",
+        "diverge": "his marketing-forward popularization trades philosophical depth for reach in ways purists with this profile notice.",
+        "startHere": "The Obstacle Is the Way (2014)."
+      },
+      {
+        "name": "Massimo Pigliucci",
+        "qualifier": null,
+        "role": "K.D. Irani Professor of Philosophy at the City College of New York, author of How to Be a Stoic.",
+        "match": "he rebuilt Stoicism explicitly for naturalists, keeping the ethics and psychology while updating the physics, exactly the surgery this profile performs on the tradition.",
+        "diverge": "his later drift toward a broader eclectic skepticism loosens the specifically Stoic commitment this variant keeps.",
+        "startHere": "How to Be a Stoic (2017)."
+      },
+      {
+        "name": "William Irvine",
+        "qualifier": null,
+        "role": "philosophy professor at Wright State, author of A Guide to the Good Life.",
+        "match": "he recovered Stoic techniques, negative visualization, voluntary discomfort, the dichotomy reworked as a trichotomy, as a practical program for tranquility. Technique over theory is this variant's approach.",
+        "diverge": "his tranquility-first framing makes peace the goal where classical Stoics in this profile aim at virtue itself.",
+        "startHere": "A Guide to the Good Life (2008)."
+      }
+    ]
+  },
+  "8C": {
+    "figures": [
+      {
+        "name": "Marcus Aurelius",
+        "qualifier": null,
+        "role": "Roman emperor and Stoic philosopher, author of the Meditations.",
+        "match": "the Meditations are contemplative practice in written form, attention returned again and again to the present duty and the passing of all things. Writing as spiritual exercise is this variant's method.",
+        "diverge": "his contemplation served imperial action, busier ground than the stillness this profile seeks.",
+        "startHere": "Meditations (c. 170 CE)."
+      },
+      {
+        "name": "Thich Nhat Hanh",
+        "qualifier": "Secular reading",
+        "role": "Vietnamese Zen master and teacher of mindfulness.",
+        "match": "his practice of full attention to the present moment, washing the dishes to wash the dishes, is the contemplative discipline this profile keeps, readable without any doctrine.",
+        "diverge": "the secular reading is an extraction; his own practice was Buddhist through and through, with interbeing as its metaphysics.",
+        "startHere": "The Miracle of Mindfulness (1975)."
+      },
+      {
+        "name": "Simone Weil",
+        "qualifier": "Secular reading",
+        "role": "French philosopher and mystic, author of Gravity and Grace.",
+        "match": "she made attention itself the moral faculty, the rarest and purest form of generosity, which names what this profile's contemplation is actually for.",
+        "diverge": "her thought moves toward a Christian mysticism of grace and affliction that the secular reading deliberately brackets.",
+        "startHere": "Gravity and Grace (1947)."
+      }
+    ]
+  },
+  "8D": {
+    "figures": [
+      {
+        "name": "Epictetus",
+        "qualifier": null,
+        "role": "Greek Stoic teacher, born enslaved, source of the Enchiridion.",
+        "match": "his teaching that circumstances cannot compel the will was earned under slavery and exile, making him this profile's proof that the practice holds at the extremes.",
+        "diverge": "his cosmic piety frames the endurance religiously where this profile needs only the psychology.",
+        "startHere": "Enchiridion (c. 125 CE)."
+      },
+      {
+        "name": "James Stockdale",
+        "qualifier": null,
+        "role": "US Navy vice admiral, held over seven years as a prisoner of war in Vietnam, Medal of Honor recipient.",
+        "match": "he ran Epictetus as literal survival software in Hoa Lo prison, confronting brutal facts without losing faith in the ending, resilience as tested doctrine rather than slogan.",
+        "diverge": "his military frame of duty and command is one specific arena for a practice this profile applies everywhere.",
+        "startHere": "Courage Under Fire (1993)."
+      },
+      {
+        "name": "Viktor Frankl",
+        "qualifier": "Stoic mode",
+        "role": "Viennese psychiatrist, Holocaust survivor, founder of logotherapy.",
+        "match": "his testimony that the last human freedom is the choice of one's attitude in any circumstances is this variant's central claim, formulated under conditions where almost every external freedom was gone.",
+        "diverge": "his framework aims at meaning rather than equanimity, a different destination reached through the same discipline.",
+        "startHere": "Man's Search for Meaning (1946; English edition 1959)."
+      }
+    ]
+  },
+  "8E": {
+    "figures": [
+      {
+        "name": "Stephen Batchelor",
+        "qualifier": null,
+        "role": "former monk in Tibetan and Zen traditions, author of Buddhism Without Beliefs.",
+        "match": "he strips Buddhism to a practice of questioning and attention, agnostic about rebirth and karma, keeping what can be tested in experience. That subtraction is exactly this profile's move.",
+        "diverge": "his existential reading remains a committed Buddhist path, more tradition-bound than this profile's selective naturalism.",
+        "startHere": "Buddhism Without Beliefs (1997)."
+      },
+      {
+        "name": "Sam Harris",
+        "qualifier": "Meditation mode",
+        "role": "neuroscientist and author of Waking Up.",
+        "match": "he defends contemplative insight, including the illusoriness of the self, on wholly secular grounds, meditation as first-person science. That is this variant's project stated plainly.",
+        "diverge": "his strong claim that the self is an illusion outruns what many with this profile take the evidence to show.",
+        "startHere": "Waking Up (2014)."
+      },
+      {
+        "name": "Robert Wright",
+        "qualifier": null,
+        "role": "journalist and author of Why Buddhism Is True.",
+        "match": "he argues from evolutionary psychology that our default feelings systematically mislead us and that mindfulness corrects the distortion, giving this profile a Darwinian warrant for practice.",
+        "diverge": "his thesis that Buddhism is true where it matters concedes more to the tradition than this profile's skepticism requires.",
+        "startHere": "Why Buddhism Is True (2017)."
+      }
+    ]
+  },
+  "9A": {
+    "figures": [
+      {
+        "name": "David Chalmers",
+        "qualifier": null,
+        "role": "philosopher at NYU who named the hard problem of consciousness.",
+        "match": "he showed why explaining experience is a different kind of problem from explaining function, and takes panpsychism seriously as a candidate answer. Refusing to explain consciousness away is this variant's starting point.",
+        "diverge": "he remains officially uncommitted, entertaining panpsychism rather than holding it as this profile does.",
+        "startHere": "The Conscious Mind (1996)."
+      },
+      {
+        "name": "Philip Goff",
+        "qualifier": null,
+        "role": "philosopher at Durham University, author of Galileo's Error.",
+        "match": "he argues consciousness is the intrinsic nature of matter, that physics describes what matter does while experience is what it is. That is this variant's position stated as directly as it has ever been.",
+        "diverge": "his recent move toward a limited cosmic purpose goes a step beyond the panpsychism this profile needs.",
+        "startHere": "Galileo's Error (2019)."
+      },
+      {
+        "name": "Alfred North Whitehead",
+        "qualifier": null,
+        "role": "English mathematician and philosopher, co-author of Principia Mathematica, founder of process philosophy.",
+        "match": "his metaphysics makes experience ingredient in every actual entity, reality as occasions of feeling rather than inert stuff, the grand systematic ancestor of this variant's intuition.",
+        "diverge": "his full process theology, with God as fellow sufferer, is a larger edifice than this profile's naturalism supports.",
+        "startHere": "Process and Reality (1929)."
+      }
+    ]
+  },
+  "9B": {
+    "figures": [
+      {
+        "name": "George Berkeley",
+        "qualifier": null,
+        "role": "eighteenth-century Irish philosopher and bishop, author of the Principles of Human Knowledge.",
+        "match": "his argument that matter is an idle hypothesis, that to be is to be perceived, is the classic Western statement of this profile's conviction that mind is fundamental.",
+        "diverge": "his God, perceiving everything continuously to keep it in existence, does theological work this profile's idealism assigns elsewhere.",
+        "startHere": "A Treatise Concerning the Principles of Human Knowledge (1710)."
+      },
+      {
+        "name": "Bernardo Kastrup",
+        "qualifier": null,
+        "role": "Dutch computer scientist and philosopher, contemporary defender of analytic idealism.",
+        "match": "he argues that one universal consciousness, of which individuals are dissociated segments, explains the data more parsimoniously than matter does, idealism argued with engineering rigor. That modern defense is this variant's live position.",
+        "diverge": "his combative stance toward mainstream physicalism runs hotter than this profile's dialogue-seeking register.",
+        "startHere": "The Idea of the World (2019)."
+      },
+      {
+        "name": "Adi Shankara",
+        "qualifier": null,
+        "role": "eighth-century Indian philosopher, systematizer of Advaita Vedanta.",
+        "match": "his nondual reading of the Upanishads, with Brahman as ultimate reality and separateness understood through appearance, is one of the classic systematic forms of this profile's metaphysics.",
+        "diverge": "his path runs through scriptural authority and renunciation, a religious discipline this variant's philosophical idealism does not require.",
+        "startHere": "Upadesa Sahasri (c. 8th century)."
+      }
+    ]
+  },
+  "9C": {
+    "figures": [
+      {
+        "name": "Alain de Botton",
+        "qualifier": null,
+        "role": "Swiss-British writer, founder of The School of Life, author of Religion for Atheists.",
+        "match": "he argues the secular world should learn from religion's ritual, communal, consoling, and artistic forms while declining the doctrines. Harvesting the forms while declining the metaphysics is this variant's exact practice.",
+        "diverge": "his therapeutic, consumer-friendly packaging of wisdom runs lighter than the reverence this profile often keeps.",
+        "startHere": "Religion for Atheists (2012)."
+      },
+      {
+        "name": "Ronald Dworkin",
+        "qualifier": null,
+        "role": "American legal philosopher, author of Religion Without God.",
+        "match": "his final book argued that reverence for the universe's beauty and life's intrinsic meaning is itself a religious attitude, no deity required. That is this variant's stance given a jurist's precision.",
+        "diverge": "his objective value realism grounds the reverence in mind-independent value this profile may hold more lightly.",
+        "startHere": "Religion Without God (2013)."
+      },
+      {
+        "name": "Rabbi Jonathan Sacks",
+        "qualifier": null,
+        "role": "British Orthodox rabbi, philosopher, longtime Chief Rabbi of the United Hebrew Congregations.",
+        "match": "he argued science and religion answer different questions, how and why, and defended religion's role in sustaining meaning and morals in partnership with reason rather than against it.",
+        "diverge": "he was a genuine theist, and his partnership model keeps God essential.",
+        "startHere": "The Great Partnership (2011)."
+      }
+    ]
+  },
+  "9D": {
+    "figures": [
+      {
+        "name": "Thich Nhat Hanh",
+        "qualifier": null,
+        "role": "Vietnamese Zen master, founder of engaged Buddhism.",
+        "match": "he taught interbeing, the mutual constitution of all things, as something to be practiced in daily attention rather than merely believed. Practice as the vehicle of insight is this variant's way.",
+        "diverge": "his engaged activism pushes practice into politics further than this profile's contemplative center requires.",
+        "startHere": "The Heart of the Buddha's Teaching (1998)."
+      },
+      {
+        "name": "B.R. Ambedkar",
+        "qualifier": null,
+        "role": "architect of the Indian constitution, Dalit leader who led a mass conversion to Buddhism.",
+        "match": "he chose a dharma deliberately, rejecting the tradition that had caste-bound him and rebuilding Buddhism as a rational religion of equality. Choosing one's practice with open eyes is this variant's modern form.",
+        "diverge": "his Navayana Buddhism rejects karma and rebirth as traditionally understood, which leads traditionalists to dispute the continuity this profile may want to keep.",
+        "startHere": "The Buddha and His Dhamma (1957)."
+      },
+      {
+        "name": "Ramana Maharshi",
+        "qualifier": null,
+        "role": "South Indian sage of self-inquiry, teacher of the question Who am I?",
+        "match": "his method is a single practice, turning attention onto the I-sense until its source shows itself, inquiry as direct experiment. That practice-first minimalism is this variant's essence.",
+        "diverge": "his Advaita frame, in which the result is recognition of the one Self, presumes the metaphysics this profile's practitioner may hold open.",
+        "startHere": "Who Am I? (1902; first published 1923)."
+      }
+    ]
+  },
+  "9E": {
+    "figures": [
+      {
+        "name": "William James",
+        "qualifier": null,
+        "role": "Harvard psychologist and philosopher, author of The Varieties of Religious Experience.",
+        "match": "he studied religious experience with scientific seriousness and personal openness, refusing both credulity and dismissal. Holding the question open while taking the data seriously is this variant's whole posture.",
+        "diverge": "his pragmatic license to believe where evidence cannot decide is more permission than this profile's agnosticism grants itself.",
+        "startHere": "The Varieties of Religious Experience (1902)."
+      },
+      {
+        "name": "Thomas Nagel",
+        "qualifier": null,
+        "role": "NYU philosopher, author of the essay What Is It Like to Be a Bat? and Mind and Cosmos.",
+        "match": "an atheist who nonetheless argues the materialist picture is incomplete, that mind and value resist reduction, he models this profile's discipline of doubting the orthodoxy without joining another.",
+        "diverge": "his teleological speculation, nature tending toward mind, is a positive hypothesis this profile's agnosticism declines to place.",
+        "startHere": "Mind and Cosmos (2012)."
+      },
+      {
+        "name": "Simone Weil",
+        "qualifier": null,
+        "role": "French philosopher and mystic, author of Waiting for God.",
+        "match": "she waited at the threshold of faith without forcing the door, famously refusing baptism while living in attention to grace. That disciplined waiting is this variant's contemplative form.",
+        "diverge": "her mysticism of affliction and divine love moved deeply into Christian mystical language and devotion while refusing formal baptism, where this profile remains at the threshold.",
+        "startHere": "Waiting for God (1950)."
+      }
+    ]
+  },
+  "10A": {
+    "figures": [
+      {
+        "name": "Thomas Aquinas",
+        "qualifier": null,
+        "role": "thirteenth-century philosopher and theologian, author of the Summa Theologiae.",
+        "match": "he built the great synthesis of faith and reason, showing a tradition can absorb the best philosophy of its age without dissolving. Confidence that the inheritance is rationally defensible is this variant's spine.",
+        "diverge": "his systematic scholastic method is more philosophical machinery than this profile's lived traditionalism requires.",
+        "startHere": "Summa Theologiae (c. 1265 to 1274)."
+      },
+      {
+        "name": "G.K. Chesterton",
+        "qualifier": null,
+        "role": "English writer and Christian apologist, author of Orthodoxy.",
+        "match": "his image of the fence you must understand before removing is this profile's first principle, and his case that orthodoxy is the wild, living option rather than the dull one is its best defense.",
+        "diverge": "his paradox-driven polemic entertains more than it demonstrates, a style choice this profile's sober register may resist.",
+        "startHere": "Orthodoxy (1908)."
+      },
+      {
+        "name": "Roger Scruton",
+        "qualifier": "Religious mode",
+        "role": "English philosopher of aesthetics and politics, author of The Soul of the World.",
+        "match": "he defended the sacred as a real dimension of human experience, faces, oaths, consecrated places, that scientific description passes over. Reverence as knowledge is this variant's claim.",
+        "diverge": "his position was a philosopher's defense of the sacred more than a believer's creed, communal practice mattering more than doctrine.",
+        "startHere": "The Soul of the World (2014)."
+      }
+    ]
+  },
+  "10B": {
+    "figures": [
+      {
+        "name": "Edmund Burke",
+        "qualifier": null,
+        "role": "eighteenth-century Anglo-Irish statesman, author of Reflections on the Revolution in France.",
+        "match": "his case that society is a contract between the dead, the living, and the unborn, and that abstract rationalism destroys what it cannot rebuild, is this variant's founding document.",
+        "diverge": "he was a reformer in practice, backing the American colonists and prosecuting imperial abuse, more liberal than the label this profile takes from him.",
+        "startHere": "Reflections on the Revolution in France (1790)."
+      },
+      {
+        "name": "Roger Scruton",
+        "qualifier": null,
+        "role": "English philosopher, author of How to Be a Conservative.",
+        "match": "he restated Burke for modern times, conservatism as the love of what exists and the settled first-person plural of home, argued with full philosophical seriousness.",
+        "diverge": "his high-culture aesthetic commitments and combative cultural register are personal to him, not a requirement of this profile's politics.",
+        "startHere": "How to Be a Conservative (2014)."
+      },
+      {
+        "name": "Michael Oakeshott",
+        "qualifier": null,
+        "role": "English political philosopher, author of Rationalism in Politics.",
+        "match": "his critique of rationalism, the politics of the book over the politics of practice, names exactly why this profile distrusts planners: practical knowledge cannot be written down and applied by novices.",
+        "diverge": "his skeptical, almost poetic conservatism resists the substantive moral commitments this family usually carries.",
+        "startHere": "Rationalism in Politics (1962)."
+      }
+    ]
+  },
+  "10C": {
+    "figures": [
+      {
+        "name": "Robert Nisbet",
+        "qualifier": null,
+        "role": "American sociologist, author of The Quest for Community.",
+        "match": "he argued that when intermediate communities, family, parish, guild, wither, the lonely individual and the total state grow together. Defense of the middle layers is this variant's sociology.",
+        "diverge": "his analysis is diagnostic sociology, stopping short of the moral program this profile builds on it.",
+        "startHere": "The Quest for Community (1953)."
+      },
+      {
+        "name": "Yuval Levin",
+        "qualifier": null,
+        "role": "American policy scholar at the American Enterprise Institute, author of A Time to Build.",
+        "match": "he argues institutions form people when treated as molds and fail when used as platforms for performance, which is this profile's constructive answer to decline: rebuild, do not just lament.",
+        "diverge": "his meliorist optimism about reforming institutions is sunnier than this family's darker readings of decline.",
+        "startHere": "A Time to Build (2020)."
+      },
+      {
+        "name": "Patrick Deneen",
+        "qualifier": null,
+        "role": "political theorist at Notre Dame, author of Why Liberalism Failed.",
+        "match": "he argues liberalism undermined the family, community, and culture it depended on, succeeding itself to death, which gives this profile its sharpest structural critique of modernity.",
+        "diverge": "his postliberal willingness to move past the liberal order itself goes further than this profile's conserving instinct.",
+        "startHere": "Why Liberalism Failed (2018)."
+      }
+    ]
+  },
+  "10D": {
+    "figures": [
+      {
+        "name": "Thomas Aquinas",
+        "qualifier": null,
+        "role": "thirteenth-century philosopher and theologian, systematizer of natural law.",
+        "match": "his account of law as reason ordered to the common good, discoverable in human nature, gives this profile its conviction that moral order is found, not voted on.",
+        "diverge": "his eternal-law foundation is explicitly theological where this variant sometimes argues on reason alone.",
+        "startHere": "Summa Theologiae, the Treatise on Law (c. 1270)."
+      },
+      {
+        "name": "John Finnis",
+        "qualifier": null,
+        "role": "Oxford legal philosopher, author of Natural Law and Natural Rights.",
+        "match": "he restated natural law in the idiom of analytic jurisprudence, basic goods and practical reasonableness, making the old framework argue in modern courtrooms. Rigor in defense of moral order is this variant's method.",
+        "diverge": "his framework's contested applications reach conclusions even sympathetic readers dispute internally.",
+        "startHere": "Natural Law and Natural Rights (1980)."
+      },
+      {
+        "name": "Robert George",
+        "qualifier": null,
+        "role": "Princeton professor of jurisprudence, leading public proponent of new natural law theory.",
+        "match": "he carries natural-law argument into live public controversies, insisting moral truths are rationally defensible in the public square rather than private preferences. Public confidence in moral reason is this variant's stance.",
+        "diverge": "his concrete positions in current moral and legal controversies are applications this profile can assess case by case rather than inherit whole.",
+        "startHere": "Conscience and Its Enemies (2013)."
+      }
+    ]
+  },
+  "10E": {
+    "figures": [
+      {
+        "name": "Alasdair MacIntyre",
+        "qualifier": null,
+        "role": "Scottish-American moral philosopher, author of After Virtue.",
+        "match": "his verdict that moral language only works inside living traditions and practices, and his call for new forms of community, give this profile its philosophical depth.",
+        "diverge": "his revolutionary Aristotelianism is harsher on liberal modernity than this profile's accommodations.",
+        "startHere": "After Virtue (1981)."
+      },
+      {
+        "name": "Charles Taylor",
+        "qualifier": null,
+        "role": "Canadian philosopher, author of Sources of the Self and A Secular Age.",
+        "match": "he showed the modern self is constituted by communal webs of meaning it did not choose, and that authenticity itself has social conditions. The socially embedded self is this variant's anthropology.",
+        "diverge": "his sympathetic reading of secular modernity accepts more of the modern settlement than this family's critics do.",
+        "startHere": "The Ethics of Authenticity (1991)."
+      },
+      {
+        "name": "Michael Sandel",
+        "qualifier": null,
+        "role": "Harvard political philosopher, author of Justice: What's the Right Thing to Do?",
+        "match": "his critique of the unencumbered self, and his case that markets crowd out goods money should not touch, are this profile's arguments carried into the public square with rare clarity.",
+        "diverge": "his politics of the common good lands closer to communitarian liberalism than to this family's traditionalism.",
+        "startHere": "Justice: What's the Right Thing to Do? (2009)."
+      }
+    ]
+  },
+  "11A": {
+    "figures": [
+      {
+        "name": "William James",
+        "qualifier": null,
+        "role": "Harvard psychologist and philosopher, founder of American pragmatism.",
+        "match": "he judged beliefs by their workings and kept metaphysical questions open where experience could not decide, which is this profile's method of holding truth lightly without letting go.",
+        "diverge": "his openness to religious experience as evidence stretches further than this profile's typical restraint.",
+        "startHere": "Pragmatism (1907)."
+      },
+      {
+        "name": "Richard Rorty",
+        "qualifier": null,
+        "role": "American philosopher, author of Philosophy and the Mirror of Nature.",
+        "match": "he traded certainty for conversation, truth as what our best justificatory practices currently sustain, which matches this profile's suspicion of final answers and its faith in ongoing inquiry.",
+        "diverge": "his anti-representational treatment of objectivity goes past the moderate fallibilism this variant keeps.",
+        "startHere": "Philosophy and the Mirror of Nature (1979)."
+      },
+      {
+        "name": "Hilary Putnam",
+        "qualifier": null,
+        "role": "Harvard philosopher of mind, language, and mathematics.",
+        "match": "his career of publicly revising his own positions, realism refined rather than abandoned, models this profile's ideal: commitments held firmly enough to use and loosely enough to fix.",
+        "diverge": "the technical depth of his revisions serves problems more specialized than this profile's everyday epistemology.",
+        "startHere": "Reason, Truth and History (1981)."
+      }
+    ]
+  },
+  "11B": {
+    "figures": [
+      {
+        "name": "Jonathan Haidt",
+        "qualifier": null,
+        "role": "social psychologist at NYU Stern, Thomas Cooley Professor of Ethical Leadership, author of The Righteous Mind.",
+        "match": "his moral foundations research explains why decent people disagree, intuition first and reasoning second, which grounds this profile's instinct that both sides usually have a point worth hearing.",
+        "diverge": "his public heterodox advocacy has itself become a side in ways this profile's neutrality resists.",
+        "startHere": "The Righteous Mind (2012)."
+      },
+      {
+        "name": "Steven Pinker",
+        "qualifier": null,
+        "role": "Harvard cognitive scientist, author of Rationality.",
+        "match": "he defends reason, data, and incremental institutional progress against catastrophism from every direction, the exact evidence-first moderation this variant practices.",
+        "diverge": "his sunny aggregate optimism can read as dismissing grievances this profile still weighs case by case.",
+        "startHere": "Rationality (2021)."
+      },
+      {
+        "name": "David Brooks",
+        "qualifier": null,
+        "role": "American columnist and author of The Road to Character.",
+        "match": "he narrates the search for a humane middle, character, community, and commitment over ideology, in the register of lived experience this profile trusts more than doctrine.",
+        "diverge": "his moral-uplift essayism trades analytical rigor for resonance more than this profile's evidence standard prefers.",
+        "startHere": "The Road to Character (2015)."
+      }
+    ]
+  },
+  "11C": {
+    "figures": [
+      {
+        "name": "Isaiah Berlin",
+        "qualifier": null,
+        "role": "Oxford philosopher and historian of ideas.",
+        "match": "his value pluralism, real goods genuinely conflicting with no formula to rank them, is this profile's deep reason for preferring institutions that manage disagreement over ideologies that abolish it.",
+        "diverge": "his pluralism can shade toward tragic resignation where this profile still expects workable settlements.",
+        "startHere": "Two Concepts of Liberty (1958)."
+      },
+      {
+        "name": "Karl Popper",
+        "qualifier": null,
+        "role": "Austrian-British philosopher of science, author of The Open Society and Its Enemies.",
+        "match": "his case for piecemeal social engineering over utopian blueprints, and for institutions that let us remove rulers without bloodshed, is this variant's political epistemology entire.",
+        "diverge": "his falsificationism as a full theory of science carries technical commitments beyond this profile's practical lesson.",
+        "startHere": "The Open Society and Its Enemies (1945)."
+      },
+      {
+        "name": "Francis Fukuyama",
+        "qualifier": null,
+        "role": "American political scientist, author of The Origins of Political Order.",
+        "match": "his account of political order as a hard-won balance of state capacity, law, and accountability explains why this profile treats functioning institutions as achievements to maintain rather than obstacles to sweep away.",
+        "diverge": "the end-of-history thesis he is famous for overreached in ways he has spent decades qualifying.",
+        "startHere": "The Origins of Political Order (2011)."
+      }
+    ]
+  },
+  "11D": {
+    "figures": [
+      {
+        "name": "Isaiah Berlin",
+        "qualifier": null,
+        "role": "Oxford philosopher and historian of ideas.",
+        "match": "his sympathetic study of the counter-Enlightenment taught him what rationalists miss in tradition and belonging, giving this profile its educated respect for inherited meaning.",
+        "diverge": "his liberalism finally outweighs the traditions he honored, a balance this variant may strike differently.",
+        "startHere": "The Hedgehog and the Fox (1953)."
+      },
+      {
+        "name": "Anthony Giddens",
+        "qualifier": null,
+        "role": "British sociologist, theorist of reflexive modernity and the third way.",
+        "match": "his insight that modern life makes tradition chosen rather than given, reflexively examined and selectively kept, is exactly this profile's relationship to inheritance.",
+        "diverge": "his third-way politics converted the insight into a specific program this profile treats as one option among several.",
+        "startHere": "The Third Way (1998)."
+      },
+      {
+        "name": "Michael Walzer",
+        "qualifier": null,
+        "role": "American political theorist and Professor Emeritus at the Institute for Advanced Study, author of Spheres of Justice.",
+        "match": "his method of interpreting a community's own shared meanings rather than importing abstract principles, justice as faithfulness to what goods mean here, is this variant's philosophy made explicit.",
+        "diverge": "his social criticism from within can underjudge practices a community has normalized, a risk this profile accepts knowingly.",
+        "startHere": "Spheres of Justice (1983)."
+      }
+    ]
+  },
+  "11E": {
+    "figures": [
+      {
+        "name": "John Dewey",
+        "qualifier": null,
+        "role": "American pragmatist philosopher of democracy and education.",
+        "match": "he treated every social arrangement as an experiment judged by its fruits, democracy as cooperative problem-solving rather than creed. That experimental civic temper is this variant's engine.",
+        "diverge": "his reconstructive ambition for philosophy itself is grander than this profile's fix-what-is-broken practicality.",
+        "startHere": "The Public and Its Problems (1927)."
+      },
+      {
+        "name": "Amartya Sen",
+        "qualifier": null,
+        "role": "Harvard economist and philosopher, Nobel laureate, author of Development as Freedom.",
+        "match": "his comparative approach to justice, make things less unjust rather than blueprint the perfectly just, and his capabilities lens for measuring real lives, are this profile's toolkit formalized.",
+        "diverge": "his framework's demandingness on global justice presses further than this profile's incrementalism always follows.",
+        "startHere": "Development as Freedom (1999)."
+      },
+      {
+        "name": "Elinor Ostrom",
+        "qualifier": null,
+        "role": "political economist, first woman awarded the Sveriges Riksbank Prize in Economic Sciences in Memory of Alfred Nobel, author of Governing the Commons.",
+        "match": "she documented real communities solving commons problems with homegrown rules, outperforming some state-only and market-only blueprints, evidence that careful empiricism can outperform ideology. That is this variant's worldview vindicated.",
+        "diverge": "her design principles resist the universal scaling this profile is sometimes tempted to give them.",
+        "startHere": "Governing the Commons (1990)."
+      }
+    ]
+  },
+  "12A": {
+    "figures": [
+      {
+        "name": "Friedrich Nietzsche",
+        "qualifier": "Early period",
+        "role": "nineteenth-century German philosopher, author of The Birth of Tragedy.",
+        "match": "he diagnosed the death of God and the coming crisis of meaning with unusual force and cultural reach, refusing every consoling substitute on offer. That diagnostic honesty is what this profile takes from him.",
+        "diverge": "he regarded nihilism as a disease to overcome through creation, not a resting place.",
+        "startHere": "The Birth of Tragedy (1872)."
+      },
+      {
+        "name": "Emil Cioran",
+        "qualifier": null,
+        "role": "Romanian-French essayist of pessimism and insomnia.",
+        "match": "he wrote from inside the meaninglessness without pretending a way out, finding in lucid despair a strange integrity and even comedy. Staying honest at the bottom is this variant's signature.",
+        "diverge": "his aphoristic despair is a temperament as much as a position, and this profile can hold the view with less anguish.",
+        "startHere": "The Trouble with Being Born (1973)."
+      },
+      {
+        "name": "David Benatar",
+        "qualifier": null,
+        "role": "South African philosopher, author of Better Never to Have Been.",
+        "match": "he follows the disenchanted premises to their most uncomfortable conclusion, that coming into existence is always a harm, with analytic care and no rhetorical cushion. Argument over comfort is this profile's rule.",
+        "diverge": "his antinatalist conclusion is a specific inference many who share his bleak premises still reject.",
+        "startHere": "Better Never to Have Been (2006)."
+      }
+    ]
+  },
+  "12B": {
+    "figures": [
+      {
+        "name": "J.L. Mackie",
+        "qualifier": null,
+        "role": "Australian philosopher, author of Ethics: Inventing Right and Wrong.",
+        "match": "his argument from queerness, that objective values would be utterly unlike anything else in the universe, is this profile's founding text: moral claims aim at truth and systematically miss.",
+        "diverge": "after demolishing moral facts he cheerfully built a practical ethics anyway, more constructive than this profile's stricter readers expect.",
+        "startHere": "Ethics: Inventing Right and Wrong (1977)."
+      },
+      {
+        "name": "Richard Joyce",
+        "qualifier": null,
+        "role": "philosopher of metaethics, author of The Myth of Morality.",
+        "match": "he sharpened error theory with an evolutionary debunking of moral intuitions and asked honestly what to do with a discredited but useful discourse, proposing fictionalism. Living carefully with the error is this variant's project.",
+        "diverge": "his recommendation to keep morality as useful fiction strikes some with this profile as the consolation the theory forbids.",
+        "startHere": "The Myth of Morality (2001)."
+      },
+      {
+        "name": "Jonas Olson",
+        "qualifier": null,
+        "role": "Swedish philosopher, author of Moral Error Theory: History, Critique, Defence.",
+        "match": "he gave error theory its most careful contemporary defense, engaging every major objection and conceding nothing to wishful thinking. Rigor in service of an unpopular truth is this profile's ideal.",
+        "diverge": "his conservationism about keeping moral talk in place differs from abolitionist instincts inside this same profile.",
+        "startHere": "Moral Error Theory: History, Critique, Defence (2014)."
+      }
+    ]
+  },
+  "12C": {
+    "figures": [
+      {
+        "name": "Paul Churchland",
+        "qualifier": null,
+        "role": "philosopher of mind at UC San Diego, leading proponent of eliminative materialism.",
+        "match": "he argues folk psychology, beliefs and desires, is a failed theory awaiting replacement by neuroscience, the boldest version of this profile's conviction that the manifest image must yield.",
+        "diverge": "even sympathetic naturalists find full elimination of belief-talk self-undermining, a bullet this profile need not bite whole.",
+        "startHere": "Matter and Consciousness (1984)."
+      },
+      {
+        "name": "Patricia Churchland",
+        "qualifier": null,
+        "role": "founder of neurophilosophy, professor emerita at UC San Diego.",
+        "match": "she moved philosophy of mind into the laboratory, insisting theories of mind answer to the brain sciences, which is this profile's method: defer to the mechanism.",
+        "diverge": "her later naturalized ethics rebuilds more of morality from neurobiology than this variant's austerity expects.",
+        "startHere": "Neurophilosophy (1986)."
+      },
+      {
+        "name": "Alex Rosenberg",
+        "qualifier": null,
+        "role": "Duke philosopher of science, author of The Atheist's Guide to Reality.",
+        "match": "his scientism without apology, physics fixes all the facts and most familiar things, purposes, selves, meanings, are illusions, is this profile's position stated at maximum strength.",
+        "diverge": "his cheerful nice nihilism, trusting our evolved decency to carry on, is an optimism the argument itself does not supply.",
+        "startHere": "The Atheist's Guide to Reality (2011)."
+      }
+    ]
+  },
+  "12D": {
+    "figures": [
+      {
+        "name": "Arthur Schopenhauer",
+        "qualifier": null,
+        "role": "nineteenth-century German philosopher, author of The World as Will and Representation.",
+        "match": "his vision of existence as blind striving punctuated by suffering, with satisfaction only the momentary absence of want, is this profile's metaphysical ancestor and one of its most systematic statements.",
+        "diverge": "his escape routes through aesthetic contemplation and ascetic denial offer a redemption this profile's starker reading declines.",
+        "startHere": "Essays and Aphorisms, selected from Parerga and Paralipomena (1851)."
+      },
+      {
+        "name": "David Benatar",
+        "qualifier": null,
+        "role": "South African philosopher, author of The Human Predicament.",
+        "match": "he audits the human condition, meaning, mortality, quality of life, and finds the ledger worse than we let ourselves see, optimism as bias rather than insight. Unsentimental accounting is this variant's method.",
+        "diverge": "his practical counsel of pragmatic coping is gentler than the conclusions that precede it.",
+        "startHere": "The Human Predicament (2017)."
+      },
+      {
+        "name": "Thomas Ligotti",
+        "qualifier": null,
+        "role": "American horror writer, author of The Conspiracy Against the Human Race.",
+        "match": "he treats consciousness itself as the horror, a mistake nature made that we conspire to ignore, giving this profile's darkest intuition its most vivid literary form.",
+        "diverge": "his work is deliberately a nightmare articulated rather than a defended philosophical system.",
+        "startHere": "The Conspiracy Against the Human Race (2010)."
+      }
+    ]
+  },
+  "12E": {
+    "figures": [
+      {
+        "name": "Alex Rosenberg",
+        "qualifier": null,
+        "role": "Duke philosopher of science, author of The Atheist's Guide to Reality.",
+        "match": "he pairs the bleakest metaphysics with practical advice to take the science seriously and get on with life, which is this variant's exact settlement: nihilism as background, function as foreground.",
+        "diverge": "critics note the getting-on-with-it borrows motivations his own theory says are illusory, a tension this profile lives inside knowingly.",
+        "startHere": "The Atheist's Guide to Reality (2011)."
+      },
+      {
+        "name": "Richard Rorty",
+        "qualifier": "Anti-metaphysical mode",
+        "role": "American philosopher, author of Contingency, Irony, and Solidarity.",
+        "match": "his liberal ironist holds her deepest vocabulary as contingent, un-grounded, and keeps her commitments anyway, which is functional nihilism given its most humane face.",
+        "diverge": "his hope in solidarity and social progress supplies a warmth the sparser versions of this profile do without.",
+        "startHere": "Contingency, Irony, and Solidarity (1989)."
+      },
+      {
+        "name": "Nietzsche",
+        "qualifier": "Post-nihilism",
+        "role": "nineteenth-century German philosopher, author of The Gay Science.",
+        "match": "his answer to the death of God was not despair but creation, amor fati, and the revaluation of values, living beyond nihilism rather than in it. That constructive turn is where this variant is headed.",
+        "diverge": "his aristocratic radicalism and contempt for pity belong to his program, not to this profile's quieter functionality.",
+        "startHere": "The Gay Science (1882)."
+      }
+    ]
+  }
+};
+// END FAMOUS_MINDS_LIBRARY block
+
+
 
 // Deterministic band classifier matching lib/belief-map-registry.js's
 // BAND_THRESHOLDS exactly (1.00-2.19 strongL, 2.20-3.39 leanL, 3.40-4.60
@@ -13606,16 +15341,28 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
     worldSection.style.display = 'none';
   }
 
-  // FAMOUS TYPES
-  const famousData = FAMOUS_BY_FAMILY[family] || [];
+  // FAMOUS TYPES (B-1 wiring, 2026-08-02): the family-level FAMOUS_BY_FAMILY
+  // cards are replaced here by the variant-specific FAMOUS_MINDS_LIBRARY
+  // entries, per the registry's own documented intent. FAMOUS_BY_FAMILY
+  // itself is untouched and still powers the separate share-card image
+  // generator (buildCardData()), not this section. Looked up fresh at
+  // render time by variant id; no scoring change, no schema change.
+  const famousMinds = archetypeResult && archetypeResult.primary
+    ? FAMOUS_MINDS_LIBRARY[archetypeResult.primary.id] || null
+    : null;
   const famousEl = document.getElementById('report-famous');
-  if (famousEl && famousData.length) {
-    famousEl.innerHTML = famousData.map(f =>
-      `<div class="famous-card">
-        <div class="famous-name">${f.name}</div>
-        <div class="famous-desc">${f.desc}</div>
-      </div>`
-    ).join('');
+  if (famousEl && famousMinds && famousMinds.figures.length) {
+    famousEl.innerHTML = famousMinds.figures.map(f => {
+      const qualifierHtml = f.qualifier ? `<div class="famous-qualifier">${sanitizeHTML(f.qualifier)}</div>` : '';
+      return `<div class="famous-card">
+        <div class="famous-name">${sanitizeHTML(f.name)}</div>
+        ${qualifierHtml}
+        <div class="famous-role">${sanitizeHTML(f.role)}</div>
+        <div class="famous-detail-row"><span class="famous-detail-label">Why this matches you</span><p>${sanitizeHTML(f.match)}</p></div>
+        <div class="famous-detail-row"><span class="famous-detail-label">Where the match ends</span><p>${sanitizeHTML(f.diverge)}</p></div>
+        <div class="famous-detail-row"><span class="famous-detail-label">Start here</span><p>${sanitizeHTML(f.startHere)}</p></div>
+      </div>`;
+    }).join('');
   } else {
     // hide nav tab for famous if no data
     const famNav = document.querySelector('.rn-item[data-section="rs-famous"]');
