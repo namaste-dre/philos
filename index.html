@@ -1996,6 +1996,31 @@ body::after {
 .pattern-card.positive .pattern-label { color: var(--tier2); }
 .pattern-card.negative .pattern-label { color: var(--tier3); }
 .pattern-text { font-size: 16px; color: var(--text); line-height: 1.65; }
+.pattern-expansion {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pattern-expansion-row .pattern-expansion-label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+.pattern-expansion-row p {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 62ch;
+}
 
 /* RICH LIFE ALIGNMENT */
 .alignment-full { display: flex; flex-direction: column; gap: 32px; }
@@ -11034,6 +11059,981 @@ const ALIGNMENT_LIBRARY = {
     },
   },
 };
+
+// HOW_YOU_OPERATE_LIBRARY block (auto-generated, do not hand-edit)
+// B-3 wiring (2026-08-02): the client-embedded, reviewed four-part
+// (pattern / where it shows up / cost / lever) expansion of each
+// variant's How You Operate strength/failureMode. Generated from
+// lib/how-you-operate-registry.js by scripts/embed-how-you-operate.js -
+// never hand-edit this block directly; re-run the script instead so this
+// and the registry module cannot drift (DI-005 principle). Lyra's
+// construct/equal-dignity review of all 60 variants closed pass with
+// required micro-fixes, fixed, 2026-08-01. Andre voice sign-off is
+// recorded separately in the vault and is not implied by this wiring.
+const HOW_YOU_OPERATE_LIBRARY = {
+  "1A": {
+    "strength": {
+      "title": "Systems thinking as a moral superpower",
+      "pattern": "you diagnose root causes where others assign blame to individuals, reading behaviour as an output of conditions rather than character.",
+      "whereItShowsUp": "in a workplace conflict, you ask what incentive structure produced the friction before you ask who is at fault; reading news of failure or crime, your first question is what system made this outcome likely.",
+      "cost": "the habit can read as excuse-making to people who want moral accountability named directly, and it can slow you down in moments that call for a fast, simple verdict rather than a structural one.",
+      "lever": "name the structural cause and the individual's actual choice within it, in the same sentence, so the analysis does not read as absolution."
+    },
+    "failureMode": {
+      "title": "Activist burnout without personal meaning scaffolding",
+      "pattern": "structural problems are effectively endless, and without a source of meaning that does not depend on winning, the work can become exhausting rather than sustaining.",
+      "whereItShowsUp": "after a loss on something you worked hard for, in the gap between finishing one campaign and the next one already needing you, in the quiet moments where the scale of the problem outpaces what any one effort can fix.",
+      "cost": "exhaustion that gets mistaken for commitment, and a self-worth quietly tied to outcomes you cannot fully control.",
+      "lever": "build at least one source of meaning that survives a loss, a practice, a relationship, a piece of work you value independent of whether the larger structural fight is won."
+    }
+  },
+  "1B": {
+    "strength": {
+      "title": "Intellectual consistency under pressure",
+      "pattern": "you follow an argument to its actual conclusion rather than stopping where it becomes uncomfortable or socially costly to hold.",
+      "whereItShowsUp": "in a debate where your own position gets a genuinely strong counter-argument, you engage the counter-argument on its merits rather than retreating to a safer, vaguer version of your view.",
+      "cost": "people around you can experience this as coldness or contrarianism, especially when the conclusion you followed to is one most people would rather not sit with.",
+      "lever": "pair the rigorous conclusion with an explicit statement of what it costs you personally to hold it, so the consistency reads as earned rather than performed."
+    },
+    "failureMode": {
+      "title": "Analysis paralysis",
+      "pattern": "rigorous thinking about the implications of an action can become a substitute for taking the action, especially when determinism itself raises hard questions about what \"deciding\" even means.",
+      "whereItShowsUp": "a decision that most people would make on instinct gets held open while you work out its full implications, until the window to act on it has narrowed or closed.",
+      "cost": "opportunities and relationships that needed a timely response instead got a fully reasoned one, arriving too late to matter.",
+      "lever": "set a deliberate deadline before the thinking starts, and treat missing it as itself a decision, so the analysis has a real boundary instead of an open one."
+    }
+  },
+  "1C": {
+    "strength": {
+      "title": "Translating philosophy into action without waiting for perfect certainty",
+      "pattern": "your foundations are settled enough that you spend your energy on what works rather than on re-litigating first principles before every decision.",
+      "whereItShowsUp": "a team stuck debating the ideal approach gets moved forward by your willingness to ship the good-enough version and improve it, rather than waiting for consensus on the perfect one.",
+      "cost": "convictions held this practically can look uncommitted to people who expect ideological consistency stated loudly and often.",
+      "lever": "when a decision matters enough, say explicitly which foundational commitment it is serving, so the pragmatism reads as applied conviction rather than the absence of one."
+    },
+    "failureMode": {
+      "title": "Technocratic drift",
+      "pattern": "optimizing for what can be measured is efficient, but it can quietly demote everything that resists measurement to a lower priority than it deserves.",
+      "whereItShowsUp": "a relationship, a piece of craft, or a value gets less of your attention than a metric-driven project, not because you decided it mattered less, but because it never produced a number to optimize.",
+      "cost": "the parts of a life or a project that carry the most meaning are often exactly the parts that measurement misses, and drift toward the measurable can hollow those parts out slowly.",
+      "lever": "keep one thing on your list explicitly because it cannot be measured, and protect time for it the way you would protect time for a metric that was moving."
+    }
+  },
+  "1D": {
+    "strength": {
+      "title": "Integrity",
+      "pattern": "you hold your conclusions without needing an audience, which means the positions you hold are the ones honest thinking actually produced, not the ones that play well socially.",
+      "whereItShowsUp": "in a room where your actual view would be unpopular, you act consistently with it anyway rather than performing a more agreeable position, because no one's agreement was ever the point.",
+      "cost": "because you never advertise the reasoning behind your consistency, people who disagree with you can read you as rigid or unreachable rather than as someone who has already done the work.",
+      "lever": "when it actually matters to someone, make the reasoning visible once, even briefly, rather than leaving your consistency to be interpreted as stubbornness."
+    },
+    "failureMode": {
+      "title": "Isolation",
+      "pattern": "internal consistency does not require anyone else's participation, which makes it easy to stop engaging with people who think differently, since their disagreement changes nothing about what you already believe.",
+      "whereItShowsUp": "conversations that could have sharpened or tested your view get quietly avoided, not from certainty that you are right, but because the friction of the conversation feels unnecessary when your position is not actually at stake.",
+      "cost": "a worldview that never gets pressure-tested by real disagreement can harden into something closer to habit than conviction, without you noticing the difference.",
+      "lever": "deliberately seek out one person a year who holds your opposite position and can argue it well, and actually let the conversation risk changing something."
+    }
+  },
+  "1E": {
+    "strength": {
+      "title": "Genuine empathy for the philosophical journey",
+      "pattern": "you understand the reconstruction process from the inside because you lived it, which gives your empathy for people still working through belief change a depth secondhand understanding cannot match.",
+      "whereItShowsUp": "talking with someone mid-crisis about their own faith or worldview, you recognize the specific fear and disorientation of that stage because you have already been there, not because you read about it.",
+      "cost": "the empathy can tip into assuming your own path is the template for theirs, when someone else's reconstruction may look nothing like yours did.",
+      "lever": "when offering that empathy, ask what their specific experience actually is before assuming it maps onto your own journey."
+    },
+    "failureMode": {
+      "title": "Overcorrection",
+      "pattern": "compensating for the certainty you once held can push you into an equally strong certainty in the opposite direction, more anti-religious than your actual current position warrants.",
+      "whereItShowsUp": "a measured critique of one specific religious claim can escalate into a broader dismissal of religion generally, further than the argument in front of you actually supports.",
+      "cost": "the overcorrection can flatten distinctions you would otherwise be well positioned to make, given how well you understand the terrain, and it can alienate people who might have engaged with a more precise critique.",
+      "lever": "before generalizing a specific critique, check whether the claim you are making is actually about the belief in front of you or about religion as a whole, and scope the statement to match."
+    }
+  },
+  "2A": {
+    "strength": {
+      "title": "Seeing the system when everyone else is looking at the individual",
+      "pattern": "you spot the incentive structure or institutional history behind an outcome that most people attribute to a single person's choices.",
+      "whereItShowsUp": "in a hiring failure, a policy backlash, or a public scandal, you are the one asking what arrangement made this predictable, while the room is still assigning blame to a name.",
+      "cost": "the habit can make you slower to name a real individual failure when one is actually present, since your reflex is always to widen the frame first.",
+      "lever": "before offering the structural read, name out loud whether an individual choice inside that structure was also genuinely bad, so the analysis does not read as automatic cover."
+    },
+    "failureMode": {
+      "title": "Depersonalisation",
+      "pattern": "structural focus is powerful, but it can flatten the actual people living inside a system into data points in your diagnosis.",
+      "whereItShowsUp": "describing a crisis in terms of the forces that produced it, without naming what any specific person in it lost or felt, even when you are talking to someone who lived it.",
+      "cost": "people who need to be heard as individuals, not case studies, can feel unseen by an analysis that is otherwise correct.",
+      "lever": "when discussing a real situation with someone affected by it, lead with what happened to them specifically before you widen out to the system that produced it."
+    }
+  },
+  "2B": {
+    "strength": {
+      "title": "Holding compassion and structural analysis together",
+      "pattern": "you keep both registers active at once, feeling the weight of real harm while still asking what redesign would actually prevent it.",
+      "whereItShowsUp": "in a conversation about a specific injustice, you can sit with the grief of it and, in the same breath, sketch the concrete institutional fix, without either one crowding out the other.",
+      "cost": "holding both at full strength is exhausting, and in a long fight it can be tempting to let one atrophy, usually the compassion, since the analysis is the part that produces visible progress.",
+      "lever": "build a standing practice, a case you follow, a person you stay in contact with, that keeps the human stakes concrete even when you are deep in policy work."
+    },
+    "failureMode": {
+      "title": "Policy idealism",
+      "pattern": "designing the correct system on paper is not the same as designing one that survives contact with real politics and real resistance.",
+      "whereItShowsUp": "a redesign proposal gets built to be internally coherent and just, without a real account of who would block it and why, or what the second-best version looks like if the ideal one cannot pass.",
+      "cost": "well-designed proposals stall indefinitely while worse, passable versions of the same reform move forward without you.",
+      "lever": "for any proposal you care about, name the single most likely political objection to it before you present it, and have an answer ready."
+    }
+  },
+  "2C": {
+    "strength": {
+      "title": "Seeing economic power where others see neutral outcomes",
+      "pattern": "you read a market result as the product of ownership, leverage, and built arrangements, where others see it as simply how things are.",
+      "whereItShowsUp": "discussing wages, housing costs, or a company's pricing, you name who benefits from the current arrangement and why it holds, while the conversation around you treats the arrangement as weather.",
+      "cost": "everything can start to look like economic structure, even in situations where a non-economic factor, culture, individual choice, sheer contingency, is doing real work.",
+      "lever": "when making the economic case, name explicitly what a non-economic explanation would look like and why you are ruling it out, rather than assuming the economic frame automatically wins."
+    },
+    "failureMode": {
+      "title": "Structural determinism",
+      "pattern": "a strong economic lens can crowd out individual agency and cultural factors that are also genuinely doing causal work.",
+      "whereItShowsUp": "a person's choice or a cultural practice gets explained entirely by the economic incentives around it, with no room left for the fact that people also act from belief, habit, or value that economics alone does not predict.",
+      "cost": "people can feel reduced to economic units, and explanations that ignore real non-economic causes end up less accurate, not more radical.",
+      "lever": "for any behaviour you are about to explain economically, ask what a person who shared your economic position but made a different choice would say, and take that answer seriously."
+    }
+  },
+  "2D": {
+    "strength": {
+      "title": "Holding complexity without collapsing it",
+      "pattern": "you keep multiple, simultaneously true axes of power in view rather than reducing a situation to whichever single category is easiest to name.",
+      "whereItShowsUp": "analysing a workplace conflict or a policy's real-world effect, you can name how race, class, and gender are each doing separate work in the same situation, instead of picking one and dropping the rest.",
+      "cost": "the fuller picture takes longer to build and explain, and in a moment that calls for a fast, simple answer, your accuracy can read as hesitation.",
+      "lever": "practice a one-sentence version of the intersectional read for high-stakes fast conversations, saving the full layered account for when there is room for it."
+    },
+    "failureMode": {
+      "title": "Framework proliferation",
+      "pattern": "taking every relevant axis seriously can produce so much analytic complexity that a clear next action becomes hard to identify.",
+      "whereItShowsUp": "a planning conversation that needs a decision instead accumulates more categories of consideration, until the group has a fuller map but no more clarity about what to actually do first.",
+      "cost": "thorough analysis without a forced prioritization step can leave real, urgent problems undecided in favor of getting the full picture right.",
+      "lever": "after mapping the full complexity, explicitly force a ranking, ask which one axis, if addressed first, would do the most good, and commit to that as the starting move."
+    }
+  },
+  "2E": {
+    "strength": {
+      "title": "Credibility from evidence-based structural positions",
+      "pattern": "your progressive conclusions carry weight because they are load-bearing on data, not on tribal loyalty, which makes them harder for a skeptical listener to dismiss outright.",
+      "whereItShowsUp": "arguing for a policy with someone who does not share your priors, you can walk through what the data shows rather than asking them to first accept your side, which keeps the conversation open longer than an ideological appeal would.",
+      "cost": "leading with evidence can read as detached or bloodless to people who experience the underlying issue personally, as if the human stakes needed a study to be taken seriously.",
+      "lever": "pair the evidence with one concrete, specific human consequence before the data, so the argument lands as both true and felt."
+    },
+    "failureMode": {
+      "title": "Technocratic over-optimism",
+      "pattern": "strong evidence for a reform does not guarantee the reform survives contact with people and institutions that have real reasons, rational or not, to resist it.",
+      "whereItShowsUp": "a well-evidenced proposal gets treated as self-executing once the data is presented, with the actual fight over power, incentive, and irrational resistance underestimated or left for later.",
+      "cost": "well-supported reforms stall because the opposition's real motives, which were never about the evidence, went unaddressed.",
+      "lever": "for any reform you are pushing, name who loses from it and what they will actually do about that, before you present the data as if it settles the matter."
+    }
+  },
+  "3A": {
+    "strength": {
+      "title": "Calibrated confidence",
+      "pattern": "you hold your confidence at exactly the level the evidence supports, distinguishing cleanly between settled science and live conjecture.",
+      "whereItShowsUp": "in a conversation where someone overstates a scientific finding, you are the one who names precisely how confident the field actually is, without either inflating or dismissing the result.",
+      "cost": "this precision can read as wishy-washy to people who want a firm answer, especially on questions where the honest answer is genuinely uncertain.",
+      "lever": "when giving a calibrated answer, state the confidence level explicitly in one phrase, so the nuance reads as precision rather than evasion."
+    },
+    "failureMode": {
+      "title": "Scientism drift",
+      "pattern": "trust in scientific method can drift into applying it to questions, meaning, value, first-person experience, that it was never built to answer, then dismissing those questions as empty because science has no verdict.",
+      "whereItShowsUp": "a conversation about ethics or meaning gets redirected toward what can be measured, with the parts that resist measurement quietly treated as not real questions at all.",
+      "cost": "real, important questions get waved away rather than answered, and people asking them can feel dismissed rather than engaged.",
+      "lever": "when a question resists scientific method, say so directly rather than reframing the question until it fits a method that was never built for it."
+    }
+  },
+  "3B": {
+    "strength": {
+      "title": "Intellectual honesty",
+      "pattern": "you hold beliefs in proportion to the evidence for them, including your own beliefs, which you scrutinize with the same rigor you apply to everyone else's.",
+      "whereItShowsUp": "in a debate, you are willing to say \"I am not sure\" about a claim your own side favors, if the evidence genuinely does not support high confidence.",
+      "cost": "this consistency can read as disloyalty to people who expect certainty and solidarity from an ally, not calibrated doubt.",
+      "lever": "when expressing uncertainty about a claim your own side favors, say explicitly that the uncertainty applies equally to claims you would want to be true, so it reads as consistency, not defection."
+    },
+    "failureMode": {
+      "title": "Paralytic skepticism",
+      "pattern": "refusing to commit until the evidence is airtight can become, without your noticing, a way of avoiding the discomfort of being wrong rather than a genuinely calibrated epistemic stance.",
+      "whereItShowsUp": "a decision that has to be made with incomplete information, which is most real decisions, gets delayed while you wait for a certainty that was never going to arrive.",
+      "cost": "opportunities that required a timely, good-enough call go instead to people willing to act on imperfect evidence.",
+      "lever": "for decisions with a real deadline, name explicitly what level of evidence would be enough to act, in advance, so the bar cannot quietly rise every time it gets close to being met."
+    }
+  },
+  "3C": {
+    "strength": {
+      "title": "Argumentation",
+      "pattern": "you build the clearest, most defensible version of a case, taking the questions apart into their component claims before answering any of them.",
+      "whereItShowsUp": "in a disagreement that has stalled because two people are using the same word differently, you are the one who spots the ambiguity and dissolves the apparent conflict by defining the terms.",
+      "cost": "this precision takes time and patience that a live, emotionally charged conversation does not always have, and insisting on it mid-argument can read as changing the subject.",
+      "lever": "save the full definitional pass for conversations that can afford it, and in fast-moving exchanges, flag the ambiguity briefly rather than stopping to resolve it fully."
+    },
+    "failureMode": {
+      "title": "Ivory tower drift",
+      "pattern": "the precision that makes an argument rigorous can also make it disconnected from how people actually reason, decide, and live, which is rarely as tidy as a well-formed argument.",
+      "whereItShowsUp": "a logically sound case fails to move anyone in the room, because it never engaged with the emotional or practical reasons people actually hold the view you are arguing against.",
+      "cost": "correct arguments that persuade no one accomplish less than a messier argument that actually meets people where they are.",
+      "lever": "before presenting the clean version of an argument, ask what non-logical reason someone might hold the opposing view, and address that reason directly, not just the logical structure of their claim."
+    }
+  },
+  "3D": {
+    "strength": {
+      "title": "Bridging the is-ought gap",
+      "pattern": "you can explain why a fact about human flourishing actually generates an obligation, rather than treating morality as either handed down or simply invented.",
+      "whereItShowsUp": "in a debate between someone who thinks morality needs God and someone who thinks it is pure preference, you offer the third option, grounded in what beings like us actually need, with an argument for why that grounding works.",
+      "cost": "the account is philosophically satisfying but can undersell how much specific work is still needed to get from general flourishing to a specific verdict in a hard case.",
+      "lever": "when applying the framework to a contested case, show the reasoning step by step from the general claim about flourishing to the specific verdict, rather than presenting the verdict as if it followed automatically."
+    },
+    "failureMode": {
+      "title": "Normative overreach",
+      "pattern": "a framework built to explain why morality is grounded in facts about flourishing can get stretched to license specific moral conclusions the framework does not actually establish on its own.",
+      "whereItShowsUp": "a contested question gets settled by appeal to \"what humans need to flourish\" as though that phrase alone decided it, when reasonable people who share the framework could read the facts about flourishing differently.",
+      "cost": "conclusions presented as following necessarily from the framework, when they do not, can make the whole position look overconfident once someone points out the gap.",
+      "lever": "before declaring a specific moral conclusion settled by the framework, check whether someone who shares your naturalism could reasonably read the facts about flourishing differently, and if so, say so."
+    }
+  },
+  "3E": {
+    "strength": {
+      "title": "Intellectual flexibility",
+      "pattern": "you update a belief when it stops working, rather than defending a position because you have already staked your identity on it.",
+      "whereItShowsUp": "when new evidence undercuts a view you have held and argued for, you can revise it in real time without the defensiveness that usually comes with being shown wrong.",
+      "cost": "people who value consistency of position over consistency of method can read your willingness to update as a lack of real conviction.",
+      "lever": "when you revise a view, say explicitly what changed and why, so the update reads as method working correctly rather than as flip-flopping."
+    },
+    "failureMode": {
+      "title": "Relativism creep",
+      "pattern": "without a strong account of truth beyond \"what works,\" the standard for what counts as working can quietly narrow to \"what my community currently endorses.\"",
+      "whereItShowsUp": "a belief gets treated as true because it coheres with what the people around you already think, rather than because it has actually been tested against the world.",
+      "cost": "beliefs that are merely comfortable inside a group can pass as pragmatically justified without ever being genuinely tested.",
+      "lever": "before calling a belief pragmatically justified, ask whether it would still work outside the specific community that currently holds it, and treat that as the real test."
+    }
+  },
+  "4A": {
+    "strength": {
+      "title": "Resilience without illusion",
+      "pattern": "you keep caring and acting fully, having already accepted that the universe offers no cosmic backing for any of it.",
+      "whereItShowsUp": "after a genuine setback, you do not need to reframe it as secretly meaningful to keep going; you keep going because the pushing itself is the practice, not because the outcome was owed to you.",
+      "cost": "this resilience can look like detachment to people who process a setback by searching for its hidden meaning, and your refusal to do that can read as coldness rather than honesty.",
+      "lever": "when someone near you is searching for meaning in a hard moment, let them search in their own frame first, rather than offering your own no-meaning-required stance as the correction."
+    },
+    "failureMode": {
+      "title": "The absurdist pose",
+      "pattern": "the language and posture of absurdist rebellion can become a performed identity rather than a genuinely lived practice, especially once it becomes recognizable to other people as your thing.",
+      "whereItShowsUp": "a moment that calls for straightforward commitment or care instead gets narrated in the vocabulary of cosmic defiance, which draws attention to the stance rather than to the actual thing being done.",
+      "cost": "the performance can substitute for the practice, and the people around you can sense the difference between someone living the philosophy and someone quoting it.",
+      "lever": "notice when you are narrating the absurdist frame out loud versus simply doing the committed thing without comment, and default to the second."
+    }
+  },
+  "4B": {
+    "strength": {
+      "title": "Radical ownership",
+      "pattern": "you take full responsibility for your choices and their consequences, refusing to hide behind circumstance, role, or temperament the way people around you often do.",
+      "whereItShowsUp": "when a decision goes badly, you name it as your decision rather than attributing it to the situation you were in, even when the situation genuinely was difficult.",
+      "cost": "this ownership can tip into taking blame for outcomes that were genuinely shaped by real constraints, not just your choices within them.",
+      "lever": "when owning a bad outcome, separate explicitly what was actually your choice from what was a real constraint you were choosing inside, so the ownership stays accurate rather than absolute."
+    },
+    "failureMode": {
+      "title": "Bad faith",
+      "pattern": "you are sharp at spotting when other people hide behind a role or a story to avoid the weight of their own freedom, and that same blind spot can operate on you.",
+      "whereItShowsUp": "a choice you made gets quietly reframed as something that \"had\" to happen given your circumstances, exactly the move you would call out immediately in someone else.",
+      "cost": "the gap between the freedom you insist others own and the freedom you actually own yourself can go unexamined for a long time.",
+      "lever": "when you catch yourself explaining a choice as inevitable, ask whether you would accept that explanation from someone else, and if not, revise it."
+    }
+  },
+  "4C": {
+    "strength": {
+      "title": "Purposefulness without self-deception",
+      "pattern": "you build genuine meaning out of chosen projects and relationships, fully aware that the universe did not hand any of it to you, and the awareness does not weaken the commitment.",
+      "whereItShowsUp": "when someone challenges whether your work \"really\" matters in a cosmic sense, you can answer honestly that it does not, and that this changes nothing about how fully you are committed to it.",
+      "cost": "explaining this stance to someone who needs their meaning to be cosmically backed can come across as bleak or unstable, even though it is neither, for you.",
+      "lever": "when explaining constructed meaning to someone who finds that idea unsettling, lead with the commitment itself rather than the philosophical claim underneath it."
+    },
+    "failureMode": {
+      "title": "Fragility under loss",
+      "pattern": "meaning you built yourself requires ongoing maintenance, and when the central project it was built around collapses, the meaning structure can go down with it.",
+      "whereItShowsUp": "the loss of a defining project, relationship, or role does not just hurt, it can leave a genuine vacuum where meaning used to sit, more destabilizing than a comparable loss might be for someone whose meaning had other sources.",
+      "cost": "putting most of your constructed meaning into one project leaves you without backup when that project fails.",
+      "lever": "deliberately build more than one source of constructed meaning, so a single collapse does not take the whole structure down with it."
+    }
+  },
+  "4D": {
+    "strength": {
+      "title": "Self-authorship",
+      "pattern": "you treat identity as something you build deliberately, through commitments and revised stories, rather than something you discover or inherit passively.",
+      "whereItShowsUp": "after a major life change, you actively reconstruct who you are rather than waiting to find out, choosing which parts of the old story to keep and which to revise.",
+      "cost": "this intentionality can read as inconsistency to people who expect identity to be stable across time rather than actively authored.",
+      "lever": "when you revise a part of your identity, name what stayed the same across the revision, so the change reads as authorship rather than as starting over."
+    },
+    "failureMode": {
+      "title": "Identity instability",
+      "pattern": "if everything about who you are is constructed and open to revision, it can become genuinely hard to know when a commitment should hold and when it should be revised.",
+      "whereItShowsUp": "a relationship, career direction, or belief that would benefit from steady commitment instead gets treated as perpetually open to reconstruction, which prevents it from ever solidifying into something load-bearing.",
+      "cost": "nothing gets to become foundational if everything stays permanently revisable, and the people and projects around you can feel the instability of that.",
+      "lever": "pick a small number of commitments you deliberately declare closed to revision for a fixed period, and hold them there even when the urge to reconstruct shows up."
+    }
+  },
+  "4E": {
+    "strength": {
+      "title": "Depth of relationship",
+      "pattern": "you treat genuine encounter with another person as philosophically serious, not just emotionally nice, which gives your relationships an intentionality most people do not bring to them.",
+      "whereItShowsUp": "in a close relationship, you actively attend to what it means to be truly met by the other person, rather than letting the relationship run on habit and convenience.",
+      "cost": "this intensity can feel like a lot to the person on the other end, who may experience your philosophical seriousness about the relationship as pressure rather than depth.",
+      "lever": "let some relationships stay light and ordinary without importing the full philosophical weight, reserving the deeper attention for where it is actually wanted."
+    },
+    "failureMode": {
+      "title": "Codependence dressed as philosophy",
+      "pattern": "relational meaning-making is a real philosophical position, but it can slide into meaning-outsourcing, needing another person to supply what should be at least partly your own.",
+      "whereItShowsUp": "your sense of meaning fluctuates heavily with the state of a single relationship, rising and falling with it in a way that leaves you without ground when that relationship is strained.",
+      "cost": "a philosophy of genuine relational meaning can become a dependency that looks like philosophy but functions like need.",
+      "lever": "build at least one source of meaning that does not run through any single relationship, so the relational meaning stays a real addition rather than the entire foundation."
+    }
+  },
+  "5A": {
+    "strength": {
+      "title": "Principled resistance to expedience",
+      "pattern": "you hold that persons cannot be used merely as means, and you keep that line even when the consequentialist math looks favorable to crossing it.",
+      "whereItShowsUp": "in a debate where sacrificing one person's interests would produce a better aggregate outcome, you are the one insisting the sacrifice itself is wrong, regardless of the math.",
+      "cost": "this consistency can read as rigid or uncaring about outcomes to people weighing the real cost of not taking the expedient path.",
+      "lever": "when holding the principled line, name explicitly what the real cost of holding it is, so the position reads as a considered trade-off rather than an automatic refusal to do arithmetic."
+    },
+    "failureMode": {
+      "title": "Moral rigidity",
+      "pattern": "a framework built on exceptionless duties struggles precisely where two duties collide, and offers no clean way to say which one wins.",
+      "whereItShowsUp": "a genuine dilemma, where every option violates some duty, leaves you without a clear answer the framework can actually generate, and the strain shows.",
+      "cost": "situations that call for a workable judgment call can instead stall on a framework that was not built to resolve genuine duty conflicts.",
+      "lever": "when two duties genuinely conflict, say so explicitly rather than forcing the framework to produce a false clean answer, and reason about the specific case on its own terms."
+    }
+  },
+  "5B": {
+    "strength": {
+      "title": "Integrating ethics with psychology and development",
+      "pattern": "you evaluate a choice not only by its rightness but by what kind of person making it repeatedly would produce, treating character as a genuine developmental project.",
+      "whereItShowsUp": "advising someone on a decision, you ask not just what the right call is but what habit this choice would build in them over time.",
+      "cost": "this framing can feel evasive in a moment that calls for a direct answer about what to do right now, since character develops slowly and the person in front of you needs a decision today.",
+      "lever": "when the moment calls for immediate guidance, give the direct answer first, then add the character frame as the reason behind it, rather than leading with the slower frame."
+    },
+    "failureMode": {
+      "title": "Community parochialism",
+      "pattern": "virtue as historically defined is tied to the standards of particular communities, and what counts as a virtue in one community can look parochial or even harmful from outside it.",
+      "whereItShowsUp": "a judgment about someone's character gets made using standards that feel universal to you but are actually specific to your own formation, without noticing the gap.",
+      "cost": "character judgments that assume one community's standard as neutral can misjudge people operating from a genuinely different, defensible standard.",
+      "lever": "before judging someone's character by a virtue standard, ask whether that standard is actually shared ground between you, or whether it is local to your own tradition."
+    }
+  },
+  "5C": {
+    "strength": {
+      "title": "Cross-cultural persuasion",
+      "pattern": "because your case for morality rests on human nature and reason rather than a specific revelation, you can make it to people from any tradition without first asking them to share your premises.",
+      "whereItShowsUp": "in a conversation with someone from a very different background, you can build a shared moral case from facts about human flourishing that both of you can recognize, rather than starting from a doctrine only you hold.",
+      "cost": "this universality can tempt you into overclaiming how settled the case for human nature actually is, when reasonable people genuinely disagree about what human nature requires.",
+      "lever": "when making the natural law case across a real disagreement, name the specific empirical or philosophical claim about human nature that is doing the work, so it can be examined rather than assumed."
+    },
+    "failureMode": {
+      "title": "Teleological overspecification",
+      "pattern": "a general account of human flourishing can get stretched into very specific moral verdicts that the general account does not actually determine on its own.",
+      "whereItShowsUp": "a contested practical question gets settled by appeal to human nature as though nature spoke with one clear voice on the specific case, when the honest answer is that the general principle underdetermines the specific verdict.",
+      "cost": "conclusions presented as directly following from human nature, when they required additional premises to get there, weaken the credibility of the whole framework once the gap is spotted.",
+      "lever": "before presenting a specific conclusion as required by natural law, check what additional premises beyond \"human nature\" you actually needed to get there, and state them."
+    }
+  },
+  "5D": {
+    "strength": {
+      "title": "Philosophical completeness",
+      "pattern": "you hold both a fully natural world and fully real moral facts without treating them as in tension, because you have a specific account of how moral properties are natural properties.",
+      "whereItShowsUp": "in a debate where someone assumes you must give up either science or moral realism, you can show the specific mechanism by which both survive together.",
+      "cost": "the completeness of the position depends on technical machinery that most conversations do not have room for, so the strongest version of your view is rarely the version people actually hear.",
+      "lever": "keep a one-sentence version of the position ready for conversations that cannot hold the full technical account, and reserve the complete version for when someone actually wants it."
+    },
+    "failureMode": {
+      "title": "Technical abstraction",
+      "pattern": "the position's power lives in its technical precision, which makes it genuinely difficult to communicate to someone without the philosophical background to follow the machinery.",
+      "whereItShowsUp": "an explanation of your view to a non-specialist loses the audience partway through the technical apparatus, and what should have been a persuasive case instead reads as jargon.",
+      "cost": "a philosophically strong position that cannot be explained plainly ends up persuading only people who already had the training to follow it.",
+      "lever": "practice a plain-language version of the core claim, moral facts are natural facts about flourishing, that drops the technical apparatus entirely, and use it as the default."
+    }
+  },
+  "5E": {
+    "strength": {
+      "title": "Democratic legitimacy",
+      "pattern": "because your moral facts are grounded in what a fair procedure would produce, the resulting obligations are ones anyone could in principle accept, not just people who already share your substantive premises.",
+      "whereItShowsUp": "settling a genuinely contested question, you can point to the fairness of the process that produced the answer, which gives the answer a legitimacy an appeal to a fixed moral fact would not have for someone who does not already accept that fact.",
+      "cost": "grounding legitimacy in procedure means the outcome is only as strong as everyone's actual agreement that the procedure was fair, which is not automatic.",
+      "lever": "when presenting a constructivist conclusion, make the fairness of the procedure itself part of the case, not just the outcome, so the legitimacy claim is visible, not assumed."
+    },
+    "failureMode": {
+      "title": "Proceduralism without substance",
+      "pattern": "when people dispute the procedure itself, not just its output, constructivism has limited resources left to resolve that deeper disagreement.",
+      "whereItShowsUp": "a debate stalls not on the conclusion but on whether the process that generated it was actually fair, and the framework has no further fact to appeal to that stands outside the disputed procedure.",
+      "cost": "disagreements about fairness of process can become as intractable as the substantive disagreements the procedure was meant to resolve.",
+      "lever": "when the procedure itself is disputed, be willing to argue for its fairness on independent grounds, rather than treating \"the procedure was fair\" as itself procedurally settled."
+    }
+  },
+  "6A": {
+    "strength": {
+      "title": "Attentiveness to the particular",
+      "pattern": "you respond to the actual person in front of you, their specific situation and needs, rather than treating them as an instance of a general moral category.",
+      "whereItShowsUp": "in a conflict where an abstract rule would give one verdict, you notice the specific relationship and context that make the rule's verdict feel wrong for this actual person, and you say so.",
+      "cost": "this attentiveness does not scale easily to strangers you will never meet or to large-scale policy questions, where the particulars you rely on are not available.",
+      "lever": "when a decision affects people you cannot meet individually, build in a deliberate step that asks what attentiveness to their particulars would look like, even without direct contact."
+    },
+    "failureMode": {
+      "title": "Partiality without principle",
+      "pattern": "an ethics built on particular relationships has real trouble deciding between two competing caring relationships, or generating any obligation to someone with no relationship to you at all.",
+      "whereItShowsUp": "a choice between two people who both have real claims on your care leaves you without a principled way to decide, beyond the strength of feeling in the moment.",
+      "cost": "obligations to distant strangers, who cannot be the object of particular care in the same way, can end up systematically underweighted.",
+      "lever": "when a decision involves people outside your direct relationships, deliberately ask what obligation the situation would generate if you were forced to imagine them as someone you did have a relationship with."
+    }
+  },
+  "6B": {
+    "strength": {
+      "title": "Moral consistency and scope",
+      "pattern": "you follow the principle that suffering matters wherever it occurs to its actual conclusion, rather than stopping the argument conveniently at the species line most people stop at.",
+      "whereItShowsUp": "in a conversation about food, entertainment, or industry practices, you apply the same standard you would apply to human suffering, without carving out an exception just because the sufferer is not human.",
+      "cost": "consistency this uncompromising can make you difficult to be around for people who have not worked through the argument themselves and experience your position as constant, unwelcome pressure.",
+      "lever": "choose the moments that matter for consistency and the moments that do not need to become a debate, so the principle does not read as a demand placed on every conversation."
+    },
+    "failureMode": {
+      "title": "Alienation from movement-building",
+      "pattern": "uncompromising advocacy can isolate you from the very people whose views you most need to shift, since persuasion usually requires meeting someone partway first.",
+      "whereItShowsUp": "a conversation with someone genuinely open to changing their mind ends instead in a standoff, because the full, uncompromised version of your position was presented all at once rather than in a form they could actually take in.",
+      "cost": "the people most reachable get pushed away by an approach calibrated for philosophical completeness rather than actual persuasion.",
+      "lever": "with someone genuinely undecided, offer the smallest true step in your direction rather than the complete position, and let the fuller consistency wait for a later conversation."
+    }
+  },
+  "6C": {
+    "strength": {
+      "title": "Deep community orientation",
+      "pattern": "you actively tend the relationships and shared life that make a community function, work that benefits everyone but that not everyone is willing to do.",
+      "whereItShowsUp": "in a group under strain, you are the one checking in on people, repairing rifts, and doing the unglamorous relational maintenance that keeps the group actually cohesive.",
+      "cost": "this orientation puts real weight on you specifically, and the group can come to depend on your labor without noticing how much of the cohesion is actually you.",
+      "lever": "name explicitly when you are doing relational maintenance work, so it becomes visible as work rather than as something that simply happens because you are around."
+    },
+    "failureMode": {
+      "title": "Community conformity",
+      "pattern": "when personhood is understood as constituted through community, it can become genuinely difficult to hold a position the community disagrees with, since disagreement can feel like a threat to belonging itself, not just a difference of opinion.",
+      "whereItShowsUp": "a view you actually hold gets softened or dropped in a group setting, not because you were persuaded, but because holding it would have created friction with people you are relationally bound to.",
+      "cost": "individual integrity can quietly erode in favor of group harmony, in ways that are hard to notice because the value placed on harmony is itself part of your worldview.",
+      "lever": "before dropping a position in a group setting, ask whether you actually changed your mind or just want the friction to stop, and treat those as different reasons."
+    }
+  },
+  "6D": {
+    "strength": {
+      "title": "Sustainable compassion",
+      "pattern": "because your empathy is paired with an understanding of what causes the suffering you are witnessing, it directs itself toward useful action rather than dissolving into raw feeling or burning out.",
+      "whereItShowsUp": "sitting with someone in real pain, you can stay present without either detaching for self-protection or getting overwhelmed, because you understand the causal picture well enough to hold both the feeling and the analysis.",
+      "cost": "people can misread the steadiness as less caring than a more visibly overwhelmed response, when it is actually a more sustainable form of the same care.",
+      "lever": "let the feeling show visibly sometimes, not just the steady analytical care, so the compassion registers as felt, not only as competent."
+    },
+    "failureMode": {
+      "title": "Absorbing others' pain without adequate self-regulation",
+      "pattern": "genuine attunement to another person's suffering carries a real physiological cost, and without deliberate regulation, repeated exposure can accumulate into a kind of overload.",
+      "whereItShowsUp": "after sustained contact with other people's pain, a level of exhaustion or numbness shows up that is disproportionate to any single event, evidence of accumulated, unprocessed absorption.",
+      "cost": "the very attunement that makes your compassion effective can wear down the capacity that makes it sustainable, if nothing is done to process it.",
+      "lever": "build a deliberate practice for discharging absorbed pain after intense contact with someone else's suffering, rather than letting it accumulate silently."
+    }
+  },
+  "6E": {
+    "strength": {
+      "title": "Long-game thinking",
+      "pattern": "because you refuse to win by force, the movements and relationships you build survive the victory, since the people you needed to persuade were never made into enemies in the first place.",
+      "whereItShowsUp": "after a hard-won change, the people on the other side of it are not left nursing a grievance to reverse it later, because the method itself did not require defeating them as people.",
+      "cost": "this patience is genuinely slower than a method willing to force an outcome, and in a moment of real urgency, the slower path can cost real time that some situations do not have.",
+      "lever": "distinguish explicitly between situations that can afford the long-game approach and situations where the slower path has a real cost, rather than applying the same patience everywhere by default."
+    },
+    "failureMode": {
+      "title": "Moral purity over effectiveness",
+      "pattern": "a firm commitment to nonviolent means can become a constraint that blocks necessary, urgent action in a situation where lives are actually at stake and the nonviolent option is not fast enough.",
+      "whereItShowsUp": "a crisis calling for immediate, forceful intervention instead gets held to the standard of your usual method, at a real cost measured in time or harm that the situation could not actually absorb.",
+      "cost": "consistency of method can end up mattering more than the outcome the method was supposed to serve.",
+      "lever": "name in advance what kind of emergency would justify a genuine exception to your usual method, rather than deciding in the moment under pressure, when the commitment to purity is hardest to examine clearly."
+    }
+  },
+  "7A": {
+    "strength": {
+      "title": "Institutional vigilance",
+      "pattern": "you notice concentrated power accumulating, in a government, a company, an institution, before most people register it as a problem.",
+      "whereItShowsUp": "watching an institution consolidate authority, you flag the danger while others are still focused on whether the specific decisions coming out of it are good ones.",
+      "cost": "this vigilance can read as reflexive suspicion of any large institution, even ones doing genuinely necessary work, if the warning does not distinguish between concentrated power that is dangerous and concentrated power that is simply functional.",
+      "lever": "when flagging concentrated power, name specifically what check is missing, rather than treating the concentration itself as automatically the problem."
+    },
+    "failureMode": {
+      "title": "Structural blindness",
+      "pattern": "a framework centered on individual rights and merit can miss how much of an individual's position was actually shaped by structural advantage rather than earned entirely through their own choices.",
+      "whereItShowsUp": "a success or failure gets attributed to individual merit or its absence, without accounting for the unequal starting conditions that made the outcome more or less likely before any individual choice was made.",
+      "cost": "real structural unfairness can get read as simply the natural result of differing individual merit, which makes it invisible to a framework not built to see it.",
+      "lever": "before attributing an outcome fully to individual merit, ask what starting conditions were different, and whether those conditions themselves were fairly distributed."
+    }
+  },
+  "7B": {
+    "strength": {
+      "title": "Clear moral foundations",
+      "pattern": "you can state precisely why individual rights matter, grounded in a specific account of what a person is, rather than treating rights as a convention or a compromise.",
+      "whereItShowsUp": "challenged on why rights matter at all, you have an actual argument ready, from first principles, rather than an appeal to tradition or consensus.",
+      "cost": "this clarity can become a kind of certainty that resists updating even where the evidence calls for it, since the foundations were built to be first principles, not provisional conclusions.",
+      "lever": "hold the foundational commitment to individual dignity as fixed, but treat your empirical claims about how the world actually works as genuinely open to revision, and keep the two separate."
+    },
+    "failureMode": {
+      "title": "Ideological rigidity",
+      "pattern": "a framework this confident in its foundations can become resistant to evidence, particularly evidence about structural inequality, that does not fit cleanly into an individual-merit account of outcomes.",
+      "whereItShowsUp": "data showing a structural pattern gets explained away or minimized, not because the data is weak, but because accepting it would complicate a framework built around individual choice and responsibility.",
+      "cost": "real patterns get dismissed, and the framework's credibility suffers when the dismissal itself starts to look motivated rather than principled.",
+      "lever": "when structural evidence conflicts with an individual-choice explanation, engage the strongest version of the structural evidence directly, rather than defaulting to the individual explanation because it fits the framework more easily."
+    }
+  },
+  "7C": {
+    "strength": {
+      "title": "Defending freedom even when you disagree with its content",
+      "pattern": "you defend a liberty for people you strongly disagree with, on principle, rather than only defending liberties whose content you already like.",
+      "whereItShowsUp": "in a fight over a specific expression you find genuinely objectionable, you can still argue for the underlying right, because the principle is about the right, not about approval of what is being said.",
+      "cost": "this consistency can put you in the position of defending speech or action that causes real harm, and the principled defense can look, to people affected by that harm, indistinguishable from endorsement.",
+      "lever": "when defending a right whose content you find objectionable, say so explicitly and separately, so the defense of the principle does not read as agreement with the content."
+    },
+    "failureMode": {
+      "title": "Platforming harm",
+      "pattern": "defending speech in the abstract can miss how unequal power between speakers changes what \"free speech\" actually does in practice, amplifying some voices and silencing others under the same formal rule.",
+      "whereItShowsUp": "a formally neutral defense of speech rights ends up protecting a much louder, better-resourced voice at the direct expense of a much quieter one, with the formal neutrality obscuring the real imbalance.",
+      "cost": "a principle meant to protect the vulnerable from state power can end up protecting the powerful from accountability, if the power differential between speakers is not part of the analysis.",
+      "lever": "when defending a specific instance of speech, ask explicitly who has more power in that exchange, and factor that into how the defense is framed, not just whether the defense applies."
+    }
+  },
+  "7D": {
+    "strength": {
+      "title": "Consistency",
+      "pattern": "you apply the consent principle everywhere, including to institutions, like the state, that most people exempt from it without noticing they are doing so.",
+      "whereItShowsUp": "in a debate about government authority, you ask the same question you would ask about any other arrangement, did the people bound by it actually agree to it, rather than granting the state a special exemption from that question.",
+      "cost": "applied this consistently, the principle unsettles a great deal of ordinary social organization that most people take for granted as legitimate, which can make your position seem more radical than it is meant to be.",
+      "lever": "when applying the consent principle to an institution most people accept without question, acknowledge explicitly how much that unsettles, so the argument reads as a considered implication rather than provocation."
+    },
+    "failureMode": {
+      "title": "Coordination failure",
+      "pattern": "purely voluntary arrangements have real trouble solving large-scale collective action problems, where an individual's incentive to defect does not disappear just because the arrangement is voluntary.",
+      "whereItShowsUp": "a problem like a shared environmental resource or a public good gets a solution built entirely on voluntary cooperation, without an account of what stops individuals from free-riding once the voluntary system is in place.",
+      "cost": "large-scale coordination problems that voluntary arrangements have historically struggled to solve can go unaddressed while the framework insists a voluntary solution is coming.",
+      "lever": "for a genuine large-scale coordination problem, be explicit about what mechanism, inside a voluntary framework, actually prevents free-riding, rather than assuming voluntary cooperation will scale by itself."
+    }
+  },
+  "7E": {
+    "strength": {
+      "title": "Grounding freedom in cultural continuity",
+      "pattern": "you treat liberty as something that grows out of specific cultural soil, family, community, inherited practice, rather than as an abstract principle that could be dropped into any context unchanged.",
+      "whereItShowsUp": "arguing for limited government, you point to the actual communities and traditions that would fill the space it vacates, rather than assuming freedom alone produces a functioning society.",
+      "cost": "this grounding can make the position slower to support liberty for people whose communities and traditions differ from the ones you have in mind as the default.",
+      "lever": "when making the cultural-continuity case for freedom, name explicitly that different communities will fill that space differently, and that this is a feature of the argument, not an exception to it."
+    },
+    "failureMode": {
+      "title": "Defending the status quo under the banner of freedom",
+      "pattern": "combining libertarian and conservative commitments can produce a defense of existing arrangements, including existing inequalities, framed as protecting freedom and tradition rather than as protecting the status quo specifically.",
+      "whereItShowsUp": "a call to change an unequal arrangement gets opposed in the name of liberty or cultural continuity, without examining whether the arrangement being defended was itself freely arrived at or simply inherited.",
+      "cost": "freedom and tradition can become cover for defending arrangements that would not survive scrutiny on their own merits.",
+      "lever": "before defending an existing arrangement on liberty or tradition grounds, ask directly whether the arrangement was itself freely chosen by the people living under it, or simply inherited without their consent."
+    }
+  },
+  "8A": {
+    "strength": {
+      "title": "Resilience under any conditions",
+      "pattern": "you maintain functional composure regardless of external circumstance, because your stability rests on virtue and reasoned judgment rather than on conditions going your way.",
+      "whereItShowsUp": "in a genuine crisis, where other people's composure erodes with the situation, yours holds, because you are drawing on a discipline built for exactly this rather than reacting fresh to the difficulty.",
+      "cost": "the steadiness can read as detachment or lack of care to people who expect visible distress as proof that a situation is being taken seriously.",
+      "lever": "name the difficulty out loud, even while staying composed, so the steadiness reads as disciplined response rather than as not caring."
+    },
+    "failureMode": {
+      "title": "Emotional suppression masquerading as equanimity",
+      "pattern": "real Stoic equanimity processes feeling and arrives at composure; a counterfeit version simply suppresses the feeling and calls the resulting numbness equanimity.",
+      "whereItShowsUp": "a genuinely painful event gets met with immediate, complete calm, without any visible sign the feeling was actually felt and processed rather than shut down.",
+      "cost": "suppressed feeling does not disappear, it accumulates, and the gap between real equanimity and performed calm tends to surface later, at a worse time.",
+      "lever": "build in a private space, not a public performance, to actually feel a difficult event before the composed response is expected, so the calm that follows is earned rather than substituted."
+    }
+  },
+  "8B": {
+    "strength": {
+      "title": "Practical philosophy",
+      "pattern": "your Stoicism lives in daily habits, not just in positions you could state if asked, which means the philosophy actually does something in your life rather than sitting as belief alone.",
+      "whereItShowsUp": "under real pressure, you reach for a specific practiced technique, the dichotomy of control, a habit of reframing, rather than needing to reconstruct the philosophy from scratch in the moment.",
+      "cost": "the emphasis on practice over theory can leave the deeper philosophical grounding underexamined, since the habits work whether or not you have thought hard about why.",
+      "lever": "periodically revisit the philosophical reasoning behind a practice you use daily, not just the practice itself, so the habit stays connected to genuine understanding."
+    },
+    "failureMode": {
+      "title": "Stoicism as productivity hack",
+      "pattern": "a demanding philosophical tradition can get flattened into a set of morning-routine techniques for performance and optimization, losing the deeper ethical content underneath.",
+      "whereItShowsUp": "Stoic language shows up mainly around productivity and discipline, cold showers, journaling, controlling your reaction to obstacles, while the tradition's actual concern with virtue and how to live well gets less attention.",
+      "cost": "a genuinely rich ethical tradition gets reduced to a toolkit for getting more done, missing most of what made it worth taking seriously in the first place.",
+      "lever": "periodically ask what a specific Stoic practice is actually for in the tradition's own terms, virtue, not just output, and let that reframe how you use it."
+    }
+  },
+  "8C": {
+    "strength": {
+      "title": "Presence",
+      "pattern": "you return attention repeatedly to what is actually happening now, rather than living mostly inside an imagined alternative version of the moment.",
+      "whereItShowsUp": "in an ordinary task or conversation, you are genuinely there for it, rather than running a parallel narrative about where you would rather be or what you would rather be doing.",
+      "cost": "this presence can make you slower to plan ahead or worry productively about a real future risk, since the discipline of staying present can crowd out useful anticipation.",
+      "lever": "schedule deliberate time for forward planning as its own activity, so presence in the moment does not accidentally displace necessary attention to what is coming."
+    },
+    "failureMode": {
+      "title": "Withdrawal",
+      "pattern": "a contemplative orientation toward accepting what is can slide into retreating from situations that actually call for action, not acceptance.",
+      "whereItShowsUp": "a real problem that could be changed gets met with the same equanimity you would bring to something genuinely outside your control, when the two situations call for different responses.",
+      "cost": "injustices or problems that were actually addressable go unaddressed, mistaken for the category of things that must simply be accepted.",
+      "lever": "before applying acceptance to a difficult situation, check explicitly whether it is actually outside your influence or whether acceptance is functioning as a way to avoid the harder work of acting."
+    }
+  },
+  "8D": {
+    "strength": {
+      "title": "Antifragility",
+      "pattern": "real difficulty has tested your framework and it held, which means hardship has made the practice sharper rather than just something you survived and moved past.",
+      "whereItShowsUp": "facing a new hard situation, you draw on a discipline you know works because it has already been tested by something worse, not on a theory you hope will hold.",
+      "cost": "having been through real difficulty and come out stronger can make it hard to fully credit how much harder the same situation might be for someone without your specific history and training.",
+      "lever": "when advising someone through a hard situation, name explicitly that your framework was built through your own specific difficulty, rather than assuming it transfers automatically to theirs."
+    },
+    "failureMode": {
+      "title": "Applying the framework where acceptance is not appropriate",
+      "pattern": "the discipline of accepting what you cannot control is powerful, but it can get misapplied to situations that are actually changeable, using acceptance as a way to avoid the harder work of confronting an addressable injustice.",
+      "whereItShowsUp": "a problem that could genuinely be changed with effort or advocacy instead gets filed under \"accept what you cannot control,\" closing off the action that was actually available.",
+      "cost": "real, addressable injustice can persist because the discipline built for genuinely uncontrollable circumstances gets extended to cover situations that were never actually in that category.",
+      "lever": "before accepting a difficult situation as unchangeable, test that claim directly, ask what would actually happen if you tried to change it, rather than assuming the answer."
+    }
+  },
+  "8E": {
+    "strength": {
+      "title": "Cross-tradition synthesis",
+      "pattern": "you take the tested practical content from more than one wisdom tradition, Stoic and Buddhist, without needing to adopt either tradition's full metaphysical commitments to use what actually works.",
+      "whereItShowsUp": "building a personal practice, you can combine a Stoic technique for handling adversity with a Buddhist technique for working with attachment, judged by whether each actually reduces unnecessary suffering, not by tradition loyalty.",
+      "cost": "this synthesis can read as shallow or appropriative to practitioners committed to either tradition in its full form, who see the metaphysics as inseparable from the practice.",
+      "lever": "when presenting a synthesized practice, credit the specific tradition each piece came from and acknowledge what was left out, rather than presenting the synthesis as if it were the whole of either tradition."
+    },
+    "failureMode": {
+      "title": "Spiritual bypassing",
+      "pattern": "meditative practice aimed at reducing attachment and reactivity can become a way to disengage from structural problems that actually require sustained action, not equanimity.",
+      "whereItShowsUp": "a real injustice gets processed internally through the practice, attention, acceptance, non-attachment, without any corresponding external action, as though the internal work were itself sufficient.",
+      "cost": "genuine practice that should support sustained engagement instead becomes a substitute for it, and real problems go unaddressed while feeling, internally, like they have been handled.",
+      "lever": "after using the practice to process a difficult external situation, ask explicitly whether any external action is actually called for, and treat the internal work as preparation for that action, not a replacement for it."
+    }
+  },
+  "9A": {
+    "strength": {
+      "title": "Taking consciousness seriously as a genuine explanatory challenge",
+      "pattern": "you treat the hard problem of consciousness as a real, unsolved problem, rather than adopting a materialist account that quietly defines the problem away.",
+      "whereItShowsUp": "in a discussion of mind and brain, you are the one insisting the gap between physical description and first-person experience has not actually been closed, even when the room wants to move past it.",
+      "cost": "taking the problem this seriously can read as unscientific mysticism to people who assume any deviation from strict materialism must be a retreat from evidence.",
+      "lever": "when raising the hard problem, frame it explicitly as a metaphysical puzzle within a broadly scientific worldview, not a rejection of science, so the seriousness reads as rigor, not retreat."
+    },
+    "failureMode": {
+      "title": "Combination problem",
+      "pattern": "panpsychism has a specific, well-known weakness: it has not solved how many simple micro-conscious entities combine into the single, unified experience a person actually has.",
+      "whereItShowsUp": "presenting the panpsychist view, the combination problem gets glossed over or treated as a detail to be worked out later, when it is actually one of the position's central open difficulties.",
+      "cost": "presenting the view without acknowledging its hardest problem can make the position look less rigorous than the rest of your thinking actually is.",
+      "lever": "when presenting panpsychism, name the combination problem directly as the position's unresolved weak point, rather than letting it surface only when someone else raises it."
+    }
+  },
+  "9B": {
+    "strength": {
+      "title": "Taking the hard problem seriously",
+      "pattern": "you refuse a materialist account that treats experience as a byproduct to be explained away later, insisting instead that mind may be more fundamental than matter.",
+      "whereItShowsUp": "in a conversation about what is truly foundational, physics or experience, you hold the position that experience might be the more basic fact, rather than assuming physics automatically wins that question.",
+      "cost": "this refusal can be mistaken for simply preferring a comforting answer rather than following an actual argument about explanatory adequacy.",
+      "lever": "when defending the position, lead with the specific explanatory gap in the materialist account rather than with the alternative picture, so the argument reads as a response to a real problem, not a preference."
+    },
+    "failureMode": {
+      "title": "Unfalsifiability",
+      "pattern": "the position is sharpest and most defensible as a specific claim, but it can drift into a vaguer form that retreats from any counter-argument into claims about reality that cannot actually be tested or disconfirmed.",
+      "whereItShowsUp": "a specific challenge to the view gets answered by softening the claim just enough to escape the challenge, repeatedly, until the position no longer says anything that could be wrong.",
+      "cost": "a position that cannot be wrong in any specific way loses the force of a genuine metaphysical claim and starts to look like it is being protected rather than defended.",
+      "lever": "state the view in its sharpest, most specific and most falsifiable form, and resist softening it just to dodge a hard counter-argument, engaging the counter-argument directly instead."
+    }
+  },
+  "9C": {
+    "strength": {
+      "title": "Access to depth traditions with epistemic honesty",
+      "pattern": "you draw genuinely on the accumulated moral and practical wisdom of a religious tradition without claiming a certainty about its metaphysics that you do not actually have.",
+      "whereItShowsUp": "using a tradition's ritual or practice for real guidance, you can be honest that you hold the underlying doctrine loosely, without that honesty diminishing how seriously you take the practice itself.",
+      "cost": "holding the metaphysics loosely while using the practice fully can look, to people fully inside the tradition, like taking the benefits without the commitment.",
+      "lever": "when discussing your relationship to the tradition, name explicitly what you hold with confidence and what you hold provisionally, so the position reads as honest rather than as picking and choosing."
+    },
+    "failureMode": {
+      "title": "Selective tradition",
+      "pattern": "it is easy to retain the comforting, meaningful parts of a tradition, community, ritual, moral seriousness, while quietly setting aside the parts that are genuinely demanding or costly.",
+      "whereItShowsUp": "the tradition gets invoked for its warmth and depth in comfortable moments, but its harder ethical demands, the ones that would actually require sacrifice or discomfort, get less airtime.",
+      "cost": "a tradition curated this selectively risks becoming decoration rather than a genuine source of moral challenge, which was part of what made it worth taking seriously.",
+      "lever": "periodically ask which demanding part of the tradition you have been quietly avoiding, and engage that part directly rather than only the parts that are already comfortable."
+    }
+  },
+  "9D": {
+    "strength": {
+      "title": "Integration of ethics, practice, and metaphysics",
+      "pattern": "your worldview is not a set of positions you could state and set aside, it is something you actually practice daily, which means ethics, metaphysics, and discipline reinforce each other rather than staying separate.",
+      "whereItShowsUp": "a difficult ethical situation gets met not just with a stated principle but with an actual practiced discipline, attention, non-reactivity, that changes how you actually respond, not just what you say about it.",
+      "cost": "because the practice is so integrated, it can be hard for someone outside the tradition to engage you on the metaphysics alone without also engaging the whole practiced structure, which can make dialogue feel closed off.",
+      "lever": "when discussing the metaphysics with someone unfamiliar with the practice, separate the philosophical claim from the practiced discipline explicitly, so each can be examined on its own."
+    },
+    "failureMode": {
+      "title": "Spiritual bypassing",
+      "pattern": "practices oriented around non-attachment and acceptance of suffering can become a way to avoid structural injustice or personal psychological work that actually calls for direct engagement.",
+      "whereItShowsUp": "a real grievance, personal or structural, gets processed through non-attachment rather than addressed, with the practice functioning as avoidance rather than as genuine equanimity earned through facing the problem.",
+      "cost": "real injustice or real personal wounds go unaddressed while the practice creates the feeling that they have already been handled.",
+      "lever": "before applying non-attachment to a difficult situation, ask whether the situation actually calls for direct engagement first, and treat non-attachment as something that follows real engagement, not a substitute for it."
+    }
+  },
+  "9E": {
+    "strength": {
+      "title": "Intellectual honesty under social pressure",
+      "pattern": "you hold genuine uncertainty about the deepest questions even when the social pressure around you rewards confident answers, refusing to fake a conviction you have not actually earned.",
+      "whereItShowsUp": "in a conversation where everyone else has staked out a position on consciousness or ultimate meaning, you are willing to be the one who says the honest answer is that you do not know.",
+      "cost": "this honesty can read as evasiveness or lack of seriousness to people who equate a considered position with having a definite answer.",
+      "lever": "when stating your uncertainty, make clear it followed real engagement with the question, not indifference to it, so the agnosticism reads as earned rather than as a shrug."
+    },
+    "failureMode": {
+      "title": "Paralysis",
+      "pattern": "genuine open uncertainty about the deepest questions does not, by itself, tell you how to act, and taken too far it can leave you without any framework for actually deciding things.",
+      "whereItShowsUp": "a decision that needs a working assumption to move forward instead stalls, because the deep uncertainty about ultimate questions has not resolved into anything practical enough to act on.",
+      "cost": "real decisions still need to be made, and pure open-endedness about the deepest questions can leave you without the provisional footing most decisions require.",
+      "lever": "adopt explicit working assumptions for practical purposes, held provisionally, without requiring the deep metaphysical uncertainty underneath them to resolve first."
+    }
+  },
+  "10A": {
+    "strength": {
+      "title": "Integrity of the whole",
+      "pattern": "your metaphysics, ethics, sense of meaning, and politics are one coherent piece rather than separately held positions, which gives your worldview a consistency most people's more piecemeal views lack.",
+      "whereItShowsUp": "a question in one domain, a political stance, an ethical judgment, traces back cleanly to the same underlying commitments, rather than needing a separate justification each time.",
+      "cost": "this integration means a challenge to any one part can feel like a challenge to the whole structure, raising the stakes of disagreement higher than the specific point might warrant.",
+      "lever": "when a specific point is challenged, address that point on its own terms first, rather than defending the whole integrated structure every time a single piece is questioned."
+    },
+    "failureMode": {
+      "title": "Closed epistemology",
+      "pattern": "when revelation is treated as the primary source of truth, evidence that appears to conflict with it can be harder to weigh fairly, since the framework has strong prior commitments about how contrary evidence should be interpreted.",
+      "whereItShowsUp": "a piece of contrary evidence gets processed mainly through the tradition's existing interpretive lens, without genuinely risking that the evidence might require revision.",
+      "cost": "real engagement with contrary evidence can become performance of engagement rather than genuine openness to being wrong.",
+      "lever": "before responding to contrary evidence, ask what it would actually take for that evidence to change your view, and check whether any answer you can give is a real one."
+    }
+  },
+  "10B": {
+    "strength": {
+      "title": "Institutional memory and the patience to use it",
+      "pattern": "you insist on understanding why an institution took its current shape before agreeing to change it, trusting that centuries of trial and error encoded knowledge no single reform proposal can fully reconstruct.",
+      "whereItShowsUp": "facing a proposed reform, you ask what problem the current arrangement was actually solving before you agree it should be replaced, even when the current arrangement has obvious flaws.",
+      "cost": "this patience can read as obstruction to people facing a real, urgent harm from the current arrangement, for whom \"understand it first\" sounds like \"wait longer.\"",
+      "lever": "when asking to understand an institution before reforming it, set a real timeline for that understanding, so patience does not become an indefinite delay."
+    },
+    "failureMode": {
+      "title": "Status quo bias",
+      "pattern": "treating organic development as evidence of wisdom can end up treating whatever currently exists, including genuine injustice, as legitimated simply by having survived this long.",
+      "whereItShowsUp": "a harmful arrangement gets defended on the grounds that it developed organically over time, without asking whether \"developed organically\" and \"developed justly\" are actually the same thing.",
+      "cost": "injustices that persisted because the people harmed by them lacked power to change them can get mistaken for wisdom that earned its survival.",
+      "lever": "when an institution's long survival is offered as evidence for its wisdom, ask separately whether the people most affected by it had any power to change it, and treat that as a different question from how long it lasted."
+    }
+  },
+  "10C": {
+    "strength": {
+      "title": "Loyalty to the middle layer",
+      "pattern": "you see and defend the institutions between the individual and the state, family, congregation, neighbourhood, that both expansive government and pure market logic tend to erode without noticing.",
+      "whereItShowsUp": "in a debate framed entirely as individual versus state, you introduce the missing middle layer, naming what gets lost when neither side is paying attention to it.",
+      "cost": "defending this middle layer can blur into defending specific, currently existing versions of it that carry real problems alongside the genuine social function they serve.",
+      "lever": "when defending the value of the middle layer in the abstract, be specific about which concrete version you mean, and be willing to say when a specific instance of it is failing the people inside it."
+    },
+    "failureMode": {
+      "title": "Romanticising the past",
+      "pattern": "communities worth restoring are easy to remember as warmer and more functional than they actually were, quietly leaving out the coercion or exclusion some of them also enforced.",
+      "whereItShowsUp": "an appeal to restore a past form of community leaves out who was constrained or excluded by it, describing only the belonging it offered to the people it worked for.",
+      "cost": "a restoration project built on an incomplete memory of what it is restoring can end up recreating real harms alongside the genuine goods.",
+      "lever": "when describing a community worth restoring, name explicitly who it was harder on, not just who it served well, so the picture stays honest."
+    }
+  },
+  "10D": {
+    "strength": {
+      "title": "Principled clarity",
+      "pattern": "you can justify a social norm from reason and human nature directly, rather than resting the whole case on tradition or authority alone, which gives your argument reach beyond people who already accept the tradition.",
+      "whereItShowsUp": "defending a contested norm, you build the case from what you take human nature to require, argued calmly, rather than appealing to \"this is how it has always been.\"",
+      "cost": "this confidence in reading nature directly can understate how much interpretation is actually involved in moving from general facts about human nature to a specific, contested norm.",
+      "lever": "when arguing from nature to a specific norm, show the interpretive steps explicitly, so the argument's actual structure, not just its conclusion, is available for real scrutiny."
+    },
+    "failureMode": {
+      "title": "Teleological overspecification",
+      "pattern": "it is easy to draw more specific moral conclusions from an account of human nature than the account can actually bear, and to mistake a genuinely cultural preference for a fact about nature itself.",
+      "whereItShowsUp": "a specific, culturally contingent practice gets defended as required by human nature, when a careful look shows the \"nature\" argument is doing less work than the cultural preference underneath it.",
+      "cost": "conclusions dressed as natural necessity, when they are actually cultural preference, weaken the credibility of the genuine natural-law cases once the gap is noticed.",
+      "lever": "before defending a specific practice as required by nature, check whether other cultures whose members share the same human nature have organized the practice differently, and if so, revise the claim."
+    }
+  },
+  "10E": {
+    "strength": {
+      "title": "A thick account of the self, held with gratitude",
+      "pattern": "you recognize that your language, standards, and sense of a good life were formed by particular communities and histories, and you hold that formation with gratitude rather than treating yourself as self-made.",
+      "whereItShowsUp": "describing your own values, you can trace them back to the communities that gave them to you, rather than presenting them as though you arrived at them independently.",
+      "cost": "this thick account of the self can make it harder to critically evaluate a value you inherited, since questioning it can feel like questioning the community that gave it to you.",
+      "lever": "when examining an inherited value, separate gratitude for the community that gave it to you from the question of whether the value itself still holds up under scrutiny."
+    },
+    "failureMode": {
+      "title": "Community essentialism",
+      "pattern": "communities can get treated as more stable, unified, and coherent than they actually are, when real communities are usually contested internally, with real disagreement about what the community's own values even are.",
+      "whereItShowsUp": "an appeal to \"what the community believes\" flattens genuine internal disagreement into a single voice, usually the voice most convenient to the point being made.",
+      "cost": "treating a contested community as unified erases the people inside it who genuinely dissent, and can make the communitarian case weaker than it needs to be once that internal disagreement surfaces.",
+      "lever": "when invoking what a community believes or values, name the internal disagreement explicitly rather than presenting the community's position as more settled than it is."
+    }
+  },
+  "11A": {
+    "strength": {
+      "title": "Genuine epistemic calibration",
+      "pattern": "you hold uncertainty exactly where uncertainty is warranted, rather than manufacturing false confidence on questions that are genuinely hard to know.",
+      "whereItShowsUp": "in a room full of confident positions on a deeply contested metaphysical question, you are willing to be the one who names how uncertain the honest answer actually is.",
+      "cost": "this calibration can read as lacking conviction to people who measure seriousness by how strongly a position is held, not by how well the confidence matches the evidence.",
+      "lever": "when expressing calibrated uncertainty, distinguish explicitly between questions you are uncertain about because they are genuinely hard and ordinary practical questions where you do have a clear view, so the uncertainty does not read as blanket noncommitment."
+    },
+    "failureMode": {
+      "title": "Commitment phobia",
+      "pattern": "genuine calibration can slide into a habit of never fully committing to anything, using \"the evidence is uncertain\" as protection from ever being clearly wrong.",
+      "whereItShowsUp": "a question that actually does have a reasonably clear best answer gets treated with the same hedged uncertainty you would give a genuinely open question, because full commitment carries the risk of being shown wrong later.",
+      "cost": "real decisions and real positions require commitment at some point, and a permanent hedge can function as avoidance dressed as epistemic virtue.",
+      "lever": "for questions where the evidence is actually reasonably clear, practice stating the conclusion plainly, reserving genuine hedging for the questions that actually warrant it."
+    }
+  },
+  "11B": {
+    "strength": {
+      "title": "Credibility across ideological lines",
+      "pattern": "your moderate positions come from following the evidence rather than from splitting the difference between two poles, which gives them a kind of credibility a purely tribal position does not have.",
+      "whereItShowsUp": "in a debate where both sides expect you to pick one, you can explain the specific evidence that puts you in the middle, rather than presenting moderation itself as the virtue.",
+      "cost": "because your moderation looks the same from the outside as simple fence-sitting, people on both sides can mistake evidence-driven moderation for a lack of real conviction.",
+      "lever": "when stating a moderate position, lead with the specific evidence that produced it, not with the fact of being moderate, so the position reads as a conclusion, not a temperament."
+    },
+    "failureMode": {
+      "title": "False balance",
+      "pattern": "treating the middle as automatically correct can create an artificial symmetry between two positions when the actual evidence supports one of them considerably more than the other.",
+      "whereItShowsUp": "a question where the evidence genuinely favors one side gets presented as though the reasonable answer must lie between the two poles, simply because moderation is the habit.",
+      "cost": "real, well-supported positions get treated as merely one pole in a debate rather than as more supported than the alternative, which misrepresents what the evidence actually shows.",
+      "lever": "before landing in the middle on a question, check whether the evidence for the two sides is actually comparable, and be willing to land closer to one pole when the evidence genuinely supports it."
+    }
+  },
+  "11C": {
+    "strength": {
+      "title": "Long-horizon thinking",
+      "pattern": "you protect the institutional machinery, rule of law, fair process, divided power, that lets a society handle disagreement over generations, rather than optimizing only for the immediate outcome in front of you.",
+      "whereItShowsUp": "in a moment where breaking a procedural norm would produce a good short-term result you actually want, you are the one arguing to preserve the norm anyway, because of what its erosion would cost later.",
+      "cost": "this horizon can make you slow to support a good outcome achieved by breaking with institutional process, even when the specific case for breaking it is genuinely strong.",
+      "lever": "when defending institutional process against a tempting short-term exception, name explicitly what the exception would actually cost long term, so the defense is a real trade-off, not a reflex."
+    },
+    "failureMode": {
+      "title": "Process worship",
+      "pattern": "prioritizing procedural legitimacy can shade into caring more about whether the process was followed than whether the outcome was actually just.",
+      "whereItShowsUp": "an outcome that is procedurally correct but substantively unjust gets defended on process grounds alone, with the injustice itself treated as a secondary concern.",
+      "cost": "a framework meant to serve justice over time can end up defending injustice in the present, as long as the process that produced it was formally correct.",
+      "lever": "when a procedurally correct outcome is substantively unjust, name the injustice directly and separately from the question of whether the process was followed, rather than letting correct process stand in for a defense of the outcome."
+    }
+  },
+  "11D": {
+    "strength": {
+      "title": "Bridging the tradition-reform gap",
+      "pattern": "you give real weight to both what has proven itself over time and what evidence shows needs to change, which lets you talk genuinely with people who hold either position exclusively.",
+      "whereItShowsUp": "in a conversation with a strict traditionalist and a strict reformer, you can find real common ground with each, because you actually share part of each of their premises rather than opposing both from a third position.",
+      "cost": "holding both in tension without a fixed rule for resolving conflicts between them can make your specific verdicts look inconsistent from the outside, even when each one was reasoned carefully.",
+      "lever": "when a specific verdict favors tradition over reform or vice versa, state the reasoning for that specific case explicitly, so the position reads as case-by-case judgment rather than as an unprincipled swing."
+    },
+    "failureMode": {
+      "title": "Incoherence",
+      "pattern": "without an explicit principle for when tradition wins and when reform wins, decisions made case by case can end up looking inconsistent, even contradictory, over time.",
+      "whereItShowsUp": "two similar situations get resolved in opposite directions, one favoring tradition and one favoring reform, without a clear account of what made the two situations different enough to justify the different verdicts.",
+      "cost": "a genuinely thoughtful position can look, from outside, like it has no real principle behind it at all, just whichever side felt right in the moment.",
+      "lever": "after making a tradition-versus-reform judgment call, write down explicitly what tipped it in that direction, building a record you can check for consistency across similar cases."
+    }
+  },
+  "11E": {
+    "strength": {
+      "title": "Getting things done across ideological lines",
+      "pattern": "you treat theoretical frameworks as toolkits rather than team loyalties, which lets you find the practical overlap between people who would never agree on first principles.",
+      "whereItShowsUp": "in a group divided by ideology, you are the one who finds the specific, concrete step everyone can actually agree to try, sidestepping the framework disagreement rather than resolving it.",
+      "cost": "this practicality can mean underlying disagreements never actually get addressed, just worked around, which can leave the same conflict to resurface later in a different form.",
+      "lever": "after finding a practical solution that sidesteps an ideological disagreement, name the disagreement explicitly as still unresolved, rather than letting the practical win imply the underlying question was settled."
+    },
+    "failureMode": {
+      "title": "Technocratic naïveté",
+      "pattern": "a problem that looks purely technical, solvable with the right expertise and the right fix, can actually be a power problem in disguise, where the obstacle is not a lack of a good solution but someone's interest in the current arrangement continuing.",
+      "whereItShowsUp": "a well-designed technical fix stalls, not because the design was wrong, but because it threatened an interest that was never named as part of the problem.",
+      "cost": "good solutions to the technical layer of a problem fail repeatedly when the actual obstacle, at the level of power and interest, was never addressed.",
+      "lever": "before proposing a technical fix, ask explicitly who benefits from the current arrangement and whether they have the power to block the fix, and treat that as part of the problem to solve."
+    }
+  },
+  "12A": {
+    "strength": {
+      "title": "Unsentimental clarity",
+      "pattern": "you see the world without reaching for consoling constructions many people rely on to make it bearable, which gives you a clarity that comes at a real cost.",
+      "whereItShowsUp": "in a conversation about loss or failure, you can name the situation exactly as it is, without softening it with a meaning-making story that is not actually there.",
+      "cost": "this clarity can come across as cold or unfeeling to people who process hard things through meaning-making, and who read the absence of that meaning-making as an absence of feeling.",
+      "lever": "when offering unsentimental clarity to someone who is hurting, check first whether they actually want that clarity right now, or whether the moment calls for something gentler, even if the gentler thing is not, strictly, what you believe."
+    },
+    "failureMode": {
+      "title": "Affective numbing",
+      "pattern": "maintaining intellectual consistency about the absence of cosmic meaning can, without intending it, shade into cutting off genuine feeling as well, treating feeling itself as a kind of inconsistency to be managed.",
+      "whereItShowsUp": "a moment that would normally call for real emotional response instead gets processed entirely through the intellectual frame, with the feeling itself going quietly missing.",
+      "cost": "consistency about the absence of cosmic meaning does not actually require the absence of feeling, and losing access to feeling is a real cost, not a philosophical achievement.",
+      "lever": "notice when an intellectually consistent response has replaced an emotional one that the situation would otherwise call for, and treat that substitution as worth examining, not as success."
+    }
+  },
+  "12B": {
+    "strength": {
+      "title": "Following the argument to its conclusion with intellectual courage",
+      "pattern": "you accepted that moral claims are systematically false because the argument led there, even though few people are willing to hold that conclusion plainly in practice.",
+      "whereItShowsUp": "in a debate about metaethics, you are willing to state the full, uncomfortable implication of the argument, rather than quietly softening the conclusion once it stops being comfortable to hold.",
+      "cost": "stating the position plainly, that moral claims are false, can make people assume you are indifferent to actual moral questions, when the position is about the semantics of moral language, not about how to act.",
+      "lever": "when stating the error-theoretic position, distinguish explicitly between the metaethical claim, that moral claims are false, and your actual practical commitments, which the metaethical claim does not by itself determine."
+    },
+    "failureMode": {
+      "title": "Moral disengagement",
+      "pattern": "the position that moral claims are false can be used, whether intended or not, to justify disengaging from ethical commitments that would otherwise be inconvenient.",
+      "whereItShowsUp": "a real ethical obligation gets waved off with an appeal to the theoretical position, when the theoretical position was never actually about whether you should keep acting as if the obligation held.",
+      "cost": "a sophisticated metaethical position can end up functioning as an excuse, in practice, for whatever you already wanted to do.",
+      "lever": "before using the error-theoretic position to justify disengaging from a specific commitment, ask whether you would still make the same choice if the metaethical question were simply set aside."
+    }
+  },
+  "12C": {
+    "strength": {
+      "title": "Maximum scientific coherence",
+      "pattern": "you hold your ontology to exactly what neuroscience actually warrants, refusing to keep folk categories, belief, desire, the self, around just because they are familiar and comfortable.",
+      "whereItShowsUp": "in a discussion of mind, you push past where most people stop, questioning whether \"belief\" and \"desire\" name real things at all, rather than assuming they must because everyone uses the words.",
+      "cost": "this rigor pushes the position into territory that is genuinely hard to state or argue for without using the very folk categories the position denies exist.",
+      "lever": "when pressed on the self-referential difficulty, acknowledge it directly as a real, known challenge for the position, rather than deflecting it, since acknowledging it is more consistent with the position's own commitment to following evidence honestly."
+    },
+    "failureMode": {
+      "title": "Performative self-contradiction",
+      "pattern": "arguing against the reality of beliefs and reasons requires using beliefs and reasons to make the argument, a tension the position has never fully resolved.",
+      "whereItShowsUp": "presenting the eliminativist case, the argument itself relies on the listener having beliefs that get updated by reasons, which is exactly the folk apparatus the argument claims does not really exist.",
+      "cost": "the performative tension can make the position look self-undermining in a way that a listener notices immediately, even before engaging with the substance.",
+      "lever": "when presenting the position, address the performative tension up front rather than waiting for someone else to raise it, framing it as an open problem the position has not fully solved rather than a fatal flaw being hidden."
+    }
+  },
+  "12D": {
+    "strength": {
+      "title": "Honest accounting of suffering",
+      "pattern": "you weigh the actual scale of suffering in conscious life without the discount most optimistic frameworks apply to it, which produces a more complete accounting even if a bleaker one.",
+      "whereItShowsUp": "in a conversation about whether life is, on balance, good, you bring specific, concrete forms of suffering into the accounting that a more optimistic framework tends to underweight or skip past.",
+      "cost": "this completeness of accounting can make conversations heavier than the people in them are prepared for, since most optimistic frameworks are optimistic partly by never fully counting what you count.",
+      "lever": "when bringing the fuller accounting of suffering into a conversation, be explicit about why it matters to get the accounting right, so the point lands as rigor rather than as simply darkening the mood."
+    },
+    "failureMode": {
+      "title": "Paralysis or contagion",
+      "pattern": "pessimism as a considered metaphysical position is internally coherent, but carried as a social orientation, it tends to drain the energy and mood of people around you, whether or not that was the intent.",
+      "whereItShowsUp": "a conversation that started on a specific, bounded topic drifts into the broader pessimistic frame, leaving the people in it heavier than the original topic required.",
+      "cost": "people can start avoiding real conversations with you specifically to avoid the broader frame, even when they might otherwise value your honesty.",
+      "lever": "keep the metaphysical position and its expression separate, holding the position as a considered view while choosing, deliberately, when and how much of it to bring into a given conversation."
+    }
+  },
+  "12E": {
+    "strength": {
+      "title": "The most psychologically stable nihilist type",
+      "pattern": "you hold the bleakest metaphysical conclusions without those conclusions producing paralysis, because you recognize that caring and valuing are real features of your psychology that never actually needed cosmic backing.",
+      "whereItShowsUp": "someone challenges whether your commitments \"really\" matter given your nihilism, and you can answer honestly that they do not matter cosmically and that this changes nothing about how fully you are committed to them.",
+      "cost": "this stability can be mistaken by people newer to the same conclusions for not having actually understood the stakes of nihilism, when it is in fact a fully worked-through integration of it.",
+      "lever": "when explaining the stability, walk through how you got there rather than presenting it as simply obvious, so it reads as integration rather than as never having taken the problem seriously."
+    },
+    "failureMode": {
+      "title": "Compartmentalisation",
+      "pattern": "holding nihilism intellectually while continuing to care and act functionally can become genuine integration, or it can become two separate compartments that never actually talk to each other, avoiding the harder work of reconciling them.",
+      "whereItShowsUp": "the intellectual position and the functional commitments run on separate tracks, with neither one actually informing or challenging the other, which looks like integration from outside but is closer to avoidance.",
+      "cost": "unexamined compartmentalization can leave you unprepared for a moment that forces the two tracks into direct contact, a crisis that tests whether the integration was ever real.",
+      "lever": "periodically ask directly how your nihilist conclusions and your functional commitments actually relate, rather than letting the question go unasked because the current arrangement is comfortable."
+    }
+  }
+};
+// END HOW_YOU_OPERATE_LIBRARY block
+
 // Deterministic band classifier matching lib/belief-map-registry.js's
 // BAND_THRESHOLDS exactly (1.00-2.19 strongL, 2.20-3.39 leanL, 3.40-4.60
 // mid, 4.61-5.80 leanR, 5.81-7.00 strongR). No new scoring logic - these
@@ -11391,14 +12391,32 @@ function renderReport(scores, contradictions, archetypeResult, fingerprint, repo
   }
 
   // ── PATTERNS ──
+  // B-3 wiring (2026-08-02): the shallow strength/failureMode one-liners
+  // stay as-is (report.patterns is unchanged, so historical saved/shared
+  // reports keep rendering identically); the reviewed four-part expansion
+  // is looked up fresh at render time from HOW_YOU_OPERATE_LIBRARY by the
+  // current archetype's variant id, deterministic, no scoring change.
   const patternsEl = document.getElementById('report-patterns');
   if (patternsEl && report.patterns && report.patterns.length > 0) {
-    patternsEl.innerHTML = report.patterns.map(p =>
-      `<div class="pattern-card ${sanitizeHTML(p.type || '')}">
+    const howYouOperate = archetypeResult && archetypeResult.primary
+      ? HOW_YOU_OPERATE_LIBRARY[archetypeResult.primary.id] || null
+      : null;
+    patternsEl.innerHTML = report.patterns.map(p => {
+      const kind = p.type === 'positive' ? 'strength' : 'failureMode';
+      const exp = howYouOperate ? howYouOperate[kind] : null;
+      const expansionHtml = exp ? `
+        <div class="pattern-expansion">
+          <div class="pattern-expansion-row"><span class="pattern-expansion-label">The pattern</span><p>${sanitizeHTML(exp.pattern || '')}</p></div>
+          <div class="pattern-expansion-row"><span class="pattern-expansion-label">Where it shows up</span><p>${sanitizeHTML(exp.whereItShowsUp || '')}</p></div>
+          <div class="pattern-expansion-row"><span class="pattern-expansion-label">Cost</span><p>${sanitizeHTML(exp.cost || '')}</p></div>
+          <div class="pattern-expansion-row"><span class="pattern-expansion-label">The lever</span><p>${sanitizeHTML(exp.lever || '')}</p></div>
+        </div>` : '';
+      return `<div class="pattern-card ${sanitizeHTML(p.type || '')}">
         <div class="pattern-label">${p.type === 'positive' ? '↑' : '↓'} ${sanitizeHTML(p.label || '')}</div>
         <div class="pattern-text">${sanitizeHTML(p.text || '')}</div>
-      </div>`
-    ).join('');
+        ${expansionHtml}
+      </div>`;
+    }).join('');
   } else {
     const patNav = document.querySelector('.rn-item[data-section="rs-patterns"]');
     if (patNav) patNav.style.display = 'none';
