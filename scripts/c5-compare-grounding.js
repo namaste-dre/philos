@@ -179,9 +179,35 @@ async function callProvider(prompt, apiKey, fetchImpl) {
   return (data.content && data.content[0] && data.content[0].text) || '';
 }
 
+// Parses Call 1 output the same way production does: the exact
+// repairJSONStringControlChars function is extracted from index.html (vm
+// technique, so the deployed repair is used, not a copy) and applied
+// before parsing - the provider occasionally emits raw control characters
+// inside JSON string values (a known defect class the live client
+// repairs), and the first C-5 run needed a post-hoc repair script for 2
+// of 6 outputs because this parser lacked it. Fixed per Lyra's
+// pre-activation directive; the post-hoc script is no longer needed.
+function loadProductionJsonRepair() {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const sigRe = /function\s+repairJSONStringControlChars\s*\([^)]*\)\s*\{/;
+  const m = sigRe.exec(html);
+  if (!m) throw new Error('repairJSONStringControlChars not found in index.html');
+  let i = m.index + m[0].length, depth = 1;
+  while (depth > 0 && i < html.length) {
+    if (html[i] === '{') depth++;
+    else if (html[i] === '}') depth--;
+    i++;
+  }
+  const sandbox = {};
+  vm.createContext(sandbox);
+  new vm.Script(html.slice(m.index, i) + '\nthis.repair = repairJSONStringControlChars;').runInContext(sandbox);
+  return sandbox.repair;
+}
+const productionJsonRepair = loadProductionJsonRepair();
+
 function parseCall1Output(raw) {
   const clean = raw.replace(/^```json\s*/, '').replace(/```\s*$/, '').trim();
-  try { return { parsed: JSON.parse(clean), parseError: null }; }
+  try { return { parsed: JSON.parse(productionJsonRepair(clean)), parseError: null }; }
   catch (e) { return { parsed: null, parseError: e.message }; }
 }
 

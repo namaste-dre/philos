@@ -128,6 +128,32 @@ async function run() {
       !html.includes('c5-compare') && !html.includes('GROUNDING CONTEXT (reviewed interpretations'));
   }
 
+  // ---- 7b. Parser repairs the known provider control-character defect ----
+  // The first C-5 paid run needed a post-hoc repair script for 2 of 6
+  // outputs because parseCall1Output lacked the production repair. It now
+  // applies the exact repairJSONStringControlChars extracted from
+  // index.html before parsing, so the same defect class production can
+  // repair parses here too (Lyra's pre-activation directive).
+  {
+    const IDENT = 'A first line.' + String.fromCharCode(10) + 'A second line after a RAW newline inside the JSON string.';
+    const rawBroken = '{"identity":"' + IDENT + '"}';
+    let plainParseFails = false;
+    try { JSON.parse(rawBroken); } catch (e) { plainParseFails = true; }
+    ok('the control-character fixture genuinely breaks plain JSON.parse', plainParseFails);
+    const { parsed, parseError } = harness.parseCall1Output(rawBroken);
+    ok('parseCall1Output repairs and parses the raw-control-character class production can repair',
+      parseError === null && parsed && parsed.identity === IDENT, parseError);
+    const withTab = harness.parseCall1Output('{"identity":"tab' + String.fromCharCode(9) + 'inside"}');
+    ok('a raw tab inside a JSON string is repaired and parsed too',
+      withTab.parseError === null && withTab.parsed.identity.includes(String.fromCharCode(9)));
+    const fenced = harness.parseCall1Output('```json\n{"identity":"fenced ok"}\n```');
+    ok('markdown fences are still stripped before repair and parse',
+      fenced.parseError === null && fenced.parsed.identity === 'fenced ok');
+    const hopeless = harness.parseCall1Output('not json at all');
+    ok('genuinely unparseable output still reports a parse error rather than throwing',
+      hopeless.parsed === null && typeof hopeless.parseError === 'string');
+  }
+
   // ---- 8. Evidence isolation ----
   {
     const gitignore = fs.readFileSync(path.join(__dirname, '..', '.gitignore'), 'utf8');

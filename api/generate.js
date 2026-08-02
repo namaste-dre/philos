@@ -720,9 +720,10 @@ function buildGroundedCall1Prompt(ctx, groundingText) {
 ${groundingText}
 
 GROUNDING RULES:
-- Treat these interpretations as evidence, alongside the scores themselves.
-- Ground every claim in the actual scores and these interpretations.
-- Do not quote or paraphrase the interpretations mechanically; write fresh prose in your own words.
+- The grounding context above is evidence, not prose inventory. Use it to make your claims accurate; never mine it for sentences.
+- Translate the evidence into fresh second-person synthesis in your own words. Never copy the interpretations' wording, never closely paraphrase their distinctive sentences, and never reuse their distinctive metaphors, signature constructions, or contrast frames (for example, a memorable image or an "X versus Y was never the choice" framing from an interpretation must not reappear in any form).
+- This person will later read those exact interpretation texts elsewhere in their report. Any phrase of yours that would sound duplicated next to them is a failure, even if reworded.
+- Ground every claim in the actual scores and this evidence.
 - Do not invent biography, relationships, habits, or life events.
 - Keep the same second-person warmth as the rest of these instructions.
 

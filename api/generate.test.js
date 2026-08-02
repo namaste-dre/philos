@@ -639,6 +639,22 @@ async function run() {
       const grounded = t.buildGroundedCall1Prompt(PROMPT_CTX, t.groundingContextFrom(AXIS_MAP, FPS));
       ok('grounded prompt includes the GROUNDING CONTEXT section', grounded.includes('GROUNDING CONTEXT (reviewed interpretations'));
       ok('grounded prompt includes the grounding rules', grounded.includes('Do not invent biography, relationships, habits, or life events.'));
+      // Anti-echo rule strengthened after the C-5 paid comparison found
+      // close band-text paraphrases in 2 of 3 grounded outputs (Lyra's
+      // pre-activation directive, 2026-08-02): the rule must name every
+      // prohibited reuse mode and the duplication consequence.
+      ok('grounded prompt frames the grounding context as evidence, not prose inventory',
+        grounded.includes('evidence, not prose inventory'));
+      ok('grounded prompt forbids copying and close paraphrase of distinctive band text',
+        grounded.includes("Never copy the interpretations' wording") &&
+        grounded.includes('never closely paraphrase their distinctive sentences'));
+      ok('grounded prompt forbids reusing distinctive metaphors, signature constructions, and contrast frames',
+        grounded.includes('distinctive metaphors, signature constructions, or contrast frames'));
+      ok('grounded prompt names the duplication consequence (band shorts render verbatim elsewhere in the report)',
+        grounded.includes('will later read those exact interpretation texts elsewhere in their report') &&
+        grounded.includes('would sound duplicated'));
+      ok('grounded prompt demands fresh second-person synthesis',
+        grounded.includes('fresh second-person synthesis in your own words'));
       ok('grounded prompt preserves the full default template around the insertion',
         grounded.startsWith('You are writing a philosophical profile for Andre.') &&
         grounded.includes('PATTERN NOTES:') && grounded.includes('WRITING RULES:') &&
