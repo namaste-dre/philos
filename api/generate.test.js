@@ -525,6 +525,26 @@ async function run() {
   const p2 = t.buildCall2Prompt({ userName: 'Andre', axisDump: 'x', archFamily: 'F', archVariant: 'V' });
   ok('buildCall2Prompt matches original template opening', p2.startsWith('You are writing the "world lenses" section'));
 
+  // ---- Unescaped-quote JSON defect fix (2026-08-03, surfaced by the D158 ----
+  // paid Call 2 comparison run) - a real, live prompt-instruction change to
+  // both default builders, applied at the root cause rather than as a
+  // post-hoc repair heuristic that could misjudge a real string boundary.
+  {
+    ok('buildCall1Prompt instructs the model never to use a bare double-quote inside a JSON string value',
+      p1.includes('Never use a literal double-quote character inside a JSON string value') && p1.includes('backslash then a double-quote'));
+    ok('buildCall2Prompt carries the same instruction',
+      p2.includes('Never use a literal double-quote character inside a JSON string value') && p2.includes('backslash then a double-quote'));
+    // Both grounded candidate builders wrap the default builder's return
+    // value, so they inherit the new rule automatically - proven directly
+    // rather than assumed.
+    const grounded1 = t.buildGroundedCall1Prompt({ userName: 'Andre', axisDump: 'x', fingerprintSummary: 'y', contradictionSummary: 'None', liminalNote: '', archFamily: 'F', archVariant: 'V' }, 'some grounding text');
+    ok('the grounded Call 1 candidate inherits the new quote-escaping rule from the default builder',
+      grounded1.includes('Never use a literal double-quote character inside a JSON string value'));
+    const grounded2 = t.buildGroundedCall2Prompt({ userName: 'Andre', axisDump: 'x', archFamily: 'F', archVariant: 'V' }, { self: 'some text' });
+    ok('the grounded Call 2 candidate inherits the new quote-escaping rule from the default builder',
+      grounded2.includes('Never use a literal double-quote character inside a JSON string value'));
+  }
+
   // ---- C-2 staged grounding (2026-08-02) ----
   // The grounding selector and staged prompt builder are a candidate path
   // exercised only here; the handler must never reference them, and the
@@ -697,6 +717,7 @@ async function run() {
         'The test is recognition: name the implications of their own answers back to them',
         '{"identity":"5 paragraphs separated by',
         '"lens":"Life and Existence","icon":"horizon"',
+        'Never use a literal double-quote character inside a JSON string value',
       ];
       ok('client prompt-hash mirror still carries the default template segments',
         sharedSegments.every((s) => html.includes(s) && genSource.includes(s)));
