@@ -714,6 +714,142 @@ async function run() {
     }
   }
 
+  // ---- D158 staged Call 2 grounding (2026-08-03) ----
+  // Per-lens grounding selector and staged prompt builder are a candidate
+  // path exercised only here; the handler must never reference them, and
+  // the existing "call 2 is NOT grounded" end-to-end test above must stay
+  // true unchanged - this block never touches the handler.
+  {
+    const genSource = fs.readFileSync(path.join(__dirname, 'generate.js'), 'utf8');
+    const handlerSection = genSource.slice(
+      genSource.indexOf('export default async function handler'),
+      genSource.indexOf('export const __testables__'));
+
+    ok('GROUNDED_CALL2_ENABLED is false (staged, not activated)', t.GROUNDED_CALL2_ENABLED === false);
+    ok('the handler never references the Call 2 grounding candidates (still fully inert)',
+      !handlerSection.includes('call2GroundingContextFrom') &&
+      !handlerSection.includes('call2GroundingTextByLens') &&
+      !handlerSection.includes('buildGroundedCall2Prompt') &&
+      !handlerSection.includes('GROUNDED_CALL2_ENABLED'));
+    ok('PROMPT_BUILDERS still selects only the original builders (Call 2 rollback path intact)',
+      genSource.includes('const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };'));
+
+    // Lens/axis map structure.
+    const LENS_KEYS = ['self', 'otherPeople', 'relationships', 'society', 'lifeAndExistence'];
+    ok('CALL2_LENS_AXES has exactly the five lens keys', JSON.stringify(Object.keys(t.CALL2_LENS_AXES)) === JSON.stringify(LENS_KEYS));
+    const allListedAxes = new Set();
+    let unknownAxis = null;
+    LENS_KEYS.forEach((k) => {
+      const axes = t.CALL2_LENS_AXES[k];
+      if (!Array.isArray(axes) || axes.length === 0) unknownAxis = `${k}: empty pool`;
+      axes.forEach((a) => {
+        allListedAxes.add(a);
+        if (!t.GROUNDING_DATA[a]) unknownAxis = `${k}: unknown axis ${a}`;
+      });
+    });
+    ok('every axis in every lens pool is a real, known GROUNDING_DATA axis, no lens is empty', unknownAxis === null, unknownAxis);
+    ok('realism is deliberately excluded from every lens pool (disclosed judgment call, D158)', !allListedAxes.has('realism'));
+    ok('all 10 newly agreed axes are present somewhere across the five lens pools',
+      ['mind_consciousness', 'physicalism', 'ethics', 'knowledge', 'temporal_orientation', 'science', 'animal_ethics', 'naturalism', 'moral_ground', 'epistemic_method']
+        .every((a) => allListedAxes.has(a)));
+
+    // Selector behavior.
+    const AXIS_MAP = {};
+    VALID_AXIS_SCORES.forEach(({ axis, score }) => { AXIS_MAP[axis] = score; });
+    {
+      const selfText = t.call2GroundingContextFrom(AXIS_MAP, 'self');
+      const selfMidAxes = t.CALL2_LENS_AXES.self.filter((a) => t.classifyGroundingBand(AXIS_MAP[a]) === 'mid');
+      const selfNonMidAxes = t.CALL2_LENS_AXES.self.filter((a) => t.classifyGroundingBand(AXIS_MAP[a]) !== 'mid');
+      ok('a lens grounding text includes every non-mid axis label from its pool',
+        selfNonMidAxes.every((a) => selfText.includes(t.GROUNDING_DATA[a].label)), { selfNonMidAxes, selfText: selfText.slice(0, 200) });
+      ok('a lens grounding text excludes mid-band axes from its pool',
+        selfMidAxes.every((a) => !selfText.includes(`${t.GROUNDING_DATA[a].label} (`)), selfMidAxes);
+      ok('lens grounding text stays under the per-lens budget', selfText.length <= t.CALL2_GROUNDING_MAX_CHARS, selfText.length);
+      ok('lens grounding text contains no em/en dashes', !/[—–]/.test(selfText));
+    }
+    {
+      const byLens = t.call2GroundingTextByLens(AXIS_MAP);
+      ok('call2GroundingTextByLens returns all five lens keys', JSON.stringify(Object.keys(byLens).sort()) === JSON.stringify([...LENS_KEYS].sort()));
+    }
+    {
+      // Malformed inputs: skipped safely, never throws, never mutates.
+      let threw = false;
+      try {
+        t.call2GroundingContextFrom(AXIS_MAP, 'not_a_real_lens');
+        t.call2GroundingContextFrom(null, 'self');
+        t.call2GroundingContextFrom({}, 'self');
+        t.call2GroundingTextByLens(null);
+      } catch (e) { threw = true; }
+      ok('malformed lens/axisMap inputs are skipped without throwing', !threw);
+    }
+    {
+      // Worst-case budget per lens: every axis in the pool at its largest
+      // possible non-mid snippet size must fit CALL2_GROUNDING_MAX_CHARS.
+      const overBudget = [];
+      LENS_KEYS.forEach((lensKey) => {
+        const worst = t.CALL2_LENS_AXES[lensKey].reduce((sum, axisId) => {
+          const d = t.GROUNDING_DATA[axisId];
+          const nonMidBands = Object.entries(d.bands).filter(([band]) => band !== 'mid').map(([, v]) => v);
+          const maxBand = Math.max(...nonMidBands.map((b) => b.length));
+          return sum + d.label.length + d.def.length + maxBand + 40;
+        }, 0);
+        if (worst > t.CALL2_GROUNDING_MAX_CHARS) overBudget.push({ lensKey, worst, budget: t.CALL2_GROUNDING_MAX_CHARS });
+      });
+      ok('worst-case grounding (every pool axis, largest non-mid band) fits the per-lens budget for all five lenses',
+        overBudget.length === 0, overBudget);
+    }
+
+    // Prompt assembly.
+    const CALL2_PROMPT_CTX = { userName: 'Andre', axisDump: 'x', archFamily: 'F', archVariant: 'V' };
+    {
+      const emptyByLens = { self: '', otherPeople: '', relationships: '', society: '', lifeAndExistence: '' };
+      const grounded = t.buildGroundedCall2Prompt(CALL2_PROMPT_CTX, emptyByLens);
+      const base = t.buildCall2Prompt(CALL2_PROMPT_CTX);
+      ok('with no grounding text for any lens, the candidate builder returns the default prompt byte-identically',
+        grounded === base);
+    }
+    {
+      const byLens = t.call2GroundingTextByLens(AXIS_MAP);
+      const grounded = t.buildGroundedCall2Prompt(CALL2_PROMPT_CTX, byLens);
+      const base = t.buildCall2Prompt(CALL2_PROMPT_CTX);
+      ok('with real grounding text, the candidate builder inserts a GROUNDING CONTEXT section',
+        grounded.includes('GROUNDING CONTEXT (reviewed interpretations'));
+      ok('the candidate builder preserves the full default template around the insertion',
+        grounded.includes(base.split('Write 5 lenses')[0]) && grounded.includes(base.split('Write 5 lenses')[1]));
+      ok('grounding is inserted before "Write 5 lenses"',
+        grounded.indexOf('GROUNDING CONTEXT') < grounded.indexOf('Write 5 lenses'));
+      ok('the grounded prompt carries the anti-echo rule (evidence, not prose inventory)',
+        grounded.includes('evidence, not prose inventory'));
+      ok('the grounded prompt forbids copying and close paraphrase of distinctive band text',
+        grounded.includes('never closely paraphrase their distinctive sentences'));
+      ok('the grounded prompt names the duplication consequence (band texts render verbatim elsewhere)',
+        grounded.includes('will later read those exact interpretation texts elsewhere in their report'));
+      ok('the grounded prompt carries the new cross-lens anti-repetition rule (not present in Call 1)',
+        grounded.includes('do not let two lenses read as restatements of each other'));
+      LENS_KEYS.forEach((k) => {
+        if (byLens[k]) {
+          ok(`grounded prompt includes the ${k} lens subheader when that lens has grounding text`,
+            grounded.includes(t.CALL2_LENS_LABELS[k] + ':'));
+        }
+      });
+      ok('grounded prompt contains no em/en dashes in the inserted section',
+        !/[—–]/.test(grounded.slice(grounded.indexOf('GROUNDING CONTEXT'), grounded.indexOf('Write 5 lenses'))));
+    }
+    {
+      // A lens with zero non-mid axes in its pool produces empty text and
+      // is skipped entirely from the assembled prompt (no empty subheader).
+      const allMid = {};
+      LENS_KEYS.forEach((k) => t.CALL2_LENS_AXES[k].forEach((a) => { allMid[a] = 4.0; }));
+      const byLens = t.call2GroundingTextByLens(allMid);
+      const allEmpty = LENS_KEYS.every((k) => byLens[k] === '');
+      ok('an all-midpoint profile grounds every lens to empty text', allEmpty, byLens);
+      const grounded = t.buildGroundedCall2Prompt(CALL2_PROMPT_CTX, byLens);
+      const base = t.buildCall2Prompt(CALL2_PROMPT_CTX);
+      ok('an all-midpoint profile returns the default Call 2 prompt byte-identically (nothing to ground)',
+        grounded === base);
+    }
+  }
+
   global.fetch = originalFetch;
 
   console.log(`\n${pass} passed, ${fail} failed`);

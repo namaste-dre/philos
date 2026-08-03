@@ -784,6 +784,128 @@ Return ONLY valid JSON, with no markdown fences:
 {"world":[{"lens":"The Self","icon":"mirror","view":"2-3 sentences on how this person sees their own identity, agency, and inner life. Draw from self, identity, determinism, responsibility scores. What does it feel like to be them on the inside?","shows_up":"2-3 sentences on how this self-view is likely to show up in how you move through the world.","prompt":"One reflective question they can sit with this week. Concrete, not abstract. No em dashes."},{"lens":"Other People","icon":"people","view":"2-3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, social_ontology.","shows_up":"2-3 sentences on how this plays out. What are they good at in relationships? What is hard?","prompt":"One reflective question about a specific relationship or interaction. Honest and concrete."},{"lens":"Relationships","icon":"connect","view":"2-3 sentences on how this person approaches connection and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, society.","shows_up":"2-3 sentences on how this tends to look in practice.","prompt":"One reflective question about what they might be asking from others that they have not said out loud."},{"lens":"Society","icon":"city","view":"2-3 sentences on how this person sees society and their place in the collective. Draw from society, politics, justice, authority, economics, responsibility.","shows_up":"2-3 sentences on how this tends to shape their day to day.","prompt":"One reflective question about their actual relationship to the collective right now."},{"lens":"Life and Existence","icon":"horizon","view":"2-3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, progress.","shows_up":"2-3 sentences on how this is likely to show up in the texture of their days.","prompt":"One honest question about where they are right now in their relationship with their own existence. No em dashes."}]}`;
 }
 
+// -- D158 staged Call 2 five-band grounding selector + prompt path --
+// Andre ruled 2026-08-03 (D158) that Call 2 should also receive five-band
+// grounding, conditional on clearing the same real-evidence bar Call 1
+// cleared at D157/C-5 - not a blind activation. Staged here exactly like
+// C-2 staged Call 1: by-construction inert, never referenced by the
+// handler, GROUNDED_CALL2_ENABLED left false. Activation requires its own
+// Andre-gated paid comparison, same as Call 1's C-5 round.
+//
+// Design, per the working session that produced D158: each of the five
+// lenses grounds on its OWN relevant axis pool, not a single shared top-5
+// - Call 1's identity essay is one long-form synthesis and a shared
+// fingerprint fits it, but Call 2's five lenses are separate, shorter,
+// topic-specific sections, and the live (ungrounded) Call 2 prompt
+// already tells the model which axes matter to which lens. That existing
+// per-lens map was found to be missing 10 axes with real thematic
+// relevance during the design conversation - CALL2_LENS_AXES below is
+// the corrected map, agreed with Andre before any code was written.
+// `realism` was not assigned to any lens - no strong thematic fit was
+// found, disclosed as a judgment call rather than forced somewhere weak.
+const GROUNDED_CALL2_ENABLED = false;
+
+// Per-lens grounding budget. Call 2 grounds up to five separate lens
+// sections (versus Call 1's one), so this is a per-lens cap, not a
+// whole-prompt cap like GROUNDING_MAX_CHARS. Proven against the real
+// worst case (largest-pool lens, every axis non-mid) by the test suite,
+// the same discipline GROUNDING_MAX_CHARS was proven under. Sized
+// generously per Andre's D158 direction (depth and rigor over economy):
+// the largest pool (lifeAndExistence, 11 axes) has a real worst case of
+// 4641 chars; 5200 clears every lens's worst case with headroom.
+const CALL2_GROUNDING_MAX_CHARS = 5200;
+
+// Each lens's relevant axis pool, in a fixed display order. Deliberately
+// not disjoint across lenses (unlike the Alignment Library's four domain
+// sets) - Call 2's lenses are full sections, not short cards, and axes
+// like `responsibility`/`social_ontology`/`temporal_orientation`/
+// `physicalism` genuinely matter to more than one lens. The anti-echo
+// rule below is extended with a cross-lens instruction specifically
+// because of this deliberate overlap.
+const CALL2_LENS_AXES = {
+  self:             ['self', 'identity', 'determinism', 'responsibility', 'mind_consciousness', 'physicalism'],
+  otherPeople:      ['human_nature', 'moral_scope', 'freewill_practice', 'responsibility', 'social_ontology', 'ethics', 'knowledge'],
+  relationships:    ['social_ontology', 'identity', 'moral_authority', 'epistemic_humility', 'society', 'temporal_orientation'],
+  society:          ['society', 'politics', 'justice', 'authority', 'economics', 'responsibility', 'science', 'animal_ethics'],
+  lifeAndExistence: ['meaning', 'meaning_practice', 'teleology', 'religion', 'uncertainty', 'progress', 'naturalism', 'moral_ground', 'epistemic_method', 'physicalism', 'temporal_orientation'],
+};
+
+const CALL2_LENS_LABELS = {
+  self:             'THE SELF',
+  otherPeople:      'OTHER PEOPLE',
+  relationships:    'RELATIONSHIPS',
+  society:          'SOCIETY',
+  lifeAndExistence: 'LIFE AND EXISTENCE',
+};
+
+// Grounds one lens: every axis in that lens's pool whose classified band
+// is NOT 'mid', in pool order. Mid-band axes are skipped deliberately -
+// a mid-band interpretation is, by construction, the least decisive text
+// the library has for that axis, so including it would pad the prompt
+// without adding signal. This means grounding depth scales with how
+// distinctive the person actually is on that lens's themes, not a fixed
+// count - someone centrist across a lens's whole pool gets a short or
+// empty grounding block for it; someone with several extreme positions
+// gets deep grounding. Pure: never mutates inputs, never throws on
+// malformed entries (skipped).
+function call2GroundingContextFrom(axisMap, lensKey) {
+  const axisIds = CALL2_LENS_AXES[lensKey];
+  if (!Array.isArray(axisIds)) return '';
+  const lines = [];
+  let used = 0;
+  for (const axisId of axisIds) {
+    const data = GROUNDING_DATA[axisId];
+    const score = axisMap ? axisMap[axisId] : undefined;
+    if (!data || typeof score !== 'number' || !Number.isFinite(score)) continue;
+    const band = classifyGroundingBand(score);
+    if (band === 'mid') continue;
+    const bandText = data.bands[band];
+    const snippet = `${data.label} (${score.toFixed(1)}/7): ${data.def}\n  This person's position: ${bandText}`;
+    if (used + snippet.length > CALL2_GROUNDING_MAX_CHARS) break;
+    lines.push(snippet);
+    used += snippet.length;
+  }
+  return lines.join('\n');
+}
+
+// Computes the grounding text for all five lenses from one axisMap.
+// Pure, deterministic, never throws.
+function call2GroundingTextByLens(axisMap) {
+  const out = {};
+  for (const lensKey of Object.keys(CALL2_LENS_AXES)) {
+    out[lensKey] = call2GroundingContextFrom(axisMap, lensKey);
+  }
+  return out;
+}
+
+// The staged Call 2 candidate: the default prompt with a single combined
+// GROUNDING CONTEXT section (subdivided by lens) inserted ahead of the
+// "Write 5 lenses" instruction. With no grounding text for any lens it
+// returns the default prompt byte-identically - the same no-drift
+// guarantee C-2's Call 1 builder carries, asserted by the test suite.
+function buildGroundedCall2Prompt(ctx, groundingTextByLens) {
+  const base = buildCall2Prompt(ctx);
+  const lensKeys = Object.keys(CALL2_LENS_AXES).filter(
+    (k) => groundingTextByLens && groundingTextByLens[k]);
+  if (!lensKeys.length) return base;
+  const blocks = lensKeys.map(
+    (k) => `${CALL2_LENS_LABELS[k]}:\n${groundingTextByLens[k]}`).join('\n\n');
+  const section = `GROUNDING CONTEXT (reviewed interpretations of this person's strongest axes, organized by lens):
+${blocks}
+
+GROUNDING RULES:
+- The grounding context above is evidence, not prose inventory. Use it to make your claims accurate; never mine it for sentences.
+- Translate the evidence into fresh second-person synthesis in your own words, per lens. Never copy the interpretations' wording, never closely paraphrase their distinctive sentences, and never reuse their distinctive metaphors, signature constructions, or contrast frames.
+- This person will later read those exact interpretation texts elsewhere in their report. Any phrase of yours that would sound duplicated next to them is a failure, even if reworded.
+- These five lenses are read together in one report. Where two lenses ground on the same or a related axis, say something genuinely different in each - do not let two lenses read as restatements of each other.
+- Ground every claim in the actual scores and this evidence.
+- Do not invent biography, relationships, habits, or life events.
+- Keep the same second-person warmth as the rest of these instructions.
+
+`;
+  return base.replace('Write 5 lenses', section + 'Write 5 lenses');
+}
+
 const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };
 
 // -- Schema validation (data only, never free text) -------
@@ -1174,4 +1296,8 @@ export const __testables__ = {
   GROUNDED_PROMPTS_ENABLED, GROUNDING_MAX_CHARS, GROUNDING_MAX_GLOSSARY,
   GROUNDING_THRESHOLDS, GROUNDING_DATA, GROUNDING_GLOSSARY,
   classifyGroundingBand, groundingContextFrom, buildGroundedCall1Prompt,
+  // D158 staged Call 2 grounding (2026-08-03) - candidate path, test-only,
+  // never referenced by the handler:
+  GROUNDED_CALL2_ENABLED, CALL2_GROUNDING_MAX_CHARS, CALL2_LENS_AXES, CALL2_LENS_LABELS,
+  call2GroundingContextFrom, call2GroundingTextByLens, buildGroundedCall2Prompt,
 };
