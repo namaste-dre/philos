@@ -1,5 +1,9 @@
 // C-5 controlled comparison harness (2026-08-02): default Call 1 prompt vs
 // the staged C-2 grounded Call 1 prompt, on the same profile context.
+// Extended 2026-08-03 (D158) to also compare Call 2 (the five "In the
+// World" lenses) against its staged grounded builder - pass --call2.
+// Call 1 remains the default when --call2 is absent, byte-identical to
+// this harness's pre-D158 behavior.
 //
 // LOCAL-ONLY. Not a serverless function, never deployed as behavior, never
 // referenced by any product surface. Loads api/generate.js's __testables__
@@ -10,18 +14,23 @@
 // MODES
 //   Dry-run (DEFAULT): makes ZERO provider calls. For each profile it
 //   builds both prompt variants and prints safe comparison metadata only -
-//   label, fingerprint/grounding axes, glossary count, prompt hashes and
+//   for Call 1: fingerprint/grounding axes, glossary count; for Call 2:
+//   which lenses received grounding text; both: prompt hashes and
 //   character counts. Full prompts are never printed by default.
 //
 //   Paid mode: runs paired default-vs-grounded generations against the
-//   real provider. HARD-GATED behind ALL of:
+//   real provider. Call 1 and Call 2 each have their OWN independent
+//   fail-closed gate - satisfying one never satisfies the other. Call 1
+//   is HARD-GATED behind ALL of:
 //     1. the --paid CLI flag,
 //     2. the environment variable C5_ANDRE_AUTHORIZED=YES,
 //     3. a present ANTHROPIC_API_KEY (missing key fails closed),
-//   and, procedurally, Andre's explicit authorization line in the working
-//   session: "Go ahead with C-5 paid test generations." Running paid mode
-//   without that authorization is a process violation even if the
-//   technical gates are satisfied.
+//   and, procedurally, Andre's explicit authorization line: "Go ahead
+//   with C-5 paid test generations." Call 2 (--call2 --paid) is gated the
+//   same way but requires C5_CALL2_ANDRE_AUTHORIZED=YES and Andre's
+//   distinct line: "Go ahead with the Call 2 grounding paid test
+//   generations." Running paid mode without the matching authorization is
+//   a process violation even if the technical gates are satisfied.
 //
 // PAID-MODE OUTPUT: written only to local-evidence/c5/ (gitignored, never
 // committed). Nothing is written to Supabase, nothing is saved as a
@@ -31,14 +40,16 @@
 // REAL PROFILES: pass --profiles <path.json> with an array of profile
 // objects in the exact A0.1 context shape (see --print-schema). Without
 // --profiles, the harness uses clearly-labeled SYNTHETIC fixtures - fine
-// for testing the harness, but synthetic runs do not count as C-5
+// for testing the harness, but synthetic runs do not count as C-5/D158
 // evidence.
 //
 // Run with:
-//   node --experimental-vm-modules scripts/c5-compare-grounding.js                      (dry-run, synthetic)
-//   node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles p.json    (dry-run, real)
-//   node --experimental-vm-modules scripts/c5-compare-grounding.js --print-schema       (show profile JSON shape)
+//   node --experimental-vm-modules scripts/c5-compare-grounding.js                              (Call 1 dry-run, synthetic)
+//   node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles p.json            (Call 1 dry-run, real)
+//   node --experimental-vm-modules scripts/c5-compare-grounding.js --call2 --profiles p.json    (Call 2 dry-run, real)
+//   node --experimental-vm-modules scripts/c5-compare-grounding.js --print-schema               (show profile JSON shape)
 //   C5_ANDRE_AUTHORIZED=YES node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles p.json --paid
+//   C5_CALL2_ANDRE_AUTHORIZED=YES node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles p.json --call2 --paid
 //
 // Tests: scripts/c5-compare-grounding.test.js (run with --experimental-vm-modules).
 
@@ -51,6 +62,14 @@ const crypto = require('crypto');
 
 const MODEL = 'claude-sonnet-5';      // mirrors api/generate.js's server pin
 const MAX_TOKENS_CALL1 = 1500;        // mirrors MAX_TOKENS_BY_CALL[1]
+// D158 (2026-08-03): the harness now also supports comparing Call 2
+// (the five "In the World" lenses) against its staged grounded builder,
+// following the exact same pattern C-5 established for Call 1. Every
+// existing Call 1 function/export keeps its exact name and default
+// behavior for backward compatibility with the existing test suite;
+// Call 2 support is additive, selected via an explicit callType
+// parameter (default 1) or the --call2 CLI flag.
+const MAX_TOKENS_BY_CALL = { 1: MAX_TOKENS_CALL1, 2: 1800 }; // mirrors api/generate.js MAX_TOKENS_BY_CALL
 const EVIDENCE_DIR = path.join(__dirname, '..', 'local-evidence', 'c5');
 
 async function loadTestables() {
@@ -123,14 +142,38 @@ function prepareProfile(profile, testables) {
 }
 
 // Builds the paired comparison for one profile. Pure; no provider calls.
-function buildComparison(profile, testables) {
+// callType defaults to 1 (Call 1, the original C-5 comparison) for exact
+// backward compatibility. callType 2 compares Call 2 (D158) instead -
+// every non-mid axis across all five lens pools, not a single fingerprint.
+function buildComparison(profile, testables, callType = 1) {
   const { ctx, promptCtx } = prepareProfile(profile, testables);
+  if (callType === 2) {
+    const byLens = testables.call2GroundingTextByLens(ctx.axisMap);
+    const call2Ctx = { userName: promptCtx.userName, axisDump: promptCtx.axisDump, archFamily: promptCtx.archFamily, archVariant: promptCtx.archVariant };
+    const defaultPrompt = testables.buildCall2Prompt(call2Ctx);
+    const groundedPrompt = testables.buildGroundedCall2Prompt(call2Ctx, byLens);
+    const groundedLenses = Object.keys(byLens).filter((k) => byLens[k]);
+    return {
+      label: profile.label || '(unlabeled)',
+      callType: 2,
+      groundedLenses,
+      lensAxisCounts: Object.fromEntries(groundedLenses.map((k) => [k, byLens[k].split('\n').filter((l) => !l.startsWith('  ')).length])),
+      defaultHash: sha256(defaultPrompt),
+      groundedHash: sha256(groundedPrompt),
+      defaultChars: defaultPrompt.length,
+      groundedChars: groundedPrompt.length,
+      c4ValidationApplicable: true, // lib/report-output-validation.js's validateCall2Output covers this shape
+      _defaultPrompt: defaultPrompt,   // internal to paid mode; never printed in dry-run
+      _groundedPrompt: groundedPrompt, // internal to paid mode; never printed in dry-run
+    };
+  }
   const groundingText = testables.groundingContextFrom(ctx.axisMap, ctx.fingerprintAxes);
   const defaultPrompt = testables.buildCall1Prompt(promptCtx);
   const groundedPrompt = testables.buildGroundedCall1Prompt(promptCtx, groundingText);
   const glossaryCount = groundingText.split('\n').filter((l) => l.startsWith('- ')).length;
   return {
     label: profile.label || '(unlabeled)',
+    callType: 1,
     fingerprintAxes: ctx.fingerprintAxes.map((f) => f.axis),
     groundingAxes: ctx.fingerprintAxes.filter((f) => groundingText.includes(testables.GROUNDING_DATA[f.axis].label)).map((f) => f.axis),
     glossaryCount,
@@ -150,19 +193,28 @@ function dryRunMetadata(comparison) {
 }
 
 // Paid-mode gate: every check fails closed, loudly naming the missing gate.
-function assertPaidAuthorized({ paidFlag, env }) {
+// callType defaults to 1 so the existing Call 1 gate (env var, message
+// text) is byte-identical to before D158. callType 2 requires its own,
+// independent env var and its own distinct authorization line, so
+// leftover Call 1 authorization in the environment can never accidentally
+// satisfy a Call 2 paid run, or vice versa.
+function assertPaidAuthorized({ paidFlag, env, callType = 1 }) {
+  const AUTH_LINE = callType === 2
+    ? 'Go ahead with the Call 2 grounding paid test generations.'
+    : 'Go ahead with C-5 paid test generations.';
+  const AUTH_ENV_VAR = callType === 2 ? 'C5_CALL2_ANDRE_AUTHORIZED' : 'C5_ANDRE_AUTHORIZED';
   if (!paidFlag) {
-    throw new Error('Paid mode requires the explicit --paid flag. Paid C-5 generations require Andre\'s explicit authorization: "Go ahead with C-5 paid test generations."');
+    throw new Error(`Paid mode requires the explicit --paid flag. Paid generations require Andre's explicit authorization: "${AUTH_LINE}"`);
   }
-  if ((env.C5_ANDRE_AUTHORIZED || '') !== 'YES') {
-    throw new Error('Paid mode requires C5_ANDRE_AUTHORIZED=YES in the environment. Paid C-5 generations require Andre\'s explicit authorization: "Go ahead with C-5 paid test generations."');
+  if ((env[AUTH_ENV_VAR] || '') !== 'YES') {
+    throw new Error(`Paid mode requires ${AUTH_ENV_VAR}=YES in the environment. Paid generations require Andre's explicit authorization: "${AUTH_LINE}"`);
   }
   if (!env.ANTHROPIC_API_KEY) {
     throw new Error('Paid mode fails closed: ANTHROPIC_API_KEY is not set.');
   }
 }
 
-async function callProvider(prompt, apiKey, fetchImpl) {
+async function callProvider(prompt, apiKey, fetchImpl, maxTokens = MAX_TOKENS_CALL1) {
   const res = await fetchImpl('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -170,9 +222,9 @@ async function callProvider(prompt, apiKey, fetchImpl) {
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
     },
-    // Same server-owned parameters as api/generate.js Call 1: pinned model,
-    // same max_tokens, thinking disabled, no sampling parameters.
-    body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS_CALL1, thinking: { type: 'disabled' }, messages: [{ role: 'user', content: prompt }] }),
+    // Same server-owned parameters as the matching api/generate.js call:
+    // pinned model, matching max_tokens, thinking disabled, no sampling parameters.
+    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, thinking: { type: 'disabled' }, messages: [{ role: 'user', content: prompt }] }),
   });
   if (!res.ok) throw new Error(`provider error: HTTP ${res.status}`);
   const data = await res.json();
@@ -211,19 +263,21 @@ function parseCall1Output(raw) {
   catch (e) { return { parsed: null, parseError: e.message }; }
 }
 
-async function runPaid(profiles, testables, { env = process.env, fetchImpl = fetch, paidFlag = false } = {}) {
-  assertPaidAuthorized({ paidFlag, env });
-  const { validateCall1Output } = require('../lib/report-output-validation.js');
+async function runPaid(profiles, testables, { env = process.env, fetchImpl = fetch, paidFlag = false, callType = 1 } = {}) {
+  assertPaidAuthorized({ paidFlag, env, callType });
+  const { validateCall1Output, validateCall2Output } = require('../lib/report-output-validation.js');
+  const validate = callType === 2 ? validateCall2Output : validateCall1Output;
+  const maxTokens = MAX_TOKENS_BY_CALL[callType];
   fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const results = [];
   for (const profile of profiles) {
-    const cmp = buildComparison(profile, testables);
+    const cmp = buildComparison(profile, testables, callType);
     const record = { ...dryRunMetadata(cmp), variants: {} };
     for (const [variant, prompt] of [['default', cmp._defaultPrompt], ['grounded', cmp._groundedPrompt]]) {
-      const raw = await callProvider(prompt, env.ANTHROPIC_API_KEY, fetchImpl);
+      const raw = await callProvider(prompt, env.ANTHROPIC_API_KEY, fetchImpl, maxTokens);
       const { parsed, parseError } = parseCall1Output(raw);
-      const validation = parsed ? validateCall1Output(parsed) : null;
+      const validation = parsed ? validate(parsed) : null;
       record.variants[variant] = {
         parseError,
         validation: validation ? {
@@ -234,8 +288,8 @@ async function runPaid(profiles, testables, { env = process.env, fetchImpl = fet
       };
       // Full prose goes ONLY into the local evidence file, never stdout.
       const fileSafeLabel = (profile.label || 'unlabeled').replace(/[^A-Za-z0-9_-]+/g, '_').slice(0, 60);
-      const outPath = path.join(EVIDENCE_DIR, `${stamp}_${fileSafeLabel}_${variant}.json`);
-      fs.writeFileSync(outPath, JSON.stringify({ label: profile.label, variant, promptHash: sha256(prompt), raw, parsed, validation }, null, 2), 'utf8');
+      const outPath = path.join(EVIDENCE_DIR, `${stamp}_call${callType}_${fileSafeLabel}_${variant}.json`);
+      fs.writeFileSync(outPath, JSON.stringify({ label: profile.label, callType, variant, promptHash: sha256(prompt), raw, parsed, validation }, null, 2), 'utf8');
       record.variants[variant].evidenceFile = outPath;
     }
     results.push(record);
@@ -250,6 +304,7 @@ async function main() {
     return;
   }
   const testables = await loadTestables();
+  const callType = args.includes('--call2') ? 2 : 1;
 
   let profiles;
   const pIdx = args.indexOf('--profiles');
@@ -259,20 +314,25 @@ async function main() {
     console.log(`[c5] loaded ${profiles.length} profile(s) from ${args[pIdx + 1]}`);
   } else {
     profiles = syntheticProfiles(testables);
-    console.log('[c5] no --profiles given: using SYNTHETIC fixtures (harness test only, NOT C-5 evidence)');
+    console.log('[c5] no --profiles given: using SYNTHETIC fixtures (harness test only, NOT C-5/D158 evidence)');
   }
 
   if (args.includes('--paid')) {
-    const results = await runPaid(profiles, testables, { env: process.env, fetchImpl: fetch, paidFlag: true });
-    console.log('[c5] PAID comparison complete. Evidence written under local-evidence/c5/ (untracked).');
+    const results = await runPaid(profiles, testables, { env: process.env, fetchImpl: fetch, paidFlag: true, callType });
+    console.log(`[c5] PAID call${callType} comparison complete. Evidence written under local-evidence/c5/ (untracked).`);
     console.log(JSON.stringify(results, null, 2));
   } else {
-    console.log('[c5] DRY-RUN (zero provider calls). Metadata only:');
+    console.log(`[c5] DRY-RUN, call${callType} (zero provider calls). Metadata only:`);
     for (const profile of profiles) {
-      console.log(JSON.stringify(dryRunMetadata(buildComparison(profile, testables))));
+      console.log(JSON.stringify(dryRunMetadata(buildComparison(profile, testables, callType))));
     }
-    console.log('[c5] To run paid comparisons, Andre must explicitly authorize with: "Go ahead with C-5 paid test generations."');
-    console.log('[c5] Then: C5_ANDRE_AUTHORIZED=YES node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles <file> --paid');
+    if (callType === 2) {
+      console.log('[c5] To run paid comparisons, Andre must explicitly authorize with: "Go ahead with the Call 2 grounding paid test generations."');
+      console.log('[c5] Then: C5_CALL2_ANDRE_AUTHORIZED=YES node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles <file> --call2 --paid');
+    } else {
+      console.log('[c5] To run paid comparisons, Andre must explicitly authorize with: "Go ahead with C-5 paid test generations."');
+      console.log('[c5] Then: C5_ANDRE_AUTHORIZED=YES node --experimental-vm-modules scripts/c5-compare-grounding.js --profiles <file> --paid');
+    }
   }
 }
 
@@ -283,5 +343,5 @@ if (require.main === module) {
 module.exports = {
   loadTestables, prepareProfile, buildComparison, dryRunMetadata,
   assertPaidAuthorized, runPaid, parseCall1Output, syntheticProfiles,
-  PROFILE_SCHEMA_EXAMPLE, EVIDENCE_DIR,
+  PROFILE_SCHEMA_EXAMPLE, EVIDENCE_DIR, MAX_TOKENS_BY_CALL,
 };

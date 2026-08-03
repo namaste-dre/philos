@@ -197,6 +197,111 @@ async function run() {
     ['default', 'grounded'].forEach((v) => { try { fs.unlinkSync(results[0].variants[v].evidenceFile); } catch (e) { /* already gone */ } });
   }
 
+  // ---- 10. D158: Call 2 comparison mode (2026-08-03) ----
+  // Everything above this point must stay byte-identical to pre-D158
+  // behavior (proven by every test already passing unchanged). This
+  // block proves Call 2 support is genuinely additive and independently
+  // gated, not a weakening of the existing Call 1 gate.
+  {
+    const profile = profiles[0];
+
+    // Dry-run, callType 2: zero provider calls, same as Call 1.
+    const originalFetch = global.fetch;
+    let called = 0;
+    global.fetch = () => { called++; throw new Error('provider must not be called in dry-run'); };
+    let threw = false;
+    let cmp2 = null;
+    try { cmp2 = harness.buildComparison(profile, testables, 2); } catch (e) { threw = true; }
+    global.fetch = originalFetch;
+    ok('call2 dry-run comparison never touches the provider', !threw && called === 0 && cmp2 !== null);
+
+    // Byte-equivalence to the real Call 2 builders for the same context.
+    const { ctx, promptCtx } = harness.prepareProfile(profile, testables);
+    const call2Ctx = { userName: promptCtx.userName, axisDump: promptCtx.axisDump, archFamily: promptCtx.archFamily, archVariant: promptCtx.archVariant };
+    ok('call2 default prompt is byte-equivalent to api/generate.js buildCall2Prompt for the same context',
+      cmp2._defaultPrompt === testables.buildCall2Prompt(call2Ctx));
+    const byLens = testables.call2GroundingTextByLens(ctx.axisMap);
+    ok('call2 grounded prompt is byte-equivalent to the staged D158 builder for the same context',
+      cmp2._groundedPrompt === testables.buildGroundedCall2Prompt(call2Ctx, byLens));
+
+    // Metadata shape: label, callType, which lenses got grounded, hashes, char counts - no prompt text.
+    const meta2 = harness.dryRunMetadata(cmp2);
+    ok('call2 metadata carries callType 2, groundedLenses, hashes, and char counts, no prompt text',
+      meta2.callType === 2 && Array.isArray(meta2.groundedLenses) &&
+      /^[0-9a-f]{64}$/.test(meta2.defaultHash) && /^[0-9a-f]{64}$/.test(meta2.groundedHash) &&
+      meta2.defaultChars > 0 && meta2.groundedChars > 0 && meta2.c4ValidationApplicable === true &&
+      !('_defaultPrompt' in meta2) && !('_groundedPrompt' in meta2), meta2);
+
+    // Default comparison (no callType arg) is still Call 1 - the CLI's
+    // and every existing caller's default behavior is unchanged.
+    const cmpDefault = harness.buildComparison(profile, testables);
+    ok('buildComparison with no callType argument still defaults to Call 1 (unchanged)',
+      cmpDefault.callType === 1 && cmpDefault._defaultPrompt === testables.buildCall1Prompt(promptCtx));
+
+    // Independent gate: Call 2's authorization is genuinely separate from
+    // Call 1's - satisfying one must never satisfy the other.
+    let msg2 = '';
+    try { harness.assertPaidAuthorized({ paidFlag: false, env: {}, callType: 2 }); } catch (e) { msg2 = e.message; }
+    ok('call2 paid mode refuses without --paid, naming the distinct Call 2 authorization line',
+      msg2.includes('--paid') && msg2.includes('Go ahead with the Call 2 grounding paid test generations'));
+
+    msg2 = '';
+    const call1OnlyEnv = { C5_ANDRE_AUTHORIZED: 'YES', ANTHROPIC_API_KEY: 'k' };
+    try { harness.assertPaidAuthorized({ paidFlag: true, env: call1OnlyEnv, callType: 2 }); } catch (e) { msg2 = e.message; }
+    ok('Call 1 authorization (C5_ANDRE_AUTHORIZED) does NOT satisfy the Call 2 gate',
+      msg2.includes('C5_CALL2_ANDRE_AUTHORIZED'));
+
+    let msg1 = '';
+    const call2OnlyEnv = { C5_CALL2_ANDRE_AUTHORIZED: 'YES', ANTHROPIC_API_KEY: 'k' };
+    try { harness.assertPaidAuthorized({ paidFlag: true, env: call2OnlyEnv, callType: 1 }); } catch (e) { msg1 = e.message; }
+    ok('Call 2 authorization (C5_CALL2_ANDRE_AUTHORIZED) does NOT satisfy the Call 1 gate',
+      msg1.includes('C5_ANDRE_AUTHORIZED'));
+
+    const call2FullEnv = { C5_CALL2_ANDRE_AUTHORIZED: 'YES', ANTHROPIC_API_KEY: 'k' };
+    let threwOnFullCall2 = false;
+    try { harness.assertPaidAuthorized({ paidFlag: true, env: call2FullEnv, callType: 2 }); } catch (e) { threwOnFullCall2 = true; }
+    ok('all three Call 2 gates present passes the Call 2 authorization check', !threwOnFullCall2);
+
+    // Mocked paid path for Call 2: correct max_tokens (1800, not 1500),
+    // correct validator (validateCall2Output), evidence isolation intact.
+    const { validateCall2Output } = require('../lib/report-output-validation.js');
+    const LENS_TEXT = 'You tend to notice the shape of a situation before you notice your feelings about it, and that ordering matters to how you respond.';
+    const WORLD = JSON.stringify({ world: [
+      { lens: 'The Self', icon: 'mirror', view: LENS_TEXT, shows_up: LENS_TEXT, prompt: 'What is one thing you are avoiding naming right now?' },
+      { lens: 'Other People', icon: 'people', view: LENS_TEXT, shows_up: LENS_TEXT, prompt: 'Who did you judge too quickly this week?' },
+      { lens: 'Relationships', icon: 'connect', view: LENS_TEXT, shows_up: LENS_TEXT, prompt: 'What have you not said out loud yet?' },
+      { lens: 'Society', icon: 'city', view: LENS_TEXT, shows_up: LENS_TEXT, prompt: 'Where do you feel the pull between fixing and blaming?' },
+      { lens: 'Life and Existence', icon: 'horizon', view: LENS_TEXT, shows_up: LENS_TEXT, prompt: 'What are you building meaning around right now?' },
+    ] });
+    const seen2 = [];
+    const fetchImpl2 = async (url, opts) => {
+      seen2.push(JSON.parse(opts.body));
+      return { ok: true, json: async () => ({ content: [{ text: WORLD }] }) };
+    };
+    const results2 = await harness.runPaid([profile], testables, { env: call2FullEnv, fetchImpl: fetchImpl2, paidFlag: true, callType: 2 });
+    ok('mocked call2 paid run produces paired default/grounded results', results2.length === 1 && results2[0].variants.default && results2[0].variants.grounded);
+    ok('mocked call2 paid run uses max_tokens 1800 (not Call 1\'s 1500)',
+      seen2.length === 2 && seen2.every((b) => b.max_tokens === 1800 && b.model === 'claude-sonnet-5'));
+    ok('mocked call2 paid run validates output with validateCall2Output (a well-formed 5-lens payload passes)',
+      results2[0].variants.default.validation && results2[0].variants.default.validation.ok === true &&
+      results2[0].variants.grounded.validation && results2[0].variants.grounded.validation.ok === true,
+      results2[0].variants);
+    ok('call2 evidence files land under local-evidence/c5 and are call-type-labeled',
+      ['default', 'grounded'].every((v) => results2[0].variants[v].evidenceFile.includes('local-evidence') && results2[0].variants[v].evidenceFile.includes('_call2_')));
+    ['default', 'grounded'].forEach((v) => { try { fs.unlinkSync(results2[0].variants[v].evidenceFile); } catch (e) { /* already gone */ } });
+
+    // Production surfaces: the handler must never reference Call 2's
+    // candidate functions either (mirrors test 7 above for Call 1).
+    const genSource = fs.readFileSync(path.join(__dirname, '..', 'api', 'generate.js'), 'utf8');
+    const handlerSection = genSource.slice(
+      genSource.indexOf('export default async function handler'),
+      genSource.indexOf('export const __testables__'));
+    ok('production handler never references the D158 Call 2 grounding candidates',
+      !handlerSection.includes('call2GroundingContextFrom') && !handlerSection.includes('buildGroundedCall2Prompt') &&
+      !handlerSection.includes('GROUNDED_CALL2_ENABLED'));
+    ok('api/generate.js does not reference the harness (unchanged)', !genSource.includes('c5-compare'));
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail > 0) process.exitCode = 1;
 }
