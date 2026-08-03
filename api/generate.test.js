@@ -502,10 +502,17 @@ async function run() {
     await handler(req, res);
     ok('call 2 succeeds end-to-end (mocked)', res.statusCode === 200 && !!res.body?.content, res.body);
     ok('call 2 uses server-pinned tokens (1800)', captured?.max_tokens === 1800);
-    // Call 2 grounding is an explicit open ruling, deliberately not taken
-    // by the Call 1 activation - asserted so it cannot drift in silently.
-    ok('call 2 is NOT grounded (scope boundary held)',
-      !captured?.messages?.[0]?.content.includes('GROUNDING CONTEXT'));
+    // D158 activation (2026-08-03): Call 2 now goes out on the grounded
+    // prompt, carrying real per-lens band evidence, not just the section
+    // header - the same standard held for Call 1's D157 activation.
+    ok('call 2 is sent on the grounded prompt',
+      captured?.messages?.[0]?.content.includes('GROUNDING CONTEXT (reviewed interpretations'));
+    ok('call 2 grounding carries real band evidence, not an empty section',
+      captured?.messages?.[0]?.content.includes("This person's position:"));
+    ok('call 2 grounded prompt still carries the anti-echo rule',
+      captured?.messages?.[0]?.content.includes('evidence, not prose inventory'));
+    ok('call 2 grounded prompt still carries the cross-lens anti-repetition rule',
+      captured?.messages?.[0]?.content.includes('do not let two lenses read as restatements of each other'));
   }
 
   // ---- No live QA generation ----
@@ -564,7 +571,7 @@ async function run() {
       handlerSection.length > 0 &&
       handlerSection.includes('buildGroundedCall1Prompt') && handlerSection.includes('groundingContextFrom') &&
       handlerSection.includes('GROUNDED_PROMPTS_ENABLED'));
-    ok('grounding is gated to Call 1 only (Call 2 scope boundary in source)',
+    ok('Call 1 grounding gate checks GROUNDED_PROMPTS_ENABLED and callType 1 explicitly in source',
       handlerSection.includes("GROUNDED_PROMPTS_ENABLED && callType === 1"));
     ok('PROMPT_BUILDERS still selects the original builders (rollback path intact)',
       genSource.includes('const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };'));
@@ -735,23 +742,25 @@ async function run() {
     }
   }
 
-  // ---- D158 staged Call 2 grounding (2026-08-03) ----
-  // Per-lens grounding selector and staged prompt builder are a candidate
-  // path exercised only here; the handler must never reference them, and
-  // the existing "call 2 is NOT grounded" end-to-end test above must stay
-  // true unchanged - this block never touches the handler.
+  // ---- D158 Call 2 grounding - ACTIVATED (2026-08-03) ----
+  // Per-lens grounding selector and prompt builder are now live in the
+  // handler for real generations. Andre ruled GO after a paid comparison
+  // (re-run post-D159's JSON-escaping fix) found grounded Call 2 output
+  // consistently better than default on the tested sample.
   {
     const genSource = fs.readFileSync(path.join(__dirname, 'generate.js'), 'utf8');
     const handlerSection = genSource.slice(
       genSource.indexOf('export default async function handler'),
       genSource.indexOf('export const __testables__'));
 
-    ok('GROUNDED_CALL2_ENABLED is false (staged, not activated)', t.GROUNDED_CALL2_ENABLED === false);
-    ok('the handler never references the Call 2 grounding candidates (still fully inert)',
-      !handlerSection.includes('call2GroundingContextFrom') &&
-      !handlerSection.includes('call2GroundingTextByLens') &&
-      !handlerSection.includes('buildGroundedCall2Prompt') &&
-      !handlerSection.includes('GROUNDED_CALL2_ENABLED'));
+    // Activation gate (2026-08-03): these assertions replaced the staging
+    // gate that pinned the opposite state, mirroring D157's exact pattern
+    // for Call 1's own activation.
+    ok('GROUNDED_CALL2_ENABLED is true (Call 2 grounding activated)', t.GROUNDED_CALL2_ENABLED === true);
+    ok('the request handler routes callType 2 through the grounded Call 2 builder and selector',
+      handlerSection.includes('call2GroundingTextByLens') &&
+      handlerSection.includes('buildGroundedCall2Prompt') &&
+      handlerSection.includes('GROUNDED_CALL2_ENABLED'));
     ok('PROMPT_BUILDERS still selects only the original builders (Call 2 rollback path intact)',
       genSource.includes('const PROMPT_BUILDERS = { 1: buildCall1Prompt, 2: buildCall2Prompt };'));
 
@@ -868,6 +877,27 @@ async function run() {
       const base = t.buildCall2Prompt(CALL2_PROMPT_CTX);
       ok('an all-midpoint profile returns the default Call 2 prompt byte-identically (nothing to ground)',
         grounded === base);
+    }
+    {
+      // Client prompt-hash mirror parity, mirroring the exact Call 1
+      // technique: build the server's section with all five lenses
+      // sentinel-marked, collapse the whole dynamic blocks region (which
+      // varies in shape per person - 1 to 5 lens subheaders) to a single
+      // {grounding} placeholder, and require the client to carry it
+      // verbatim.
+      const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+      const allLenses = { self: '<<X>>', otherPeople: '<<X>>', relationships: '<<X>>', society: '<<X>>', lifeAndExistence: '<<X>>' };
+      const sampled = t.buildGroundedCall2Prompt(CALL2_PROMPT_CTX, allLenses);
+      const headerStart = sampled.indexOf('GROUNDING CONTEXT (');
+      const blocksStart = sampled.indexOf('):\n', headerStart) + 3;
+      const rulesStart = sampled.indexOf('\n\nGROUNDING RULES:');
+      const header = sampled.slice(headerStart, blocksStart);
+      const tail = sampled.slice(rulesStart, sampled.indexOf('Write 5 lenses'));
+      const serverSection = header + '{grounding}' + tail;
+      ok('client prompt-hash mirror carries the Call 2 grounding section byte-identically (with {grounding} placeholder)',
+        serverSection.length > 200 && html.includes(serverSection));
+      ok('client mirror carries the {grounding} placeholder, never real band evidence',
+        html.includes('{grounding}') && !html.includes("This person's position:"));
     }
   }
 

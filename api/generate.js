@@ -785,13 +785,17 @@ Return ONLY valid JSON, with no markdown fences:
 {"world":[{"lens":"The Self","icon":"mirror","view":"2-3 sentences on how this person sees their own identity, agency, and inner life. Draw from self, identity, determinism, responsibility scores. What does it feel like to be them on the inside?","shows_up":"2-3 sentences on how this self-view is likely to show up in how you move through the world.","prompt":"One reflective question they can sit with this week. Concrete, not abstract. No em dashes."},{"lens":"Other People","icon":"people","view":"2-3 sentences on how this person sees other people. Draw from human_nature, moral_scope, freewill_practice, responsibility, social_ontology.","shows_up":"2-3 sentences on how this plays out. What are they good at in relationships? What is hard?","prompt":"One reflective question about a specific relationship or interaction. Honest and concrete."},{"lens":"Relationships","icon":"connect","view":"2-3 sentences on how this person approaches connection and belonging. Draw from social_ontology, identity, moral_authority, epistemic_humility, society.","shows_up":"2-3 sentences on how this tends to look in practice.","prompt":"One reflective question about what they might be asking from others that they have not said out loud."},{"lens":"Society","icon":"city","view":"2-3 sentences on how this person sees society and their place in the collective. Draw from society, politics, justice, authority, economics, responsibility.","shows_up":"2-3 sentences on how this tends to shape their day to day.","prompt":"One reflective question about their actual relationship to the collective right now."},{"lens":"Life and Existence","icon":"horizon","view":"2-3 sentences on how this person sees existence itself. Draw from meaning, meaning_practice, teleology, religion, uncertainty, progress.","shows_up":"2-3 sentences on how this is likely to show up in the texture of their days.","prompt":"One honest question about where they are right now in their relationship with their own existence. No em dashes."}]}`;
 }
 
-// -- D158 staged Call 2 five-band grounding selector + prompt path --
+// -- D158/D159 Call 2 five-band grounding selector + prompt path --
 // Andre ruled 2026-08-03 (D158) that Call 2 should also receive five-band
 // grounding, conditional on clearing the same real-evidence bar Call 1
-// cleared at D157/C-5 - not a blind activation. Staged here exactly like
-// C-2 staged Call 1: by-construction inert, never referenced by the
-// handler, GROUNDED_CALL2_ENABLED left false. Activation requires its own
-// Andre-gated paid comparison, same as Call 1's C-5 round.
+// cleared at D157/C-5 - not a blind activation. Staged first exactly like
+// C-2 staged Call 1: by-construction inert, GROUNDED_CALL2_ENABLED left
+// false. A first paid comparison found both default-arm outputs failing
+// to parse (a real, separate JSON-escaping defect, fixed at the prompt
+// source as D159, `da1d157`); a second paid comparison, re-run after that
+// fix, produced a fair result: grounded won on this sample (more specific,
+// better calibrated to actual score intensity, no factual/framing errors
+// in either arm). Andre ruled GO. ACTIVATED 2026-08-03, same session.
 //
 // Design, per the working session that produced D158: each of the five
 // lenses grounds on its OWN relevant axis pool, not a single shared top-5
@@ -804,7 +808,13 @@ Return ONLY valid JSON, with no markdown fences:
 // the corrected map, agreed with Andre before any code was written.
 // `realism` was not assigned to any lens - no strong thematic fit was
 // found, disclosed as a judgment call rather than forced somewhere weak.
-const GROUNDED_CALL2_ENABLED = false;
+//
+// Rollback lever: setting this false restores the default Call 2 prompt
+// byte-exactly (PROMPT_BUILDERS/buildCall2Prompt deliberately untouched),
+// but index.html's prompt-hash mirror must be reverted in the same commit
+// or provenance hashes will disagree - same discipline as D157's Call 1
+// rollback lever.
+const GROUNDED_CALL2_ENABLED = true;
 
 // Per-lens grounding budget. Call 2 grounds up to five separate lens
 // sections (versus Call 1's one), so this is a per-lens cap, not a
@@ -1243,19 +1253,24 @@ export default async function handler(req, res) {
     archVariant:          arch.variant,
   };
 
-  // -- Call 1 runs on the five-band grounded prompt. The grounding
-  // evidence is derived here from the already-validated numeric context
-  // (scores + fingerprint axes) and reviewed registry content only - the
-  // client never sends prompt prose, and no identity data can enter it.
-  // Call 2 stays on its default builder pending its own ruling. --
-  const groundingText = (GROUNDED_PROMPTS_ENABLED && callType === 1)
-    ? groundingContextFrom(ctx.axisMap, ctx.fingerprintAxes)
-    : '';
-
-  // -- Server controls model, params, and message shape entirely --
-  const promptText = groundingText
-    ? buildGroundedCall1Prompt(promptCtx, groundingText)
-    : promptBuilder(promptCtx);
+  // -- Call 1 and Call 2 both run on their five-band grounded prompts
+  // (D157 activated Call 1; D159's paid comparison then showed grounded
+  // Call 2 winning on this sample, and Andre ruled activation). All
+  // grounding evidence is derived here from the already-validated
+  // numeric context (scores + fingerprint axes) and reviewed registry
+  // content only - the client never sends prompt prose, and no identity
+  // data can enter it. --
+  let promptText;
+  if (GROUNDED_PROMPTS_ENABLED && callType === 1) {
+    const groundingText = groundingContextFrom(ctx.axisMap, ctx.fingerprintAxes);
+    promptText = buildGroundedCall1Prompt(promptCtx, groundingText);
+  } else if (GROUNDED_CALL2_ENABLED && callType === 2) {
+    const groundingTextByLens = call2GroundingTextByLens(ctx.axisMap);
+    promptText = buildGroundedCall2Prompt(promptCtx, groundingTextByLens);
+  } else {
+    // -- Server controls model, params, and message shape entirely --
+    promptText = promptBuilder(promptCtx);
+  }
   const messages = [{ role: 'user', content: promptText }];
   const maxTokens = MAX_TOKENS_BY_CALL[callType];
 
@@ -1292,13 +1307,13 @@ export const __testables__ = {
   isValidArchetypeId, deriveDisplayName, getVerifiedUser, checkRateLimit,
   axisDumpFrom, fingerprintSummaryFrom, contradictionSummaryFrom, liminalNoteFrom,
   buildCall1Prompt, buildCall2Prompt, AXIS_IDS, ARCHETYPE_REGISTRY, CONTRADICTION_REGISTRY,
-  // C-2 staged grounding (2026-08-02) - candidate path, test-only, never
-  // referenced by the handler:
+  // C-2 Call 1 five-band grounding - ACTIVATED (D157, 2026-08-02), now
+  // referenced by the handler for real generations:
   GROUNDED_PROMPTS_ENABLED, GROUNDING_MAX_CHARS, GROUNDING_MAX_GLOSSARY,
   GROUNDING_THRESHOLDS, GROUNDING_DATA, GROUNDING_GLOSSARY,
   classifyGroundingBand, groundingContextFrom, buildGroundedCall1Prompt,
-  // D158 staged Call 2 grounding (2026-08-03) - candidate path, test-only,
-  // never referenced by the handler:
+  // D158 Call 2 five-band grounding - ACTIVATED (2026-08-03), now
+  // referenced by the handler for real generations:
   GROUNDED_CALL2_ENABLED, CALL2_GROUNDING_MAX_CHARS, CALL2_LENS_AXES, CALL2_LENS_LABELS,
   call2GroundingContextFrom, call2GroundingTextByLens, buildGroundedCall2Prompt,
 };

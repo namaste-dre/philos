@@ -290,15 +290,16 @@ async function run() {
       ['default', 'grounded'].every((v) => results2[0].variants[v].evidenceFile.includes('local-evidence') && results2[0].variants[v].evidenceFile.includes('_call2_')));
     ['default', 'grounded'].forEach((v) => { try { fs.unlinkSync(results2[0].variants[v].evidenceFile); } catch (e) { /* already gone */ } });
 
-    // Production surfaces: the handler must never reference Call 2's
-    // candidate functions either (mirrors test 7 above for Call 1).
+    // Production surfaces: D158 Call 2 grounding is now activated, so the
+    // handler DOES reference it (mirrors test 7's Call 1 activation state
+    // above) - the harness script itself must still never be referenced.
     const genSource = fs.readFileSync(path.join(__dirname, '..', 'api', 'generate.js'), 'utf8');
     const handlerSection = genSource.slice(
       genSource.indexOf('export default async function handler'),
       genSource.indexOf('export const __testables__'));
-    ok('production handler never references the D158 Call 2 grounding candidates',
-      !handlerSection.includes('call2GroundingContextFrom') && !handlerSection.includes('buildGroundedCall2Prompt') &&
-      !handlerSection.includes('GROUNDED_CALL2_ENABLED'));
+    ok('production handler routes callType 2 through the grounded Call 2 builder (D158 activated)',
+      handlerSection.includes('call2GroundingTextByLens') && handlerSection.includes('buildGroundedCall2Prompt') &&
+      handlerSection.includes('GROUNDED_CALL2_ENABLED'));
     ok('api/generate.js does not reference the harness (unchanged)', !genSource.includes('c5-compare'));
   }
 
